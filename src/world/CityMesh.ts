@@ -101,7 +101,7 @@ export function buildCityMesh(owner: Owner, capital: boolean): CityVisual {
   let y0 = 0.35;
 
   switch (owner) {
-    case 'wei': {
+    case 'cao': {
       // 厚重城牆、軍營、鍛造工坊
       g.add(walls(3.8, 1.2, 0.55, 0x8d8f96, y0));
       const keep = box(1.6, 1.4, 1.6, 0x6d717c, 0, y0, -0.2);
@@ -120,7 +120,7 @@ export function buildCityMesh(owner: Owner, capital: boolean): CityVisual {
       g.add(ember);
       break;
     }
-    case 'shu': {
+    case 'liu': {
       // 山城、劍閣、靈峰
       const hill = new THREE.Mesh(new THREE.CylinderGeometry(1.9, 2.8, 1.2, 8), mat(0x6f8a55));
       hill.position.y = y0 + 0.6;
@@ -147,7 +147,7 @@ export function buildCityMesh(owner: Owner, capital: boolean): CityVisual {
       g.add(peak);
       break;
     }
-    case 'wu': {
+    case 'sun': {
       // 水城、碼頭、商會
       const water = new THREE.Mesh(new THREE.CircleGeometry(1.6, 16), mat(0x3f8fc0, { flat: false }));
       water.rotation.x = -Math.PI / 2;
@@ -175,8 +175,8 @@ export function buildCityMesh(owner: Owner, capital: boolean): CityVisual {
       }
       break;
     }
-    case 'jin': {
-      // 陣法塔、觀星台、陰陽建築
+    case 'dong': {
+      // 西涼：黑石要塞、魔焰高塔
       g.add(walls(3.4, 0.9, 0.38, 0x6e6578, y0));
       const yin = new THREE.Mesh(new THREE.CircleGeometry(1.1, 24, 0, Math.PI), mat(0x1c1c22, { flat: false }));
       const yang = new THREE.Mesh(new THREE.CircleGeometry(1.1, 24, Math.PI, Math.PI), mat(0xf2f0ea, { flat: false }));

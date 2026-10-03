@@ -12,6 +12,8 @@ export class SceneManager {
   cameraController: CameraController;
   environment: Environment;
   animator = new Animator();
+  /** 遊戲速度倍率（動畫跟著加快） */
+  timeScale = 1;
 
   private timer = new THREE.Timer();
   private updaters: ((dt: number, time: number) => void)[] = [];
@@ -19,7 +21,7 @@ export class SceneManager {
   private pickables: THREE.Object3D[] = [];
   private downPos = { x: 0, y: 0 };
   onPick: ((obj: THREE.Object3D | null) => void) | null = null;
-  onHover: ((obj: THREE.Object3D | null) => void) | null = null;
+  onHover: ((obj: THREE.Object3D | null, e: PointerEvent) => void) | null = null;
 
   constructor(container: HTMLElement) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -53,7 +55,7 @@ export class SceneManager {
       if (e.buttons) return;
       const hit = this.pick(e);
       this.renderer.domElement.style.cursor = hit ? 'pointer' : 'default';
-      this.onHover?.(hit);
+      this.onHover?.(hit, e);
     });
   }
 
@@ -82,7 +84,7 @@ export class SceneManager {
     this.renderer.setAnimationLoop((timestamp) => {
       this.timer.update(timestamp);
       const dt = Math.min(this.timer.getDelta(), 0.1);
-      this.animator.update(dt);
+      this.animator.update(dt * this.timeScale);
       for (const u of this.updaters) u(dt, this.animator.time);
       this.environment.update(dt);
       this.cameraController.update(dt);

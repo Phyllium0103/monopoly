@@ -1,10 +1,9 @@
 import * as THREE from 'three';
 import type { Vec2 } from '../game/types';
-import type { MapGraph } from './MapGraph';
-import { MOUNTAIN_RANGES, YANGTZE, YELLOW_RIVER } from './MapData';
+import { MOUNTAIN_RANGES, YANGTZE, YELLOW_RIVER } from '../data/board';
 
-const W = 140;
-const D = 120;
+const W = 160;
+const D = 130;
 const CENTER_Z = 4;
 
 function segDist(px: number, pz: number, a: Vec2, b: Vec2): number {
@@ -29,7 +28,7 @@ function noise(x: number, z: number): number {
 }
 
 function seaEdge(z: number) {
-  return 47 + Math.sin(z * 0.12) * 3 + Math.sin(z * 0.31) * 1.2;
+  return 60 + Math.sin(z * 0.12) * 3 + Math.sin(z * 0.31) * 1.2;
 }
 
 /** 平滑曲線帶狀幾何（河流、道路共用） */
@@ -62,9 +61,9 @@ export class Terrain {
   private edgeSegs: [Vec2, Vec2][];
   private water: THREE.MeshStandardMaterial[] = [];
 
-  constructor(private map: MapGraph) {
-    this.nodePoints = [...map.nodes.values()].map((n) => n.pos);
-    this.edgeSegs = map.edges.map((e) => [map.node(e.a).pos, map.node(e.b).pos]);
+  constructor(points: Vec2[], segments: [Vec2, Vec2][]) {
+    this.nodePoints = points;
+    this.edgeSegs = segments;
     this.buildGround();
     this.buildSea();
     this.buildRivers();
@@ -81,7 +80,7 @@ export class Terrain {
   }
 
   heightAt(x: number, z: number): number {
-    let h = noise(x, z) * 0.35;
+    let h = noise(x, z) * 0.26;
     // 城池與道路附近整平
     let nodeD = Infinity;
     for (const p of this.nodePoints) nodeD = Math.min(nodeD, Math.hypot(x - p.x, z - p.z));
@@ -117,7 +116,7 @@ export class Terrain {
       tmp.copy(grass).lerp(loess, north * 0.8).lerp(jungle, south);
       const n = noise(x * 2.3, z * 2.1) * 0.05;
       tmp.offsetHSL(0, 0, n);
-      if (h < -0.15) tmp.lerp(sand, 0.6);
+      if (h < -0.4) tmp.lerp(sand, 0.6);
       const roadD = this.nearRoad(x, z);
       if (roadD < 1.6) tmp.lerp(new THREE.Color(0xb9a37a), (1 - roadD / 1.6) * 0.25);
       colors.push(tmp.r, tmp.g, tmp.b);
@@ -203,8 +202,8 @@ export class Terrain {
     const color = new THREE.Color();
     let n = 0;
     for (let tries = 0; n < count && tries < count * 10; tries++) {
-      const x = Math.random() * 110 - 58;
-      const z = Math.random() * 95 - 44;
+      const x = Math.random() * 130 - 62;
+      const z = Math.random() * 110 - 52;
       if (x > seaEdge(z) - 4) continue;
       if (this.nearRoad(x, z) < 2.2) continue;
       if (polyDist(x, z, YANGTZE) < 2.5 || polyDist(x, z, YELLOW_RIVER) < 2.5) continue;
@@ -226,23 +225,7 @@ export class Terrain {
 
   private buildRoads() {
     const roadMat = new THREE.MeshStandardMaterial({ color: 0xcdb48a, roughness: 1 });
-    const ferryMat = new THREE.MeshBasicMaterial({ color: 0xe8f6ff, transparent: true, opacity: 0.55 });
-    for (const e of this.map.edges) {
-      const a = this.map.node(e.a).pos;
-      const b = this.map.node(e.b).pos;
-      if (e.water) {
-        // 水路：沿長江的虛線航道
-        const len = Math.hypot(b.x - a.x, b.z - a.z);
-        const dashes = Math.floor(len / 1.6);
-        for (let i = 0; i < dashes; i += 2) {
-          const t0 = i / dashes;
-          const t1 = (i + 1) / dashes;
-          const pts = [t0, t1].map((t) => new THREE.Vector3(a.x + (b.x - a.x) * t, 0, a.z + (b.z - a.z) * t));
-          const mesh = new THREE.Mesh(ribbon(pts, 0.35, () => 0.12), ferryMat);
-          this.group.add(mesh);
-        }
-        continue;
-      }
+    for (const [a, b] of this.edgeSegs) {
       const len = Math.hypot(b.x - a.x, b.z - a.z);
       const steps = Math.max(2, Math.ceil(len / 0.8));
       const pts: THREE.Vector3[] = [];
@@ -251,7 +234,7 @@ export class Terrain {
         pts.push(new THREE.Vector3(a.x + (b.x - a.x) * t, 0, a.z + (b.z - a.z) * t));
       }
       const mesh = new THREE.Mesh(
-        ribbon(pts, 0.75, (p) => Math.max(this.heightAt(p.x, p.z), 0.05) + 0.06),
+        ribbon(pts, 1.1, (p) => Math.max(this.heightAt(p.x, p.z), 0.05) + 0.06),
         roadMat,
       );
       mesh.receiveShadow = true;

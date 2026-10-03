@@ -1,18 +1,25 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-import type { Character } from '../game/types';
-import { FACTIONS } from '../faction/Faction';
+import type { LordId } from '../game/types';
+import { LORDS } from '../faction/Faction';
+
+/** 紙片人外觀 */
+export interface Figure {
+  id: string;
+  name: string;
+  lord: LordId;
+  role: '主公' | '武將' | '軍師' | '修士';
+}
 import type { Animator } from '../scene/Animator';
 import { easeInOut } from '../scene/Animator';
 
 /** 以 Canvas 畫出紙片人立繪 */
-function drawFigure(c: Character): HTMLCanvasElement {
+function drawFigure(c: Figure): HTMLCanvasElement {
   const cv = document.createElement('canvas');
   cv.width = 128;
   cv.height = 192;
   const ctx = cv.getContext('2d')!;
-  const f = FACTIONS[c.faction];
-  const robe = f.css;
+  const robe = LORDS[c.lord].css;
 
   ctx.save();
   // 紙片白邊
@@ -182,14 +189,14 @@ export class CharacterSprite {
   private phase = Math.random() * Math.PI * 2;
   selected = false;
 
-  constructor(public character: Character) {
+  constructor(public character: Figure) {
     const tex = new THREE.CanvasTexture(drawFigure(character));
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = 4;
     this.sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, alphaTest: 0.1 }));
     this.sprite.center.set(0.5, 0);
     this.sprite.scale.set(2, 3, 1);
-    this.sprite.userData = { pick: true, heroId: character.id };
+    this.sprite.userData = { pick: true, lordId: character.lord };
     this.group.add(this.sprite);
 
     this.shadow = new THREE.Mesh(
@@ -211,7 +218,7 @@ export class CharacterSprite {
 
     this.label = document.createElement('div');
     this.label.className = 'hero-label';
-    this.label.style.borderColor = FACTIONS[character.faction].css;
+    this.label.style.borderColor = LORDS[character.lord].css;
     this.label.textContent = character.name;
     const labelObj = new CSS2DObject(this.label);
     labelObj.position.set(0, 3.3, 0);

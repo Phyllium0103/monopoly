@@ -1,54 +1,38 @@
-import type { City, GameState, ResourceKey } from '../game/types';
-import { FACTIONS, FACTION_IDS, ownerCss, ownerName } from '../faction/Faction';
-import { heroPower, nextThreshold, realmName, REALM_THRESHOLDS, troopCapacity } from '../character/Character';
-import { RESOURCE_ICONS, RESOURCE_NAMES, cityIncome, formatGain } from '../systems/EconomySystem';
-import { discipleCount, disciplePower } from '../systems/RecruitmentSystem';
-import { citiesOf, heroesOf } from '../game/GameState';
-import { REALMS } from '../character/Character';
+import type { GameState } from '../game/types';
+import { LORDS } from '../faction/Faction';
+import { citiesOf, generalsOf } from '../game/GameState';
+import { fmtStones } from '../game/Currency';
 
 export interface ActionButton {
   label: string;
   sub?: string;
-  title?: string;
+  kind?: 'primary' | 'danger' | 'free';
   disabled?: boolean;
-  kind?: 'primary' | 'free' | 'danger';
   onClick: () => void;
 }
 
-export interface ActionGroup {
-  title: string;
-  buttons: ActionButton[];
-}
-
-const SPECIALTY: Record<string, string> = { food: '糧倉', wood: '林場', iron: '礦山', qi: '靈脈', trade: '商埠' };
 const DICE = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
 export class GameUI {
+  private hud: HTMLDivElement;
   private top: HTMLDivElement;
-  private heroes: HTMLDivElement;
   private actions: HTMLDivElement;
-  private cityPanel: HTMLDivElement;
+  private info: HTMLDivElement;
   private logEl: HTMLDivElement;
   private toastEl: HTMLDivElement;
   private tooltip: HTMLDivElement;
   private dice: HTMLDivElement;
-  private hud: HTMLDivElement;
-  onEndTurn: (() => void) | null = null;
-  onSelectHero: ((id: string) => void) | null = null;
+  speed = 1;
+  onSpeed: ((s: number) => void) | null = null;
 
-  constructor(private root: HTMLElement) {
+  constructor(root: HTMLElement) {
     this.hud = document.createElement('div');
     this.hud.className = 'hud hidden';
     this.hud.innerHTML = `
       <div class="top-bar"></div>
-      <div class="left-column">
-        <div class="log-panel"><div class="log-title">天下紀事</div><div class="log-list"></div></div>
-        <div class="hero-cards"></div>
-      </div>
-      <div class="city-panel hidden"></div>
-      <div class="bottom-panel">
-        <div class="action-panel"></div>
-      </div>
+      <div class="log-panel"><div class="log-title">天下紀事</div><div class="log-list"></div></div>
+      <div class="info-panel hidden"></div>
+      <div class="bottom-panel"><div class="action-panel"></div></div>
       <div class="toast"></div>
       <div class="dice hidden"></div>
       <div class="tooltip hidden"></div>
@@ -56,9 +40,8 @@ export class GameUI {
     root.appendChild(this.hud);
     const q = <T extends HTMLElement>(s: string) => this.hud.querySelector(s) as T;
     this.top = q('.top-bar');
-    this.heroes = q('.hero-cards');
     this.actions = q('.action-panel');
-    this.cityPanel = q('.city-panel');
+    this.info = q('.info-panel');
     this.logEl = q('.log-list');
     this.toastEl = q('.toast');
     this.tooltip = q('.tooltip');
@@ -75,110 +58,63 @@ export class GameUI {
 
   reset() {
     this.logEl.innerHTML = '';
-    this.cityPanel.classList.add('hidden');
-  }
-
-  setBusy(busy: boolean) {
-    this.hud.classList.toggle('busy', busy);
+    this.info.classList.add('hidden');
   }
 
   renderTop(state: GameState) {
-    const f = FACTIONS[state.player];
-    const fs = state.factions[state.player];
-    const res = (Object.keys(RESOURCE_NAMES) as ResourceKey[])
-      .map((k) => `<div class="res" title="${RESOURCE_NAMES[k]}"><span>${RESOURCE_ICONS[k]}</span><b>${Math.floor(fs.resources[k])}</b><small>${RESOURCE_NAMES[k]}</small></div>`)
+    const current = state.order[state.turn];
+    const lords = state.order
+      .map((id) => {
+        const l = state.lords[id];
+        const d = LORDS[id];
+        const status = !l.alive ? '<span class="tag dead">出局</span>' : l.stunned ? `<span class="tag stun">迷魂 ${l.stunned}</span>` : '';
+        const realm = l.expeditions.length ? `<span class="tag realm">🌀${l.expeditions.length}</span>` : '';
+        return `<div class="lord-card ${id === current ? 'current' : ''} ${l.alive ? '' : 'out'} ${l.isPlayer ? 'me' : ''}" style="--fc:${d.css}">
+          <div class="lc-head"><b>${d.name}</b><small>${d.kingdom}${l.isPlayer ? '・你' : ''}</small>${status}${realm}</div>
+          <div class="lc-row">💎 ${fmtStones(l.stones, true)}</div>
+          <div class="lc-row">⚔️ ${l.soldiers} · 🏯 ${citiesOf(state, id).length} · 👥 ${generalsOf(state, id).length}</div>
+        </div>`;
+      })
       .join('');
-    const powers = FACTION_IDS.map(
-      (id) => `<span class="pw ${id === state.player ? 'me' : ''}" style="--fc:${FACTIONS[id].css}">${FACTIONS[id].name} ${citiesOf(state, id).length}城</span>`,
-    ).join('');
-    const tide = state.qiTideTurn === state.turn ? '<span class="tide">🌊 靈氣潮汐</span>' : '';
     this.top.innerHTML = `
-      <div class="faction-badge" style="--fc:${f.css}"><b>${f.name}</b><small>${f.sect}</small></div>
-      <div class="turn">回合 <b>${Math.min(state.turn, state.maxTurns)}</b> / ${state.maxTurns} ${tide}</div>
-      <div class="resources">${res}<div class="res" title="弟子（戰力 ${disciplePower(fs)}）"><span>🧑‍🎓</span><b>${discipleCount(fs)}</b><small>弟子</small></div></div>
-      <div class="powers">${powers}</div>
-      <button class="btn end-turn">結束回合 ⏎</button>`;
-    (this.top.querySelector('.end-turn') as HTMLButtonElement).onclick = () => this.onEndTurn?.();
+      <div class="round">第 <b>${Math.min(state.round, state.maxRounds)}</b> / ${state.maxRounds} 輪</div>
+      <div class="lords">${lords}</div>
+      <div class="speed">${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
+    this.top.querySelectorAll<HTMLButtonElement>('.speed button').forEach((b) => {
+      b.onclick = () => {
+        this.speed = Number(b.dataset.s);
+        this.onSpeed?.(this.speed);
+        this.renderTop(state);
+      };
+    });
   }
 
-  renderHeroes(state: GameState, selectedId: string | null, nodeName: (id: string) => string) {
-    this.heroes.innerHTML = '';
-    for (const h of heroesOf(state, state.player)) {
-      const next = nextThreshold(h.level);
-      const prev = REALM_THRESHOLDS[h.level];
-      const pct = next ? ((h.cultivation - prev) / (next - prev)) * 100 : 100;
-      const status = h.acted ? '已行動' : h.moved ? '已移動' : '可行動';
-      const card = document.createElement('button');
-      card.className = `hero-card ${h.id === selectedId ? 'selected' : ''} ${h.acted ? 'done' : ''}`;
-      card.innerHTML = `
-        <div class="hc-head"><b>${h.name}</b><span class="role">${h.role}</span><span class="realm">${realmName(h.level)}</span><span class="status s-${h.acted ? 'done' : h.moved ? 'moved' : 'ready'}">${status}</span></div>
-        <div class="bar" title="修為 ${h.cultivation}${next ? ` / ${next}` : ''}"><i style="width:${Math.min(100, pct)}%"></i><span>修為 ${h.cultivation}${next ? ` / ${next}` : ''}</span></div>
-        <div class="hc-row">戰力 <b>${heroPower(h)}</b> · 兵 ${h.troops}/${troopCapacity(h)} · 攻${h.attack} 防${h.defense}</div>
-        <div class="hc-row loc">📍 ${nodeName(h.position)} · 忠誠 ${h.loyalty}</div>`;
-      card.onclick = () => this.onSelectHero?.(h.id);
-      this.heroes.appendChild(card);
-    }
-  }
-
-  renderActions(groups: ActionGroup[], hint: string) {
+  renderActions(buttons: ActionButton[], hint: string) {
     this.actions.innerHTML = `<div class="hint">${hint}</div>`;
-    const wrap = document.createElement('div');
-    wrap.className = 'action-groups';
-    for (const g of groups) {
-      const ge = document.createElement('div');
-      ge.className = 'action-group';
-      ge.innerHTML = `<div class="ag-title">${g.title}</div>`;
-      const row = document.createElement('div');
-      row.className = 'ag-buttons';
-      for (const b of g.buttons) {
-        const btn = document.createElement('button');
-        btn.className = `btn action ${b.kind ?? ''}`;
-        btn.disabled = !!b.disabled;
-        btn.title = b.title ?? '';
-        btn.innerHTML = `${b.label}${b.sub ? `<small>${b.sub}</small>` : ''}`;
-        btn.onclick = () => b.onClick();
-        row.appendChild(btn);
-      }
-      ge.appendChild(row);
-      wrap.appendChild(ge);
+    const row = document.createElement('div');
+    row.className = 'action-row';
+    for (const b of buttons) {
+      const btn = document.createElement('button');
+      btn.className = `btn action ${b.kind ?? ''}`;
+      btn.disabled = !!b.disabled;
+      btn.innerHTML = `${b.label}${b.sub ? `<small>${b.sub}</small>` : ''}`;
+      btn.onclick = () => b.onClick();
+      row.appendChild(btn);
     }
-    this.actions.appendChild(wrap);
+    this.actions.appendChild(row);
   }
 
-  renderCity(city: City | null, state: GameState) {
-    if (!city) {
-      this.cityPanel.classList.add('hidden');
-      return;
-    }
-    this.cityPanel.classList.remove('hidden');
-    const mine = city.owner === state.player;
-    const seeGarrison = mine || city.owner === 'neutral' || FACTIONS[state.player].intel;
-    const visitors = state.characters.filter((c) => c.position === city.id);
-    const income = mine ? formatGain(cityIncome(city, state.player)) : '';
-    this.cityPanel.innerHTML = `
-      <div class="cp-head" style="--fc:${ownerCss(city.owner)}">
-        <b>${city.capital ? '★ ' : ''}${city.name}</b><span>${ownerName(city.owner)}</span>
-      </div>
-      <table>
-        <tr><td>人口</td><td>${city.population}</td></tr>
-        <tr><td>城防</td><td>${city.defense}</td></tr>
-        <tr><td>守軍</td><td>${seeGarrison ? city.garrison : '???'}${!mine && city.owner !== 'neutral' && FACTIONS[state.player].intel ? ' <small>(天機洞悉)</small>' : ''}</td></tr>
-        <tr><td>資源</td><td>${city.resources}</td></tr>
-        <tr><td>靈氣</td><td>${city.spiritEnergy}</td></tr>
-        <tr><td>特產</td><td>${SPECIALTY[city.specialty]}</td></tr>
-        ${mine ? `<tr><td>可招弟子</td><td>練氣期 × ${city.recruitable}</td></tr>` : ''}
-      </table>
-      ${mine ? `<div class="cp-income">每回合：${income}</div>` : ''}
-      ${visitors.length ? `<div class="cp-visitors">駐留：${visitors.map((v) => `<span style="color:${FACTIONS[v.faction].css}">${v.name}</span>`).join('、')}</div>` : ''}
-      <div class="cp-realms">境界：${REALMS.join(' → ')}</div>`;
+  renderInfo(html: string | null) {
+    this.info.classList.toggle('hidden', !html);
+    if (html) this.info.innerHTML = html;
   }
 
-  log(msg: string, kind: 'info' | 'good' | 'bad' | 'npc' | 'turn' = 'info') {
+  log(msg: string, kind: 'info' | 'good' | 'bad' | 'ai' | 'turn' = 'info') {
     const li = document.createElement('div');
     li.className = `log-item ${kind}`;
-    li.textContent = msg;
+    li.innerHTML = msg;
     this.logEl.prepend(li);
-    while (this.logEl.children.length > 60) this.logEl.lastChild?.remove();
+    while (this.logEl.children.length > 80) this.logEl.lastChild?.remove();
   }
 
   toast(msg: string) {
@@ -195,32 +131,31 @@ export class GameUI {
     }
     this.tooltip.classList.remove('hidden');
     this.tooltip.innerHTML = text;
-    this.tooltip.style.left = `${x + 14}px`;
+    this.tooltip.style.left = `${Math.min(x + 14, window.innerWidth - 260)}px`;
     this.tooltip.style.top = `${y + 14}px`;
   }
 
   /** 擲骰動畫 */
-  rollDice(value: number): Promise<void> {
+  rollDice(values: number[]): Promise<void> {
+    const flicker = 10;
+    const interval = 60 / this.speed;
     return new Promise((resolve) => {
       this.dice.classList.remove('hidden');
       this.dice.classList.add('rolling');
       let n = 0;
       const timer = setInterval(() => {
-        this.dice.textContent = DICE[Math.floor(Math.random() * 6)];
-        if (++n > 10) {
+        this.dice.textContent = values.map(() => DICE[Math.floor(Math.random() * 6)]).join('');
+        if (++n > flicker) {
           clearInterval(timer);
           this.dice.classList.remove('rolling');
-          this.dice.innerHTML = `${DICE[value - 1]}<small>${value} 步</small>`;
+          const sum = values.reduce((a, b) => a + b, 0);
+          this.dice.innerHTML = `${values.map((v) => DICE[v - 1]).join('')}<small>${sum} 步</small>`;
           setTimeout(() => {
             this.dice.classList.add('hidden');
             resolve();
-          }, 650);
+          }, 650 / this.speed);
         }
-      }, 60);
+      }, interval);
     });
-  }
-
-  get rootEl() {
-    return this.root;
   }
 }

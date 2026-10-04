@@ -162,9 +162,9 @@ const PAGES: Page[] = [
       ])}`,
   },
   {
-    title: '📜 天下大事',
+    title: '📜 九州風雲',
     html: () => `
-      <p>每 ${EVENT_INTERVAL} 輪隨機發生一件天下大事；<b>災難類第 ${DISASTER_AFTER} 輪之後才會出現</b>。持續型事件會顯示在左上角，標註剩餘輪數。</p>
+      <p>每 ${EVENT_INTERVAL} 輪九州掀起一場風雲（隨機事件）；<b>災難類第 ${DISASTER_AFTER} 輪之後才會出現</b>。持續型事件會顯示在左上角，標註剩餘輪數。</p>
       ${(['economy', 'cultivation', 'politics'] as const).map((c) => eventGroup(c)).join('')}
       <hr class="help-divider">
       ${eventGroup('disaster')}`,

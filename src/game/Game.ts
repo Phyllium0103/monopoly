@@ -831,9 +831,9 @@ export class Game {
     this.refresh();
   }
 
-  // ───────────────────────── 天下大事 ─────────────────────────
+  // ───────────────────────── 九州風雲 ─────────────────────────
 
-  /** 新的一輪：持續事件倒數；每 5 輪抽一件天下大事 */
+  /** 新的一輪：持續事件倒數；每 5 輪抽一場九州風雲 */
   private async newRoundEvents() {
     for (const msg of tickWorldEvents(this.state)) this.ui.log(msg, 'info');
     this.world.setEventMarkers(this.state.merchantTile, this.state.banditTiles);
@@ -843,9 +843,9 @@ export class Game {
     const before = new Map(LORD_IDS.map((id) => [id, this.state.lords[id].position]));
     const lines = applyWorldEvent(this.state, def);
     const playerAlive = this.state.lords[this.state.player].alive;
-    this.ui.log(`【天下大事】${def.icon} ${def.name}：${def.desc}`, 'turn');
+    this.ui.log(`【九州風雲】${def.icon} ${def.name}：${def.desc}`, 'turn');
     for (const l of lines) this.ui.log(l, 'info');
-    this.ui.toast(`天下大事・${def.icon} ${def.name}`);
+    this.ui.toast(`九州風雲・${def.icon} ${def.name}`);
 
     if (def.id === 'shuffle') {
       for (const id of LORD_IDS) {
@@ -863,7 +863,7 @@ export class Game {
 
     if (playerAlive) {
       const extra = def.duration ? `\n\n（持續 ${def.duration} 輪）` : '';
-      await this.dialog.message(`天下大事・${def.name}`, `${def.desc}${lines.length ? `\n\n${lines.join('\n')}` : ''}${extra}`, def.icon, def.id === 'auction' ? '參加拍賣' : '知道了');
+      await this.dialog.message(`九州風雲・${def.name}`, `${def.desc}${lines.length ? `\n\n${lines.join('\n')}` : ''}${extra}`, def.icon, def.id === 'auction' ? '參加拍賣' : '知道了');
     }
     if (def.id === 'auction') await this.runAuction();
   }

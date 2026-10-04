@@ -252,7 +252,7 @@ export class World {
       .then(() => this.root.remove(beam));
   }
 
-  /** 天下大事的地圖標記：旅行商人、黃巾賊窩 */
+  /** 九州風雲的地圖標記：旅行商人、黃巾賊窩 */
   setEventMarkers(merchantTile: number | null, banditTiles: number[]) {
     for (const m of this.eventMarkers) {
       m.removeFromParent();

@@ -1,6 +1,6 @@
 import type { Element } from '../game/types';
 
-/** 天下大事帶來的全域修正值，由 EventSystem 每輪重新計算 */
+/** 九州風雲帶來的全域修正值，由 EventSystem 每輪重新計算 */
 export const WORLD = {
   /** 修為獲得倍率（靈力爆發） */
   expMult: 1,

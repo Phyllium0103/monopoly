@@ -175,7 +175,7 @@ export interface GameState {
   tiles: Tile[];
   over: boolean;
   uid: number;
-  /** 進行中的天下大事 */
+  /** 進行中的九州風雲 */
   events: ActiveEvent[];
   /** 本局已發生過的事件 */
   usedEvents: string[];

@@ -24,7 +24,7 @@ export interface WorldEventDef {
   duration?: number;
 }
 
-/** 每 5 輪抽一次的天下大事 */
+/** 每 5 輪抽一次的九州風雲 */
 export const EVENT_INTERVAL = 5;
 /** 災難類事件第 20 輪之後才會出現 */
 export const DISASTER_AFTER = 20;

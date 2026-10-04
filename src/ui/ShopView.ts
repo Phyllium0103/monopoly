@@ -69,5 +69,6 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
       render();
     },
     true,
+    () => undefined,
   );
 }

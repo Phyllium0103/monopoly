@@ -22,11 +22,19 @@ export interface SliderOptions {
 /** 通用彈窗：所有需要玩家決定的流程都透過這裡 */
 export class Dialog {
   private el: HTMLDivElement;
+  /** 按 Esc 時的動作；必須做出選擇的視窗為 null */
+  private onEsc: (() => void) | null = null;
 
   constructor(root: HTMLElement) {
     this.el = document.createElement('div');
     this.el.className = 'dialog-backdrop hidden';
     root.appendChild(this.el);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isOpen && this.onEsc) {
+        e.preventDefault();
+        this.onEsc();
+      }
+    });
   }
 
   get isOpen() {
@@ -44,6 +52,7 @@ export class Dialog {
   }
 
   close() {
+    this.onEsc = null;
     this.el.classList.add('hidden');
     this.el.innerHTML = '';
   }
@@ -73,6 +82,10 @@ export class Dialog {
         );
       card.appendChild(list);
       if (cancel) {
+        this.onEsc = () => {
+          this.close();
+          resolve(null);
+        };
         const row = document.createElement('div');
         row.className = 'dialog-buttons';
         const b = document.createElement('button');
@@ -117,6 +130,10 @@ export class Dialog {
       cancel.className = 'btn';
       cancel.textContent = '取消';
       cancel.onclick = () => {
+        this.close();
+        resolve(null);
+      };
+      this.onEsc = () => {
         this.close();
         resolve(null);
       };
@@ -187,6 +204,10 @@ export class Dialog {
         this.close();
         resolve(null);
       };
+      this.onEsc = () => {
+        this.close();
+        resolve(null);
+      };
       ok.onclick = () => {
         this.close();
         resolve(value);
@@ -209,6 +230,7 @@ export class Dialog {
         this.close();
         resolve();
       };
+      this.onEsc = () => b.click();
       row.appendChild(b);
       card.appendChild(row);
     });
@@ -233,13 +255,14 @@ export class Dialog {
         this.close();
         resolve(false);
       };
+      this.onEsc = () => n.click();
       row.append(y, n);
       card.appendChild(row);
     });
   }
 
   /** 自訂內容；呼叫 done 關閉 */
-  custom<T>(title: string, build: (body: HTMLDivElement, done: (v: T) => void) => void, wide = false): Promise<T> {
+  custom<T>(title: string, build: (body: HTMLDivElement, done: (v: T) => void) => void, wide = false, onEscape?: () => T): Promise<T> {
     return new Promise((resolve) => {
       const card = this.open(title, '');
       card.classList.toggle('wide', wide);
@@ -250,6 +273,12 @@ export class Dialog {
         this.close();
         resolve(v);
       });
+      if (onEscape) {
+        this.onEsc = () => {
+          this.close();
+          resolve(onEscape());
+        };
+      }
     });
   }
 }

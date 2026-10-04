@@ -1126,7 +1126,7 @@ export class Game {
         button(actions, '放棄', '', () => done(0));
       };
       render();
-    });
+    }, false, () => 0);
   }
 
   /** 黃巾賊窩：繳買路錢或損兵 */

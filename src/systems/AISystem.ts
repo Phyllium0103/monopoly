@@ -1,7 +1,7 @@
 import type { City, CraftStat, GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
-import { MIN_GARRISON, SOLDIER_PRICE, cityToll, garrisonPower, occupyCost } from './CitySystem';
+import { MIN_GARRISON, eliminate, SOLDIER_PRICE, cityToll, garrisonPower, occupyCost } from './CitySystem';
 import { REALMS } from '../data/generals';
 import { equipRealm, equipScore } from '../data/items';
 import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
@@ -139,6 +139,11 @@ export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
     const cityId = g.cityId;
     const r = tribulation(g);
     if (r.fate === 'death' && cityId) state.cities[cityId].garrisonGenerals = state.cities[cityId].garrisonGenerals.filter((id) => id !== g.id);
+    if (r.fate === 'death' && g.isLord) {
+      logs.push(`⚡ ${g.name}渡劫失敗，身死道消……主公陣亡，敗北出局！`);
+      eliminate(state, lord);
+      return logs;
+    }
     if (r.success) logs.push(`⚡ ${g.name}渡過 ${r.bolts.length} 道天雷，突破至【${REALMS[g.realm]}】！`);
     else logs.push(r.fate === 'death' ? `⚡ ${g.name}渡劫失敗，身死道消……` : `⚡ ${g.name}渡劫失敗，兵解重修，跌回凡人。`);
   }

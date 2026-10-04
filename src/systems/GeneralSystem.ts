@@ -168,7 +168,7 @@ export function tribulation(g: General): TribulationResult {
     levelUp(g);
     return { bolts, success: true, fate: null, fromRealm };
   }
-  if (!g.isLord && Math.random() < 0.5) {
+  if (Math.random() < 0.5) {
     g.status = 'dead';
     g.owner = null;
     g.cityId = null;

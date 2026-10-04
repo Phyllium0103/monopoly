@@ -327,6 +327,13 @@ export class Game {
     if (logs.some((m) => m.includes('突破至'))) this.world.beamEffect(this.sprites.get(lord.id)!.group.position);
     this.world.syncCities(this.state);
     this.refresh();
+    if (!lord.alive) {
+      // 渡劫身死的主公：敗北出局
+      this.sprites.get(lord.id)!.group.visible = false;
+      this.world.syncCities(this.state);
+      this.refresh();
+      return;
+    }
     await this.moveLord(lord, await this.rollDice(lord));
     if (lord.alive && this.canSwapSect(lord)) for (const msg of aiManageSect(this.state, lord)) this.ui.log(`${LORDS[lord.id].name}：${msg}`, 'ai');
     await this.wait(300);
@@ -539,23 +546,24 @@ export class Game {
     this.refresh();
   }
 
-  private async onBankrupt(lord: Lord) {
+  private async onBankrupt(lord: Lord, death?: string) {
     if (lord.alive) eliminate(this.state, lord);
     this.sprites.get(lord.id)!.group.visible = false;
     this.world.syncCities(this.state);
-    this.ui.log(`💀 ${LORDS[lord.id].name}靈石耗盡，破產出局！麾下將領四散，城池回歸無主。`, 'bad');
+    this.ui.log(death ? `💀 ${death}，${LORDS[lord.id].name}敗北出局！麾下將領四散，城池回歸無主。` : `💀 ${LORDS[lord.id].name}靈石耗盡，破產出局！麾下將領四散，城池回歸無主。`, 'bad');
     this.refresh();
     if (!lord.isPlayer) {
       await this.wait(600);
       return;
     }
     if (aliveLords(this.state).length <= 1) return;
-    const watch = await this.dialog.confirm('你已破產出局', '靈石耗盡，宗門解散。\n要觀看其他主公爭到最後，還是直接結算？', '觀戰到底', '直接結算', '💀');
+    const watch = await this.dialog.confirm(death ? '主公陣亡，你輸了' : '你已破產出局', `${death ? `${death}，主公一死，大勢已去。` : '靈石耗盡，宗門解散。'}
+要觀看其他主公爭到最後，還是直接結算？`, '觀戰到底', '直接結算', '💀');
     if (watch) {
       this.ui.speed = 4;
       this.sm.timeScale = 4;
     } else {
-      await this.endGame(`${LORDS[lord.id].name}破產出局。`);
+      await this.endGame(death ? `${death}。` : `${LORDS[lord.id].name}破產出局。`);
     }
   }
 
@@ -685,7 +693,7 @@ export class Game {
       const gain = battleExp(w, dead ? null : l);
       const verdict = dead ? `（${l.name}戰死）` : duel.surrendered ? `（${l.name}認輸）` : '';
       this.ui.log(`擂台戰：${atkGen.name} vs ${defGen.name}，${w.name}勝出${verdict}，生死歷練修為 +${gain}。`, involved ? 'info' : 'ai');
-      if (dead) this.onGeneralSlain(dead, involved);
+      if (dead) await this.onGeneralSlain(dead, involved);
       return winner === 'a';
     }
 
@@ -706,19 +714,15 @@ export class Game {
   }
 
   /** 武將在擂台上被當場擊殺 */
-  private onGeneralSlain(g: General, involved: boolean) {
+  private async onGeneralSlain(g: General, involved: boolean) {
     const owner = g.owner;
-    const lordHurt = g.isLord;
     killGeneral(this.state, g);
     this.world.syncCities(this.state);
-    if (lordHurt) {
-      this.ui.log(`${g.name}被當場重創，僥倖保住性命（主公不會戰死）。`, owner === this.state.player ? 'bad' : involved ? 'good' : 'ai');
-      this.refresh();
-      return;
-    }
     this.ui.log(`💀 ${g.name}戰死擂台，從此除名！`, owner === this.state.player ? 'bad' : involved ? 'good' : 'ai');
     if (involved) this.ui.toast(`${g.name}戰死擂台`);
     this.refresh();
+    // 主公戰死，等於敗北
+    if (g.isLord && owner) await this.onBankrupt(this.state.lords[owner], `${g.name}戰死擂台，主公陣亡`);
   }
 
   private async runSiege(attacker: Lord, city: City, preset: General[]): Promise<boolean | null> {
@@ -813,7 +817,7 @@ export class Game {
   }
 
   private pickGeneral(title: string, pool: General[], kind: BattleKind, cancelable = true): Promise<General | null> {
-    const risky = (g: General) => (kind === 'duel' && g.hp < maxHp(g) * WOUNDED_HP ? '・⚠️血量偏低，易戰死' : '');
+    const risky = (g: General) => (kind === 'duel' && g.isLord ? '・⚠️主公戰死即敗北' : '') + (kind === 'duel' && g.hp < maxHp(g) * WOUNDED_HP ? '・⚠️血量偏低，易戰死' : '');
     const stat = kind === 'duel' || kind === 'siege' ? null : (kind as CraftStat);
     return this.dialog.choose(
       title,
@@ -1326,6 +1330,7 @@ export class Game {
     this.ui.log(msg, r.success ? 'good' : 'bad');
     this.world.syncCities(this.state);
     this.refresh();
+    if (r.fate === 'death' && g.isLord) await this.onBankrupt(this.state.lords[this.state.player], `${g.name}渡劫失敗身死道消，主公陣亡`);
   }
 
   // ───────────────────────── 輸入 ─────────────────────────

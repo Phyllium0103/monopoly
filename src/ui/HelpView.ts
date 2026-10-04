@@ -101,7 +101,7 @@ const PAGES: Page[] = [
         '<b>結束回合</b>：按「結束回合」或 Enter。',
       ])}
       <h4>開局資源</h4>
-      ${list([`靈石 ${fmtStones(START_STONES)}`, `隨行士兵 ${START_SOLDIERS}`, `首都一座，主公本人（可出戰，但不能派進城池、不會戰死、不能被變賣）與 15 名本國將領（1 名駐守首都，其餘隨行；隨行最多 ${PARTY_LIMIT} 人，多的放在宗門）；其餘將領在聽風樓招募（共 ${GENERAL_SEEDS.length} 位人物，另有 ${HIDDEN_SEEDS.length} 位隱藏武將）`])}
+      ${list([`靈石 ${fmtStones(START_STONES)}`, `隨行士兵 ${START_SOLDIERS}`, `首都一座，主公本人（可出戰，但不能派進城池、不能被變賣；<b>主公戰死（擂台被一擊打死、渡劫身死）就等於敗北</b>）與 15 名本國將領（1 名駐守首都，其餘隨行；隨行最多 ${PARTY_LIMIT} 人，多的放在宗門）；其餘將領在聽風樓招募（共 ${GENERAL_SEEDS.length} 位人物，另有 ${HIDDEN_SEEDS.length} 位隱藏武將）`])}
       <h4>靈石</h4>
       <p>分為下品、中品、上品、極品，每 100 個自動換算成高一階。例如 15230 下品會顯示為「1上品 52中品 30下品」。</p>`,
   },

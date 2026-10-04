@@ -185,11 +185,6 @@ export function reviveGeneral(state: GameState, lord: LordId, g: General, hpRati
 
 /** 武將戰死：從主公與城池除名 */
 export function killGeneral(state: GameState, g: General) {
-  // 主公本人不會戰死，只是重傷
-  if (g.isLord) {
-    g.hp = 1;
-    return;
-  }
   if (g.cityId) {
     const city = state.cities[g.cityId];
     if (city) city.garrisonGenerals = city.garrisonGenerals.filter((id) => id !== g.id);

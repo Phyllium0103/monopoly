@@ -1,9 +1,8 @@
 import type { GameState, Lord } from './types';
 import { citiesOf, generalsOf } from './GameState';
 import { cityIncome } from '../systems/CitySystem';
-import { cultivateTurn, recover } from '../systems/GeneralSystem';
+import { addExp, inBottleneck, passiveExp, recover } from '../systems/GeneralSystem';
 import { advanceExpeditions, type RealmOutcome } from '../systems/RealmSystem';
-import { REALMS } from '../data/generals';
 import { ITEM_DEFS, PILL_IDS, beastPower } from '../data/items';
 import { nextUid } from './GameState';
 import { fmtStones } from './Currency';
@@ -11,12 +10,13 @@ import { fmtStones } from './Currency';
 export interface TurnReport {
   lines: { text: string; kind: 'good' | 'bad' | 'info' }[];
   realms: RealmOutcome[];
-  breakthroughs: string[];
+  /** 本回合新進入瓶頸、可以突破的將領 */
+  bottlenecks: string[];
 }
 
 /** 主公回合開始：城池收入、繁榮成長、將領修煉與回復、秘境結算、靈獸尋寶 */
 export function startTurn(state: GameState, lord: Lord): TurnReport {
-  const report: TurnReport = { lines: [], realms: [], breakthroughs: [] };
+  const report: TurnReport = { lines: [], realms: [], bottlenecks: [] };
   let stones = 0;
   let soldiers = 0;
   for (const city of citiesOf(state, lord.id)) {
@@ -42,19 +42,21 @@ export function startTurn(state: GameState, lord: Lord): TurnReport {
     report.lines.push({ text, kind: 'good' });
   }
 
+  // 周天吐納：秘境中的將領不吸納靈氣
+  let gained = 0;
   for (const g of generalsOf(state, lord.id)) {
     recover(g);
-    const r = cultivateTurn(g);
-    if (r.success) {
-      report.breakthroughs.push(g.id);
-      report.lines.push({ text: `✦ ${g.name}突破至【${REALMS[g.realm]}】！`, kind: 'good' });
-    } else if (r.attempted) {
-      report.lines.push({ text: `${g.name}衝擊瓶頸失敗，修為倒退。`, kind: 'bad' });
-    }
+    if (g.status === 'realm') continue;
+    const was = inBottleneck(g);
+    gained += addExp(g, passiveExp(g, g.cityId ? state.cities[g.cityId] : null));
+    if (!was && inBottleneck(g)) report.bottlenecks.push(g.id);
   }
+  if (gained) report.lines.push({ text: `眾將周天吐納，修為共 +${gained}`, kind: 'info' });
+  for (const id of report.bottlenecks) report.lines.push({ text: `${state.generals[id].name}修為圓滿，進入瓶頸，可在武將名冊嘗試突破。`, kind: 'good' });
 
   report.realms = advanceExpeditions(state, lord);
   lord.tollFree = false;
+  lord.siegeBoost = 1;
   lord.doubleDice = false;
   lord.fixedDice = null;
   return report;

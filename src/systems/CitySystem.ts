@@ -1,11 +1,13 @@
 import type { City, GameState, Lord, LordId } from '../game/types';
-import { citiesOf, generalsOf } from '../game/GameState';
-import { generalValue, power } from './GeneralSystem';
+import { citiesOf, freeGenerals, generalsOf, joinLord } from '../game/GameState';
+import { defense, generalValue, power } from './GeneralSystem';
 import { beastPower } from '../data/items';
 import { fmtStones } from '../game/Currency';
 
-export const SOLDIER_PRICE = 10;
-export const MIN_GARRISON = 100;
+export const SOLDIER_PRICE = 2;
+export const MIN_GARRISON = 300;
+/** 一名城池守軍約等於十名隨行士兵 */
+export const GARRISON_STRENGTH = 10;
 
 /** 過路費：隨繁榮度加速成長（前期便宜、後期昂貴），同一主公城池越多也越貴 */
 export function toll(city: City, ownerCities = 1): number {
@@ -17,24 +19,25 @@ export function cityToll(state: GameState, city: City): number {
 }
 
 export function cityIncome(city: City) {
-  return { stones: Math.round(city.prosperity * 1.5), soldiers: Math.floor(city.prosperity / 2) };
+  return { stones: Math.round(city.prosperity * 1.5), soldiers: city.prosperity * 2 };
 }
 
-/** 守城戰力：駐守武將 + 守軍，城池駐軍加成 ×1.5，護城大陣再 ×1.5 */
+/** 守城戰力：守軍 ×10，駐將防禦越高加成越多，再加上駐將本身戰力；護城大陣 ×1.5 */
 export function garrisonPower(state: GameState, city: City): number {
   const g = city.garrisonGeneral ? state.generals[city.garrisonGeneral] : null;
-  const base = (g ? power(g) : 0) + city.garrisonSoldiers;
-  return Math.round(base * 1.5 * (city.shieldTurns > 0 ? 1.5 : 1) * (1 + city.prosperity / 400));
+  const command = g ? 1 + defense(g) / 300 : 1;
+  const base = city.garrisonSoldiers * GARRISON_STRENGTH * command + (g ? power(g) * 2 : 0);
+  return Math.round(base * (city.shieldTurns > 0 ? 1.5 : 1));
 }
 
-/** 佔領無主城池需支付的安撫費（變賣時只能收回一半） */
+/** 佔領無主城池需支付的安撫費 */
 export function occupyCost(city: City): number {
   return city.prosperity * 60;
 }
 
 export function canOccupy(state: GameState, lord: Lord, city?: City): boolean {
   if (city && lord.stones < occupyCost(city)) return false;
-  return lord.soldiers >= MIN_GARRISON && generalsOf(state, lord.id).some((g) => g.status === 'free');
+  return lord.soldiers >= MIN_GARRISON && freeGenerals(state, lord.id).length > 0;
 }
 
 /** 派遣武將與士兵駐守，佔領城池；cost 為支付的靈石（攻城奪下則為 0） */
@@ -49,14 +52,11 @@ export function occupy(state: GameState, lord: Lord, city: City, generalId: stri
   city.garrisonSoldiers = soldiers;
 }
 
-/** 城池回歸無主：駐將回到主公身邊，守軍解散 */
+/** 城池回歸無主：駐將回到主公身邊（或宗門），守軍解散 */
 export function releaseCity(state: GameState, city: City) {
   if (city.garrisonGeneral) {
     const g = state.generals[city.garrisonGeneral];
-    if (g.status === 'garrison') {
-      g.status = 'free';
-      g.cityId = null;
-    }
+    if (g.status === 'garrison' && g.owner) joinLord(state, g.owner, g);
   }
   city.owner = 'neutral';
   city.garrisonGeneral = null;
@@ -70,44 +70,29 @@ export interface PayResult {
   notes: string[];
 }
 
-/** 付款；靈石不足時依序變賣物品與城池，仍不足則破產 */
+/** 付款：先付靈石，不足時隨行武將隨機離開（進入聽風樓）以身價抵債；只剩主公一人仍付不清就破產 */
 export function pay(state: GameState, from: Lord, amount: number, to: Lord | null): PayResult {
   const notes: string[] = [];
-  const sell = (label: string, value: number) => {
-    from.stones += value;
-    notes.push(`變賣${label}，得 ${fmtStones(value)}`);
-  };
-  while (from.stones < amount && from.items.length) {
-    const it = from.items.pop()!;
-    sell('物品', Math.round(it.price * 0.5));
+  const cash = Math.min(from.stones, amount);
+  from.stones -= cash;
+  if (to) to.stones += cash;
+  let remaining = amount - cash;
+  while (remaining > 0) {
+    const party = freeGenerals(state, from.id);
+    if (!party.length) break;
+    const g = party[Math.floor(Math.random() * party.length)];
+    const offset = Math.min(remaining, generalValue(g));
+    remaining -= offset;
+    if (to) to.stones += offset;
+    g.owner = null;
+    g.status = 'free';
+    g.cityId = null;
+    g.secluded = false;
+    notes.push(`靈石不足，${g.name}離開投奔聽風樓，抵債 ${fmtStones(offset)}`);
   }
-  while (from.stones < amount && from.scrolls.length) {
-    const s = from.scrolls.pop()!;
-    sell(`功法「${s.name}」`, Math.round(s.price * 0.5));
-  }
-  while (from.stones < amount && from.gear.length) {
-    const e = from.gear.pop()!;
-    sell(`「${e.name}」`, Math.round(e.price * 0.5));
-  }
-  if (from.stones < amount && from.beast) {
-    sell(`靈獸「${from.beast.name}」`, Math.round(from.beast.price * 0.5));
-    from.beast = null;
-  }
-  // 從繁榮度最低的城池開始放棄
-  const owned = citiesOf(state, from.id).sort((a, b) => a.prosperity - b.prosperity);
-  while (from.stones < amount && owned.length) {
-    const city = owned.shift()!;
-    const value = Math.round(occupyCost(city) * 0.5);
-    from.soldiers += city.garrisonSoldiers;
-    releaseCity(state, city);
-    sell(`城池「${city.name}」`, value);
-  }
-  const paid = Math.min(amount, from.stones);
-  from.stones -= paid;
-  if (to) to.stones += paid;
-  const bankrupt = paid < amount;
+  const bankrupt = remaining > 0;
   if (bankrupt) eliminate(state, from);
-  return { paid, bankrupt, notes };
+  return { paid: amount - remaining, bankrupt, notes };
 }
 
 export function eliminate(state: GameState, lord: Lord) {
@@ -118,6 +103,7 @@ export function eliminate(state: GameState, lord: Lord) {
     g.owner = null;
     g.status = 'free';
     g.cityId = null;
+    g.secluded = false;
   }
   lord.expeditions = [];
   // 越早出局名次越後
@@ -129,7 +115,7 @@ export function eliminate(state: GameState, lord: Lord) {
 export function totalAssets(state: GameState, id: LordId) {
   const l = state.lords[id];
   const cities = citiesOf(state, id);
-  const cityValue = cities.reduce((s, c) => s + c.prosperity * 100 + c.garrisonSoldiers * 8, 0);
+  const cityValue = cities.reduce((s, c) => s + c.prosperity * 100 + c.garrisonSoldiers * SOLDIER_PRICE, 0);
   const gens = generalsOf(state, id);
   const generalValueSum = gens.reduce((s, g) => s + generalValue(g), 0);
   const itemValue =
@@ -145,10 +131,10 @@ export function totalAssets(state: GameState, id: LordId) {
     cityValue,
     generalValue: generalValueSum,
     itemValue,
-    total: Math.round(l.stones + l.soldiers * 8 + cityValue + generalValueSum + itemValue * 0.5),
+    total: Math.round(l.stones + l.soldiers * SOLDIER_PRICE + cityValue + generalValueSum + itemValue * 0.5),
   };
 }
 
 export function beastSiegeBonus(lord: Lord): number {
-  return lord.beast ? beastPower(lord.beast).siege : 0;
+  return lord.beast ? beastPower(lord.beast).siege * 10 : 0;
 }

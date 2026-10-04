@@ -2,7 +2,7 @@ import type { City, General, LordId } from '../game/types';
 import { LORDS } from '../faction/Faction';
 import { REALMS } from '../data/generals';
 import { ELEMENT_CSS, ELEMENT_NAMES, STAT_NAMES } from '../data/items';
-import { craft, power } from '../systems/GeneralSystem';
+import { TRIBULATION_BOLTS, craft, power, type TribulationResult } from '../systems/GeneralSystem';
 import type { ContestResult, Duel, DuelEvent, Fighter, SiegeResult, Side } from '../systems/BattleSystem';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -177,6 +177,55 @@ export class BattleView {
         };
         actions.appendChild(ok);
       }, 1300);
+    });
+  }
+
+  /** 渡劫：天雷一道道落下；startHp/startMax 為渡劫前的血量 */
+  showTribulation(name: string, r: TribulationResult, startHp: number, startMax: number, speed: () => number): Promise<void> {
+    return new Promise((resolve) => {
+      const body = this.open(`⚡ 渡劫・${name}`);
+      const cap = startMax;
+      let hp = startHp;
+      body.innerHTML = `
+        <p class="dialog-text">${REALMS[r.fromRealm]} → ${REALMS[r.fromRealm + 1]}・天降 ${TRIBULATION_BOLTS[r.fromRealm - 2]} 道天雷</p>
+        <div class="tribulation">
+          <div class="sky"></div>
+          <div class="fighter trib" data-side="a" style="--fc:#7fb2ff">
+            <div class="f-name">${name}<small>${REALMS[r.fromRealm]}</small></div>
+            <div class="bar hp big"><i style="width:100%"></i><span>${hp} / ${cap}</span></div>
+            <div class="bolts"></div>
+          </div>
+        </div>
+        <div class="battle-actions"><span class="muted">天劫降臨……</span></div>`;
+      const bar = body.querySelector('.bar i') as HTMLElement;
+      const label = body.querySelector('.bar span') as HTMLElement;
+      const boltsEl = body.querySelector('.bolts') as HTMLElement;
+      const sky = body.querySelector('.sky') as HTMLElement;
+      void (async () => {
+        await sleep(500 / speed());
+        for (let i = 0; i < r.bolts.length; i++) {
+          sky.classList.remove('flash');
+          void sky.offsetWidth;
+          sky.classList.add('flash');
+          hp = Math.max(0, hp - r.bolts[i]);
+          bar.style.width = `${(hp / cap) * 100}%`;
+          label.textContent = `${hp} / ${cap}`;
+          boltsEl.innerHTML += `<span>⚡${r.bolts[i]}</span>`;
+          this.float('a', `-${r.bolts[i]}`, 'dmg crit');
+          await sleep(650 / speed());
+        }
+        const actions = body.querySelector('.battle-actions')!;
+        const text = r.success ? `渡劫成功！晉入【${REALMS[r.fromRealm + 1]}】` : r.fate === 'death' ? '身死道消……' : '兵解重修，跌回凡人';
+        actions.innerHTML = `<div class="result ${r.success ? 'win' : 'lose'}">${text}</div>`;
+        const ok = document.createElement('button');
+        ok.className = 'btn primary';
+        ok.textContent = '確定';
+        ok.onclick = () => {
+          this.close();
+          resolve();
+        };
+        actions.appendChild(ok);
+      })();
     });
   }
 

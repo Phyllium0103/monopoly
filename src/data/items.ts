@@ -106,10 +106,10 @@ export function makeTechnique(uid: string, tier: Tier): Technique {
   };
 }
 
-/** 每回合修為成長 */
-export function techniqueSpeed(t: Technique | null): number {
-  if (!t) return 3;
-  return Math.max(5, 12 + t.tier * 2 - (t.difficulty - 1) * 2);
+/** 功法帶來的每回合修為：黃階 +20、玄階 +40、地階 +70、天階 +100，同階上中下品再遞增 */
+export function techniqueExp(t: Technique | null): number {
+  if (!t) return 0;
+  return [20, 40, 70, 100][Math.floor(t.tier / 3)] + (t.tier % 3) * 5;
 }
 
 // ───────────────────────── 靈獸 ─────────────────────────
@@ -191,7 +191,8 @@ const PILL_PRICE = [300, 900, 2700, 8100];
 
 export const HEAL = [0.25, 0.45, 0.7, 1];
 export const STAT_UP = [3, 6, 10, 16];
-export const BREAK_UP = [0.1, 0.18, 0.27, 0.4];
+export const QI_EXP = [50, 100, 200, 400];
+export const ESSENCE_EXP = [150, 300, 600, 1200];
 export const STAMINA_UP = [30, 50, 80, 100];
 export const POISON = [0.04, 0.07, 0.1, 0.14];
 
@@ -199,7 +200,9 @@ export const ITEM_DEFS: Record<string, ItemDef> = {
   heal: { id: 'heal', name: '回血丹', category: '丹藥', stat: 'alchemy', min: PILL_MIN, stamina: PILL_STAMINA, timing: 'both', target: 'ownGeneral', price: PILL_PRICE, desc: (t) => `回復 ${HEAL[t] * 100}% 血量` },
   force: { id: 'force', name: '增力丹', category: '丹藥', stat: 'alchemy', min: PILL_MIN, stamina: PILL_STAMINA, timing: 'both', target: 'ownGeneral', price: PILL_PRICE.map((p) => p * 2), desc: (t) => `永久武力 +${STAT_UP[t]}` },
   guard: { id: 'guard', name: '護體丹', category: '丹藥', stat: 'alchemy', min: PILL_MIN, stamina: PILL_STAMINA, timing: 'both', target: 'ownGeneral', price: PILL_PRICE.map((p) => p * 2), desc: (t) => `永久防禦 +${STAT_UP[t]}` },
-  breakthrough: { id: 'breakthrough', name: '破境丹', category: '丹藥', stat: 'alchemy', min: PILL_MIN, stamina: PILL_STAMINA, timing: 'preroll', target: 'ownGeneral', price: PILL_PRICE.map((p) => p * 2), desc: (t) => `下次突破機率 +${Math.round(BREAK_UP[t] * 100)}%` },
+  qi: { id: 'qi', name: '凝氣丹', category: '丹藥', stat: 'alchemy', min: PILL_MIN, stamina: PILL_STAMINA, timing: 'preroll', target: 'ownGeneral', price: PILL_PRICE.map((p) => Math.round(p * 1.2)), desc: (t) => `修為 +${QI_EXP[t]}` },
+  essence: { id: 'essence', name: '真元丹', category: '丹藥', stat: 'alchemy', min: PILL_MIN.map((m) => m + 10), stamina: PILL_STAMINA, timing: 'preroll', target: 'ownGeneral', price: PILL_PRICE.map((p) => p * 3), desc: (t) => `修為 +${ESSENCE_EXP[t]}` },
+  foundation: { id: 'foundation', name: '築基丹', category: '丹藥', stat: 'alchemy', min: [30], stamina: [15], timing: 'preroll', target: 'ownGeneral', price: [4500], desc: () => '練氣突破築基的成功率提升至 95%' },
   vigor: { id: 'vigor', name: '回氣丹', category: '丹藥', stat: 'alchemy', min: PILL_MIN, stamina: [0, 0, 0, 0], timing: 'both', target: 'ownGeneral', price: PILL_PRICE.map((p) => Math.round(p * 0.6)), desc: (t) => `回復 ${STAMINA_UP[t]} 體力` },
   poison: { id: 'poison', name: '斷腸毒丹', category: '丹藥', stat: 'alchemy', min: PILL_MIN, stamina: PILL_STAMINA, timing: 'both', target: 'enemyGeneral', battleTarget: 'enemyGeneral', price: PILL_PRICE, desc: (t) => `戰鬥中每回合扣 ${POISON[t] * 100}% 血量（3 回合）；平時直接扣 ${Math.round(POISON[t] * 250)}% 血量` },
 
@@ -213,14 +216,24 @@ export const ITEM_DEFS: Record<string, ItemDef> = {
   ghost: { id: 'ghost', name: '五鬼搬運符', category: '符籙', stat: 'talisman', min: [60], stamina: [30], timing: 'preroll', target: 'lord', price: [6000], desc: () => '盜取指定主公 8% 靈石' },
   truce: { id: 'truce', name: '免戰牌', category: '法器', stat: 'forging', min: [20], stamina: [10], timing: 'preroll', target: 'none', price: [3000], desc: () => '本回合踏入敵城免繳過路費' },
   vajra: { id: 'vajra', name: '金剛罩', category: '法器', stat: 'forging', min: [40], stamina: [20], timing: 'battle', target: 'none', battleTarget: 'ownGeneral', price: [3500], desc: () => '戰鬥：為己方武將套上可吸收 30% 血量的護罩' },
+  thunderward: { id: 'thunderward', name: '避雷陣', category: '陣法', stat: 'formation', min: [45], stamina: [25], timing: 'preroll', target: 'ownGeneral', price: [7000], desc: () => '為武將布陣護法，下次渡劫天雷傷害 -50%' },
+  fiveward: { id: 'fiveward', name: '五行防禦陣', category: '陣法', stat: 'formation', min: [35], stamina: [20], timing: 'preroll', target: 'ownGeneral', price: [4500], desc: () => '下次渡劫天雷傷害 -30%（可與避雷陣疊加，最多減免 80%）' },
+  demon: { id: 'demon', name: '走火入魔符', category: '符籙', stat: 'talisman', min: [45], stamina: [25], timing: 'preroll', target: 'enemyGeneral', price: [5000], desc: () => '心魔干擾敵將：下次突破成功率 -30%，或雷劫威力 ×1.5' },
+  illusion: { id: 'illusion', name: '幻境陣', category: '陣法', stat: 'formation', min: [60], stamina: [30], timing: 'preroll', target: 'enemyGeneral', price: [8000], desc: () => '以幻境引動心魔：下次突破成功率 -60%，或雷劫威力 ×2' },
+  siegebreak: { id: 'siegebreak', name: '破城符', category: '符籙', stat: 'talisman', min: [35], stamina: [20], timing: 'preroll', target: 'none', price: [4000], desc: () => '本回合攻城戰力 ×1.3' },
 };
 
-export const PILL_IDS = ['heal', 'force', 'guard', 'breakthrough', 'vigor', 'poison'];
-export const ARTIFACT_IDS = ['teleport', 'confuse', 'citadel', 'dice', 'stride', 'thunder', 'freeze', 'ghost', 'truce', 'vajra'];
+export const PILL_IDS = ['heal', 'force', 'guard', 'qi', 'essence', 'foundation', 'vigor', 'poison'];
+export const ARTIFACT_IDS = ['teleport', 'confuse', 'citadel', 'dice', 'stride', 'thunder', 'freeze', 'ghost', 'truce', 'vajra', 'thunderward', 'fiveward', 'demon', 'illusion', 'siegebreak'];
+
+/** 只有單一品階的物品（不加黃玄地天前綴） */
+export function singleTier(defId: string): boolean {
+  return ITEM_DEFS[defId].price.length === 1;
+}
 
 export function itemName(defId: string, tier: number): string {
   const d = ITEM_DEFS[defId];
-  return d.category === '丹藥' ? `${PILL_GRADES[tier]}${d.name}` : d.name;
+  return d.category === '丹藥' && d.price.length > 1 ? `${PILL_GRADES[tier]}${d.name}` : d.name;
 }
 
 export const STAT_NAMES: Record<CraftStat | 'force' | 'defense' | 'hp', string> = {

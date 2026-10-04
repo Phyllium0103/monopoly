@@ -1,8 +1,8 @@
 import type { GameState, Lord, TileKind } from '../game/types';
-import { nextUid } from '../game/GameState';
+import { joinLord, nextUid } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
-import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipRealm, itemName, makeBeast, makeEquipment, makeTechnique, rollTier, ELEMENT_NAMES } from '../data/items';
-import { REALMS } from '../data/generals';
+import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipRealm, itemName, makeBeast, makeEquipment, makeTechnique, rollTier, singleTier, techniqueExp, ELEMENT_NAMES } from '../data/items';
+import { APTITUDE_NAMES, REALMS, TRAIT_NAMES } from '../data/generals';
 import { generalValue, power, realmName, recruitPrice } from './GeneralSystem';
 import { LORDS } from '../faction/Faction';
 import type { Beast, Equipment, General, Item, Technique } from '../game/types';
@@ -36,14 +36,14 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
     case 'herb':
       return Array.from({ length: 6 }, () => {
         const defId = PILL_IDS[Math.floor(Math.random() * PILL_IDS.length)];
-        const tier = Math.min(3, Math.floor(Math.pow(Math.random(), 1.6 - bias) * 4));
+        const tier = singleTier(defId) ? 0 : Math.min(3, Math.floor(Math.pow(Math.random(), 1.6 - bias) * 4));
         const d = ITEM_DEFS[defId];
         const item: Item = { uid: uid('i'), defId, tier, price: d.price[tier] };
         return { kind: 'item', item, label: itemName(defId, tier), sub: `${d.desc(tier)}｜煉丹 ≥ ${d.min[tier]}`, price: item.price } as Offer;
       });
     case 'treasure':
       return shuffle([...ARTIFACT_IDS])
-        .slice(0, 6)
+        .slice(0, 8)
         .map((defId) => {
           const d = ITEM_DEFS[defId];
           const item: Item = { uid: uid('i'), defId, tier: 0, price: d.price[0] };
@@ -63,7 +63,7 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
           kind: 'technique',
           technique: t,
           label: t.name,
-          sub: `${ELEMENT_NAMES[t.element]}屬性｜能力 +${Math.round(t.power * 100)}%｜難度 ${'★'.repeat(t.difficulty)}｜技能「${t.skillName}」×${t.skillPower}`,
+          sub: `${ELEMENT_NAMES[t.element]}屬性｜能力 +${Math.round(t.power * 100)}%｜難度 ${'★'.repeat(t.difficulty)}｜每回合修為 +${techniqueExp(t)}｜技能「${t.skillName}」×${t.skillPower}`,
           price: t.price,
         } as Offer;
       });
@@ -80,7 +80,7 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
             kind: 'general',
             general: g,
             label: `${g.name}（${LORDS[g.origin].kingdom}）`,
-            sub: `${realmName(g)}｜戰力 ${power(g)}｜武${g.base.force} 防${g.base.defense} 丹${g.base.alchemy} 器${g.base.forging} 符${g.base.talisman} 陣${g.base.formation}${g.origin === lord.id ? '｜本國將領優惠' : ''}`,
+            sub: `${realmName(g)}・${APTITUDE_NAMES[g.aptitude]}${g.trait ? `・${TRAIT_NAMES[g.trait]}` : ''}｜戰力 ${power(g)}｜武${g.base.force} 防${g.base.defense} 丹${g.base.alchemy} 器${g.base.forging} 符${g.base.talisman} 陣${g.base.formation}${g.origin === lord.id ? '｜本國將領優惠' : ''}`,
             price: recruitPrice(g, lord.id),
           }) as Offer,
       );
@@ -89,7 +89,7 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
 }
 
 /** 購買；回傳結果文字，失敗回傳 null */
-export function buy(lord: Lord, offer: Offer): { ok: boolean; message: string } {
+export function buy(state: GameState, lord: Lord, offer: Offer): { ok: boolean; message: string } {
   if (lord.stones < offer.price) return { ok: false, message: '靈石不足。' };
   if (offer.kind === 'general' && offer.general.owner) return { ok: false, message: '此人已出仕。' };
   lord.stones -= offer.price;
@@ -107,9 +107,7 @@ export function buy(lord: Lord, offer: Offer): { ok: boolean; message: string } 
       lord.beast = offer.beast;
       break;
     case 'general':
-      offer.general.owner = lord.id;
-      offer.general.status = 'free';
-      offer.general.cityId = null;
+      joinLord(state, lord.id, offer.general);
       break;
   }
   return { ok: true, message: `花費 ${fmtStones(offer.price)} 購得「${offer.label}」。` };

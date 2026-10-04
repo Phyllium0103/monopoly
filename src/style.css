@@ -1114,3 +1114,74 @@ body {
     font-size: 13px;
   }
 }
+
+/* ───────── 修仙：名冊標籤、瓶頸、渡劫 ───────── */
+.section-title {
+  margin: 16px 0 8px;
+  color: var(--gold-light);
+  font-size: 17px;
+  border-bottom: 1px solid var(--panel-border);
+  padding-bottom: 4px;
+}
+.tags {
+  margin: 2px 0 4px;
+}
+.chip.apt-heaven {
+  border-color: #f1d27a;
+  color: #f1d27a;
+}
+.chip.apt-pseudo {
+  border-color: #ec6a4a;
+  color: #ff9c86;
+}
+.chip.trait {
+  border-color: #8fe4ff;
+  color: #8fe4ff;
+}
+.chip.buff {
+  border-color: #c9a0ff;
+  color: #d8c0ff;
+}
+.bar.exp.full {
+  box-shadow: 0 0 8px rgba(241, 210, 122, 0.8);
+}
+.break-info {
+  font-size: 13px;
+  color: #ffd27a;
+  margin: 2px 0;
+}
+.tribulation {
+  position: relative;
+  padding: 50px 20px 16px;
+  border-radius: 8px;
+  background: linear-gradient(#1a1f33, #2c2a40);
+  overflow: hidden;
+}
+.tribulation .sky {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tribulation .sky.flash {
+  animation: lightning 0.5s ease-out;
+}
+@keyframes lightning {
+  0% {
+    background: rgba(220, 235, 255, 0.95);
+  }
+  100% {
+    background: rgba(220, 235, 255, 0);
+  }
+}
+.fighter.trib {
+  max-width: 420px;
+  margin: 0 auto;
+}
+.bolts {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 14px;
+  color: #bfe0ff;
+}

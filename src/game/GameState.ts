@@ -6,7 +6,9 @@ import { maxHp } from '../systems/GeneralSystem';
 
 export const MAX_ROUNDS = 40;
 export const START_STONES = 20000;
-export const START_SOLDIERS = 1500;
+export const START_SOLDIERS = 20000;
+/** 主公身邊最多隨行武將數，其餘留在宗門 */
+export const PARTY_LIMIT = 10;
 
 export function createGameState(player: LordId): GameState {
   const cities: Record<string, City> = {};
@@ -19,7 +21,7 @@ export function createGameState(player: LordId): GameState {
       prosperity: s.prosperity,
       capital: !!s.owner,
       garrisonGeneral: null,
-      garrisonSoldiers: s.owner ? 500 : 0,
+      garrisonSoldiers: s.owner ? 1000 : 0,
       shieldTurns: 0,
     };
   }
@@ -35,7 +37,13 @@ export function createGameState(player: LordId): GameState {
       base: { force: g.s[0], defense: g.s[1], hp: g.s[2], alchemy: g.s[3], forging: g.s[4], talisman: g.s[5], formation: g.s[6] },
       realm: g.realm,
       exp: 0,
-      breakBonus: 0,
+      aptitude: g.aptitude,
+      trait: g.trait ?? null,
+      failedRound: 0,
+      foundation: false,
+      demon: 0,
+      ward: 0,
+      secluded: false,
       hp: 0,
       stamina: 100,
       bonusForce: 0,
@@ -66,6 +74,7 @@ export function createGameState(player: LordId): GameState {
       position: cities[LORDS[id].capital].tile,
       stunned: 0,
       tollFree: false,
+      siegeBoost: 1,
       doubleDice: false,
       fixedDice: null,
       items: [],
@@ -100,9 +109,22 @@ export function generalsOf(state: GameState, lord: LordId): General[] {
   return Object.values(state.generals).filter((g) => g.owner === lord && g.status !== 'dead');
 }
 
-/** 隨主公行動、可出戰的將領 */
+/** 隨主公行動、可出戰的將領（最多 PARTY_LIMIT 名） */
 export function freeGenerals(state: GameState, lord: LordId): General[] {
   return generalsOf(state, lord).filter((g) => g.status === 'free');
+}
+
+/** 留在宗門的將領 */
+export function sectGenerals(state: GameState, lord: LordId): General[] {
+  return generalsOf(state, lord).filter((g) => g.status === 'sect');
+}
+
+/** 將領回到主公麾下：隨行未滿就隨行，否則留在宗門 */
+export function joinLord(state: GameState, lord: LordId, g: General) {
+  g.owner = lord;
+  g.cityId = null;
+  g.secluded = false;
+  g.status = freeGenerals(state, lord).length < PARTY_LIMIT ? 'free' : 'sect';
 }
 
 export function citiesOf(state: GameState, lord: LordId): City[] {

@@ -1,6 +1,7 @@
 import type { GameState, General, Lord } from '../game/types';
-import { nextUid } from '../game/GameState';
-import { craft, power, totalCraft } from './GeneralSystem';
+import { joinLord, nextUid } from '../game/GameState';
+import { addExp, craft, levelUp, power, totalCraft } from './GeneralSystem';
+import { REALMS } from '../data/generals';
 import { ITEM_DEFS, PILL_IDS, itemName, makeBeast, makeEquipment, makeTechnique, tierName } from '../data/items';
 
 export const REALM_TURNS = 5;
@@ -23,6 +24,8 @@ export interface RealmOutcome {
   dead: General[];
   survivors: General[];
   reward: string | null;
+  /** 奇遇：修為獲得與頓悟突破 */
+  insights: string[];
 }
 
 /** 依隊伍屬性決定獎勵種類與品階 */
@@ -84,18 +87,26 @@ export function advanceExpeditions(state: GameState, lord: Lord): RealmOutcome[]
     const team = ex.generalIds.map((id) => state.generals[id]);
     const dead: General[] = [];
     const survivors: General[] = [];
+    const insights: string[] = [];
+    const score = team.reduce((s, g) => s + power(g), 0);
     for (const g of team) {
       if (Math.random() < deathChance(g, team)) {
         g.status = 'dead';
         g.owner = null;
         dead.push(g);
-      } else {
-        g.status = 'free';
-        survivors.push(g);
+        continue;
       }
+      joinLord(state, lord.id, g);
+      survivors.push(g);
+      // 奇遇：巨量修為，低階者有機會當場頓悟突破
+      const gain = addExp(g, 200 + score / 6 + Math.random() * 300);
+      if (g.realm < 2 && Math.random() < 0.15) {
+        levelUp(g);
+        insights.push(`${g.name}於秘境頓悟，直接突破至【${REALMS[g.realm]}】！`);
+      } else insights.push(`${g.name}修為 +${gain}`);
     }
     const reward = survivors.length ? grantReward(state, lord, survivors, team) : null;
-    outcomes.push({ realmName: ex.realmName, dead, survivors, reward });
+    outcomes.push({ realmName: ex.realmName, dead, survivors, reward, insights });
   }
   return outcomes;
 }

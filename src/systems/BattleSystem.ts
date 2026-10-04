@@ -197,13 +197,27 @@ export interface ContestResult {
   aScore: number;
   bScore: number;
   winner: Side;
+  /** 維持秩序的兵力損失：敗方 500 兵全滅，勝方折損一部分 */
+  aLoss: number;
+  bLoss: number;
 }
 
-/** 煉丹、煉器、畫符、佈陣：比較能力值（之後會換成小遊戲） */
-export function craftContest(a: General, b: General, stat: CraftStat): ContestResult {
+/** 鬥法雙方各需投入的兵力 */
+export const CONTEST_SOLDIERS = 500;
+
+/** 煉丹、煉器、畫符、佈陣：比較能力值（之後會換成小遊戲）。攻方扣隨行士兵，守方扣城池守軍 */
+export function craftContest(a: General, b: General, stat: CraftStat, attacker: Lord, city: City): ContestResult {
   const aScore = Math.round(craft(a, stat) * (0.85 + Math.random() * 0.3));
   const bScore = Math.round(craft(b, stat) * (0.85 + Math.random() * 0.3));
-  return { stat, aScore, bScore, winner: aScore > bScore ? 'a' : 'b' };
+  const winner: Side = aScore > bScore ? 'a' : 'b';
+  const ratio = Math.min(aScore, bScore) / Math.max(aScore, bScore, 1);
+  // 勝負越接近，勝方折損越多
+  const winnerLoss = Math.round(CONTEST_SOLDIERS * ratio * 0.5);
+  const aLoss = Math.min(attacker.soldiers, winner === 'a' ? winnerLoss : CONTEST_SOLDIERS);
+  const bLoss = Math.min(city.garrisonSoldiers, winner === 'b' ? winnerLoss : CONTEST_SOLDIERS);
+  attacker.soldiers -= aLoss;
+  city.garrisonSoldiers -= bLoss;
+  return { stat, aScore, bScore, winner, aLoss, bLoss };
 }
 
 export interface SiegeResult {
@@ -214,19 +228,25 @@ export interface SiegeResult {
   defenderLoss: number;
 }
 
-/** 攻城戰：三名武將 + 全部士兵 vs 駐將 + 守軍（守方有加成） */
+/** 攻方戰力：士兵受武將武力統率加成，再加上武將本身戰力、靈獸與破城符 */
+export function siegeAttack(attacker: Lord, generals: General[]): number {
+  const command = 1 + generals.reduce((s, g) => s + attack(g), 0) / 600;
+  const base = attacker.soldiers * command + generals.reduce((s, g) => s + power(g) * 2, 0) + beastSiegeBonus(attacker);
+  return Math.round(base * attacker.siegeBoost);
+}
+
+/** 攻城戰：最多三名武將 + 全部隨行士兵 vs 駐將 + 守軍（一名守軍約等於十名隨行士兵） */
 export function siege(state: GameState, attacker: Lord, generals: General[], city: City): SiegeResult {
-  const base = generals.reduce((s, g) => s + power(g), 0) + attacker.soldiers + beastSiegeBonus(attacker);
-  const atk = Math.round(base * (0.85 + Math.random() * 0.3));
+  const atk = Math.round(siegeAttack(attacker, generals) * (0.85 + Math.random() * 0.3));
   const def = Math.round(garrisonPower(state, city) * (0.9 + Math.random() * 0.2));
   const win = atk > def;
   let attackerLoss: number;
   let defenderLoss: number;
   if (win) {
-    attackerLoss = Math.round(attacker.soldiers * Math.min(0.6, (def / atk) * 0.5));
+    attackerLoss = Math.round(attacker.soldiers * Math.min(0.5, (def / atk) * 0.6));
     defenderLoss = city.garrisonSoldiers;
   } else {
-    attackerLoss = Math.round(attacker.soldiers * 0.5);
+    attackerLoss = Math.round(attacker.soldiers * 0.4);
     defenderLoss = Math.round(city.garrisonSoldiers * Math.min(0.5, (atk / def) * 0.3));
   }
   attacker.soldiers -= attackerLoss;

@@ -1,6 +1,6 @@
 import type { City, GameState, General, Item, Lord } from '../game/types';
-import { BREAK_UP, HEAL, ITEM_DEFS, POISON, STAMINA_UP, STAT_NAMES, STAT_UP, itemName, type ItemDef } from '../data/items';
-import { attack, craft, defense, maxHp } from './GeneralSystem';
+import { ESSENCE_EXP, HEAL, ITEM_DEFS, POISON, QI_EXP, STAMINA_UP, STAT_NAMES, STAT_UP, itemName, type ItemDef } from '../data/items';
+import { addExp, attack, craft, defense, maxHp } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
 import { fmtStones } from '../game/Currency';
 import { LORDS } from '../faction/Faction';
@@ -69,13 +69,32 @@ export function usePreroll(state: GameState, lord: Lord, item: Item, user: Gener
     case 'guard':
       g!.bonusDefense += STAT_UP[t];
       return `${head}，${g!.name}防禦永久 +${STAT_UP[t]}。`;
-    case 'breakthrough':
-      g!.breakBonus += BREAK_UP[t];
-      return `${head}，${g!.name}下次突破機率 +${Math.round(BREAK_UP[t] * 100)}%。`;
+    case 'qi':
+    case 'essence': {
+      const n = addExp(g!, (item.defId === 'qi' ? QI_EXP : ESSENCE_EXP)[t]);
+      return `${head}，${g!.name}修為 +${n}${n < (item.defId === 'qi' ? QI_EXP : ESSENCE_EXP)[t] ? '（已達瓶頸，溢出的修為散去）' : ''}。`;
+    }
+    case 'foundation':
+      g!.foundation = true;
+      return `${head}，${g!.name}服下築基丹，突破築基成功率提升至 95%。`;
+    case 'thunderward':
+    case 'fiveward': {
+      g!.ward = Math.min(0.8, g!.ward + (item.defId === 'thunderward' ? 0.5 : 0.3));
+      return `${head}，為${g!.name}布下護法大陣，下次雷劫傷害 -${Math.round(g!.ward * 100)}%。`;
+    }
+    case 'demon':
+    case 'illusion': {
+      g!.demon = Math.max(g!.demon, item.defId === 'demon' ? 1 : 2);
+      return `${head}，${g!.name}心魔滋生，下次突破兇險倍增！`;
+    }
+    case 'siegebreak':
+      lord.siegeBoost = 1.3;
+      return `${head}，本回合攻城戰力 ×1.3。`;
     case 'vigor':
       g!.stamina = Math.min(100, g!.stamina + STAMINA_UP[t]);
       return `${head}，${g!.name}體力回復 ${STAMINA_UP[t]}。`;
     case 'poison': {
+      if (g!.trait === 'poisonImmune') return `${head}暗算${g!.name}，但${g!.name}百毒不侵！`;
       const dmg = Math.min(g!.hp - 1, Math.round(maxHp(g!) * POISON[t] * 2.5));
       g!.hp -= dmg;
       return `${head}暗算${g!.name}，造成 ${dmg} 傷害！`;
@@ -137,6 +156,7 @@ export function useInDuel(duel: Duel, side: Side, lord: Lord, item: Item, user: 
       user.stamina = Math.min(100, user.stamina + STAMINA_UP[t]);
       return [{ text: `${head}，體力回復 ${STAMINA_UP[t]}`, kind: 'item' }];
     case 'poison':
+      if (foe.general.trait === 'poisonImmune') return [{ text: `${head}，但${foe.general.name}百毒不侵！`, kind: 'item' }];
       foe.poison = { dmg: POISON[t], turns: 3 };
       return [{ text: `${head}，${foe.general.name}中毒了！`, kind: 'item' }];
     case 'thunder': {

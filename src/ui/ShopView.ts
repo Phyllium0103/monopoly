@@ -1,4 +1,4 @@
-import type { Lord } from '../game/types';
+import type { GameState, Lord } from '../game/types';
 import { fmtStones } from '../game/Currency';
 import { SHOP_NAMES, buy, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { TILE_INFO } from '../data/board';
@@ -14,7 +14,7 @@ const SHOP_DESC: Record<ShopKind, string> = {
 };
 
 /** 商店介面；玩家可連續購買，按離開結束 */
-export function openShop(dialog: Dialog, lord: Lord, kind: ShopKind, offers: Offer[], onBuy: (msg: string) => void): Promise<void> {
+export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: ShopKind, offers: Offer[], onBuy: (msg: string) => void): Promise<void> {
   const sold = new Set<number>();
   let recruited = false;
   let confirmBeast = -1;
@@ -43,7 +43,7 @@ export function openShop(dialog: Dialog, lord: Lord, kind: ShopKind, offers: Off
               return;
             }
             confirmBeast = -1;
-            const r = buy(lord, o);
+            const r = buy(state, lord, o);
             if (r.ok) {
               sold.add(i);
               if (kind === 'tavern') recruited = true;

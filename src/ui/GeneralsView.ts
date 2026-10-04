@@ -1,15 +1,37 @@
 import type { GameState, General, Lord } from '../game/types';
-import { generalsOf } from '../game/GameState';
-import { REALMS, REALM_EXP } from '../data/generals';
-import { ELEMENT_CSS, ELEMENT_NAMES, equipRealm, techniqueSpeed } from '../data/items';
-import { abolish, attack, breakthroughChance, craft, defense, equip, learn, maxHp, power } from '../systems/GeneralSystem';
+import { PARTY_LIMIT, generalsOf } from '../game/GameState';
+import { APTITUDE_DESC, APTITUDE_NAMES, REALMS, TRAIT_DESC, TRAIT_NAMES } from '../data/generals';
+import { ELEMENT_CSS, ELEMENT_NAMES, equipRealm, techniqueExp } from '../data/items';
+import {
+  abolish,
+  attack,
+  boltCount,
+  boltDamage,
+  breakChance,
+  canAttemptBreak,
+  craft,
+  defense,
+  equip,
+  expCap,
+  inBottleneck,
+  learn,
+  maxHp,
+  needsTribulation,
+  passiveExp,
+  power,
+} from '../systems/GeneralSystem';
 import { nameOf } from '../systems/ItemSystem';
 import { LORDS } from '../faction/Faction';
 import type { Dialog } from './Dialog';
 
-const STATUS: Record<General['status'], string> = { free: '隨行', garrison: '駐守', realm: '秘境中', dead: '隕落' };
+const SECTIONS: { status: General['status']; title: string }[] = [
+  { status: 'free', title: '隨行' },
+  { status: 'garrison', title: '駐守城池' },
+  { status: 'sect', title: '留守宗門' },
+  { status: 'realm', title: '秘境探索中' },
+];
 
-/** 武將名冊：查看能力、裝備神器寶衣、學習功法、自廢修為 */
+/** 武將名冊：查看能力、裝備、學功法、突破渡劫、閉關 */
 export class GeneralsView {
   private el: HTMLDivElement;
   private resolve: (() => void) | null = null;
@@ -17,6 +39,8 @@ export class GeneralsView {
   constructor(
     root: HTMLElement,
     private dialog: Dialog,
+    private onBreak: (g: General) => Promise<void>,
+    private canManage: () => boolean,
   ) {
     this.el = document.createElement('div');
     this.el.className = 'drawer hidden';
@@ -39,18 +63,19 @@ export class GeneralsView {
 
   private render(state: GameState, lord: Lord) {
     const gens = generalsOf(state, lord.id);
-    const cityName = (g: General) => (g.cityId ? state.cities[g.cityId].name : '');
-    const turnsLeft = (g: General) => lord.expeditions.find((e) => e.generalIds.includes(g.id))?.turnsLeft ?? 0;
+    const manage = this.canManage();
 
     const items = new Map<string, number>();
     for (const i of lord.items) items.set(nameOf(i), (items.get(nameOf(i)) ?? 0) + 1);
     const bag = [...items].map(([n, c]) => `<span class="chip">${n}${c > 1 ? ` ×${c}` : ''}</span>`).join('') || '<span class="muted">無</span>';
     const gear = lord.gear.map((e) => `<span class="chip">${e.name}</span>`).join('') || '<span class="muted">無</span>';
     const scrolls = lord.scrolls.map((t) => `<span class="chip" style="border-color:${ELEMENT_CSS[t.element]}">${t.name}</span>`).join('') || '<span class="muted">無</span>';
+    const party = gens.filter((g) => g.status === 'free').length;
 
     this.el.innerHTML = `
       <div class="drawer-head">
         <h2 style="color:${LORDS[lord.id].css}">${LORDS[lord.id].name}・武將名冊</h2>
+        <span class="muted">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : '・非你的回合，無法突破或閉關'}</span>
         <button class="btn close">關閉 ✕</button>
       </div>
       <div class="bag">
@@ -59,79 +84,123 @@ export class GeneralsView {
         <div><b>功法秘笈</b>${scrolls}</div>
         <div><b>靈獸</b>${lord.beast ? `<span class="chip">${lord.beast.name}｜${lord.beast.desc}</span>` : '<span class="muted">無</span>'}</div>
       </div>
-      <div class="general-grid"></div>`;
+      <div class="sections"></div>`;
     (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
 
-    const grid = this.el.querySelector('.general-grid')!;
-    for (const g of gens) {
-      const card = document.createElement('div');
-      card.className = `general-card s-${g.status}`;
-      const need = g.realm < REALM_EXP.length ? REALM_EXP[g.realm] : 0;
-      const t = g.technique;
-      const status = g.status === 'garrison' ? `駐守${cityName(g)}` : g.status === 'realm' ? `秘境中（${turnsLeft(g)} 回合）` : STATUS[g.status];
-      card.innerHTML = `
-        <div class="gc-head"><b>${g.name}</b><small>${LORDS[g.origin].kingdom}</small><span class="realm">${REALMS[g.realm]}</span><span class="st">${status}</span></div>
-        <div class="bar exp" title="突破機率 ${Math.round(breakthroughChance(g) * 100)}%"><i style="width:${need ? Math.min(100, (g.exp / need) * 100) : 100}%"></i><span>修為 ${g.exp}${need ? ` / ${need}` : '（圓滿）'}・+${techniqueSpeed(t)}/回合・突破 ${Math.round(breakthroughChance(g) * 100)}%</span></div>
-        <div class="bar hp"><i style="width:${(g.hp / maxHp(g)) * 100}%"></i><span>血量 ${g.hp} / ${maxHp(g)}</span></div>
-        <div class="bar sta"><i style="width:${g.stamina}%"></i><span>體力 ${g.stamina} / 100</span></div>
-        <div class="stats">
-          <span>武力 <b>${attack(g)}</b></span><span>防禦 <b>${defense(g)}</b></span><span>戰力 <b>${power(g)}</b></span>
-          <span>煉丹 <b>${craft(g, 'alchemy')}</b></span><span>煉器 <b>${craft(g, 'forging')}</b></span><span>畫符 <b>${craft(g, 'talisman')}</b></span><span>佈陣 <b>${craft(g, 'formation')}</b></span>
-        </div>
-        <div class="equip">
-          <div>神器：${g.weapon ? `${g.weapon.name}（武 +${g.weapon.value}）` : '<span class="muted">無</span>'}</div>
-          <div>寶衣：${g.armor ? `${g.armor.name}（防 +${g.armor.value}、血 +${g.armor.hp}）` : '<span class="muted">無</span>'}</div>
-          <div>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name}【${ELEMENT_NAMES[t.element]}】</span> 難度${'★'.repeat(t.difficulty)}・技能「${t.skillName}」` : '<span class="muted">未修習</span>'}</div>
-        </div>
-        <div class="gc-actions"></div>`;
-      const actions = card.querySelector('.gc-actions')!;
-      const btn = (label: string, disabled: boolean, fn: () => void) => {
-        const b = document.createElement('button');
-        b.className = 'btn mini';
-        b.textContent = label;
-        b.disabled = disabled;
-        b.onclick = fn;
-        actions.appendChild(b);
-      };
-      const away = g.status === 'realm';
-      for (const kind of ['weapon', 'armor'] as const) {
-        const pool = lord.gear.filter((e) => e.kind === kind);
-        btn(kind === 'weapon' ? '裝備神器' : '裝備寶衣', away || !pool.length, async () => {
-          const e = await this.dialog.choose(
-            `${g.name}・${kind === 'weapon' ? '裝備神器' : '裝備寶衣'}`,
-            '',
-            pool.map((x) => ({
-              label: x.name,
-              sub: kind === 'weapon' ? `武力 +${x.value}` : `防禦 +${x.value}、血量 +${x.hp}`,
-              value: x,
-              disabled: g.realm < equipRealm(x.tier),
-              reason: `需達${REALMS[equipRealm(x.tier)]}`,
-            })),
-          );
-          if (e) equip(lord, g, e);
-          this.render(state, lord);
-        });
-      }
-      btn('學習功法', away || !!t || !lord.scrolls.length, async () => {
-        const s = await this.dialog.choose(
-          `${g.name}・學習功法`,
-          '每位武將只能修習一種功法，學會後不可更換，除非自廢修為。',
-          lord.scrolls.map((x) => ({
+    const sections = this.el.querySelector('.sections')!;
+    for (const sec of SECTIONS) {
+      const list = gens.filter((g) => g.status === sec.status);
+      if (!list.length) continue;
+      const h = document.createElement('h3');
+      h.className = 'section-title';
+      h.textContent = `${sec.title}（${list.length}${sec.status === 'free' ? `/${PARTY_LIMIT}` : ''}）`;
+      sections.appendChild(h);
+      const grid = document.createElement('div');
+      grid.className = 'general-grid';
+      for (const g of list) grid.appendChild(this.card(state, lord, g, manage));
+      sections.appendChild(grid);
+    }
+  }
+
+  private card(state: GameState, lord: Lord, g: General, manage: boolean): HTMLDivElement {
+    const card = document.createElement('div');
+    card.className = `general-card s-${g.status}`;
+    const cap = expCap(g);
+    const t = g.technique;
+    const city = g.cityId ? state.cities[g.cityId] : null;
+    const turnsLeft = lord.expeditions.find((e) => e.generalIds.includes(g.id))?.turnsLeft ?? 0;
+    const status = g.status === 'garrison' ? `駐守${city?.name ?? ''}${g.secluded ? '・閉關中' : ''}` : g.status === 'realm' ? `秘境（${turnsLeft} 回合）` : g.status === 'sect' ? '宗門' : '隨行';
+    const bottleneck = inBottleneck(g);
+    const breakInfo = !bottleneck
+      ? ''
+      : needsTribulation(g)
+        ? `⚡ 渡劫：${boltCount(g)} 道天雷・每道約 ${Math.round(boltDamage(g))}`
+        : `突破成功率 ${Math.round(breakChance(g) * 100)}%`;
+    const buffs = [g.foundation ? '已服築基丹' : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? `心魔 ×${g.demon}` : ''].filter(Boolean).join('・');
+
+    card.innerHTML = `
+      <div class="gc-head"><b>${g.name}</b><small>${LORDS[g.origin].kingdom}</small><span class="realm">${REALMS[g.realm]}</span><span class="st">${status}</span></div>
+      <div class="tags">
+        <span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span>
+        ${g.trait ? `<span class="chip trait" title="${TRAIT_DESC[g.trait]}">${TRAIT_NAMES[g.trait]}</span>` : ''}
+        ${buffs ? `<span class="chip buff">${buffs}</span>` : ''}
+      </div>
+      <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（化神圓滿）'}・每回合 +${passiveExp(g, city)}${bottleneck ? '・瓶頸' : ''}</span></div>
+      ${breakInfo ? `<div class="break-info">${breakInfo}</div>` : ''}
+      <div class="bar hp"><i style="width:${(g.hp / maxHp(g)) * 100}%"></i><span>血量 ${g.hp} / ${maxHp(g)}</span></div>
+      <div class="bar sta"><i style="width:${g.stamina}%"></i><span>體力 ${g.stamina} / 100</span></div>
+      <div class="stats">
+        <span>武力 <b>${attack(g)}</b></span><span>防禦 <b>${defense(g)}</b></span><span>戰力 <b>${power(g)}</b></span>
+        <span>煉丹 <b>${craft(g, 'alchemy')}</b></span><span>煉器 <b>${craft(g, 'forging')}</b></span><span>畫符 <b>${craft(g, 'talisman')}</b></span><span>佈陣 <b>${craft(g, 'formation')}</b></span>
+      </div>
+      <div class="equip">
+        <div>神器：${g.weapon ? `${g.weapon.name}（武 +${g.weapon.value}）` : '<span class="muted">無</span>'}</div>
+        <div>寶衣：${g.armor ? `${g.armor.name}（防 +${g.armor.value}、血 +${g.armor.hp}）` : '<span class="muted">無</span>'}</div>
+        <div>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name}【${ELEMENT_NAMES[t.element]}】</span> 難度${'★'.repeat(t.difficulty)}・+${techniqueExp(t)}/回合` : '<span class="muted">未修習</span>'}</div>
+      </div>
+      <div class="gc-actions"></div>`;
+
+    const actions = card.querySelector('.gc-actions')!;
+    const btn = (label: string, disabled: boolean, fn: () => void, cls = '') => {
+      const b = document.createElement('button');
+      b.className = `btn mini ${cls}`;
+      b.textContent = label;
+      b.disabled = disabled;
+      b.onclick = fn;
+      actions.appendChild(b);
+    };
+    const away = g.status === 'realm';
+
+    if (bottleneck) {
+      const can = canAttemptBreak(g, state.round);
+      btn(needsTribulation(g) ? '⚡ 渡劫' : '🧘 突破', !manage || !can.ok, async () => {
+        await this.onBreak(g);
+        this.render(state, lord);
+      }, 'danger');
+    }
+    if (g.status === 'garrison') {
+      btn(g.secluded ? '出關' : '閉關修煉', !manage, () => {
+        g.secluded = !g.secluded;
+        this.render(state, lord);
+      });
+    }
+    for (const kind of ['weapon', 'armor'] as const) {
+      const pool = lord.gear.filter((e) => e.kind === kind);
+      btn(kind === 'weapon' ? '裝備神器' : '裝備寶衣', away || !pool.length, async () => {
+        const e = await this.dialog.choose(
+          `${g.name}・${kind === 'weapon' ? '裝備神器' : '裝備寶衣'}`,
+          '',
+          pool.map((x) => ({
             label: x.name,
-            sub: `${ELEMENT_NAMES[x.element]}屬性｜能力 +${Math.round(x.power * 100)}%｜難度 ${'★'.repeat(x.difficulty)}｜每回合修為 +${techniqueSpeed(x)}`,
+            sub: kind === 'weapon' ? `武力 +${x.value}` : `防禦 +${x.value}、血量 +${x.hp}`,
             value: x,
-            color: ELEMENT_CSS[x.element],
+            disabled: g.realm < equipRealm(x.tier),
+            reason: `需達${REALMS[equipRealm(x.tier)]}`,
           })),
         );
-        if (s) learn(lord, g, s);
+        if (e) equip(lord, g, e);
         this.render(state, lord);
       });
-      btn('自廢修為', away || !t, async () => {
-        const ok = await this.dialog.confirm('自廢修為', `${g.name}將散去「${t!.name}」，境界跌回凡人，修為歸零。\n此後可改修其他功法。確定嗎？`, '自廢', '取消', '⚠️');
-        if (ok) abolish(g);
-        this.render(state, lord);
-      });
-      grid.appendChild(card);
     }
+    btn('學習功法', away || !!t || !lord.scrolls.length, async () => {
+      const s = await this.dialog.choose(
+        `${g.name}・學習功法`,
+        '每位武將只能修習一種功法，學會後不可更換，除非自廢修為。',
+        lord.scrolls.map((x) => ({
+          label: x.name,
+          sub: `${ELEMENT_NAMES[x.element]}屬性｜能力 +${Math.round(x.power * 100)}%｜難度 ${'★'.repeat(x.difficulty)}｜每回合修為 +${techniqueExp(x)}`,
+          value: x,
+          color: ELEMENT_CSS[x.element],
+        })),
+      );
+      if (s) learn(lord, g, s);
+      this.render(state, lord);
+    });
+    btn('自廢修為', away || !t, async () => {
+      const ok = await this.dialog.confirm('自廢修為', `${g.name}將散去「${t!.name}」，境界跌回凡人，修為歸零。\n此後可改修其他功法。確定嗎？`, '自廢', '取消', '⚠️');
+      if (ok) abolish(g);
+      this.render(state, lord);
+    });
+    return card;
   }
 }

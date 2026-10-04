@@ -68,7 +68,13 @@ export interface Item {
   price: number;
 }
 
-export type GeneralStatus = 'free' | 'garrison' | 'realm' | 'dead';
+/** free=隨行、sect=留在宗門、garrison=駐守城池、realm=秘境中 */
+export type GeneralStatus = 'free' | 'sect' | 'garrison' | 'realm' | 'dead';
+
+/** 靈根：天靈根修煉快、偽靈根靠戰鬥成長 */
+export type Aptitude = 'heaven' | 'earth' | 'pseudo';
+/** 特殊體質 */
+export type Trait = 'poisonImmune' | 'divineStrength' | 'thunderBody';
 
 export interface General {
   id: string;
@@ -78,8 +84,18 @@ export interface General {
   base: Stats;
   realm: number;
   exp: number;
-  /** 破境丹累積的突破機率加成 */
-  breakBonus: number;
+  aptitude: Aptitude;
+  trait: Trait | null;
+  /** 上次低階突破失敗的回合（同一輪不能再試） */
+  failedRound: number;
+  /** 已服築基丹 */
+  foundation: boolean;
+  /** 心魔層數：降低突破率、加重雷劫 */
+  demon: number;
+  /** 避雷陣等護法：雷劫傷害減免比例 */
+  ward: number;
+  /** 駐守城池時閉關修煉 */
+  secluded: boolean;
   hp: number;
   stamina: number;
   bonusForce: number;
@@ -109,6 +125,8 @@ export interface Lord {
   /** 迷魂陣：剩餘停留回合 */
   stunned: number;
   tollFree: boolean;
+  /** 破城符：本回合攻城戰力加成 */
+  siegeBoost: number;
   doubleDice: boolean;
   fixedDice: number | null;
   items: Item[];

@@ -1863,3 +1863,26 @@ body {
 .log-panel.hidden {
   display: none;
 }
+
+.fc-trait {
+  margin: 6px 0 4px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  text-align: left;
+}
+.fc-trait b {
+  display: block;
+  color: var(--gold-light);
+  text-align: center;
+  margin-bottom: 2px;
+}
+.fc-trait .pro,
+.fc-trait .con {
+  display: block;
+}
+.fc-trait .pro {
+  color: #8fe09a;
+}
+.fc-trait .con {
+  color: #f08a70;
+}

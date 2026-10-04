@@ -5,6 +5,7 @@ import { REALMS } from '../data/generals';
 import { WORLD } from './WorldMods';
 import { PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, tierName } from '../data/items';
 import { fx } from '../data/passives';
+import { traitOf } from '../faction/Faction';
 import type { Expedition } from '../game/types';
 
 export interface RealmLevel {
@@ -47,7 +48,7 @@ export function deathChance(g: General, team: General[], level = 1): number {
   const teamPower = team.reduce((s, x) => s + power(x), 0);
   const own = Math.max(0.03, 0.4 - power(g) / 2500);
   const teamFactor = Math.max(0.6, Math.min(1.2, 1.3 - teamPower / 4000));
-  return Math.max(0.02, Math.min(0.9, own * teamFactor * REALM_LEVELS[level].risk * (1 - (fx(g).realmSafety ?? 0))));
+  return Math.max(0.02, Math.min(0.9, own * teamFactor * REALM_LEVELS[level].risk * (1 - (fx(g).realmSafety ?? 0) - (traitOf(g.owner).realmSafety ?? 0))));
 }
 
 export function dispatch(lord: Lord, team: General[], realmName: string, level = 1) {

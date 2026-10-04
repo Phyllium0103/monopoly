@@ -1,5 +1,5 @@
 import type { GameState, LordId } from '../game/types';
-import { LORDS, LORD_IDS } from '../faction/Faction';
+import { LORDS, LORD_IDS, TRAITS } from '../faction/Faction';
 import { GENERAL_SEEDS } from '../data/generals';
 import { totalAssets } from '../systems/CitySystem';
 import { fmtStones } from '../game/Currency';
@@ -51,6 +51,7 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
       <div class="fc-name">${d.kingdom}</div>
       <div class="fc-sect">${d.name}</div>
       <p class="fc-motto">${d.desc}</p>
+      <div class="fc-trait"><b>【${TRAITS[id].title}】</b>${TRAITS[id].pros.map((x) => `<span class="pro">＋${x}</span>`).join('')}${TRAITS[id].cons.map((x) => `<span class="con">－${x}</span>`).join('')}</div>
       <p class="fc-bonus">開局麾下<br>${gens
         .filter((g) => g.start && !g.lord)
         .map((g) => g.name)

@@ -6,8 +6,14 @@ import { fmtProsperity, fmtStones } from '../game/Currency';
 import { WORLD } from './WorldMods';
 import { terrainOf } from '../data/terrain';
 import { fx } from '../data/passives';
+import { traitOf } from '../faction/Faction';
 
 export const SOLDIER_PRICE = 2;
+
+/** 徵兵花費：陣營特色可打折 */
+export function recruitCost(lord: LordId, n: number): number {
+  return Math.round(n * SOLDIER_PRICE * (1 + (traitOf(lord).soldierPrice ?? 0)));
+}
 export const MIN_GARRISON = 300;
 /** 一名城池守軍約等於十名隨行士兵 */
 export const GARRISON_STRENGTH = 10;
@@ -18,12 +24,13 @@ export function toll(city: City, ownerCities = 1): number {
 }
 
 export function cityToll(state: GameState, city: City): number {
-  return city.owner === 'neutral' ? 0 : toll(city, citiesOf(state, city.owner).length);
+  return city.owner === 'neutral' ? 0 : Math.round(toll(city, citiesOf(state, city.owner).length) * (1 + (traitOf(city.owner).tollMult ?? 0)));
 }
 
 /** 城池收入，受地貌與駐將被動增減 */
 export function cityIncome(city: City, garrison: General[] = []) {
   const t = terrainOf(city);
+  const tr = traitOf(city.owner);
   // 多名駐將的收入加成相加
   const f = { cityStones: 0, citySoldiers: 0 };
   for (const g of garrison) {
@@ -31,8 +38,8 @@ export function cityIncome(city: City, garrison: General[] = []) {
     f.citySoldiers += fx(g).citySoldiers ?? 0;
   }
   return {
-    stones: Math.round(city.prosperity * 1.5 * (1 + t.stones) * (1 + (f.cityStones ?? 0)) * WORLD.incomeMult),
-    soldiers: Math.round(city.prosperity * 2 * (1 + t.soldiers) * (1 + (f.citySoldiers ?? 0))),
+    stones: Math.round(city.prosperity * 1.5 * (1 + t.stones) * (1 + (f.cityStones ?? 0)) * WORLD.incomeMult * (1 + (tr.stonesMult ?? 0))),
+    soldiers: Math.round(city.prosperity * 2 * (1 + t.soldiers) * (1 + (f.citySoldiers ?? 0)) * (1 + (tr.soldiersMult ?? 0))),
   };
 }
 
@@ -47,7 +54,7 @@ export function garrisonPower(state: GameState, city: City): number {
   const command = 1 + gens.reduce((sum, g) => sum + defense(g), 0) / 450;
   const f = { troops: Math.max(0, ...gens.map((g) => fx(g).troops ?? 0)), garrisonDef: Math.max(0, ...gens.map((g) => fx(g).garrisonDef ?? 0)) };
   const base = city.garrisonSoldiers * GARRISON_STRENGTH * (1 + f.troops) * command + gens.reduce((sum, g) => sum + power(g) * 2, 0);
-  return Math.round(base * (1 + terrainOf(city).defense) * (1 + f.garrisonDef) * (city.shieldTurns > 0 ? 1.5 : 1));
+  return Math.round(base * (1 + terrainOf(city).defense) * (1 + f.garrisonDef) * (1 + (traitOf(city.owner).garrisonDef ?? 0)) * (city.shieldTurns > 0 ? 1.5 : 1));
 }
 
 /** 佔領無主城池需支付的安撫費 */

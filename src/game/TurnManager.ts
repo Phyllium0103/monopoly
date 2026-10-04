@@ -7,6 +7,7 @@ import { advanceExpeditions, type RealmOutcome } from '../systems/RealmSystem';
 import { ITEM_DEFS, PILL_IDS, beastPower } from '../data/items';
 import { nextUid } from './GameState';
 import { fmtStones } from './Currency';
+import { traitOf } from '../faction/Faction';
 
 export interface TurnReport {
   lines: { text: string; kind: 'good' | 'bad' | 'info' }[];
@@ -25,7 +26,7 @@ export function startTurn(state: GameState, lord: Lord): TurnReport {
     stones += inc.stones;
     soldiers += inc.soldiers;
     // 每回合成長：+0.25（平原、盆地、水鄉）、+0.2、+0.15
-    city.prosperity = Math.min(200, Math.round((city.prosperity + 0.2 + terrainOf(city).growth * 0.05) * 100) / 100);
+    city.prosperity = Math.min(200, Math.round((city.prosperity + Math.max(0, 0.2 + terrainOf(city).growth * 0.05 + (traitOf(lord.id).growth ?? 0))) * 100) / 100);
     if (city.shieldTurns > 0) city.shieldTurns--;
   }
   lord.stones += stones;

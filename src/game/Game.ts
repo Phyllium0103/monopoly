@@ -20,7 +20,7 @@ import { fxText, passiveOf } from '../data/passives';
 import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
-import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, SOLDIER_PRICE, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, citySaleValue, eliminate, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll } from '../systems/CitySystem';
+import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, citySaleValue, eliminate, recruitCost, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll } from '../systems/CitySystem';
 import { generalSaleValue, BREAK_FAIL_HP, attack, attemptBreak, battleExp, boltCount, boltDamage, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { itemChoices } from '../ui/ItemUI';
@@ -1054,19 +1054,19 @@ export class Game {
   }
 
   private async recruitSoldiers(lord: Lord) {
-    const most = Math.floor(lord.stones / SOLDIER_PRICE / 100) * 100;
+    const most = Math.floor(lord.stones / recruitCost(lord.id, 1) / 100) * 100;
     if (most < 100) {
       this.ui.toast('靈石不足，至少要能徵召 100 名士兵');
       return;
     }
     const n = await this.dialog.slider(
       '⚔️ 徵兵',
-      `每名士兵 ${SOLDIER_PRICE} 下品靈石。目前士兵 ${lord.soldiers}，靈石 ${fmtStones(lord.stones)}。`,
-      { min: 100, max: most, step: 100, initial: Math.min(2000, most), unit: ' 名', confirm: '徵召', preview: (v) => `花費 ${fmtStones(v * SOLDIER_PRICE)}，徵兵後士兵 ${lord.soldiers + v}` },
+      `每名士兵 ${(recruitCost(lord.id, 100) / 100).toFixed(2).replace(/\.?0+$/, '')} 下品靈石。目前士兵 ${lord.soldiers}，靈石 ${fmtStones(lord.stones)}。`,
+      { min: 100, max: most, step: 100, initial: Math.min(2000, most), unit: ' 名', confirm: '徵召', preview: (v) => `花費 ${fmtStones(recruitCost(lord.id, v))}，徵兵後士兵 ${lord.soldiers + v}` },
       '⚔️',
     );
     if (!n) return;
-    lord.stones -= n * SOLDIER_PRICE;
+    lord.stones -= recruitCost(lord.id, n);
     lord.soldiers += n;
     this.ui.log(`徵召 ${n} 名士兵。`, 'good');
     this.refresh();
@@ -1436,7 +1436,7 @@ export class Game {
       hint = '擲骰前可先使用物品、徵兵或整備武將（調度駐軍與宗門要站在自己的城池）；擲完骰、處理完落地事件，回合就會自動結束';
       buttons.push(
         { label: '🎒 使用物品', sub: `${player.items.length} 件`, onClick: () => void this.useItemPreroll(player) },
-        { label: '⚔️ 徵兵', sub: `${SOLDIER_PRICE}/名`, onClick: () => void this.recruitSoldiers(player) },
+        { label: '⚔️ 徵兵', sub: `${(recruitCost(player.id, 100) / 100).toFixed(2).replace(/\.?0+$/, '')}/名`, onClick: () => void this.recruitSoldiers(player) },
         { label: '🏯 調度駐軍', sub: this.canSwapSect(player) ? undefined : '需在自己的城池', disabled: !this.canSwapSect(player), onClick: () => void this.manageGarrison(player) },
         { label: '🏛️ 宗門', sub: this.canSwapSect(player) ? `隨行 ${freeGenerals(this.state, player.id).length}/${PARTY_LIMIT}` : '需在自己的城池', disabled: !this.canSwapSect(player), onClick: () => void this.manageSect(player) },
         roster,

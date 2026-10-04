@@ -1,7 +1,7 @@
 import type { City, CraftStat, GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
-import { MIN_GARRISON, eliminate, SOLDIER_PRICE, cityToll, garrisonPower, occupyCost } from './CitySystem';
+import { MIN_GARRISON, eliminate, recruitCost, cityToll, garrisonPower, occupyCost } from './CitySystem';
 import { REALMS } from '../data/generals';
 import { equipRealm, equipScore } from '../data/items';
 import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
@@ -104,7 +104,7 @@ export function aiPreroll(state: GameState, lord: Lord): string[] {
   // 補兵
   if (lord.soldiers < 8000 && lord.stones > 10000) {
     const n = 2000;
-    lord.stones -= n * SOLDIER_PRICE;
+    lord.stones -= recruitCost(lord.id, n);
     lord.soldiers += n;
     logs.push(`徵兵 ${n}`);
   }

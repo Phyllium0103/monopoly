@@ -4,6 +4,7 @@ import { beastPower, elementMod } from '../data/items';
 import { beastSiegeBonus, garrisonPower } from './CitySystem';
 import { WORLD } from './WorldMods';
 import { fx, passiveOf } from '../data/passives';
+import { traitOf } from '../faction/Faction';
 
 const passiveName = (g: General) => passiveOf(g).name;
 
@@ -168,7 +169,7 @@ export class Duel {
     const tide = WORLD.element && me.element === WORLD.element ? 1.3 : 1;
     // 個人被動：擂台傷害、功法技能、血量低於一半的怒氣、對手的減傷
     const passive =
-      (1 + (mine.duelDmg ?? 0)) *
+      (1 + (mine.duelDmg ?? 0) + (traitOf(me.lord).duelDmg ?? 0)) *
       (skill ? 1 + (mine.skillDmg ?? 0) : 1) *
       (me.hp < me.maxHp / 2 ? 1 + (mine.rage ?? 0) : 1) *
       (1 - (fx(foe.general).duelTaken ?? 0));
@@ -321,7 +322,7 @@ export function siegeAttack(attacker: Lord, generals: General[], soldiers = atta
   const command = 1 + generals.reduce((s, g) => s + attack(g) * (1 + (fx(g).siegeLead ?? 0)), 0) / 600;
   const troops = 1 + Math.max(0, ...generals.map((g) => fx(g).troops ?? 0));
   const base = soldiers * troops * command + generals.reduce((s, g) => s + power(g) * 2, 0) + beastSiegeBonus(attacker);
-  return Math.round(base * attacker.siegeBoost);
+  return Math.round(base * attacker.siegeBoost * (1 + (traitOf(attacker.id).siege ?? 0)));
 }
 
 /** 攻城戰：最多三名武將 + 自己決定派出的士兵 vs 駐將 + 城池守軍（一名守軍約等於十名隨行士兵） */

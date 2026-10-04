@@ -10,7 +10,7 @@ import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY } from '../systems/Realm
 import { DISASTER_AFTER, EVENT_INTERVAL, WORLD_EVENTS, type EventCategory } from '../systems/EventSystem';
 import { BOARD, TILE_INFO } from '../data/board';
 import { CITY_TERRAIN, TERRAIN, type TerrainId } from '../data/terrain';
-import { LORDS, LORD_IDS } from '../faction/Faction';
+import { LORDS, LORD_IDS, TRAITS } from '../faction/Faction';
 
 interface Page {
   title: string;
@@ -104,6 +104,13 @@ const PAGES: Page[] = [
       ${list([`靈石 ${fmtStones(START_STONES)}`, `隨行士兵 ${START_SOLDIERS}`, `首都一座，主公本人（可出戰，但不能派進城池、不能被變賣；<b>主公戰死（擂台被一擊打死、渡劫身死）就等於敗北</b>）與 15 名本國將領（1 名駐守首都，其餘隨行；隨行最多 ${PARTY_LIMIT} 人，多的放在宗門）；其餘將領在聽風樓招募（共 ${GENERAL_SEEDS.length} 位人物，另有 ${HIDDEN_SEEDS.length} 位隱藏武將）`])}
       <h4>靈石</h4>
       <p>分為下品、中品、上品、極品，每 100 個自動換算成高一階。例如 15230 下品會顯示為「1上品 52中品 30下品」。</p>`,
+  },
+  {
+    title: '🚩 陣營特色',
+    html: () => `
+      <p>四個陣營各有擅長的經營模式，有長處也有短處；選擇主公時就能看到。</p>
+      ${LORD_IDS.map((id) => `<h4 style="color:${LORDS[id].css}">${LORDS[id].kingdom}・${LORDS[id].name}：${TRAITS[id].title}</h4>${list([...TRAITS[id].pros.map((x) => `<span class="up">＋</span> ${x}`), ...TRAITS[id].cons.map((x) => `<span class="down">－</span> ${x}`)])}`).join('')}
+      <p><b>玩法建議</b>：魏國靠修煉與謀略培養強力武將；蜀國靠富庶的城池與低價徵兵滾雪球，但要避免硬碰硬；吳國守得穩、過路費收得多，適合築起堅城等人上門；群雄擂台與攻城最強，開局兵多，但經濟較弱，要靠打下城池與戰利品擴張。</p>`,
   },
   {
     title: '🗺️ 地圖格子',

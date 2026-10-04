@@ -1,7 +1,7 @@
 import type { City, General, GameState, Lord, LordId } from './types';
 import { BOARD } from '../data/board';
 import { GENERAL_SEEDS, type GeneralSeed } from '../data/generals';
-import { LORDS, LORD_IDS } from '../faction/Faction';
+import { LORDS, LORD_IDS, TRAITS } from '../faction/Faction';
 import { maxHp } from '../systems/GeneralSystem';
 
 /** 開局可選的最大回合數；無盡模式為 null */
@@ -94,8 +94,8 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       id,
       isPlayer: id === player,
       alive: true,
-      stones: START_STONES,
-      soldiers: START_SOLDIERS,
+      stones: Math.round(START_STONES * (1 + (TRAITS[id].startStones ?? 0))),
+      soldiers: Math.round(START_SOLDIERS * (1 + (TRAITS[id].startSoldiers ?? 0))),
       position: cities[LORDS[id].capital].tile,
       lastTile: null,
       stunned: 0,

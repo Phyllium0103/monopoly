@@ -9,6 +9,7 @@ import type { Duel, DuelEvent, Side } from './BattleSystem';
 import { fmtStones } from '../game/Currency';
 import { LORDS } from '../faction/Faction';
 import { fx } from '../data/passives';
+import { traitOf } from '../faction/Faction';
 
 export function def(item: Item): ItemDef {
   return ITEM_DEFS[item.defId];
@@ -21,7 +22,7 @@ export function nameOf(item: Item): string {
 export function requirement(item: Item, user?: General) {
   const d = def(item);
   const i = Math.min(item.tier, d.min.length - 1);
-  return { stat: d.stat, min: d.min[i], stamina: Math.round(d.stamina[i] * (1 - (user ? (fx(user).itemStamina ?? 0) : 0))) };
+  return { stat: d.stat, min: d.min[i], stamina: Math.max(1, Math.round(d.stamina[i] * (1 - (user ? (fx(user).itemStamina ?? 0) + (traitOf(user.owner).itemStamina ?? 0) : 0)))) };
 }
 
 export function requirementText(item: Item): string {

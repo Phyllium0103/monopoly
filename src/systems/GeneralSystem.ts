@@ -1,9 +1,10 @@
-import type { City, CraftStat, Equipment, General, Lord, Technique } from '../game/types';
+import type { City, CraftStat, Equipment, General, Lord, LordId, Technique } from '../game/types';
 import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
 import { ELEMENT_BIAS, techniqueExp } from '../data/items';
 import { WORLD } from './WorldMods';
 import { terrainOf } from '../data/terrain';
 import { fx } from '../data/passives';
+import { traitOf } from '../faction/Faction';
 
 export function realmName(g: General): string {
   return REALMS[g.realm];
@@ -67,7 +68,7 @@ export function passiveExp(g: General, city: City | null): number {
     n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1) * (1 + terrainOf(city).spirit);
     if (g.secluded) n *= 2 * WORLD.seclusionMult;
   }
-  return Math.round(n * WORLD.expMult * (1 + (fx(g).exp ?? 0)));
+  return Math.round(n * WORLD.expMult * (1 + (fx(g).exp ?? 0) + (traitOf(g.owner).expMult ?? 0)));
 }
 
 // ───────────────────────── 突破 ─────────────────────────
@@ -86,7 +87,7 @@ export function breakChance(g: General): number {
   if (g.hp < maxHp(g) * 0.5) c -= 0.15;
   if (g.foundation && g.realm === 1) c = Math.max(c, 0.95);
   c -= g.demon * 0.3;
-  c += WORLD.breakBonus + (fx(g).breakBonus ?? 0) + g.breakBoost;
+  c += WORLD.breakBonus + (fx(g).breakBonus ?? 0) + (traitOf(g.owner).breakBonus ?? 0) + g.breakBoost;
   return Math.max(0.05, Math.min(0.95, c));
 }
 
@@ -185,7 +186,7 @@ export function tribulation(g: General): TribulationResult {
 export function battleExp(winner: General, loser: General | null): number {
   const steal = loser ? Math.round(loser.exp * 0.1) : 0;
   if (loser) loser.exp -= steal;
-  const gain = (steal + 60 * (winner.realm + 1)) * (winner.aptitude === 'pseudo' ? 2 : 1);
+  const gain = (steal + 60 * (winner.realm + 1)) * (winner.aptitude === 'pseudo' ? 2 : 1) * (1 + (traitOf(winner.owner).battleExp ?? 0));
   return addExp(winner, gain);
 }
 
@@ -226,7 +227,7 @@ export function generalSaleValue(g: General): number {
 /** 聽風樓招募價：本國將領較便宜 */
 export function recruitPrice(g: General, lord: string): number {
   const base = generalValue(g) * 0.6 + 2000;
-  return Math.round((base * (g.origin === lord ? 0.6 : 1.5) * WORLD.recruitMult) / 100) * 100;
+  return Math.round((base * (g.origin === lord ? 0.6 : 1.5) * WORLD.recruitMult * (1 + (traitOf(lord as LordId).recruit ?? 0))) / 100) * 100;
 }
 
 /** 裝備神器或寶衣；換下的裝備放回行囊 */

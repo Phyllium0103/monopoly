@@ -111,7 +111,7 @@ export function aiPreroll(state: GameState, lord: Lord): string[] {
   return logs;
 }
 
-/** 瓶頸中的將領嘗試突破：低階看成功率，雷劫要先療傷、布陣，有把握撐過才渡 */
+/** 瓶頸中的將領嘗試突破：低階看成功率，雷劫要先療傷、佈陣，有把握撐過才渡 */
 export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
   const logs: string[] = [];
   const gens = generalsOf(state, lord.id).filter((g) => g.status !== 'realm');
@@ -130,7 +130,7 @@ export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
       logs.push(ok ? `✦ ${g.name}突破至【${REALMS[g.realm]}】！` : `${g.name}突破失敗，修為受損。`);
       continue;
     }
-    // 雷劫：先回血、布陣
+    // 雷劫：先回血、佈陣
     if (g.hp < maxHp(g) * 0.9) helper('heal');
     if (boltDamage(g) * boltCount(g) > g.hp * 0.8) helper('breakpill');
     if (boltDamage(g) * boltCount(g) > g.hp * 0.8) helper('thunderward');

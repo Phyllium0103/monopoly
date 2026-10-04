@@ -8,7 +8,8 @@ import { canUse, def, usePreroll } from './ItemSystem';
 import { CONTEST_SOLDIERS, siegeAllowed, siegeAttack, type BattleKind } from './BattleSystem';
 import { WORLD } from './WorldMods';
 import type { Offer } from './ShopSystem';
-import { deathChance } from './RealmSystem';
+import { canVoyage, deathChance, islandDeathChance, launchIsland, launchTrade, pirateChance, tradeSkill } from './RealmSystem';
+import { fmtStones } from '../game/Currency';
 
 /** 擲骰前：療傷、換裝、學功法、補兵 */
 export function aiPreroll(state: GameState, lord: Lord): string[] {
@@ -59,6 +60,7 @@ export function aiPreroll(state: GameState, lord: Lord): string[] {
     if (user && target) logs.push(usePreroll(state, lord, pill, user, { general: target }));
   }
   logs.push(...aiBreakthroughs(state, lord));
+  logs.push(...aiVoyage(state, lord));
   // 守軍充足的城池讓駐將閉關
   for (const g of gens.filter((x) => x.status === 'garrison')) g.secluded = state.cities[g.cityId!].garrisonSoldiers >= 2500;
   // 心魔干擾：對敵方瓶頸中的最強將領出手
@@ -225,4 +227,30 @@ export function aiRealm(state: GameState, lord: Lord): General[] | null {
   const team = free.length >= 4 ? free.slice(1, 4) : free.slice(0, 3);
   const risk = team.reduce((s, g) => s + deathChance(g, team), 0) / 3;
   return risk < 0.3 && Math.random() < 0.6 ? team : null;
+}
+
+/** 有港口時出海：手頭寬裕且隨行夠多才派，同時最多一支船隊 */
+export function aiVoyage(state: GameState, lord: Lord): string[] {
+  if (!canVoyage(state, lord) || lord.expeditions.some((e) => e.kind !== 'realm')) return [];
+  const free = freeGenerals(state, lord.id);
+  if (free.length < 5) return [];
+  // 海外貿易：派經商能力最好的兩人，再補一名武將護航
+  if (lord.stones > 20000 && Math.random() < 0.5) {
+    const traders = [...free].sort((a, b) => tradeSkill([b]) - tradeSkill([a])).slice(0, 2);
+    const guard = free.filter((g) => !traders.includes(g)).sort((a, b) => attack(b) - attack(a))[0];
+    const team = guard ? [...traders, guard] : traders;
+    if (pirateChance(team) > 0.25) return [];
+    const invest = Math.min(20000, Math.round((lord.stones * 0.3) / 1000) * 1000);
+    launchTrade(lord, team, invest);
+    return [`派${team.map((g) => g.name).join('、')}帶 ${fmtStones(invest)} 出海貿易`];
+  }
+  // 尋訪仙山：派三名中堅，風險可接受才去
+  if (free.length >= 6 && Math.random() < 0.3) {
+    const team = [...free].sort((a, b) => power(b) - power(a)).slice(1, 4);
+    const risk = team.reduce((s, g) => s + islandDeathChance(g, team), 0) / 3;
+    if (risk > 0.3) return [];
+    launchIsland(lord, team);
+    return [`派${team.map((g) => g.name).join('、')}出海尋訪仙山`];
+  }
+  return [];
 }

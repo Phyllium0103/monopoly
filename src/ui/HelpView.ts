@@ -5,15 +5,18 @@ import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, STAT_NAMES } from '../data/items';
 import { MIN_GARRISON, GARRISON_STRENGTH, SOLDIER_PRICE } from '../systems/CitySystem';
 import { CONTEST_SOLDIERS, SIEGE_START_ROUND } from '../systems/BattleSystem';
 import { TRIBULATION_BOLTS } from '../systems/GeneralSystem';
-import { REALM_TURNS } from '../systems/RealmSystem';
+import { ISLANDS, ISLAND_TURNS, REALM_TURNS, TRADE_TURNS } from '../systems/RealmSystem';
+import { PORT_CITIES } from '../data/board';
 import { DISASTER_AFTER, EVENT_INTERVAL, WORLD_EVENTS, type EventCategory } from '../systems/EventSystem';
-import { TILE_INFO } from '../data/board';
+import { BOARD, TILE_INFO } from '../data/board';
 import { LORDS, LORD_IDS } from '../faction/Faction';
 
 interface Page {
   title: string;
   html: () => string;
 }
+
+const BOARD_NAMES = Object.fromEntries(BOARD.cities.map((c) => [c.id, c.name]));
 
 const list = (items: string[]) => `<ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>`;
 
@@ -153,12 +156,19 @@ const PAGES: Page[] = [
       ${list(ARTIFACT_IDS.map((id) => `<b>${ITEM_DEFS[id].name}</b>（${ITEM_DEFS[id].category}）：${ITEM_DEFS[id].desc(0)}`))}`,
   },
   {
-    title: '🌀 秘境',
+    title: '🌀 秘境與出海',
     html: () => `
+      <h4>秘境</h4>
       ${list([
         `停在秘境時，可派三名隨行武將探索，歷時 ${REALM_TURNS} 回合，期間無法出戰。`,
         '每名武將都可能隕落；綜合屬性越高，個別隕落機率越低。',
         '歸來時依隊伍屬性帶回神器、寶衣、丹藥、功法或靈獸其一，並獲得大量修為。',
+      ])}
+      <h4>⚓ 港口出海</h4>
+      <p>港口城池：${[...PORT_CITIES].map((id) => BOARD_NAMES[id]).join('、')}。<b>停在港口城池，或擁有任一港口城池</b>，就能按「⛵ 出海」。</p>
+      ${list([
+        `<b>海外貿易</b>：派 1–3 名武將帶靈石出海，${TRADE_TURNS} 回合後歸來。煉器、煉丹最好的一人決定獲利倍率；全隊武力越高越不怕海盜。遇到海盜或船難則貨款全失，船難還可能折將。`,
+        `<b>尋訪仙山</b>：派三名武將尋找${ISLANDS.join('、')}，${ISLAND_TURNS} 回合後歸來。隕落率比秘境高一半，但帶回兩份高階寶物與大量修為；可能得仙人點化直接突破，高階武將則獲得仙人護法（下次渡劫減傷 50%）。`,
       ])}`,
   },
   {

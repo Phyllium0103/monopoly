@@ -110,11 +110,15 @@ export interface General {
 }
 
 export interface Expedition {
+  /** realm=秘境、trade=海外貿易、island=尋訪仙山 */
+  kind: 'realm' | 'trade' | 'island';
   generalIds: string[];
   turnsLeft: number;
   realmName: string;
   /** 上古秘境現世期間派遣：死亡率減半、獎勵更好 */
   blessed?: boolean;
+  /** 海外貿易投入的靈石 */
+  invest?: number;
 }
 
 export interface Lord {

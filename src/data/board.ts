@@ -125,8 +125,11 @@ function buildBoard() {
 
 export const BOARD = buildBoard();
 
+/** 沿江、沿海的港口城池：長江、黃河沿岸與東海岸 */
+export const PORT_CITIES = new Set(['jiangzhou', 'jiangling', 'chaisang', 'jianye', 'wujun', 'kuaiji', 'beihai', 'henei', 'puyang', 'pingyuan']);
+
 export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
-  city: { icon: '🏯', desc: '城池：停在無主城池可佔領；踏入他人城池需繳過路費或開戰' },
+  city: { icon: '🏯', desc: '城池：停在無主城池可佔領；踏入他人城池需繳過路費或開戰。標有 ⚓ 的是港口城池，可派武將出海' },
   realm: { icon: '🌀', desc: '秘境：派遣三名武將探索五回合，可能隕落，歸來帶回寶物' },
   treasure: { icon: '💰', desc: '天寶商行：販售法器、陣法、符籙' },
   herb: { icon: '🌿', desc: '百草堂：販售各種丹藥' },

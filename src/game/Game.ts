@@ -22,7 +22,7 @@ import { attack, attemptBreak, battleExp, boltCount, boltDamage, breakChance, ca
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { canUse, def, nameOf, requirementText, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
 import { makeStock, type Offer, type ShopKind } from '../systems/ShopSystem';
-import { deathChance, dispatch, REALM_TURNS } from '../systems/RealmSystem';
+import { ISLANDS, ISLAND_TURNS, REALM_TURNS, SHIPWRECK_CHANCE, TRADE_TURNS, canVoyage, deathChance, dispatch, islandDeathChance, launchIsland, launchTrade, pirateChance, tradeMultiplier } from '../systems/RealmSystem';
 import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
 import { EVENT_INTERVAL, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, syncWorldMods, tickWorldEvents } from '../systems/EventSystem';
 import { WORLD } from '../systems/WorldMods';
@@ -188,10 +188,10 @@ export class Game {
     for (const l of report.lines) this.ui.log(`${name}：${l.text}`, lord.isPlayer ? l.kind : 'ai');
     if (lord.isPlayer && report.bottlenecks.length) this.ui.toast(`${report.bottlenecks.map((id) => this.state.generals[id].name).join('、')}進入瓶頸，可以突破了！`);
     for (const r of report.realms) {
-      const text = `${r.realmName}探索歸來。${r.dead.length ? `${r.dead.map((g) => g.name).join('、')}不幸隕落。` : '全員平安。'}${r.reward ? `帶回${r.reward}！` : '一無所獲。'}`;
-      this.ui.log(`${name}：${text}`, r.dead.length ? 'bad' : 'good');
+      const text = r.summary;
+      this.ui.log(`${name}：${r.icon} ${text}`, r.dead.length ? 'bad' : 'good');
       for (const line of r.insights) this.ui.log(`${name}：${line}`, lord.isPlayer ? 'good' : 'ai');
-      if (lord.isPlayer) await this.dialog.message('🌀 秘境歸來', `${text}\n\n${r.insights.join('\n')}`, '🌀');
+      if (lord.isPlayer) await this.dialog.message(`${r.realmName}・歸來`, `${text}${r.insights.length ? `\n\n${r.insights.join('\n')}` : ''}`, r.icon);
     }
     this.refresh();
 
@@ -944,6 +944,72 @@ export class Game {
     this.refresh();
   }
 
+  // ───────────────────────── 港口出海 ─────────────────────────
+
+  private async voyage(lord: Lord) {
+    const free = freeGenerals(this.state, lord.id);
+    const kind = await this.dialog.choose(
+      '⛵ 港口出海',
+      '從港口派武將出海，期間這些武將暫時離隊。',
+      [
+        {
+          label: '💰 海外貿易',
+          sub: `派 1–3 名武將帶靈石經商，${TRADE_TURNS} 回合後歸來。煉器、煉丹越高獲利越多；武力越高越不怕海盜`,
+          value: 'trade' as const,
+          disabled: lord.stones < 2000,
+          reason: '至少需要 2中品 靈石',
+        },
+        {
+          label: '🏝️ 尋訪仙山',
+          sub: `派三名武將尋找${ISLANDS.join('、')}，${ISLAND_TURNS} 回合後歸來。比秘境兇險，但帶回兩份高階寶物與大量修為，還可能得仙人點化`,
+          value: 'island' as const,
+          disabled: free.length < 3,
+          reason: '需要三名隨行武將',
+        },
+      ],
+      '取消',
+      '⛵',
+    );
+    if (!kind) return;
+
+    if (kind === 'island') {
+      const team = await this.dialog.pickMany(
+        '🏝️ 尋訪仙山',
+        '選三名武將出海。綜合屬性越高，個別隕落機率越低。',
+        free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}・單獨隕落率約 ${Math.round(islandDeathChance(g, [g, g, g]) * 100)}%`, value: g })),
+        3,
+        3,
+        '揚帆',
+      );
+      if (!team) return;
+      launchIsland(lord, team);
+      this.ui.log(`派遣${team.map((g) => g.name).join('、')}出海尋訪仙山。`, 'good');
+      this.refresh();
+      return;
+    }
+
+    const team = await this.dialog.pickMany(
+      '💰 海外貿易・選擇商隊',
+      '選 1–3 名武將。煉器、煉丹最好的一人決定獲利；全隊武力合計決定遇到海盜的機率。',
+      free.map((g) => ({ label: g.name, sub: `煉器 ${craft(g, 'forging')}・煉丹 ${craft(g, 'alchemy')}・武力 ${attack(g)}`, value: g })),
+      1,
+      3,
+      '組成商隊',
+    );
+    if (!team) return;
+    const mult = tradeMultiplier(team);
+    const risk = Math.round((pirateChance(team) + SHIPWRECK_CHANCE) * 100);
+    const invest = await this.dialog.choose(
+      '💰 海外貿易・投入多少靈石？',
+      `預估獲利約 ×${(mult - 0.2).toFixed(2)}～×${(mult + 0.3).toFixed(2)}；遇海盜或船難（約 ${risk}%）則血本無歸。\n持有 ${fmtStones(lord.stones)}`,
+      [2000, 5000, 10000, 20000, 50000].map((v) => ({ label: fmtStones(v), sub: `成功約可帶回 ${fmtStones(Math.round(v * mult))}`, value: v, disabled: lord.stones < v, reason: '靈石不足' })),
+    );
+    if (!invest) return;
+    launchTrade(lord, team, invest);
+    this.ui.log(`派${team.map((g) => g.name).join('、')}帶 ${fmtStones(invest)} 出海貿易。`, 'good');
+    this.refresh();
+  }
+
   // ───────────────────────── 宗門與突破 ─────────────────────────
 
   /** 聽風樓、空城或自己的城池才能調度宗門 */
@@ -1120,6 +1186,7 @@ export class Game {
         { label: '⚔️ 徵兵', sub: `${SOLDIER_PRICE}/名`, onClick: () => void this.recruitSoldiers(player) },
         { label: '🏯 調度駐軍', onClick: () => void this.manageGarrison(player) },
         { label: '🏛️ 宗門', sub: `隨行 ${freeGenerals(this.state, player.id).length}/${PARTY_LIMIT}`, disabled: !this.canSwapSect(player), onClick: () => void this.manageSect(player) },
+        { label: '⛵ 出海', sub: '貿易・尋仙', disabled: !canVoyage(this.state, player) || !freeGenerals(this.state, player.id).length, onClick: () => void this.voyage(player) },
         roster,
       );
     } else if (this.phase === 'pickTile') {
@@ -1131,6 +1198,7 @@ export class Game {
         roster,
         { label: '🏯 調度駐軍', onClick: () => void this.manageGarrison(player) },
         { label: '🏛️ 宗門', sub: `隨行 ${freeGenerals(this.state, player.id).length}/${PARTY_LIMIT}`, disabled: !this.canSwapSect(player), onClick: () => void this.manageSect(player) },
+        { label: '⛵ 出海', sub: '貿易・尋仙', disabled: !canVoyage(this.state, player) || !freeGenerals(this.state, player.id).length, onClick: () => void this.voyage(player) },
         { label: '結束回合', sub: 'Enter', kind: 'primary', onClick: () => this.endResolver?.() },
       );
     } else hint = '……';

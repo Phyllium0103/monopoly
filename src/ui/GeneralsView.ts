@@ -28,7 +28,7 @@ const SECTIONS: { status: General['status']; title: string }[] = [
   { status: 'free', title: '隨行' },
   { status: 'garrison', title: '駐守城池' },
   { status: 'sect', title: '留守宗門' },
-  { status: 'realm', title: '秘境探索中' },
+  { status: 'realm', title: '外出中（秘境・出海）' },
 ];
 
 /** 武將名冊：查看能力、裝備、學功法、突破渡劫、閉關 */
@@ -108,8 +108,8 @@ export class GeneralsView {
     const cap = expCap(g);
     const t = g.technique;
     const city = g.cityId ? state.cities[g.cityId] : null;
-    const turnsLeft = lord.expeditions.find((e) => e.generalIds.includes(g.id))?.turnsLeft ?? 0;
-    const status = g.status === 'garrison' ? `駐守${city?.name ?? ''}${g.secluded ? '・閉關中' : ''}` : g.status === 'realm' ? `秘境（${turnsLeft} 回合）` : g.status === 'sect' ? '宗門' : '隨行';
+    const trip = lord.expeditions.find((e) => e.generalIds.includes(g.id));
+    const status = g.status === 'garrison' ? `駐守${city?.name ?? ''}${g.secluded ? '・閉關中' : ''}` : g.status === 'realm' ? `${trip?.realmName ?? '外出'}（${trip?.turnsLeft ?? 0} 回合）` : g.status === 'sect' ? '宗門' : '隨行';
     const bottleneck = inBottleneck(g);
     const breakInfo = !bottleneck
       ? ''

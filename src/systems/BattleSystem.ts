@@ -44,6 +44,16 @@ export interface DuelEvent {
 }
 
 const MAX_ACTIONS = 60;
+/** 血量低於一成就會認輸（保住性命） */
+export const SURRENDER_HP = 0.1;
+/** 血量低於兩成進入瀕危，受到的傷害減少三成 */
+export const WOUNDED_HP = 0.2;
+export const WOUNDED_REDUCE = 0.3;
+
+/** 血量足以上擂台：開打前就低於一成的武將會直接認輸 */
+export function canDuel(g: General): boolean {
+  return g.hp >= maxHp(g) * SURRENDER_HP;
+}
 
 /** 擂台戰：回合制單挑，能量滿可施放功法技能 */
 export class Duel {
@@ -52,6 +62,11 @@ export class Duel {
   turn: Side = 'a';
   actions = 0;
   winner: Side | null = null;
+  /** 認輸的一方：血量低於一成，保住性命 */
+  surrendered: Side | null = null;
+  /** 戰死的一方：血量被一擊打到歸零 */
+  slain: Side | null = null;
+  private announced = false;
 
   constructor(aLord: Lord, aGen: General, bLord: Lord, bGen: General) {
     this.a = this.makeFighter('a', aLord, aGen);
@@ -61,6 +76,38 @@ export class Duel {
     this.b.atk = Math.round(this.b.atk * (1 - (fx(aGen).intimidate ?? 0)));
     // 先手：只有守方擁有時才改由守方先攻
     if (fx(bGen).firstStrike && !fx(aGen).firstStrike) this.turn = 'b';
+    // 上場前血量就低於一成：不戰而降（雙方皆是則攻方先認輸）
+    if (this.a.hp < this.a.maxHp * SURRENDER_HP) this.checkDown(this.a);
+    else if (this.b.hp < this.b.maxHp * SURRENDER_HP) this.checkDown(this.b);
+  }
+
+  /** 血量歸零即戰死；留有一口氣但低於一成則認輸 */
+  private checkDown(target: Fighter) {
+    if (this.winner) return;
+    if (target.hp <= 0) this.slain = target.side;
+    else if (target.hp < target.maxHp * SURRENDER_HP) this.surrendered = target.side;
+    else return;
+    this.winner = target.side === 'a' ? 'b' : 'a';
+  }
+
+  /** 結局公告：認輸或戰死 */
+  verdict(): DuelEvent[] {
+    if (!this.winner || this.announced) return [];
+    this.announced = true;
+    if (this.slain) {
+      const g = this.fighter(this.slain).general;
+      return [{ text: `${g.name}被當場擊殺，戰死擂台！`, kind: 'info' }];
+    }
+    if (this.surrendered) {
+      const g = this.fighter(this.surrendered).general;
+      return [{ text: `${g.name}血量不足一成，自知不敵，拱手認輸！`, kind: 'info' }];
+    }
+    return [];
+  }
+
+  /** 戰死的武將 */
+  slainGeneral(): General | null {
+    return this.slain ? this.fighter(this.slain).general : null;
   }
 
   private makeFighter(side: Side, lord: Lord, g: General): Fighter {
@@ -100,13 +147,15 @@ export class Duel {
   /** 對目標造成傷害（先扣護盾） */
   damage(target: Fighter, amount: number): number {
     let dmg = Math.max(1, Math.round(amount));
+    // 瀕危：血量低於兩成時減傷三成
+    if (target.hp < target.maxHp * WOUNDED_HP) dmg = Math.max(1, Math.round(dmg * (1 - WOUNDED_REDUCE)));
     if (target.shield > 0) {
       const absorbed = Math.min(target.shield, dmg);
       target.shield -= absorbed;
       dmg -= absorbed;
     }
     target.hp = Math.max(0, target.hp - dmg);
-    if (target.hp <= 0) this.winner = target.side === 'a' ? 'b' : 'a';
+    this.checkDown(target);
     return dmg;
   }
 
@@ -179,18 +228,20 @@ export class Duel {
       }
     }
     if (!this.winner && me.poison) {
-      const dmg = Math.min(me.hp, Math.round(me.maxHp * me.poison.dmg));
+      // 毒只會把人逼到認輸，不會直接毒死
+      const dmg = Math.min(me.hp - 1, Math.round(me.maxHp * me.poison.dmg));
       me.hp -= dmg;
       me.poison.turns--;
       if (me.poison.turns <= 0) me.poison = null;
       events.push({ text: `${me.general.name}毒發，損失 ${dmg} 血量`, target: me.side, damage: dmg, kind: 'info' });
-      if (me.hp <= 0) this.winner = foe.side;
+      this.checkDown(me);
     }
     this.actions++;
     if (!this.winner && this.actions >= MAX_ACTIONS) {
       this.winner = 'b';
       events.push({ text: '久戰不下，守方守住擂台。', kind: 'info' });
     }
+    events.push(...this.verdict());
     if (!this.winner) {
       this.turn = foe.side;
       if (foe.frozen > 0) {
@@ -210,7 +261,7 @@ export class Duel {
 
   /** 戰後把血量寫回將領 */
   finish() {
-    for (const f of [this.a, this.b]) f.general.hp = Math.max(1, f.hp);
+    for (const f of [this.a, this.b]) f.general.hp = f.side === this.slain ? 0 : Math.max(1, f.hp);
   }
 
   /** 不需操作的快速模擬（電腦對電腦） */
@@ -265,27 +316,27 @@ export interface SiegeResult {
 }
 
 /** 攻方戰力：士兵受武將武力統率加成，再加上武將本身戰力、靈獸與破城符 */
-export function siegeAttack(attacker: Lord, generals: General[]): number {
+export function siegeAttack(attacker: Lord, generals: General[], soldiers = attacker.soldiers): number {
   // 統率：武力越高加成越大，攻城統率被動再加乘；兵力倍增取隊中最高者
   const command = 1 + generals.reduce((s, g) => s + attack(g) * (1 + (fx(g).siegeLead ?? 0)), 0) / 600;
   const troops = 1 + Math.max(0, ...generals.map((g) => fx(g).troops ?? 0));
-  const base = attacker.soldiers * troops * command + generals.reduce((s, g) => s + power(g) * 2, 0) + beastSiegeBonus(attacker);
+  const base = soldiers * troops * command + generals.reduce((s, g) => s + power(g) * 2, 0) + beastSiegeBonus(attacker);
   return Math.round(base * attacker.siegeBoost);
 }
 
-/** 攻城戰：最多三名武將 + 全部未派遣的隨行士兵 vs 駐將 + 城池守軍（一名守軍約等於十名隨行士兵） */
-export function siege(state: GameState, attacker: Lord, generals: General[], city: City): SiegeResult {
-  const atk = Math.round(siegeAttack(attacker, generals) * (0.85 + Math.random() * 0.3));
+/** 攻城戰：最多三名武將 + 自己決定派出的士兵 vs 駐將 + 城池守軍（一名守軍約等於十名隨行士兵） */
+export function siege(state: GameState, attacker: Lord, generals: General[], city: City, soldiers = attacker.soldiers): SiegeResult {
+  const atk = Math.round(siegeAttack(attacker, generals, soldiers) * (0.85 + Math.random() * 0.3));
   const def = Math.round(garrisonPower(state, city) * (0.9 + Math.random() * 0.2));
   const win = atk > def;
   let attackerLoss: number;
   let defenderLoss: number;
   // 敗方投入的兵力全滅；勝方折損隨雙方差距縮小而增加
   if (win) {
-    attackerLoss = Math.round(attacker.soldiers * Math.min(0.8, (def / atk) * 0.6));
+    attackerLoss = Math.round(soldiers * Math.min(0.8, (def / atk) * 0.6));
     defenderLoss = city.garrisonSoldiers;
   } else {
-    attackerLoss = attacker.soldiers;
+    attackerLoss = soldiers;
     defenderLoss = Math.round(city.garrisonSoldiers * Math.min(0.8, (atk / def) * 0.6));
   }
   attacker.soldiers -= attackerLoss;

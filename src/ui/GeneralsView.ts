@@ -29,7 +29,7 @@ const SECTIONS: { status: General['status']; title: string }[] = [
   { status: 'free', title: '隨行' },
   { status: 'garrison', title: '駐守城池' },
   { status: 'sect', title: '留守宗門' },
-  { status: 'realm', title: '外出中（秘境・出海）' },
+  { status: 'realm', title: '外出中（秘境）' },
 ];
 
 /** 武將名冊：查看能力、裝備、學功法、突破渡劫、閉關 */
@@ -90,7 +90,8 @@ export class GeneralsView {
 
     const sections = this.el.querySelector('.sections')!;
     for (const sec of SECTIONS) {
-      const list = gens.filter((g) => g.status === sec.status);
+      // 可以突破的武將排在最前面
+      const list = gens.filter((g) => g.status === sec.status).sort((a, b) => Number(inBottleneck(b)) - Number(inBottleneck(a)));
       if (!list.length) continue;
       const h = document.createElement('h3');
       h.className = 'section-title';
@@ -105,7 +106,8 @@ export class GeneralsView {
 
   private card(state: GameState, lord: Lord, g: General, manage: boolean): HTMLDivElement {
     const card = document.createElement('div');
-    card.className = `general-card s-${g.status}`;
+    const ready = canAttemptBreak(g, state.round).ok;
+    card.className = `general-card s-${g.status}${ready ? ' ready' : ''}`;
     const cap = expCap(g);
     const t = g.technique;
     const city = g.cityId ? state.cities[g.cityId] : null;
@@ -117,9 +119,10 @@ export class GeneralsView {
       : needsTribulation(g)
         ? `⚡ 渡劫：${boltCount(g)} 道天雷・每道約 ${Math.round(boltDamage(g))}`
         : `突破成功率 ${Math.round(breakChance(g) * 100)}%`;
-    const buffs = [g.foundation ? '已服築基丹' : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? `心魔 ×${g.demon}` : ''].filter(Boolean).join('・');
+    const buffs = [g.foundation ? '已服築基丹' : '', g.breakBoost ? `破境 ${Math.round(g.breakBoost * 100)}%` : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? `心魔 ×${g.demon}` : ''].filter(Boolean).join('・');
 
     card.innerHTML = `
+      ${ready ? `<div class="ready-banner">✨ 修為圓滿，可以${needsTribulation(g) ? '渡劫' : '突破'}了！</div>` : ''}
       <div class="gc-head"><b>${g.name}</b><small>${originKingdom(g.origin)}</small><span class="realm">${REALMS[g.realm]}</span><span class="st">${status}</span></div>
       <div class="tags">
         <span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span>

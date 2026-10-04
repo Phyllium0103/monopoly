@@ -8,6 +8,17 @@ export interface Choice<T> {
   color?: string;
 }
 
+export interface SliderOptions {
+  min: number;
+  max: number;
+  step?: number;
+  initial?: number;
+  unit?: string;
+  confirm?: string;
+  /** 依目前數值顯示的說明（可含 HTML） */
+  preview?: (value: number) => string;
+}
+
 /** 通用彈窗：所有需要玩家決定的流程都透過這裡 */
 export class Dialog {
   private el: HTMLDivElement;
@@ -116,6 +127,73 @@ export class Dialog {
       row.append(ok, cancel);
       card.appendChild(row);
       refresh();
+    });
+  }
+
+  /** 拉條：自己決定數量（例如派遣多少士兵）；取消回傳 null */
+  slider(title: string, text: string, opts: SliderOptions, icon = ''): Promise<number | null> {
+    return new Promise((resolve) => {
+      const { min, max, step = 100, unit = '', confirm = '確定', preview } = opts;
+      const card = this.open(title, text, icon);
+      const snap = (v: number) => Math.max(min, Math.min(max, v >= max ? max : Math.round(v / step) * step || min));
+      let value = snap(opts.initial ?? max);
+      const box = document.createElement('div');
+      box.className = 'slider-box';
+      box.innerHTML = `
+        <div class="slider-value"></div>
+        <input type="range" min="${min}" max="${max}" step="1">
+        <div class="slider-range"><span>${min}${unit}</span><span>${max}${unit}</span></div>
+        <div class="slider-quick"></div>
+        <div class="slider-preview"></div>`;
+      card.appendChild(box);
+      const input = box.querySelector('input') as HTMLInputElement;
+      const valueEl = box.querySelector('.slider-value') as HTMLElement;
+      const previewEl = box.querySelector('.slider-preview') as HTMLElement;
+      const ok = document.createElement('button');
+      ok.className = 'btn primary';
+      const render = () => {
+        input.value = String(value);
+        valueEl.innerHTML = `<b>${value}</b>${unit}`;
+        previewEl.innerHTML = preview ? preview(value) : '';
+        ok.textContent = `${confirm}（${value}${unit}）`;
+        ok.disabled = value < min || value > max || max < min;
+      };
+      const set = (v: number) => {
+        value = snap(v);
+        render();
+      };
+      input.oninput = () => set(Number(input.value));
+      const quick = box.querySelector('.slider-quick') as HTMLElement;
+      for (const [label, ratio] of [['最少', 0], ['¼', 0.25], ['½', 0.5], ['¾', 0.75], ['全部', 1]] as const) {
+        const b = document.createElement('button');
+        b.className = 'btn mini';
+        b.textContent = label;
+        b.onclick = () => set(min + (max - min) * ratio);
+        quick.appendChild(b);
+      }
+      for (const d of [-step, step]) {
+        const b = document.createElement('button');
+        b.className = 'btn mini';
+        b.textContent = d > 0 ? `+${step}` : `−${step}`;
+        b.onclick = () => set(value + d);
+        quick.appendChild(b);
+      }
+      const row = document.createElement('div');
+      row.className = 'dialog-buttons';
+      const cancel = document.createElement('button');
+      cancel.className = 'btn';
+      cancel.textContent = '取消';
+      cancel.onclick = () => {
+        this.close();
+        resolve(null);
+      };
+      ok.onclick = () => {
+        this.close();
+        resolve(value);
+      };
+      row.append(ok, cancel);
+      card.appendChild(row);
+      render();
     });
   }
 

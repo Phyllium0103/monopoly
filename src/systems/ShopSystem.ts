@@ -2,7 +2,7 @@ import type { GameState, Lord, TileKind } from '../game/types';
 import { joinLord, nextUid } from '../game/GameState';
 import { merchantStock } from './EventSystem';
 import { fmtStones } from '../game/Currency';
-import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipRealm, itemName, makeBeast, makeEquipment, makeTechnique, rollTier, singleTier, techniqueExp, ELEMENT_NAMES } from '../data/items';
+import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipRealm, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemTier, rollTier, techniqueExp, ELEMENT_NAMES } from '../data/items';
 import { APTITUDE_NAMES, REALMS } from '../data/generals';
 import { fxText, passiveOf } from '../data/passives';
 import { generalValue, power, realmName, recruitPrice } from './GeneralSystem';
@@ -42,19 +42,16 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
     case 'herb':
       return Array.from({ length: 6 }, () => {
         const defId = PILL_IDS[Math.floor(Math.random() * PILL_IDS.length)];
-        const tier = singleTier(defId) ? 0 : Math.min(3, Math.floor(Math.pow(Math.random(), 1.6 - bias) * 4));
-        const d = ITEM_DEFS[defId];
-        const item: Item = { uid: uid('i'), defId, tier, price: d.price[tier] };
-        return { kind: 'item', item, label: itemName(defId, tier), sub: `${d.desc(tier)}｜煉丹 ≥ ${d.min[tier]}`, price: item.price } as Offer;
+        const item = makeItem(uid('i'), defId, rollItemTier(defId, bias));
+        return { kind: 'item', item, label: itemName(defId, item.tier), sub: `${ITEM_DEFS[defId].desc(item.tier)}｜${requirementOf(defId, item.tier)}`, price: item.price } as Offer;
       });
     case 'treasure':
       return shuffle([...ARTIFACT_IDS])
         .slice(0, 8)
         .map((defId) => {
           const d = ITEM_DEFS[defId];
-          const item: Item = { uid: uid('i'), defId, tier: 0, price: d.price[0] };
-          const statName = { formation: '佈陣', talisman: '畫符', forging: '煉器', alchemy: '煉丹' }[d.stat];
-          return { kind: 'item', item, label: `${d.category}・${d.name}`, sub: `${d.desc(0)}｜${statName} ≥ ${d.min[0]}`, price: item.price } as Offer;
+          const item = makeItem(uid('i'), defId, rollItemTier(defId, bias));
+          return { kind: 'item', item, label: `${d.category}・${itemName(defId, item.tier)}`, sub: `${d.desc(item.tier)}｜${requirementOf(defId, item.tier)}`, price: item.price } as Offer;
         });
     case 'forge':
       return Array.from({ length: 6 }, (_, i) => {

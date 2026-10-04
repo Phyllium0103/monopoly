@@ -1,12 +1,11 @@
 import { MAX_ROUNDS, PARTY_LIMIT, START_SOLDIERS, START_STONES } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS, REALM_EXP } from '../data/generals';
-import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, STAT_NAMES } from '../data/items';
+import { ITEM_CATEGORIES, ITEM_DEFS, PILL_GRADES, STAT_NAMES } from '../data/items';
 import { MIN_GARRISON, GARRISON_STRENGTH, SOLDIER_PRICE } from '../systems/CitySystem';
-import { CONTEST_SOLDIERS, SIEGE_START_ROUND } from '../systems/BattleSystem';
+import { CONTEST_SOLDIERS, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE } from '../systems/BattleSystem';
 import { TRIBULATION_BOLTS } from '../systems/GeneralSystem';
-import { ISLANDS, ISLAND_TURNS, REALM_TURNS, TRADE_TURNS } from '../systems/RealmSystem';
-import { PORT_CITIES } from '../data/board';
+import { REALM_TURNS } from '../systems/RealmSystem';
 import { DISASTER_AFTER, EVENT_INTERVAL, WORLD_EVENTS, type EventCategory } from '../systems/EventSystem';
 import { BOARD, TILE_INFO } from '../data/board';
 import { CITY_TERRAIN, TERRAIN, type TerrainId } from '../data/terrain';
@@ -35,6 +34,21 @@ function terrainTable(): string {
   return `<table class="terrain-table"><tr><th>地貌</th><th>靈石</th><th>士兵</th><th>城防</th><th>靈氣</th><th>繁榮</th><th>城池</th></tr>${rows.join('')}</table>`;
 }
 
+/** 各類物品的效果、使用時機、能力門檻與體力消耗 */
+function itemTable(category: (typeof ITEM_CATEGORIES)[number]): string {
+  const timing = { preroll: '擲骰前', battle: '戰鬥中', both: '皆可' };
+  const range = (a: number[]) => (a[0] === a[a.length - 1] ? `${a[0]}` : `${a[0]}～${a[a.length - 1]}`);
+  const rows = Object.values(ITEM_DEFS)
+    .filter((d) => d.category === category)
+    .map((d) => {
+      const multi = d.price.length > 1;
+      const last = d.price.length - 1;
+      const effect = multi ? `<b>${PILL_GRADES[0]}</b> ${d.desc(0)}<br><b>${PILL_GRADES[last]}</b> ${d.desc(last)}` : d.desc(0);
+      return `<tr><td><b>${d.name}</b>${multi ? '<small>黃玄地天四階</small>' : ''}</td><td>${timing[d.timing]}</td><td>${effect}</td><td>${STAT_NAMES[d.stat]} ≥ ${range(d.min)}</td><td>${range(d.stamina)}</td><td>${fmtStones(d.price[0], true)}${multi ? `<br>～${fmtStones(d.price[last], true)}` : ''}</td></tr>`;
+    });
+  return `<table class="terrain-table item-table"><tr><th>名稱</th><th>時機</th><th>效果</th><th>能力門檻</th><th>體力</th><th>價格</th></tr>${rows.join('')}</table>`;
+}
+
 const list = (items: string[]) => `<ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>`;
 
 const CATEGORY_TITLES: Record<EventCategory, string> = {
@@ -53,12 +67,12 @@ const PAGES: Page[] = [
   {
     title: '🎲 基本玩法',
     html: () => `
-      <p>天地靈氣復甦，三國群雄得以修仙。選擇 ${LORD_IDS.map((id) => LORDS[id].name).join('、')} 其中一位，其餘三位由電腦操控，輪流在環狀地圖上擲骰前進。</p>
+      <p>天地靈氣復甦，三國群雄得以修仙。選擇 ${LORD_IDS.map((id) => LORDS[id].name).join('、')} 其中一位，其餘三位由電腦操控，輪流在依真實地理繪製的地圖上擲骰前進。</p>
       <h4>每回合流程</h4>
       ${list([
         '<b>回合開始</b>：城池收入靈石與士兵、武將周天吐納增加修為、秘境倒數。',
         '<b>擲骰前</b>：可以使用物品、徵兵、調度駐軍與宗門、整備武將（裝備、功法、突破）。',
-        '<b>擲骰移動</b>：走骰子點數的格數，<b>只有停下的那一格</b>會觸發效果。',
+        '<b>擲骰移動</b>：走骰子點數的格數，<b>只有停下的那一格</b>會觸發效果；路上遇到<b>岔路</b>要選擇方向。',
         '<b>結束回合</b>：按「結束回合」或 Enter。',
       ])}
       <h4>開局資源</h4>
@@ -70,6 +84,15 @@ const PAGES: Page[] = [
     title: '🗺️ 地圖格子',
     html: () => `
       ${list(Object.values(TILE_INFO).map((t) => `${t.icon} ${t.desc}`))}
+      <h4>岔路與走向</h4>
+      ${list([
+        '地圖不是一個圈，而是依真實地理鋪成的路網：城池之間以道路、關隘（虎牢關、潼關、劍閣……）相連，洛陽、鄴城、長沙等樞紐有三四條路通往不同方向。',
+        '走到<b>岔路口</b>（地圖上標 🔱）時，點選發光的格子，或按下方按鈕決定往哪走；按鈕下方會預覽前方的關隘與目的地。',
+        '<b>同一次擲骰不能走回頭路</b>（死路例外），下一回合起可以自由選擇任何方向。',
+        '<b>秘境</b>都藏在岔出去的山徑盡頭（太行洞天、華山仙境、泰山福地、東海仙島、廬山幽谷、衡山靈境、武當玄境、峨眉金頂、崑崙墟），要專程繞一段路。',
+        '商店與聽風樓散布在各條要道上：往哪走，決定你能買到什麼。',
+        '滑鼠移到任何格子都能看到它<b>通往哪些地點</b>。',
+      ])}
       <p>格子上方的標籤會顯示城池主人與過路費；滑鼠移到格子上可以看詳細資訊。</p>`,
   },
   {
@@ -90,8 +113,14 @@ const PAGES: Page[] = [
       <h4>地貌</h4>
       <p>每座城池依真實地理有不同地貌，影響靈石與士兵收入、守城戰力、駐守武將吸收的靈氣與繁榮成長：</p>
       ${terrainTable()}
+      <h4>繁榮度與城池榜</h4>
+      ${list([
+        '每座城池的繁榮度依東漢末年的實際盛衰各不相同：洛陽、成都、許昌、建業、長安、鄴城是天下名都；北平、武威、建寧等邊遠之地最為荒涼。',
+        '右上角「🏆 城池榜」可查看繁榮度、靈石收入、士兵收入、過路費、守城戰力的排名，以及所有城池的總表；點選城池可把鏡頭移過去。',
+        '滑鼠移到城池上，也會顯示它的繁榮度名次。',
+      ])}
       <h4>徵兵與調度</h4>
-      ${list([`徵兵每名 ${SOLDIER_PRICE} 下品靈石。`, '「調度駐軍」可增派、撤回守軍或更換駐將。'])}`,
+      ${list([`徵兵每名 ${SOLDIER_PRICE} 下品靈石，用<b>拉條</b>自己決定徵多少。`, '「調度駐軍」可用拉條增派、撤回守軍，或更換駐將；佔領城池、攻下城池時，同樣用拉條決定派多少士兵駐守。'])}`,
   },
   {
     title: '⚔️ 戰鬥',
@@ -99,6 +128,10 @@ const PAGES: Page[] = [
       <h4>擂台戰</h4>
       ${list([
         '雙方各派一名武將回合制單挑：攻擊累積能量，能量滿可施放功法技能。',
+        `<b>瀕危</b>：血量低於 ${WOUNDED_HP * 100}% 的武將，受到的傷害減少 ${WOUNDED_REDUCE * 100}%。`,
+        `<b>認輸</b>：血量被打到 ${SURRENDER_HP * 100}% 以下就會認輸，保住性命；認輸的一方判負。`,
+        '<b>戰死</b>：若血量被一擊（攻擊、技能、物品）直接打到歸零，武將當場戰死，從此除名——所以別讓血量偏低的武將硬撐。',
+        `上場前血量就低於 ${SURRENDER_HP * 100}% 的武將無法出戰擂台。`,
         '功法有金木水火土五行，<b>相剋</b>的一方傷害大增（金剋木、木剋土、土剋水、水剋火、火剋金）。',
         '戰鬥中可以使用丹藥、符籙、法器；靈獸也會參戰。',
       ])}
@@ -110,9 +143,9 @@ const PAGES: Page[] = [
       <h4>攻城戰</h4>
       ${list([
         `<b>前 ${SIEGE_START_ROUND - 1} 輪不能攻城</b>，第 ${SIEGE_START_ROUND} 輪起開放。`,
-        '最多派三名武將，率領所有未派遣的隨行士兵，對上該城守軍與駐將。',
+        '最多派三名武將，並用<b>拉條</b>決定出兵多少（畫面會即時比較我方與守方戰力），對上該城守軍與駐將。',
         '武將武力越高，士兵統率加成越大；駐將防禦越高，守軍加成越大。',
-        '<b>敗方兵力全滅</b>，勝方也會折損（雙方越接近折損越多）。',
+        '<b>敗方出征的士兵全滅</b>，勝方也會折損（雙方越接近折損越多）；沒派出去的士兵不受影響。',
         '攻破時若駐將正在閉關，會<b>走火入魔</b>：重傷並損失一半修為。',
       ])}
       <p>勝者在戰鬥中會掠奪敗者一成修為，偽靈根武將獲得雙倍。</p>`,
@@ -159,7 +192,7 @@ const PAGES: Page[] = [
         '<b>攻守城</b>：<b>兵力倍增</b>（如張遼八百破十萬、郝昭陳倉之守）、攻城統率、守城戰力。',
         '<b>內政</b>：駐守城池時提高靈石或士兵收入。',
         '<b>修仙</b>：修為加成、突破率、雷劫減傷、秘境存活。',
-        '<b>其他</b>：海外貿易、比試得分、物品體力消耗、百毒不侵、不受定身。',
+        '<b>其他</b>：比試得分、物品體力消耗、百毒不侵、不受定身。',
       ])}
       <h4>隨行與宗門</h4>
       ${list([
@@ -177,26 +210,20 @@ const PAGES: Page[] = [
         '<b>使用方式</b>：選物品 → 選一名隨行武將使用（消耗體力、需達能力門檻）→ 選擇生效對象。',
         '丹藥看煉丹、法器看煉器、符籙看畫符、陣法看佈陣。',
         '百草堂（丹藥）、天工坊（神器寶衣，品階越高需要越高境界）、藏經閣（功法）、萬獸園（靈獸，限一隻）、天寶商行（法器陣法符籙）。',
+        '<b>每件物品都有使用門檻</b>：武將對應的技藝（煉丹／佈陣／畫符／煉器）要達到能力值，並消耗體力；威力越強的物品門檻與體力消耗越高。體力每回合自動回復 15。',
+        '丹藥、部分陣法、符籙、法器分<b>黃、玄、地、天</b>四階，階越高效果越強，門檻、體力與價格也越高。',
+        '驛道上的奇遇也可能送你丹藥、符籙、陣法、法器、士兵，甚至黃、玄階的功法與神器。',
       ])}
-      <h4>丹藥</h4>
-      ${list(PILL_IDS.map((id) => `<b>${ITEM_DEFS[id].name}</b>：${ITEM_DEFS[id].desc(0)}`))}
-      <h4>法器、陣法、符籙</h4>
-      ${list(ARTIFACT_IDS.map((id) => `<b>${ITEM_DEFS[id].name}</b>（${ITEM_DEFS[id].category}）：${ITEM_DEFS[id].desc(0)}`))}`,
+      ${ITEM_CATEGORIES.map((c) => `<h4>${c}（${{ 丹藥: '煉丹', 陣法: '佈陣', 符籙: '畫符', 法器: '煉器' }[c]}）</h4>${itemTable(c)}`).join('')}`,
   },
   {
-    title: '🌀 秘境與出海',
+    title: '🌀 秘境',
     html: () => `
       <h4>秘境</h4>
       ${list([
         `停在秘境時，可派三名隨行武將探索，歷時 ${REALM_TURNS} 回合，期間無法出戰。`,
         '每名武將都可能隕落；綜合屬性越高，個別隕落機率越低。',
         '歸來時依隊伍屬性帶回神器、寶衣、丹藥、功法或靈獸其一，並獲得大量修為。',
-      ])}
-      <h4>⚓ 港口出海</h4>
-      <p>港口城池：${[...PORT_CITIES].map((id) => BOARD_NAMES[id]).join('、')}。<b>停在港口城池，或擁有任一港口城池</b>，就能按「⛵ 出海」。</p>
-      ${list([
-        `<b>海外貿易</b>：派 1–3 名武將帶靈石出海，${TRADE_TURNS} 回合後歸來。煉器、煉丹最好的一人決定獲利倍率；全隊武力越高越不怕海盜。遇到海盜或船難則貨款全失，船難還可能折將。`,
-        `<b>尋訪仙山</b>：派三名武將尋找${ISLANDS.join('、')}，${ISLAND_TURNS} 回合後歸來。隕落率比秘境高一半，但帶回兩份高階寶物與大量修為；可能得仙人點化直接突破，高階武將則獲得仙人護法（下次渡劫減傷 50%）。`,
       ])}`,
   },
   {

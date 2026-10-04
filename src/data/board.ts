@@ -1,74 +1,172 @@
 import type { LordId, Tile, TileKind, Vec2 } from '../game/types';
 
-interface CityEntry {
-  kind: 'city';
+type SpecialKind = Exclude<TileKind, 'city'>;
+
+interface NodeDef {
   id: string;
+  kind: TileKind;
   name: string;
   pos: Vec2;
-  prosperity: number;
+  prosperity?: number;
   owner?: LordId;
 }
-interface SpecialEntry {
-  kind: Exclude<TileKind, 'city' | 'road'>;
+
+/** 路上順手放的建築或驛站，位置在前後兩個定點之間平均分布 */
+interface Spec {
+  kind: SpecialKind;
   name: string;
 }
-type Entry = CityEntry | SpecialEntry;
+type PathItem = string | Spec;
 
-const c = (id: string, name: string, x: number, z: number, prosperity: number, owner?: LordId): CityEntry => ({ kind: 'city', id, name, pos: { x, z }, prosperity, owner });
-const s = (kind: SpecialEntry['kind'], name: string): SpecialEntry => ({ kind, name });
+const city = (id: string, name: string, x: number, z: number, prosperity: number, owner?: LordId): NodeDef => ({ id, kind: 'city', name, pos: { x, z }, prosperity, owner });
+const node = (id: string, kind: SpecialKind, name: string, x: number, z: number): NodeDef => ({ id, kind, name, pos: { x, z } });
+const road = (name: string): Spec => ({ kind: 'road', name });
+const shop = (kind: Exclude<SpecialKind, 'road' | 'realm'>, name: string): Spec => ({ kind, name });
 
-/** 環狀跑道，順時針排列。特殊建築放在前後兩城之間。 */
-const RING: Entry[] = [
-  c('luoyang', '洛陽', 0, -14, 90),
-  s('tavern', '聽風樓'),
-  c('henei', '河內', 4, -25, 50),
-  c('jinyang', '晉陽', -6, -37, 55),
-  s('realm', '太行洞天'),
-  c('ye', '鄴城', 14, -31, 80),
-  s('herb', '百草堂'),
-  c('ji', '薊城', 24, -44, 55),
-  c('beiping', '北平', 38, -42, 45),
-  s('forge', '天工坊'),
-  c('nanpi', '南皮', 34, -31, 50),
-  c('pingyuan', '平原', 42, -20, 45),
-  c('beihai', '北海', 52, -14, 55),
-  s('library', '藏經閣'),
-  c('xiapi', '下邳', 46, -3, 65),
-  c('xiaopei', '小沛', 32, -9, 45),
-  s('treasure', '天寶商行'),
-  c('puyang', '濮陽', 22, -18, 55),
-  c('chenliu', '陳留', 14, -11, 60),
-  c('xuchang', '許昌', 12, -1, 100, 'cao'),
-  s('beast', '萬獸園'),
-  c('runan', '汝南', 20, 7, 55),
-  c('shouchun', '壽春', 32, 4, 65),
-  c('hefei', '合肥', 30, 14, 60),
-  c('jianye', '建業', 42, 19, 100, 'sun'),
-  s('tavern', '聽風樓'),
-  c('wujun', '吳郡', 48, 30, 70),
-  s('realm', '東海仙島'),
-  c('kuaiji', '會稽', 42, 41, 55),
-  s('herb', '百草堂'),
-  c('chaisang', '柴桑', 22, 25, 60),
-  c('guiyang', '桂陽', 12, 45, 40),
-  c('changsha', '長沙', 4, 36, 60),
-  s('forge', '天工坊'),
-  c('lingling', '零陵', -6, 47, 40),
-  c('wuling', '武陵', -16, 37, 45),
-  c('jianning', '建寧', -32, 43, 40),
-  s('realm', '峨眉金頂'),
-  c('chengdu', '成都', -40, 21, 100, 'liu'),
-  s('library', '藏經閣'),
-  c('jiangzhou', '江州', -24, 23, 55),
-  c('jiangling', '江陵', -8, 22, 70),
-  c('xiangyang', '襄陽', -6, 11, 80),
-  s('treasure', '天寶商行'),
-  c('wancheng', '宛城', 0, 2, 60),
-  c('hanzhong', '漢中', -26, -2, 65),
-  s('beast', '萬獸園'),
-  c('tianshui', '天水', -38, -13, 50),
-  c('wuwei', '武威', -48, -30, 45),
-  c('changan', '長安', -20, -13, 100, 'dong'),
+/**
+ * 城池：依真實地理座標（東為 +x、南為 +z）。繁榮度依東漢末年的實際盛衰，每座都不同：
+ * 洛陽、成都、許都、建業、長安為天下名都；北平、武威、建寧等邊遠之地最為荒涼。
+ */
+const CITIES: NodeDef[] = [
+  city('luoyang', '洛陽', 0, -14, 108),
+  city('henei', '河內', 4, -25, 54),
+  city('jinyang', '晉陽', -6, -37, 52),
+  city('ye', '鄴城', 14, -31, 88),
+  city('ji', '薊城', 24, -44, 44),
+  city('beiping', '北平', 38, -42, 36),
+  city('nanpi', '南皮', 34, -31, 56),
+  city('pingyuan', '平原', 42, -20, 46),
+  city('beihai', '北海', 52, -14, 62),
+  city('xiapi', '下邳', 46, -3, 74),
+  city('xiaopei', '小沛', 32, -9, 51),
+  city('puyang', '濮陽', 22, -18, 58),
+  city('chenliu', '陳留', 14, -11, 70),
+  city('xuchang', '許昌', 12, -1, 96, 'cao'),
+  city('runan', '汝南', 20, 7, 57),
+  city('shouchun', '壽春', 32, 4, 76),
+  city('hefei', '合肥', 30, 14, 64),
+  city('jianye', '建業', 42, 19, 94, 'sun'),
+  city('wujun', '吳郡', 48, 30, 82),
+  city('kuaiji', '會稽', 42, 41, 66),
+  city('chaisang', '柴桑', 22, 25, 50),
+  city('guiyang', '桂陽', 12, 45, 38),
+  city('changsha', '長沙', 4, 36, 68),
+  city('lingling', '零陵', -6, 47, 40),
+  city('wuling', '武陵', -16, 37, 37),
+  city('jianning', '建寧', -32, 43, 33),
+  city('chengdu', '成都', -40, 21, 100, 'liu'),
+  city('jiangzhou', '江州', -24, 23, 45),
+  city('jiangling', '江陵', -8, 22, 72),
+  city('xiangyang', '襄陽', -6, 11, 80),
+  city('wancheng', '宛城', 0, 2, 61),
+  city('hanzhong', '漢中', -26, -2, 49),
+  city('tianshui', '天水', -38, -13, 42),
+  city('wuwei', '武威', -48, -30, 30),
+  city('changan', '長安', -20, -13, 92, 'dong'),
+];
+
+/** 岔路口與秘境（定點）。秘境都在岔出去的山徑盡頭，要繞路才進得去 */
+const NODES: NodeDef[] = [
+  node('tongguan', 'road', '潼關', -13, -13.5),
+  node('jingxing', 'road', '井陘', 4, -34.3),
+  node('pengcheng', 'road', '彭城', 39, -6.5),
+  node('shangyong', 'road', '上庸', -16, 4.5),
+  node('pengli', 'road', '彭蠡', 32, 22),
+  node('xiangjiang', 'road', '湘江', 13, 30.5),
+  node('leshan', 'road', '樂山', -37, 32),
+  node('qiantang', 'road', '錢塘', 45, 35.5),
+  node('longxi', 'road', '隴西', -43, -21.5),
+  node('taihang', 'realm', '太行洞天', 6, -42),
+  node('huashan', 'realm', '華山仙境', -14, -4),
+  node('taishan', 'realm', '泰山福地', 38, -14),
+  node('donghai', 'realm', '東海仙島', 53, 36),
+  node('lushan', 'realm', '廬山幽谷', 31, 32),
+  node('hengshan', 'realm', '衡山靈境', 16, 38),
+  node('wudang', 'realm', '武當玄境', -20, 11),
+  node('emei', 'realm', '峨眉金頂', -48, 34),
+  node('kunlun', 'realm', '崑崙墟', -54, -18),
+];
+
+/** 道路：每條由定點串到定點，中間的驛站、關隘與商店依序平均分布 */
+const PATHS: PathItem[][] = [
+  // 中原：洛陽居天下之中，四通八達
+  ['luoyang', road('孟津'), 'henei'],
+  ['luoyang', road('函谷關'), 'tongguan'],
+  ['tongguan', 'changan'],
+  ['tongguan', 'huashan'],
+  ['luoyang', shop('library', '藏經閣'), 'wancheng'],
+  ['luoyang', road('虎牢關'), 'chenliu'],
+  ['chenliu', 'xuchang'],
+  ['chenliu', road('官渡'), 'puyang'],
+  ['chenliu', shop('tavern', '聽風樓'), 'xiaopei'],
+  ['xuchang', shop('beast', '萬獸園'), 'runan'],
+  ['xuchang', shop('herb', '百草堂'), 'wancheng'],
+  ['runan', shop('treasure', '天寶商行'), 'shouchun'],
+  // 河北
+  ['henei', road('壺關'), 'jinyang'],
+  ['henei', shop('tavern', '聽風樓'), 'ye'],
+  ['jinyang', 'jingxing'],
+  ['jingxing', 'ye'],
+  ['jingxing', 'taihang'],
+  ['ye', road('館陶'), shop('treasure', '天寶商行'), 'nanpi'],
+  ['ye', road('白馬津'), shop('herb', '百草堂'), 'puyang'],
+  ['nanpi', road('安平'), 'pingyuan'],
+  ['nanpi', road('易京'), 'ji'],
+  ['ji', road('居庸關'), 'beiping'],
+  ['beiping', shop('forge', '天工坊'), 'nanpi'],
+  // 山東、徐州
+  ['puyang', road('濟陰'), 'xiaopei'],
+  ['puyang', road('東平'), shop('forge', '天工坊'), 'pingyuan'],
+  ['pingyuan', road('臨淄'), 'beihai'],
+  ['beihai', shop('library', '藏經閣'), 'xiapi'],
+  ['xiaopei', 'pengcheng'],
+  ['pengcheng', 'xiapi'],
+  ['pengcheng', 'taishan'],
+  ['shouchun', road('淮北'), 'xiaopei'],
+  // 淮南、江東
+  ['shouchun', 'hefei'],
+  ['hefei', road('濡須口'), 'jianye'],
+  ['hefei', road('廬江'), 'chaisang'],
+  ['jianye', road('廣陵'), shop('herb', '百草堂'), 'xiapi'],
+  ['jianye', 'pengli'],
+  ['pengli', 'chaisang'],
+  ['pengli', 'lushan'],
+  ['jianye', shop('tavern', '聽風樓'), 'wujun'],
+  ['wujun', 'qiantang'],
+  ['qiantang', 'kuaiji'],
+  ['qiantang', 'donghai'],
+  ['kuaiji', road('鄱陽'), shop('herb', '百草堂'), road('豫章'), 'guiyang'],
+  // 荊楚、江南
+  ['chaisang', road('赤壁'), road('烏林'), road('巴丘'), 'jiangling'],
+  ['chaisang', 'xiangjiang'],
+  ['xiangjiang', 'changsha'],
+  ['xiangjiang', 'hengshan'],
+  ['changsha', road('耒陽'), 'guiyang'],
+  ['guiyang', shop('beast', '萬獸園'), road('桂水'), 'lingling'],
+  ['changsha', shop('forge', '天工坊'), 'lingling'],
+  ['changsha', road('洞庭'), road('沅水'), 'wuling'],
+  ['lingling', road('零陵道'), 'wuling'],
+  ['wuling', road('公安'), 'jiangling'],
+  ['jiangling', road('長阪坡'), 'xiangyang'],
+  ['wancheng', road('新野'), 'xiangyang'],
+  // 巴蜀、漢中
+  ['wuling', road('牂牁'), shop('treasure', '天寶商行'), 'jianning'],
+  ['jianning', road('瀘水'), 'leshan'],
+  ['leshan', 'chengdu'],
+  ['leshan', 'emei'],
+  ['chengdu', shop('library', '藏經閣'), 'jiangzhou'],
+  ['jiangzhou', road('夷陵'), 'jiangling'],
+  ['chengdu', road('劍閣'), road('葭萌關'), road('陽平關'), 'hanzhong'],
+  ['hanzhong', road('子午谷'), 'changan'],
+  ['hanzhong', 'shangyong'],
+  ['shangyong', 'xiangyang'],
+  ['shangyong', 'wudang'],
+  // 關中、涼州
+  ['hanzhong', shop('beast', '萬獸園'), road('祁山'), 'tianshui'],
+  ['changan', road('街亭'), shop('tavern', '聽風樓'), 'tianshui'],
+  ['tianshui', 'longxi'],
+  ['longxi', 'wuwei'],
+  ['longxi', 'kunlun'],
 ];
 
 export interface CitySeed {
@@ -80,64 +178,74 @@ export interface CitySeed {
 }
 
 function buildBoard() {
-  // 先算出主要節點座標，特殊建築平均分布在前後兩城之間
-  const positions: Vec2[] = RING.map((e) => (e.kind === 'city' ? e.pos : { x: 0, z: 0 }));
-  const n = RING.length;
-  for (let i = 0; i < n; i++) {
-    const e = RING[i];
-    if (e.kind === 'city') continue;
-    let a = i - 1;
-    while (RING[(a + n) % n].kind !== 'city') a--;
-    let b = i + 1;
-    while (RING[b % n].kind !== 'city') b++;
-    const pa = positions[(a + n) % n];
-    const pb = positions[b % n];
-    const t = (i - a) / (b - a);
-    positions[i] = { x: pa.x + (pb.x - pa.x) * t, z: pa.z + (pb.z - pa.z) * t };
-  }
-
   const tiles: Tile[] = [];
   const cities: CitySeed[] = [];
-  for (let i = 0; i < n; i++) {
-    const e = RING[i];
-    const p = positions[i];
-    const pushTile = (kind: TileKind, name: string, pos: Vec2, cityId: string | null) => {
-      tiles.push({ index: tiles.length, kind, name, pos, cityId });
-      return tiles.length - 1;
-    };
-    if (e.kind === 'city') {
-      const idx = pushTile('city', e.name, p, e.id);
-      cities.push({ id: e.id, name: e.name, prosperity: e.prosperity, owner: e.owner, tile: idx });
-    } else {
-      pushTile(e.kind, e.name, p, null);
-    }
-    // 長路段補上道路格
-    const next = positions[(i + 1) % n];
-    const gap = Math.hypot(next.x - p.x, next.z - p.z);
-    const roads = Math.floor(gap / 9);
-    for (let r = 1; r <= roads; r++) {
-      const t = r / (roads + 1);
-      pushTile('road', '驛道', { x: p.x + (next.x - p.x) * t, z: p.z + (next.z - p.z) * t }, null);
+  const edges: [number, number][] = [];
+  const indexOf = new Map<string, number>();
+
+  const addTile = (kind: TileKind, name: string, pos: Vec2, cityId: string | null) => {
+    tiles.push({ index: tiles.length, kind, name, pos, cityId, links: [] });
+    return tiles.length - 1;
+  };
+  const link = (a: number, b: number) => {
+    if (a === b || tiles[a].links.includes(b)) return;
+    tiles[a].links.push(b);
+    tiles[b].links.push(a);
+    edges.push([a, b]);
+  };
+
+  for (const c of CITIES) {
+    const idx = addTile('city', c.name, c.pos, c.id);
+    indexOf.set(c.id, idx);
+    cities.push({ id: c.id, name: c.name, prosperity: c.prosperity!, owner: c.owner, tile: idx });
+  }
+  for (const n of NODES) indexOf.set(n.id, addTile(n.kind, n.name, n.pos, null));
+
+  const posOf = (id: string) => tiles[indexOf.get(id)!].pos;
+  for (const path of PATHS) {
+    // 定點之間的驛站平均分布在直線上
+    let prev = -1;
+    let anchorPos: Vec2 | null = null;
+    let pending: Spec[] = [];
+    for (const item of path) {
+      if (typeof item !== 'string') {
+        pending.push(item);
+        continue;
+      }
+      const idx = indexOf.get(item);
+      if (idx === undefined) throw new Error(`未知的地點：${item}`);
+      const end = posOf(item);
+      if (prev >= 0 && anchorPos) {
+        let last = prev;
+        pending.forEach((spec, i) => {
+          const t = (i + 1) / (pending.length + 1);
+          const p = { x: anchorPos!.x + (end.x - anchorPos!.x) * t, z: anchorPos!.z + (end.z - anchorPos!.z) * t };
+          const mid = addTile(spec.kind, spec.name, p, null);
+          link(last, mid);
+          last = mid;
+        });
+        link(last, idx);
+      }
+      prev = idx;
+      anchorPos = end;
+      pending = [];
     }
   }
-  return { tiles, cities };
+  return { tiles, cities, edges };
 }
 
 export const BOARD = buildBoard();
 
-/** 沿江、沿海的港口城池：長江、黃河沿岸與東海岸 */
-export const PORT_CITIES = new Set(['jiangzhou', 'jiangling', 'chaisang', 'jianye', 'wujun', 'kuaiji', 'beihai', 'henei', 'puyang', 'pingyuan']);
-
 export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
-  city: { icon: '🏯', desc: '城池：停在無主城池可佔領；踏入他人城池需繳過路費或開戰。標有 ⚓ 的是港口城池，可派武將出海' },
-  realm: { icon: '🌀', desc: '秘境：派遣三名武將探索五回合，可能隕落，歸來帶回寶物' },
+  city: { icon: '🏯', desc: '城池：停在無主城池可佔領；踏入他人城池需繳過路費或開戰' },
+  realm: { icon: '🌀', desc: '秘境：藏在岔出去的山徑盡頭。派遣三名武將探索五回合，可能隕落，歸來帶回寶物' },
   treasure: { icon: '💰', desc: '天寶商行：販售法器、陣法、符籙' },
   herb: { icon: '🌿', desc: '百草堂：販售各種丹藥' },
   forge: { icon: '🔨', desc: '天工坊：販售神器、寶衣' },
   library: { icon: '📜', desc: '藏經閣：販售功法' },
   beast: { icon: '🐉', desc: '萬獸園：販售靈獸，每位主公限一隻' },
   tavern: { icon: '🏮', desc: '聽風樓：招募各國尚未出仕的將領' },
-  road: { icon: '🛤️', desc: '驛道：可能遇到奇遇' },
+  road: { icon: '🛤️', desc: '驛道：可能遇到奇遇。道路有岔口時可以選擇前進的方向' },
 };
 
 /** 長江 */

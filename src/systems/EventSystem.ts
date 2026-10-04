@@ -1,9 +1,10 @@
 import type { Element, GameState, General, Lord, LordId } from '../game/types';
-import { citiesOf, generalsOf, nextUid } from '../game/GameState';
+import { citiesOf, freeGenerals, generalsOf, nextUid } from '../game/GameState';
 import { aliveLords } from '../game/TurnManager';
 import { cityIncomeOf, totalAssets } from './CitySystem';
-import { inBottleneck, maxHp } from './GeneralSystem';
-import { ELEMENT_NAMES, makeBeast, makeEquipment, makeTechnique, techniqueExp } from '../data/items';
+import { addExp, inBottleneck, maxHp } from './GeneralSystem';
+import { ELEMENT_NAMES, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, techniqueExp } from '../data/items';
+import { CITY_TERRAIN } from '../data/terrain';
 import { REALMS } from '../data/generals';
 import { LORDS } from '../faction/Faction';
 import { fmtStones } from '../game/Currency';
@@ -46,6 +47,18 @@ export const WORLD_EVENTS: WorldEventDef[] = [
   { id: 'bandits', name: '黃巾餘黨', icon: '🏴', category: 'disaster', duration: 5, desc: '黃巾餘黨盤踞 4 處驛道 5 輪，停在賊窩要繳買路錢，否則損兵。' },
   { id: 'shuffle', name: '乾坤大挪移', icon: '☯', category: 'disaster', desc: '天機錯亂，所有主公的位置隨機互換。' },
   { id: 'demonTrial', name: '心魔劫', icon: '😈', category: 'disaster', desc: '心魔劫降臨，所有處於瓶頸的武將都染上一層心魔。' },
+  { id: 'tradeBoom', name: '商路暢通', icon: '🛒', category: 'economy', duration: 4, desc: '絲路與運河舟車不絕，接下來 4 輪所有城池的靈石收入 ×1.3。' },
+  { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件黃階至玄階的神器或寶衣。' },
+  { id: 'spiritTide', name: '靈潮湧動', icon: '🌊', category: 'cultivation', duration: 5, desc: '地底靈脈潮汐翻湧，接下來 5 輪駐守城池閉關修煉的武將，修為再 ×1.5。' },
+  { id: 'meteor', name: '隕星墜落', icon: '☄️', category: 'cultivation', desc: '流星墜入人間，星髓入藥：每位主公得到兩顆玄品至地品的丹藥。' },
+  { id: 'debate', name: '論道大會', icon: '☯️', category: 'cultivation', desc: '各路修士雲集論道，每位主公所有隨行武將修為 +120。' },
+  { id: 'refugees', name: '流民歸附', icon: '🚶', category: 'politics', desc: '亂世流民扶老攜幼投奔明主：每位主公按城池數增加士兵，無城者也有 500 人來投。' },
+  { id: 'summon', name: '招賢令', icon: '📯', category: 'politics', duration: 3, desc: '天下求賢若渴，接下來 3 輪聽風樓的招募價格五折。' },
+  { id: 'locust', name: '蝗災', icon: '🦗', category: 'disaster', duration: 3, desc: '飛蝗蔽日，接下來 3 輪所有城池的靈石收入 ×0.6。' },
+  { id: 'plague', name: '瘟疫', icon: '☠️', category: 'disaster', desc: '大疫流行，所有主公士兵 -8%，隨行武將損失 15% 血量（至少留 1 點）。' },
+  { id: 'flood', name: '洪水', icon: '🌧️', category: 'disaster', desc: '大水氾濫，水鄉與濱海的有主城池繁榮 -12、守軍 -10%。' },
+  { id: 'mutiny', name: '軍中兵變', icon: '🔥', category: 'disaster', desc: '糧餉不繼，兵多將驕：士兵最多的主公，一成半的兵卒嘩變逃散。' },
+  { id: 'raiders', name: '盜賊洗劫', icon: '🥷', category: 'disaster', desc: '江洋大盜覬覦巨富，靈石最多的主公庫房被劫走 8%（至多 3 上品）。' },
 ];
 
 export function eventDef(id: string): WorldEventDef {
@@ -65,6 +78,9 @@ export function syncWorldMods(state: GameState) {
   WORLD.tollMult = isActive(state, 'alliance') ? 0.5 : 1;
   WORLD.noBattle = isActive(state, 'alliance');
   WORLD.realmBlessed = isActive(state, 'ancientRealm');
+  WORLD.incomeMult = (isActive(state, 'tradeBoom') ? 1.3 : 1) * (isActive(state, 'locust') ? 0.6 : 1);
+  WORLD.seclusionMult = isActive(state, 'spiritTide') ? 1.5 : 1;
+  WORLD.recruitMult = isActive(state, 'summon') ? 0.5 : 1;
 }
 
 /** 新的一輪開始：持續事件倒數，到期移除 */
@@ -203,6 +219,72 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
       lines.push(n ? `共 ${n} 名瓶頸中的武將心魔滋生。` : '所幸無人正處瓶頸。');
       break;
     }
+    case 'armory':
+      for (const l of alive) {
+        const e = makeEquipment(nextUid(state, 'e'), Math.random() < 0.5 ? 'weapon' : 'armor', Math.floor(Math.random() * 6));
+        l.gear.push(e);
+        lines.push(`${LORDS[l.id].name} 得 ${e.kind === 'weapon' ? '神器' : '寶衣'}「${e.name}」`);
+      }
+      break;
+    case 'meteor':
+      for (const l of alive) {
+        const names: string[] = [];
+        for (let i = 0; i < 2; i++) {
+          const defId = PILL_IDS[Math.floor(Math.random() * PILL_IDS.length)];
+          const item = makeItem(nextUid(state, 'i'), defId, 1 + Math.floor(Math.random() * 2));
+          l.items.push(item);
+          names.push(itemName(item.defId, item.tier));
+        }
+        lines.push(`${LORDS[l.id].name} 得 ${names.join('、')}`);
+      }
+      break;
+    case 'debate':
+      for (const l of alive) {
+        const total = freeGenerals(state, l.id).reduce((s, g) => s + addExp(g, 120), 0);
+        lines.push(`${LORDS[l.id].name}的隨行武將共增加修為 ${total}`);
+      }
+      break;
+    case 'refugees':
+      for (const l of alive) {
+        const n = Math.max(500, citiesOf(state, l.id).length * 300);
+        l.soldiers += n;
+        lines.push(`${LORDS[l.id].name} 得流民兵 ${n}`);
+      }
+      break;
+    case 'plague':
+      for (const l of alive) {
+        const lost = Math.round(l.soldiers * 0.08);
+        l.soldiers -= lost;
+        for (const g of generalsOf(state, l.id)) if (g.status !== 'realm') g.hp = Math.max(1, g.hp - Math.round(maxHp(g) * 0.15));
+        lines.push(`${LORDS[l.id].name}折損士兵 ${lost}，眾將染疾`);
+      }
+      break;
+    case 'flood': {
+      let n = 0;
+      for (const c of Object.values(state.cities)) {
+        if (c.owner === 'neutral' || !['waterland', 'coast'].includes(CITY_TERRAIN[c.id])) continue;
+        c.prosperity = Math.max(20, c.prosperity - 12);
+        c.garrisonSoldiers -= Math.round(c.garrisonSoldiers * 0.1);
+        lines.push(`${c.name}（${LORDS[c.owner as LordId].name}）遭洪水所困，繁榮 -12`);
+        n++;
+      }
+      if (!n) lines.push('所幸水鄉濱海之地尚無有主城池。');
+      break;
+    }
+    case 'mutiny': {
+      const richest = [...alive].sort((a, b) => b.soldiers - a.soldiers)[0];
+      const lost = Math.round(richest.soldiers * 0.15);
+      richest.soldiers -= lost;
+      lines.push(`${LORDS[richest.id].name}軍中嘩變，${lost} 名士兵逃散。`);
+      break;
+    }
+    case 'raiders': {
+      const richest = [...alive].sort((a, b) => b.stones - a.stones)[0];
+      const lost = Math.min(30000, Math.round(richest.stones * 0.08));
+      richest.stones -= lost;
+      lines.push(`${LORDS[richest.id].name}被盜走 ${fmtStones(lost)}。`);
+      break;
+    }
   }
   syncWorldMods(state);
   return lines;
@@ -231,6 +313,7 @@ function makeImmortals(): General[] {
       foundation: false,
       demon: 0,
       ward: 0,
+      breakBoost: 0,
       secluded: false,
       hp: 0,
       stamina: 100,

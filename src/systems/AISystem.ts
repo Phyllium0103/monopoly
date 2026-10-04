@@ -1,15 +1,14 @@
 import type { City, CraftStat, GameState, General, Lord } from '../game/types';
-import { PARTY_LIMIT, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
+import { PARTY_LIMIT, citiesOf, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
-import { MIN_GARRISON, SOLDIER_PRICE, cityToll, garrisonPower, occupyCost } from './CitySystem';
+import { MIN_GARRISON, SOLDIER_PRICE, canOccupy, cityToll, garrisonPower, occupyCost } from './CitySystem';
 import { REALMS } from '../data/generals';
 import { equipRealm } from '../data/items';
-import { canUse, def, usePreroll } from './ItemSystem';
-import { CONTEST_SOLDIERS, siegeAllowed, siegeAttack, type BattleKind } from './BattleSystem';
+import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
+import { CONTEST_SOLDIERS, canDuel, siegeAllowed, siegeAttack, type BattleKind } from './BattleSystem';
 import { WORLD } from './WorldMods';
 import type { Offer } from './ShopSystem';
-import { canVoyage, deathChance, islandDeathChance, launchIsland, launchTrade, pirateChance, tradeSkill } from './RealmSystem';
-import { fmtStones } from '../game/Currency';
+import { deathChance } from './RealmSystem';
 
 /** 擲骰前：療傷、換裝、學功法、補兵 */
 export function aiPreroll(state: GameState, lord: Lord): string[] {
@@ -59,8 +58,30 @@ export function aiPreroll(state: GameState, lord: Lord): string[] {
     const target = strongest.find((g) => !inBottleneck(g));
     if (user && target) logs.push(usePreroll(state, lord, pill, user, { general: target }));
   }
+  // 壯骨丹給最強的將領，清心丹化解心魔
+  for (const pill of lord.items.filter((i) => i.defId === 'bone')) {
+    const user = gens.find((u) => canUse(pill, u).ok);
+    if (user && strongest[0]) logs.push(usePreroll(state, lord, pill, user, { general: strongest[0] }));
+  }
+  for (const g of gens.filter((x) => x.demon > 0)) {
+    const pill = lord.items.find((i) => i.defId === 'clearmind');
+    const user = pill && gens.find((u) => canUse(pill, u).ok);
+    if (pill && user) logs.push(usePreroll(state, lord, pill, user, { general: g }));
+  }
+  // 群體陣法與法器：聚靈陣、回春陣、聚元珠、撒豆成兵符、地脈陣
+  const party = freeGenerals(state, lord.id);
+  const useGroup = (defId: string, target: PrerollTarget = {}) => {
+    const item = lord.items.find((i) => i.defId === defId);
+    const user = item && gens.find((u) => u.status === 'free' && canUse(item, u).ok);
+    if (item && user) logs.push(usePreroll(state, lord, item, user, target));
+  };
+  if (party.length >= 3 && party.some((g) => !inBottleneck(g))) useGroup('gather');
+  if (party.filter((g) => g.hp < maxHp(g) * 0.7).length >= 2) useGroup('mend');
+  if (party.length && party.reduce((s, g) => s + g.stamina, 0) / party.length < 55) useGroup('pearl');
+  if (lord.soldiers < 8000) useGroup('soldiers');
+  const best = citiesOf(state, lord.id).sort((a, b) => b.prosperity - a.prosperity)[0];
+  if (best && best.prosperity < 190) useGroup('vein', { city: best });
   logs.push(...aiBreakthroughs(state, lord));
-  logs.push(...aiVoyage(state, lord));
   // 守軍充足的城池讓駐將閉關
   for (const g of gens.filter((x) => x.status === 'garrison')) g.secluded = state.cities[g.cityId!].garrisonSoldiers >= 2500;
   // 心魔干擾：對敵方瓶頸中的最強將領出手
@@ -99,6 +120,7 @@ export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
     };
     if (!needsTribulation(g)) {
       if (g.realm === 1 && !g.foundation) helper('foundation');
+      if (breakChance(g) < 0.8) helper('breakpill');
       if (breakChance(g) < 0.5 && !g.foundation) continue;
       const ok = attemptBreak(g, state.round);
       logs.push(ok ? `✦ ${g.name}突破至【${REALMS[g.realm]}】！` : `${g.name}突破失敗，氣血翻湧。`);
@@ -106,6 +128,7 @@ export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
     }
     // 雷劫：先回血、布陣
     if (g.hp < maxHp(g) * 0.9) helper('heal');
+    if (boltDamage(g) * boltCount(g) > g.hp * 0.8) helper('breakpill');
     if (boltDamage(g) * boltCount(g) > g.hp * 0.8) helper('thunderward');
     if (boltDamage(g) * boltCount(g) > g.hp * 0.8) helper('fiveward');
     if (boltDamage(g) * boltCount(g) * 1.1 > g.hp) continue;
@@ -166,7 +189,7 @@ export function aiEnemyCity(state: GameState, lord: Lord, city: City): AiBattleC
 
   // 單挑
   const best = [...free].sort((a, b) => duelScore(b) - duelScore(a))[0];
-  const bestDef = [...defenders].sort((a, b) => duelScore(b) - duelScore(a))[0];
+  const bestDef = [...defenders].filter(canDuel).sort((a, b) => duelScore(b) - duelScore(a))[0];
   if (bestDef && duelScore(best) > duelScore(bestDef) * 1.15) return { kind: 'duel', generals: [best] };
 
   // 技藝比試（雙方各需 500 兵維持秩序）
@@ -195,7 +218,7 @@ export function defenderPool(state: GameState, city: City): General[] {
 export function aiDefender(state: GameState, city: City, kind: BattleKind): General | null {
   const pool = defenderPool(state, city);
   if (!pool.length) return null;
-  if (kind === 'duel') return [...pool].sort((a, b) => duelScore(b) - duelScore(a))[0];
+  if (kind === 'duel') return [...pool].filter(canDuel).sort((a, b) => duelScore(b) - duelScore(a))[0] ?? null;
   const stat = kind as CraftStat;
   return [...pool].sort((a, b) => craft(b, stat) - craft(a, stat))[0];
 }
@@ -212,7 +235,7 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
     if (o.kind === 'item') {
       // 有將領快要渡劫時，優先買護法陣
       if (['thunderward', 'fiveward'].includes(o.item.defId)) return generalsOf(state, lord.id).some((g) => g.realm >= 2 && g.exp >= expCap(g) * 0.6);
-      return def(o.item).category === '丹藥' || ['stride', 'truce', 'citadel', 'siegebreak', 'demon'].includes(o.item.defId);
+      return def(o.item).category === '丹藥' || ['stride', 'truce', 'citadel', 'siegebreak', 'demon', 'gather', 'mend', 'vein', 'soldiers', 'pearl', 'shuttle'].includes(o.item.defId);
     }
     return true;
   });
@@ -229,28 +252,68 @@ export function aiRealm(state: GameState, lord: Lord): General[] | null {
   return risk < 0.3 && Math.random() < 0.6 ? team : null;
 }
 
-/** 有港口時出海：手頭寬裕且隨行夠多才派，同時最多一支船隊 */
-export function aiVoyage(state: GameState, lord: Lord): string[] {
-  if (!canVoyage(state, lord) || lord.expeditions.some((e) => e.kind !== 'realm')) return [];
+// ───────────────────────── 岔路選擇 ─────────────────────────
+
+/** 電腦評估停在某格的好處：能佔的城、買得起的商店、可探索的秘境都加分，踏入敵城要小心 */
+function tileValue(state: GameState, lord: Lord, tile: number): number {
+  const t = state.tiles[tile];
   const free = freeGenerals(state, lord.id);
-  if (free.length < 5) return [];
-  // 海外貿易：派經商能力最好的兩人，再補一名武將護航
-  if (lord.stones > 20000 && Math.random() < 0.5) {
-    const traders = [...free].sort((a, b) => tradeSkill([b]) - tradeSkill([a])).slice(0, 2);
-    const guard = free.filter((g) => !traders.includes(g)).sort((a, b) => attack(b) - attack(a))[0];
-    const team = guard ? [...traders, guard] : traders;
-    if (pirateChance(team) > 0.25) return [];
-    const invest = Math.min(20000, Math.round((lord.stones * 0.3) / 1000) * 1000);
-    launchTrade(lord, team, invest);
-    return [`派${team.map((g) => g.name).join('、')}帶 ${fmtStones(invest)} 出海貿易`];
+  let v: number;
+  switch (t.kind) {
+    case 'city': {
+      const c = state.cities[t.cityId!];
+      if (c.owner === 'neutral') v = canOccupy(state, lord, c) && lord.stones - occupyCost(c) > 8000 ? 6 + c.prosperity / 40 : 0.5;
+      else if (c.owner === lord.id) v = 1.5;
+      else v = lord.tollFree ? 0.5 : -Math.min(6, (cityToll(state, c) / Math.max(1, lord.stones)) * 8) - 0.3;
+      break;
+    }
+    case 'realm':
+      v = free.length >= 3 ? 3 : 0.2;
+      break;
+    case 'beast':
+      v = lord.beast || lord.stones < 15000 ? 0.4 : 3;
+      break;
+    case 'tavern':
+      v = generalsOf(state, lord.id).length < 14 && lord.stones > 10000 ? 3 : 0.5;
+      break;
+    case 'herb':
+      v = lord.stones > 8000 ? 2.5 + (free.some((g) => g.hp < maxHp(g) * 0.6) ? 1 : 0) : 0.5;
+      break;
+    case 'forge':
+    case 'library':
+    case 'treasure':
+      v = lord.stones > 12000 ? 2.5 : 0.5;
+      break;
+    default:
+      v = 0.8;
   }
-  // 尋訪仙山：派三名中堅，風險可接受才去
-  if (free.length >= 6 && Math.random() < 0.3) {
-    const team = [...free].sort((a, b) => power(b) - power(a)).slice(1, 4);
-    const risk = team.reduce((s, g) => s + islandDeathChance(g, team), 0) / 3;
-    if (risk > 0.3) return [];
-    launchIsland(lord, team);
-    return [`派${team.map((g) => g.name).join('、')}出海尋訪仙山`];
+  if (tile === state.merchantTile) v += 3;
+  if (state.banditTiles.includes(tile)) v -= 2;
+  return v;
+}
+
+/** 遇到岔路：比較每個方向走完剩餘步數後，最可能落腳處的價值（之後的岔路假設會選最好的） */
+export function aiChooseDirection(state: GameState, lord: Lord, here: number, options: number[], stepsLeft: number): number {
+  const memo = new Map<string, number>();
+  const expect = (tile: number, prev: number, rem: number): number => {
+    if (rem === 0) return tileValue(state, lord, tile);
+    const key = `${tile}:${prev}:${rem}`;
+    const hit = memo.get(key);
+    if (hit !== undefined) return hit;
+    let next = state.tiles[tile].links.filter((n) => n !== prev);
+    if (!next.length) next = state.tiles[tile].links;
+    const v = Math.max(...next.map((n) => expect(n, tile, rem - 1)));
+    memo.set(key, v);
+    return v;
+  };
+  let best = options[0];
+  let bestScore = -Infinity;
+  for (const o of options) {
+    const score = expect(o, here, stepsLeft - 1) + Math.random() * 0.6;
+    if (score > bestScore) {
+      bestScore = score;
+      best = o;
+    }
   }
-  return [];
+  return best;
 }

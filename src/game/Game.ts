@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { City, CraftStat, General, GameState, Lord, LordId } from './types';
-import { PARTY_LIMIT, citiesOf, createGameState, currentLord, freeGenerals, generalsOf, joinLord, nextUid, sectGenerals } from './GameState';
+import { PARTY_LIMIT, citiesOf, createGameState, currentLord, freeGenerals, generalsOf, joinLord, killGeneral, sectGenerals } from './GameState';
 import { advance, aliveLords, startTurn } from './TurnManager';
 import { fmtStones } from './Currency';
 import { SceneManager } from '../scene/SceneManager';
@@ -13,22 +13,24 @@ import { GeneralsView } from '../ui/GeneralsView';
 import { BattleView } from '../ui/BattleView';
 import { openShop } from '../ui/ShopView';
 import { HelpView } from '../ui/HelpView';
+import { RankView } from '../ui/RankView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { REALMS } from '../data/generals';
-import { ITEM_DEFS, PILL_IDS, STAT_NAMES } from '../data/items';
+import { ITEM_DEFS, STAT_NAMES } from '../data/items';
 import { TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
-import { MIN_GARRISON, SOLDIER_PRICE, canOccupy, cityIncome, cityIncomeOf, cityToll, eliminate, garrisonPower, occupy, occupyCost, pay, toll } from '../systems/CitySystem';
+import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, SOLDIER_PRICE, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, eliminate, garrisonPower, occupy, occupyCost, pay, toll } from '../systems/CitySystem';
 import { attack, attemptBreak, battleExp, boltCount, boltDamage, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
-import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
+import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { canUse, def, nameOf, requirementText, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
 import { makeStock, type Offer, type ShopKind } from '../systems/ShopSystem';
-import { ISLANDS, ISLAND_TURNS, REALM_TURNS, SHIPWRECK_CHANCE, TRADE_TURNS, canVoyage, deathChance, dispatch, islandDeathChance, launchIsland, launchTrade, pirateChance, tradeMultiplier } from '../systems/RealmSystem';
-import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
+import { REALM_TURNS, deathChance, dispatch } from '../systems/RealmSystem';
+import { aiChooseDirection, aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
+import { rollRoadEvent } from '../systems/RoadEvents';
 import { EVENT_INTERVAL, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, syncWorldMods, tickWorldEvents } from '../systems/EventSystem';
 import { WORLD } from '../systems/WorldMods';
 
-type Phase = 'idle' | 'preroll' | 'busy' | 'postland' | 'pickTile';
+type Phase = 'idle' | 'preroll' | 'busy' | 'postland' | 'pickTile' | 'pickDir';
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
@@ -42,6 +44,7 @@ export class Game {
   private generalsView: GeneralsView;
   private battleView: BattleView;
   private help: HelpView;
+  private rankView: RankView;
   private state!: GameState;
   private sprites = new Map<LordId, CharacterSprite>();
   private phase: Phase = 'idle';
@@ -51,6 +54,12 @@ export class Game {
   private rollResolver: ((c: RollChoice) => void) | null = null;
   private endResolver: (() => void) | null = null;
   private tileResolver: ((t: number | null) => void) | null = null;
+  /** 岔路選擇：可前進的格子、剩餘步數與等待玩家點選的回呼 */
+  private dirOptions: number[] = [];
+  private dirStepsLeft = 0;
+  private dirResolver: ((t: number) => void) | null = null;
+  /** 本回合開始時新進入瓶頸的武將，玩家回合開始時提示 */
+  private pendingBreak: string[] = [];
 
   constructor(
     sceneRoot: HTMLElement,
@@ -63,7 +72,15 @@ export class Game {
     this.generalsView = new GeneralsView(uiRoot, this.dialog, (g) => this.breakthroughFlow(g), () => this.canManage());
     this.battleView = new BattleView(uiRoot);
     this.help = new HelpView(uiRoot);
+    this.rankView = new RankView(uiRoot);
     this.ui.onHelp = () => this.help.open();
+    this.ui.onRank = () => this.rankView.open(this.state);
+    this.rankView.onFocus = (cityId) => {
+      const city = this.state.cities[cityId];
+      this.sm.cameraController.focus(this.world.tilePosition(city.tile));
+      this.hoverTile = city.tile;
+      this.refresh();
+    };
 
     this.sm.setPickables(this.world.pickables);
     this.sm.onUpdate((dt, time) => {
@@ -125,7 +142,7 @@ export class Game {
     this.ui.reset();
     this.ui.show();
     this.ui.log(`天地靈氣復甦，${LORDS[player].name}起兵逐鹿天下！`, 'turn');
-    this.ui.log('擲骰沿環道前進：停在無主城池才能派將佔領，踏入他人城池須繳過路費或開戰。', 'info');
+    this.ui.log('擲骰沿道路前進，遇到岔路可自行選擇方向：停在無主城池才能派將佔領，踏入他人城池須繳過路費或開戰。', 'info');
     void this.loop(this.token);
   }
 
@@ -140,7 +157,11 @@ export class Game {
   private async loop(token: number) {
     while (token === this.token && !this.state.over) {
       const lord = currentLord(this.state);
-      if (lord.alive) await this.takeTurn(lord);
+      if (lord.alive) {
+        if (!lord.isPlayer) this.ui.beginReport();
+        await this.takeTurn(lord);
+        if (!lord.isPlayer) await this.showTurnReport(lord, token);
+      }
       if (token !== this.token || this.state.over) return;
       if (await this.checkEnd()) return;
       const newRound = advance(this.state);
@@ -155,6 +176,14 @@ export class Game {
         if (token !== this.token || this.state.over) return;
       }
     }
+  }
+
+  /** 電腦行動完畢：把這回合的結果顯示在畫面上，停一會兒讓玩家看清楚 */
+  private async showTurnReport(lord: Lord, token: number) {
+    const lines = this.ui.endReport();
+    if (token !== this.token) return;
+    this.ui.showReport(`${LORDS[lord.id].name}・第 ${this.state.round} 輪行動結果`, LORDS[lord.id].css, lines);
+    await this.wait(Math.min(5000, 1500 + lines.length * 500));
   }
 
   private async checkEnd(): Promise<boolean> {
@@ -187,7 +216,7 @@ export class Game {
     const report = startTurn(this.state, lord);
     this.ui.log(`<b style="color:${LORDS[lord.id].css}">【${name}】</b>的回合`, 'turn');
     for (const l of report.lines) this.ui.log(`${name}：${l.text}`, lord.isPlayer ? l.kind : 'ai');
-    if (lord.isPlayer && report.bottlenecks.length) this.ui.toast(`${report.bottlenecks.map((id) => this.state.generals[id].name).join('、')}進入瓶頸，可以突破了！`);
+    if (lord.isPlayer) this.pendingBreak = report.bottlenecks;
     for (const r of report.realms) {
       const text = r.summary;
       this.ui.log(`${name}：${r.icon} ${text}`, r.dead.length ? 'bad' : 'good');
@@ -211,6 +240,7 @@ export class Game {
     this.phase = 'preroll';
     this.refresh();
     this.ui.toast(`第 ${this.state.round} 輪・你的回合`);
+    await this.announceBreakthroughs(lord);
     const choice = await new Promise<RollChoice>((r) => (this.rollResolver = r));
     this.rollResolver = null;
     this.phase = 'busy';
@@ -223,6 +253,23 @@ export class Game {
     await new Promise<void>((r) => (this.endResolver = r));
     this.endResolver = null;
     this.phase = 'busy';
+  }
+
+  /** 有武將修為圓滿時，提示玩家前往突破 */
+  private async announceBreakthroughs(lord: Lord) {
+    const ids = this.pendingBreak.filter((id) => canAttemptBreak(this.state.generals[id], this.state.round).ok);
+    this.pendingBreak = [];
+    if (!ids.length) return;
+    const names = ids.map((id) => this.state.generals[id].name).join('、');
+    const go = await this.dialog.confirm(
+      '✨ 修為圓滿，可以突破了！',
+      `${names}修為已滿，進入瓶頸。\n到「武將名冊」就能嘗試突破（金丹以上要渡雷劫），現在前往嗎？`,
+      '前往突破',
+      '稍後再說',
+      '✨',
+    );
+    if (go) await this.generalsView.open(this.state, lord);
+    this.refresh();
   }
 
   private async aiTurn(lord: Lord) {
@@ -239,9 +286,10 @@ export class Game {
 
   private async rollDice(lord: Lord): Promise<number> {
     const values = lord.fixedDice ? [lord.fixedDice] : Array.from({ length: lord.doubleDice ? 2 : 1 }, () => 1 + Math.floor(Math.random() * 6));
-    await this.ui.rollDice(values);
-    const sum = values.reduce((a, b) => a + b, 0);
-    this.ui.log(`${LORDS[lord.id].name}擲出 ${sum} 點。`, lord.isPlayer ? 'info' : 'ai');
+    await this.ui.rollDice(values, lord.bonusSteps);
+    const dice = values.reduce((a, b) => a + b, 0);
+    const sum = dice + lord.bonusSteps;
+    this.ui.log(`${LORDS[lord.id].name}擲出 ${dice} 點${lord.bonusSteps ? `，遁地梭加成 +${lord.bonusSteps}，共走 ${sum} 步` : ''}。`, lord.isPlayer ? 'info' : 'ai');
     return sum;
   }
 
@@ -261,17 +309,63 @@ export class Game {
 
   private async moveLord(lord: Lord, steps: number) {
     const sprite = this.sprites.get(lord.id)!;
-    const n = this.state.tiles.length;
+    // 同一次擲骰中不走回頭路；死路才能掉頭
+    let prev: number | null = null;
+    const route: string[] = [];
     for (let i = 1; i <= steps; i++) {
-      const next = (lord.position + 1) % n;
+      const here = lord.position;
+      const links = this.state.tiles[here].links;
+      let options = links.filter((n) => n !== prev);
+      if (!options.length) options = [...links];
+      const next = options.length > 1 ? await this.chooseDirection(lord, here, options, steps - i + 1) : options[0];
       const from = sprite.group.position.clone();
       const to = this.slotPosition(lord.id, next);
       await sprite.moveAlong([from, to], this.sm.animator, (p) => this.sm.cameraController.follow(p));
+      prev = here;
       lord.position = next;
+      route.push(this.state.tiles[next].name);
       this.refresh();
       if (!lord.alive) return;
     }
+    if (!lord.isPlayer) this.ui.log(`${LORDS[lord.id].name}一路經過 ${route.join(' → ')}，停在「${this.state.tiles[lord.position].name}」。`, 'ai');
     await this.land(lord, lord.position);
+  }
+
+  /** 岔路口：玩家點選地圖或按鈕決定方向，電腦評估各方向的收益 */
+  private async chooseDirection(lord: Lord, here: number, options: number[], stepsLeft: number): Promise<number> {
+    if (!lord.isPlayer) {
+      return aiChooseDirection(this.state, lord, here, options, stepsLeft);
+    }
+    this.dirOptions = options;
+    this.dirStepsLeft = stepsLeft;
+    this.phase = 'pickDir';
+    this.sm.cameraController.focus(this.sprites.get(lord.id)!.group.position);
+    this.world.showHighlights(options, 0x7fe08a);
+    this.refresh();
+    const next = await new Promise<number>((r) => (this.dirResolver = r));
+    this.dirResolver = null;
+    this.world.clearHighlights();
+    this.phase = 'busy';
+    this.refresh();
+    return next;
+  }
+
+  /** 岔路口某個方向前方的景象：沿途的關隘驛站，直到下一個城池、建築或岔口 */
+  private routeHint(start: number, from: number): string {
+    const rest: string[] = [];
+    let prev = from;
+    let cur = start;
+    for (let guard = 0; guard < 6; guard++) {
+      const ahead = this.state.tiles[cur].links.filter((n) => n !== prev);
+      if (this.state.tiles[cur].kind !== 'road' || ahead.length !== 1) break;
+      prev = cur;
+      cur = ahead[0];
+      const t = this.state.tiles[cur];
+      rest.push(t.kind === 'road' ? t.name : `${TILE_INFO[t.kind].icon}${t.name}`);
+    }
+    if (rest.length) return `→ ${rest.join(' → ')}`;
+    const t = this.state.tiles[start];
+    return t.kind === 'road' ? '岔路口' : TILE_INFO[t.kind].desc.split('：')[0];
   }
 
   private async teleport(lord: Lord, tile: number) {
@@ -298,7 +392,7 @@ export class Game {
       case 'realm':
         return this.landRealm(lord, t.name);
       case 'road':
-        return this.roadEvent(lord);
+        return this.roadEvent(lord, t.name);
       default:
         return this.landShop(lord, t.kind);
     }
@@ -404,12 +498,19 @@ export class Game {
       '🏯',
     );
     if (!gid) return;
-    const amounts = [300, 500, 1000, 2000, 3000, 5000].filter((a) => a <= lord.soldiers);
-    const soldiers = await this.dialog.choose(
+    const soldiers = await this.dialog.slider(
       `派多少士兵駐守${city.name}？`,
-      `目前隨行士兵 ${lord.soldiers}。一名守軍約等於十名隨行士兵，守軍越多越難攻破。`,
-      amounts.map((a) => ({ label: `${a} 名士兵`, value: a })),
-      '取消',
+      `目前隨行士兵 ${lord.soldiers}。一名守軍約等於十名隨行士兵，守軍越多越難攻破；留在身邊的士兵可用於攻城。`,
+      {
+        min: MIN_GARRISON,
+        max: lord.soldiers,
+        step: 100,
+        initial: Math.min(lord.soldiers, Math.max(MIN_GARRISON, Math.round(city.prosperity * 30))),
+        unit: ' 名',
+        confirm: '派駐',
+        preview: (v) => `守軍戰力約 ${v * GARRISON_STRENGTH}（未計駐將與地貌）・留在身邊 ${lord.soldiers - v} 名`,
+      },
+      '🏯',
     );
     if (!soldiers) return;
     occupy(this.state, lord, city, gid, soldiers, occupyCost(city));
@@ -422,13 +523,14 @@ export class Game {
 
   private async playerEnemyCityChoice(lord: Lord, city: City, fee: number): Promise<{ kind: BattleKind | 'pay'; generals: General[] }> {
     const free = freeGenerals(this.state, lord.id);
-    const fighters = free.filter((g) => g.hp > 1);
+    const fighters = free.filter(canDuel);
     const owner = LORDS[city.owner as LordId].name;
     const guard = city.garrisonGeneral ? this.state.generals[city.garrisonGeneral] : null;
     const noGen = '沒有可出戰的隨行武將';
+    const noDuel = `沒有血量達 ${Math.round(SURRENDER_HP * 100)}% 以上的隨行武將`;
     const choices: Choice<BattleKind | 'pay'>[] = [
       { label: '💰 繳納過路費', sub: `支付 ${fmtStones(fee)} 後離開`, value: 'pay' },
-      { label: '⚔️ 擂台戰', sub: '雙方各派一將單挑，能量滿可施放功法', value: 'duel', disabled: !fighters.length, reason: noGen },
+      { label: '⚔️ 擂台戰', sub: `雙方各派一將單挑，能量滿可施放功法。血量低於 ${Math.round(WOUNDED_HP * 100)}% 減傷三成，低於 ${Math.round(SURRENDER_HP * 100)}% 認輸；被一擊打到歸零則戰死`, value: 'duel', disabled: !fighters.length, reason: free.length ? noDuel : noGen },
       ...CRAFTS.map((s) => ({
         label: `🔥 ${STAT_NAMES[s]}比試`,
         sub: `比拼${STAT_NAMES[s]}，我方最高 ${Math.max(0, ...free.map((g) => craft(g, s)))}｜雙方各出 ${CONTEST_SOLDIERS} 兵，敗方全滅`,
@@ -466,7 +568,7 @@ export class Game {
     // 攻方武將
     let atkGen: General | null = preset[0] ?? null;
     if (attacker.isPlayer) {
-      const pool = freeGenerals(this.state, attacker.id).filter((g) => kind !== 'duel' || g.hp > 1);
+      const pool = freeGenerals(this.state, attacker.id).filter((g) => kind !== 'duel' || canDuel(g));
       atkGen = (await this.pickGeneral(`派誰出戰${BATTLE_NAMES[kind]}？`, pool, kind, false)) ?? pool[0];
     }
     if (!atkGen) return false;
@@ -474,7 +576,7 @@ export class Game {
     // 守方武將
     let defGen: General | null;
     if (defender.isPlayer) {
-      const pool = defenderPool(this.state, city).filter((g) => kind !== 'duel' || g.hp > 1);
+      const pool = defenderPool(this.state, city).filter((g) => kind !== 'duel' || canDuel(g));
       defGen = pool.length ? ((await this.pickGeneral(`${LORDS[attacker.id].name}的${atkGen.name}挑戰${city.name}【${BATTLE_NAMES[kind]}】，派誰應戰？`, pool, kind, false)) ?? pool[0]) : null;
     } else {
       defGen = aiDefender(this.state, city, kind);
@@ -494,8 +596,11 @@ export class Game {
       } else winner = duel.autoResolve();
       const w = winner === 'a' ? atkGen : defGen;
       const l = winner === 'a' ? defGen : atkGen;
-      const gain = battleExp(w, l);
-      this.ui.log(`擂台戰：${atkGen.name} vs ${defGen.name}，${w.name}勝出，生死歷練修為 +${gain}。`, involved ? 'info' : 'ai');
+      const dead = duel.slainGeneral();
+      const gain = battleExp(w, dead ? null : l);
+      const verdict = dead ? `（${l.name}戰死）` : duel.surrendered ? `（${l.name}認輸）` : '';
+      this.ui.log(`擂台戰：${atkGen.name} vs ${defGen.name}，${w.name}勝出${verdict}，生死歷練修為 +${gain}。`, involved ? 'info' : 'ai');
+      if (dead) this.onGeneralSlain(dead, involved);
       return winner === 'a';
     }
 
@@ -515,23 +620,53 @@ export class Game {
     return r.winner === 'a';
   }
 
+  /** 武將在擂台上被當場擊殺 */
+  private onGeneralSlain(g: General, involved: boolean) {
+    const owner = g.owner;
+    killGeneral(this.state, g);
+    this.world.syncCities(this.state);
+    this.ui.log(`💀 ${g.name}戰死擂台，從此除名！`, owner === this.state.player ? 'bad' : involved ? 'good' : 'ai');
+    if (involved) this.ui.toast(`${g.name}戰死擂台`);
+    this.refresh();
+  }
+
   private async runSiege(attacker: Lord, city: City, preset: General[]): Promise<boolean> {
     const defender = this.state.lords[city.owner as LordId];
     let team = preset;
+    let sentSoldiers = attacker.soldiers;
     if (attacker.isPlayer) {
       const pool = freeGenerals(this.state, attacker.id);
       const picked = await this.dialog.pickMany(
         `攻打${city.name}・選擇出征武將`,
-        `最多派遣三名武將，率領全部未派遣的 ${attacker.soldiers} 名士兵攻城。\n戰敗則士兵全滅；勝方也會折損，雙方越接近折損越多。\n一名守軍約等於十名隨行士兵；武將武力越高，統率加成越大。守方約 ${garrisonPower(this.state, city)}。`,
+        `最多派遣三名武將；選好武將後，可自行決定出兵數量。\n戰敗則出征的士兵全滅；勝方也會折損，雙方越接近折損越多。\n一名守軍約等於十名隨行士兵；武將武力越高，統率加成越大。守方約 ${garrisonPower(this.state, city)}。`,
         pool.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・武力 ${attack(g)}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}`, value: g })),
         1,
         3,
         '出征',
       );
       team = picked ?? [pool[0]];
+      const sent = await this.dialog.slider(
+        `攻打${city.name}・出兵多少？`,
+        `目前隨行士兵 ${attacker.soldiers}。出征的士兵戰敗會全滅，留在身邊的不受影響。`,
+        {
+          min: Math.min(100, attacker.soldiers),
+          max: attacker.soldiers,
+          step: 100,
+          unit: ' 名',
+          confirm: '出征',
+          preview: (v) => {
+            const mine = siegeAttack(attacker, team, v);
+            const theirs = garrisonPower(this.state, city);
+            return `我方約 <b>${mine}</b> vs 守方約 <b>${theirs}</b>（${mine > theirs * 1.15 ? '勝算大' : mine > theirs * 0.85 ? '勢均力敵' : '勝算小'}）・留守 ${attacker.soldiers - v} 名`;
+          },
+        },
+        '🏯',
+      );
+      if (!sent) return false;
+      sentSoldiers = sent;
     }
     const oldGeneral = city.garrisonGeneral ? this.state.generals[city.garrisonGeneral] : null;
-    const r = siege(this.state, attacker, team, city);
+    const r = siege(this.state, attacker, team, city, sentSoldiers);
     const involved = attacker.isPlayer || defender.isPlayer;
     if (involved) await this.battleView.showSiege(r, team, attacker.id, city, oldGeneral, attacker.isPlayer);
     this.ui.log(`攻城戰：${LORDS[attacker.id].name} ${r.attack} vs ${city.name} ${r.defense}，${r.win ? '城破！' : '攻城失敗。'}`, involved ? 'info' : 'ai');
@@ -555,11 +690,23 @@ export class Game {
     if (attacker.isPlayer) {
       const g = await this.dialog.choose(`攻下${city.name}！派誰駐守？`, '', team.map((x) => ({ label: x.name, sub: `戰力 ${power(x)}`, value: x.id })), null, '🏯');
       if (g) gid = g;
-      const amounts = [300, 500, 1000, 2000, 3000, 5000].filter((a) => a <= attacker.soldiers);
-      if (amounts.length) {
-        const s = await this.dialog.choose(`派多少士兵駐守${city.name}？`, `目前士兵 ${attacker.soldiers}`, amounts.map((a) => ({ label: `${a} 名士兵`, value: a })), null);
-        soldiers = s ?? amounts[0];
-      } else soldiers = attacker.soldiers;
+      if (attacker.soldiers > 0) {
+        const s = await this.dialog.slider(
+          `派多少士兵駐守${city.name}？`,
+          `目前士兵 ${attacker.soldiers}。`,
+          {
+            min: Math.min(MIN_GARRISON, attacker.soldiers),
+            max: attacker.soldiers,
+            step: 100,
+            initial: Math.min(attacker.soldiers, Math.max(MIN_GARRISON, Math.round(attacker.soldiers * 0.4))),
+            unit: ' 名',
+            confirm: '派駐',
+            preview: (v) => `守軍戰力約 ${v * GARRISON_STRENGTH}（未計駐將與地貌）・留在身邊 ${attacker.soldiers - v} 名`,
+          },
+          '🏯',
+        );
+        soldiers = s ?? Math.min(MIN_GARRISON, attacker.soldiers);
+      } else soldiers = 0;
     }
     occupy(this.state, attacker, city, gid, Math.max(0, soldiers));
     this.world.syncCities(this.state);
@@ -570,13 +717,14 @@ export class Game {
   }
 
   private pickGeneral(title: string, pool: General[], kind: BattleKind, cancelable = true): Promise<General | null> {
+    const risky = (g: General) => (kind === 'duel' && g.hp < maxHp(g) * WOUNDED_HP ? '・⚠️血量偏低，易戰死' : '');
     const stat = kind === 'duel' || kind === 'siege' ? null : (kind as CraftStat);
     return this.dialog.choose(
       title,
       '',
       pool.map((g) => ({
         label: g.name,
-        sub: stat ? `${STAT_NAMES[stat]} ${craft(g, stat)}・${REALMS[g.realm]}` : `${REALMS[g.realm]}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}${g.technique ? `・${g.technique.name}` : ''}`,
+        sub: stat ? `${STAT_NAMES[stat]} ${craft(g, stat)}・${REALMS[g.realm]}` : `${REALMS[g.realm]}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}${risky(g)}${g.technique ? `・${g.technique.name}` : ''}`,
         value: g,
         color: originCss(g.origin),
       })),
@@ -653,30 +801,32 @@ export class Game {
     this.refresh();
   }
 
-  private async roadEvent(lord: Lord) {
-    const r = Math.random();
-    if (r < 0.35) return;
-    let text: string;
-    if (r < 0.55) {
-      const n = 300 + Math.floor(Math.random() * 900);
-      lord.stones += n;
-      text = `途中拾獲一袋靈石：${fmtStones(n)}`;
-    } else if (r < 0.7) {
-      const n = Math.round(lord.soldiers * 0.06);
-      lord.soldiers -= n;
-      text = `遭遇山賊伏擊，折損 ${n} 名士兵`;
-    } else if (r < 0.82) {
-      const defId = PILL_IDS[Math.floor(Math.random() * PILL_IDS.length)];
-      const item = { uid: nextUid(this.state, 'i'), defId, tier: 0, price: ITEM_DEFS[defId].price[0] };
-      lord.items.push(item);
-      text = `偶遇散修，獲贈一顆${nameOf(item)}`;
-    } else {
-      for (const g of generalsOf(this.state, lord.id)) g.hp = Math.min(maxHp(g), g.hp + Math.round(maxHp(g) * 0.2));
-      text = '尋得一處靈泉，眾將傷勢回復兩成';
-    }
-    this.ui.log(`${LORDS[lord.id].name}：${text}`, lord.isPlayer ? 'good' : 'ai');
-    if (lord.isPlayer) this.ui.toast(text);
+  /** 停在驛道：可能遇到奇遇，有些要玩家抉擇 */
+  private async roadEvent(lord: Lord, place: string) {
+    const ev = rollRoadEvent(this.state, lord, place);
+    if (!ev) return;
+    const name = LORDS[lord.id].name;
+    let result: string;
+    if (ev.options) {
+      let idx: number;
+      if (lord.isPlayer) {
+        const picked = await this.dialog.choose(
+          `${ev.icon} ${ev.title}`,
+          ev.story,
+          ev.options.map((o, i) => ({ label: o.label, sub: o.sub, value: i, disabled: o.disabled, reason: o.reason })),
+          null,
+          ev.icon,
+        );
+        idx = picked ?? ev.options.length - 1;
+      } else {
+        const ok = ev.options.findIndex((o) => !o.disabled);
+        idx = ok >= 0 ? ok : ev.options.length - 1;
+      }
+      result = ev.options[idx].apply();
+    } else result = ev.apply!();
+    this.ui.log(`${name}：${ev.icon} ${ev.title}――${result}`, lord.isPlayer ? (ev.tone === 'bad' ? 'bad' : 'good') : 'ai');
     this.refresh();
+    if (lord.isPlayer) await this.dialog.message(`${ev.icon} ${ev.title}`, ev.options ? result : `${ev.story}\n\n${result}`, ev.icon);
   }
 
   // ───────────────────────── 玩家擲骰前操作 ─────────────────────────
@@ -778,10 +928,16 @@ export class Game {
   }
 
   private async recruitSoldiers(lord: Lord) {
-    const n = await this.dialog.choose(
+    const most = Math.floor(lord.stones / SOLDIER_PRICE / 100) * 100;
+    if (most < 100) {
+      this.ui.toast('靈石不足，至少要能徵召 100 名士兵');
+      return;
+    }
+    const n = await this.dialog.slider(
       '⚔️ 徵兵',
       `每名士兵 ${SOLDIER_PRICE} 下品靈石。目前士兵 ${lord.soldiers}，靈石 ${fmtStones(lord.stones)}。`,
-      [1000, 2000, 5000, 10000].map((a) => ({ label: `徵召 ${a} 名`, sub: fmtStones(a * SOLDIER_PRICE), value: a, disabled: lord.stones < a * SOLDIER_PRICE, reason: '靈石不足' })),
+      { min: 100, max: most, step: 100, initial: Math.min(2000, most), unit: ' 名', confirm: '徵召', preview: (v) => `花費 ${fmtStones(v * SOLDIER_PRICE)}，徵兵後士兵 ${lord.soldiers + v}` },
+      '⚔️',
     );
     if (!n) return;
     lord.stones -= n * SOLDIER_PRICE;
@@ -804,16 +960,24 @@ export class Game {
     if (!city) return;
     const free = freeGenerals(this.state, lord.id);
     const action = await this.dialog.choose(`調度${city.name}`, '', [
-      { label: '增派士兵', sub: `從隨行士兵調入（目前 ${lord.soldiers}）`, value: 'add', disabled: lord.soldiers < 300, reason: '士兵不足' },
-      { label: '撤回士兵', sub: `至少保留 ${MIN_GARRISON} 守軍`, value: 'remove', disabled: city.garrisonSoldiers - MIN_GARRISON < 300, reason: '守軍已達下限' },
+      { label: '增派士兵', sub: `從隨行士兵調入（目前 ${lord.soldiers}）`, value: 'add', disabled: lord.soldiers < 100, reason: '士兵不足' },
+      { label: '撤回士兵', sub: `至少保留 ${MIN_GARRISON} 守軍`, value: 'remove', disabled: city.garrisonSoldiers - MIN_GARRISON < 100, reason: '守軍已達下限' },
       { label: '更換駐將', sub: '由隨行武將換下目前駐將', value: 'swap', disabled: !free.length, reason: '沒有隨行武將' },
     ]);
     if (action === 'add' || action === 'remove') {
       const max = action === 'add' ? lord.soldiers : city.garrisonSoldiers - MIN_GARRISON;
-      const n = await this.dialog.choose(
-        action === 'add' ? '增派多少？' : '撤回多少？',
-        '',
-        [300, 500, 1000, 2000, 5000].filter((a) => a <= max).map((a) => ({ label: `${a} 名`, value: a })),
+      const n = await this.dialog.slider(
+        action === 'add' ? `增派多少士兵駐守${city.name}？` : `從${city.name}撤回多少士兵？`,
+        `守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`,
+        {
+          min: Math.min(100, max),
+          max,
+          step: 100,
+          unit: ' 名',
+          confirm: action === 'add' ? '增派' : '撤回',
+          preview: (v) => (action === 'add' ? `守軍將達 ${city.garrisonSoldiers + v}` : `守軍將剩 ${city.garrisonSoldiers - v}`),
+        },
+        '🏯',
       );
       if (!n) return;
       const sign = action === 'add' ? 1 : -1;
@@ -944,72 +1108,6 @@ export class Game {
     this.refresh();
   }
 
-  // ───────────────────────── 港口出海 ─────────────────────────
-
-  private async voyage(lord: Lord) {
-    const free = freeGenerals(this.state, lord.id);
-    const kind = await this.dialog.choose(
-      '⛵ 港口出海',
-      '從港口派武將出海，期間這些武將暫時離隊。',
-      [
-        {
-          label: '💰 海外貿易',
-          sub: `派 1–3 名武將帶靈石經商，${TRADE_TURNS} 回合後歸來。煉器、煉丹越高獲利越多；武力越高越不怕海盜`,
-          value: 'trade' as const,
-          disabled: lord.stones < 2000,
-          reason: '至少需要 2中品 靈石',
-        },
-        {
-          label: '🏝️ 尋訪仙山',
-          sub: `派三名武將尋找${ISLANDS.join('、')}，${ISLAND_TURNS} 回合後歸來。比秘境兇險，但帶回兩份高階寶物與大量修為，還可能得仙人點化`,
-          value: 'island' as const,
-          disabled: free.length < 3,
-          reason: '需要三名隨行武將',
-        },
-      ],
-      '取消',
-      '⛵',
-    );
-    if (!kind) return;
-
-    if (kind === 'island') {
-      const team = await this.dialog.pickMany(
-        '🏝️ 尋訪仙山',
-        '選三名武將出海。綜合屬性越高，個別隕落機率越低。',
-        free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}・單獨隕落率約 ${Math.round(islandDeathChance(g, [g, g, g]) * 100)}%`, value: g })),
-        3,
-        3,
-        '揚帆',
-      );
-      if (!team) return;
-      launchIsland(lord, team);
-      this.ui.log(`派遣${team.map((g) => g.name).join('、')}出海尋訪仙山。`, 'good');
-      this.refresh();
-      return;
-    }
-
-    const team = await this.dialog.pickMany(
-      '💰 海外貿易・選擇商隊',
-      '選 1–3 名武將。煉器、煉丹最好的一人決定獲利；全隊武力合計決定遇到海盜的機率。',
-      free.map((g) => ({ label: g.name, sub: `煉器 ${craft(g, 'forging')}・煉丹 ${craft(g, 'alchemy')}・武力 ${attack(g)}`, value: g })),
-      1,
-      3,
-      '組成商隊',
-    );
-    if (!team) return;
-    const mult = tradeMultiplier(team);
-    const risk = Math.round((pirateChance(team) + SHIPWRECK_CHANCE) * 100);
-    const invest = await this.dialog.choose(
-      '💰 海外貿易・投入多少靈石？',
-      `預估獲利約 ×${(mult - 0.2).toFixed(2)}～×${(mult + 0.3).toFixed(2)}；遇海盜或船難（約 ${risk}%）則血本無歸。\n持有 ${fmtStones(lord.stones)}`,
-      [2000, 5000, 10000, 20000, 50000].map((v) => ({ label: fmtStones(v), sub: `成功約可帶回 ${fmtStones(Math.round(v * mult))}`, value: v, disabled: lord.stones < v, reason: '靈石不足' })),
-    );
-    if (!invest) return;
-    launchTrade(lord, team, invest);
-    this.ui.log(`派${team.map((g) => g.name).join('、')}帶 ${fmtStones(invest)} 出海貿易。`, 'good');
-    this.refresh();
-  }
-
   // ───────────────────────── 宗門與突破 ─────────────────────────
 
   /** 聽風樓、空城或自己的城池才能調度宗門 */
@@ -1119,6 +1217,10 @@ export class Game {
       this.tileResolver?.(tile);
       return;
     }
+    if (this.phase === 'pickDir') {
+      if (this.dirOptions.includes(tile)) this.dirResolver?.(tile);
+      return;
+    }
     this.hoverTile = tile;
     this.refresh();
   }
@@ -1135,9 +1237,11 @@ export class Game {
     let text = `<b>${TILE_INFO[t.kind].icon} ${t.name}</b>`;
     if (t.kind === 'city') {
       const c = this.state.cities[t.cityId!];
-      text += `（${ownerName(c.owner)}）<br>${terrainOf(c).icon} ${terrainOf(c).name}・${terrainEffects(terrainOf(c))}<br>繁榮 ${c.prosperity}${c.owner === 'neutral' ? '' : `・過路費 ${fmtStones(cityToll(this.state, c))}`}`;
+      text += `（${ownerName(c.owner)}）<br>${terrainOf(c).icon} ${terrainOf(c).name}・${terrainEffects(terrainOf(c))}<br>繁榮 ${c.prosperity}（第 ${cityRanks(this.state, c.id).prosperity} 名）${c.owner === 'neutral' ? '' : `・過路費 ${fmtStones(cityToll(this.state, c))}`}`;
     } else text += `<br>${TILE_INFO[t.kind].desc}`;
+    text += `<br><span class="tt-links">通往：${t.links.map((n) => this.state.tiles[n].name).join('、')}</span>`;
     if (this.phase === 'pickTile') text += '<br><span class="tt-move">▶ 點擊傳送至此</span>';
+    if (this.phase === 'pickDir' && this.dirOptions.includes(tile)) text += '<br><span class="tt-move">▶ 點擊走這條路</span>';
     this.ui.showTooltip(text, this.mouse.x, this.mouse.y);
   }
 
@@ -1147,21 +1251,23 @@ export class Game {
     const t = this.state.tiles[index];
     const here = LORD_IDS.filter((id) => this.state.lords[id].alive && this.state.lords[id].position === index);
     const people = here.length ? `<div class="ip-row">此地：${here.map((id) => `<span style="color:${LORDS[id].css}">${LORDS[id].name}</span>`).join('、')}</div>` : '';
-    if (t.kind !== 'city') return `<div class="ip-head"><b>${TILE_INFO[t.kind].icon} ${t.name}</b></div><div class="ip-row">${TILE_INFO[t.kind].desc}</div>${people}`;
+    const links = `<div class="ip-row">通往：${t.links.map((n) => `${TILE_INFO[this.state.tiles[n].kind].icon}${this.state.tiles[n].name}`).join('、')}${t.links.length >= 3 ? '（岔路口）' : ''}</div>`;
+    if (t.kind !== 'city') return `<div class="ip-head"><b>${TILE_INFO[t.kind].icon} ${t.name}</b></div><div class="ip-row">${TILE_INFO[t.kind].desc}</div>${links}${people}`;
     const c = this.state.cities[t.cityId!];
     const g = c.garrisonGeneral ? this.state.generals[c.garrisonGeneral] : null;
     const inc = cityIncomeOf(this.state, c);
+    const ranks = cityRanks(this.state, c.id);
     return `
       <div class="ip-head" style="--fc:${ownerCss(c.owner)}"><b>${c.capital ? '★ ' : ''}${c.name}</b><span>${ownerName(c.owner)}</span></div>
       <table>
         <tr><td>地貌</td><td title="${terrainOf(c).desc}">${terrainOf(c).icon} ${terrainOf(c).name}<small class="terrain-fx">${terrainEffects(terrainOf(c))}</small></td></tr>
-        <tr><td>繁榮度</td><td>${c.prosperity}</td></tr>
+        <tr><td>繁榮度</td><td>${c.prosperity}<small class="terrain-fx">第 ${ranks.prosperity} / ${Object.keys(this.state.cities).length} 名</small></td></tr>
         <tr><td>過路費</td><td>${c.owner === 'neutral' ? `佔領後約 ${fmtStones(toll(c))}` : fmtStones(cityToll(this.state, c))}</td></tr>
-        <tr><td>每回合</td><td>${fmtStones(inc.stones)}・兵 +${inc.soldiers}</td></tr>
+        <tr><td>每回合</td><td>${fmtStones(inc.stones)}・兵 +${inc.soldiers}<small class="terrain-fx">${RANK_METRICS.filter((m) => m.id === 'stones' || m.id === 'soldiers').map((m) => `${m.name}第 ${ranks[m.id]}`).join('・')}</small></td></tr>
         <tr><td>駐將</td><td>${g ? `${g.name}（${REALMS[g.realm]}・戰力 ${power(g)}）` : '無'}</td></tr>
         <tr><td>守軍</td><td>${c.garrisonSoldiers}${c.shieldTurns ? `・護城大陣 ${c.shieldTurns}` : ''}</td></tr>
-        ${c.owner !== 'neutral' ? `<tr><td>守城戰力</td><td>${garrisonPower(this.state, c)}</td></tr>` : ''}
-      </table>${people}`;
+        ${c.owner !== 'neutral' ? `<tr><td>守城戰力</td><td>${garrisonPower(this.state, c)}<small class="terrain-fx">第 ${ranks.defense} 名</small></td></tr>` : ''}
+      </table>${links}${people}`;
   }
 
   private refresh() {
@@ -1172,7 +1278,13 @@ export class Game {
     const myTurn = current.id === player.id && player.alive;
     const buttons: ActionButton[] = [];
     let hint: string;
-    const roster: ActionButton = { label: '👥 武將', onClick: () => void this.generalsView.open(this.state, player).then(() => this.refresh()) };
+    const ready = generalsOf(this.state, player.id).filter((g) => canAttemptBreak(g, this.state.round).ok).length;
+    const roster: ActionButton = {
+      label: '👥 武將',
+      sub: ready ? `✨ ${ready} 人可突破` : undefined,
+      highlight: ready > 0,
+      onClick: () => void this.generalsView.open(this.state, player).then(() => this.refresh()),
+    };
 
     if (this.state.over) hint = '天下已定';
     else if (!player.alive) hint = `觀戰中・${LORDS[current.id].name}行動中……`;
@@ -1187,9 +1299,14 @@ export class Game {
         { label: '⚔️ 徵兵', sub: `${SOLDIER_PRICE}/名`, onClick: () => void this.recruitSoldiers(player) },
         { label: '🏯 調度駐軍', onClick: () => void this.manageGarrison(player) },
         { label: '🏛️ 宗門', sub: `隨行 ${freeGenerals(this.state, player.id).length}/${PARTY_LIMIT}`, disabled: !this.canSwapSect(player), onClick: () => void this.manageSect(player) },
-        { label: '⛵ 出海', sub: '貿易・尋仙', disabled: !canVoyage(this.state, player) || !freeGenerals(this.state, player.id).length, onClick: () => void this.voyage(player) },
         roster,
       );
+    } else if (this.phase === 'pickDir') {
+      hint = `前方是岔路（還剩 ${this.dirStepsLeft} 步）：點選地圖上發光的格子，或按下方按鈕選擇方向`;
+      for (const o of this.dirOptions) {
+        const t = this.state.tiles[o];
+        buttons.push({ label: `${TILE_INFO[t.kind].icon} ${t.name}`, sub: this.routeHint(o, this.state.lords[this.state.player].position), kind: 'primary', onClick: () => this.dirResolver?.(o) });
+      }
     } else if (this.phase === 'pickTile') {
       hint = '傳送陣：點選地圖上任一格（右鍵或 Esc 取消）';
       buttons.push({ label: '✖ 取消', onClick: () => this.tileResolver?.(null) });
@@ -1199,7 +1316,6 @@ export class Game {
         roster,
         { label: '🏯 調度駐軍', onClick: () => void this.manageGarrison(player) },
         { label: '🏛️ 宗門', sub: `隨行 ${freeGenerals(this.state, player.id).length}/${PARTY_LIMIT}`, disabled: !this.canSwapSect(player), onClick: () => void this.manageSect(player) },
-        { label: '⛵ 出海', sub: '貿易・尋仙', disabled: !canVoyage(this.state, player) || !freeGenerals(this.state, player.id).length, onClick: () => void this.voyage(player) },
         { label: '結束回合', sub: 'Enter', kind: 'primary', onClick: () => this.endResolver?.() },
       );
     } else hint = '……';

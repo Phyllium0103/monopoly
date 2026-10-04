@@ -92,6 +92,8 @@ export interface General {
   demon: number;
   /** 避雷陣等護法：雷劫傷害減免比例 */
   ward: number;
+  /** 破境丹：下次低階突破成功率加成，或雷劫傷害減免 */
+  breakBoost: number;
   /** 駐守城池時閉關修煉 */
   secluded: boolean;
   hp: number;
@@ -107,15 +109,11 @@ export interface General {
 }
 
 export interface Expedition {
-  /** realm=秘境、trade=海外貿易、island=尋訪仙山 */
-  kind: 'realm' | 'trade' | 'island';
   generalIds: string[];
   turnsLeft: number;
   realmName: string;
   /** 上古秘境現世期間派遣：死亡率減半、獎勵更好 */
   blessed?: boolean;
-  /** 海外貿易投入的靈石 */
-  invest?: number;
 }
 
 export interface Lord {
@@ -133,6 +131,8 @@ export interface Lord {
   siegeBoost: number;
   doubleDice: boolean;
   fixedDice: number | null;
+  /** 遁地梭：本回合移動點數加成 */
+  bonusSteps: number;
   items: Item[];
   gear: Equipment[];
   scrolls: Technique[];
@@ -162,6 +162,8 @@ export interface Tile {
   name: string;
   pos: Vec2;
   cityId: string | null;
+  /** 相鄰的格子（道路雙向相通，遇到岔路可選方向） */
+  links: number[];
 }
 
 export interface GameState {

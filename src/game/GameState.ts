@@ -5,7 +5,8 @@ import { LORDS, LORD_IDS } from '../faction/Faction';
 import { maxHp } from '../systems/GeneralSystem';
 
 export const MAX_ROUNDS = 40;
-export const START_STONES = 20000;
+/** 開局靈石：10 上品 */
+export const START_STONES = 100000;
 export const START_SOLDIERS = 20000;
 /** 主公身邊最多隨行武將數，其餘留在宗門 */
 export const PARTY_LIMIT = 10;
@@ -42,6 +43,7 @@ export function createGameState(player: LordId): GameState {
       foundation: false,
       demon: 0,
       ward: 0,
+      breakBoost: 0,
       secluded: false,
       hp: 0,
       stamina: 100,
@@ -76,6 +78,7 @@ export function createGameState(player: LordId): GameState {
       siegeBoost: 1,
       doubleDice: false,
       fixedDice: null,
+      bonusSteps: 0,
       items: [],
       gear: [],
       scrolls: [],
@@ -129,6 +132,19 @@ export function joinLord(state: GameState, lord: LordId, g: General) {
   g.cityId = null;
   g.secluded = false;
   g.status = freeGenerals(state, lord).length < PARTY_LIMIT ? 'free' : 'sect';
+}
+
+/** 武將戰死：從主公與城池除名 */
+export function killGeneral(state: GameState, g: General) {
+  if (g.cityId) {
+    const city = state.cities[g.cityId];
+    if (city && city.garrisonGeneral === g.id) city.garrisonGeneral = null;
+  }
+  g.status = 'dead';
+  g.owner = null;
+  g.cityId = null;
+  g.secluded = false;
+  g.hp = 0;
 }
 
 export function citiesOf(state: GameState, lord: LordId): City[] {

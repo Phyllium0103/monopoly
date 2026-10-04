@@ -60,6 +60,7 @@ export function startTurn(state: GameState, lord: Lord): TurnReport {
   lord.siegeBoost = 1;
   lord.doubleDice = false;
   lord.fixedDice = null;
+  lord.bonusSteps = 0;
   return report;
 }
 

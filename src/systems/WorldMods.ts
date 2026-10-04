@@ -16,4 +16,10 @@ export const WORLD = {
   noBattle: false,
   /** 上古秘境現世 */
   realmBlessed: false,
+  /** 城池靈石收入倍率（商路暢通、蝗災） */
+  incomeMult: 1,
+  /** 閉關修為倍率（靈潮湧動） */
+  seclusionMult: 1,
+  /** 聽風樓招募價倍率（招賢令） */
+  recruitMult: 1,
 };

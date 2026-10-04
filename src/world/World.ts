@@ -5,7 +5,7 @@ import { Terrain } from './Terrain';
 import { animateCity, buildCityMesh, type CityVisual } from './CityMesh';
 import { animateBuilding, buildSpecial, type BuildingVisual } from './Buildings';
 import { ownerColor, ownerCss, ownerName } from '../faction/Faction';
-import { BOARD, PORT_CITIES, TILE_INFO } from '../data/board';
+import { BOARD, TILE_INFO } from '../data/board';
 import type { Animator } from '../scene/Animator';
 import { easeOut } from '../scene/Animator';
 import { cityToll } from '../systems/CitySystem';
@@ -32,7 +32,6 @@ export class World {
   private hover: THREE.Mesh;
   private time = 0;
   private eventMarkers: THREE.Group[] = [];
-  private docks: THREE.Object3D[] = [];
 
   constructor(
     scene: THREE.Scene,
@@ -40,7 +39,7 @@ export class World {
   ) {
     scene.add(this.root);
     const pts: Vec2[] = this.tiles.map((t) => t.pos);
-    const segs: [Vec2, Vec2][] = pts.map((p, i) => [p, pts[(i + 1) % pts.length]]);
+    const segs: [Vec2, Vec2][] = BOARD.edges.map(([a, b]) => [this.tiles[a].pos, this.tiles[b].pos]);
     this.terrain = new Terrain(pts, segs);
     this.root.add(this.terrain.group);
     this.root.add(this.highlights);
@@ -80,14 +79,12 @@ export class World {
     if (tile.kind !== 'road') v.group.scale.setScalar(0.85);
     this.root.add(v.group);
     this.buildings.push(v);
-    if (tile.kind !== 'road') {
-      const el = document.createElement('div');
-      el.className = `special-label k-${tile.kind}`;
-      el.textContent = `${TILE_INFO[tile.kind].icon} ${tile.name}`;
-      const label = new CSS2DObject(el);
-      label.position.set(0, 3.6, 0);
-      v.group.add(label);
-    }
+    const el = document.createElement('div');
+    el.className = `special-label k-${tile.kind}${tile.links.length >= 3 ? ' fork' : ''}`;
+    el.textContent = tile.kind === 'road' ? (tile.links.length >= 3 ? `🔱 ${tile.name}` : tile.name) : `${TILE_INFO[tile.kind].icon} ${tile.name}`;
+    const label = new CSS2DObject(el);
+    label.position.set(0, tile.kind === 'road' ? 1.6 : 3.6, 0);
+    v.group.add(label);
   }
 
   private addPicker(tile: Tile) {
@@ -134,33 +131,7 @@ export class World {
     const visual = buildCityMesh(city.owner, city.capital);
     visual.group.scale.multiplyScalar(CITY_SCALE);
     holder.add(visual.group);
-    if (PORT_CITIES.has(city.id)) holder.add(this.buildDock());
     this.cities.set(city.id, { visual, holder, territory, label, owner: city.owner });
-  }
-
-  /** 港口碼頭：木棧道 + 帆船 */
-  private buildDock(): THREE.Group {
-    const g = new THREE.Group();
-    const wood = new THREE.MeshStandardMaterial({ color: 0x7a4b2a, flatShading: true });
-    const pier = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 2), wood);
-    pier.position.set(2.5, 0.15, -1.8);
-    pier.rotation.y = 0.6;
-    g.add(pier);
-    const boat = new THREE.Group();
-    const hull = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.3, 0.45), new THREE.MeshStandardMaterial({ color: 0x8a5a32, flatShading: true }));
-    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.1, 4), wood);
-    mast.position.y = 0.65;
-    const sail = new THREE.Mesh(new THREE.PlaneGeometry(0.55, 0.6), new THREE.MeshStandardMaterial({ color: 0xf2e6c8, side: THREE.DoubleSide }));
-    sail.position.y = 0.75;
-    sail.rotation.y = Math.PI / 2;
-    boat.add(hull, mast, sail);
-    boat.position.set(3.3, 0.2, -2.6);
-    boat.rotation.y = 0.6;
-    boat.userData.bobBase = 0.2;
-    g.add(boat);
-    g.traverse((o) => (o.castShadow = true));
-    this.docks.push(boat);
-    return g;
   }
 
   private rebuildCity(city: City) {
@@ -179,7 +150,7 @@ export class World {
   private updateLabel(state: GameState, city: City) {
     const e = this.cities.get(city.id)!;
     const tollText = city.owner === 'neutral' ? '' : `<small class="toll">💰${fmtStones(cityToll(state, city), true)}</small>`;
-    e.label.innerHTML = `<span class="dot" style="background:${ownerCss(city.owner)}"></span>${city.capital ? '★' : ''}${PORT_CITIES.has(city.id) ? '⚓' : ''}${city.name}<small>${ownerName(city.owner)}</small>${tollText}`;
+    e.label.innerHTML = `<span class="dot" style="background:${ownerCss(city.owner)}"></span>${city.capital ? '★' : ''}${city.name}<small>${ownerName(city.owner)}</small>${tollText}`;
   }
 
   setHover(index: number | null) {
@@ -313,7 +284,6 @@ export class World {
 
   update(dt: number) {
     this.time += dt;
-    for (const d of this.docks) d.position.y = d.userData.bobBase + Math.sin(this.time * 1.6 + d.id) * 0.05;
     for (const m of this.eventMarkers) {
       const flag = m.children.find((c) => c.userData.wave);
       if (flag) flag.rotation.y = Math.sin(this.time * 3) * 0.4;

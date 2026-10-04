@@ -1,5 +1,9 @@
 import type { City, GameState, General, Item, Lord } from '../game/types';
-import { ESSENCE_EXP, HEAL, ITEM_DEFS, POISON, QI_EXP, STAMINA_UP, STAT_NAMES, STAT_UP, itemName, type ItemDef } from '../data/items';
+import {
+  BELL_ENERGY, BONE_HP, BREAK_BOOST, CHARGE_ENERGY, DRAIN_STAMINA, ESSENCE_EXP, GATHER_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, PEARL_STAMINA, POISON, QI_EXP, RAGE_ATK, RING_DAMAGE,
+  SHIELD_RATIO, SHUTTLE_STEPS, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, type ItemDef,
+} from '../data/items';
+import { freeGenerals } from '../game/GameState';
 import { addExp, attack, craft, defense, maxHp } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
 import { fmtStones } from '../game/Currency';
@@ -128,6 +132,42 @@ export function usePreroll(state: GameState, lord: Lord, item: Item, user: Gener
     case 'truce':
       lord.tollFree = true;
       return `${head}，本回合踏入敵城免繳過路費。`;
+    case 'clearmind':
+      g!.demon = 0;
+      return `${head}，${g!.name}心魔盡消。`;
+    case 'bone':
+      g!.base.hp += BONE_HP[t];
+      return `${head}，${g!.name}筋骨強健，血量上限永久提升。`;
+    case 'breakpill':
+      g!.breakBoost = Math.max(g!.breakBoost, BREAK_BOOST[t]);
+      return `${head}，${g!.name}氣機通達，下次突破更有把握（+${Math.round(g!.breakBoost * 100)}%）。`;
+    case 'gather': {
+      const party = freeGenerals(state, lord.id);
+      const total = party.reduce((s, x) => s + addExp(x, GATHER_EXP[t]), 0);
+      return `${head}，${party.length} 名隨行武將共吸納修為 ${total}。`;
+    }
+    case 'mend': {
+      const party = freeGenerals(state, lord.id);
+      for (const x of party) x.hp = Math.min(maxHp(x), x.hp + Math.round(maxHp(x) * MEND_HEAL[t]));
+      return `${head}，${party.length} 名隨行武將傷勢回復 ${Math.round(MEND_HEAL[t] * 100)}%。`;
+    }
+    case 'vein':
+      target.city!.prosperity = Math.min(200, target.city!.prosperity + VEIN_PROSPERITY[t]);
+      return `${head}，${target.city!.name}地脈暢旺，繁榮度 +${VEIN_PROSPERITY[t]}。`;
+    case 'drain':
+      g!.stamina = Math.max(0, g!.stamina - DRAIN_STAMINA[t]);
+      return `${head}，${g!.name}被抽走靈力，體力 -${DRAIN_STAMINA[t]}。`;
+    case 'soldiers':
+      lord.soldiers += SOLDIER_CALL[t];
+      return `${head}，化出 ${SOLDIER_CALL[t]} 名士兵。`;
+    case 'pearl': {
+      const party = freeGenerals(state, lord.id);
+      for (const x of party) x.stamina = Math.min(100, x.stamina + PEARL_STAMINA[t]);
+      return `${head}，${party.length} 名隨行武將體力回復 ${PEARL_STAMINA[t]}。`;
+    }
+    case 'shuttle':
+      lord.bonusSteps = SHUTTLE_STEPS;
+      return `${head}，本回合移動點數 +${SHUTTLE_STEPS}。`;
   }
   return head;
 }
@@ -172,6 +212,27 @@ export function useInDuel(duel: Duel, side: Side, lord: Lord, item: Item, user: 
       const s = Math.round(me.maxHp * 0.3);
       me.shield += s;
       return [{ text: `${head}，${me.general.name}獲得 ${s} 點護罩`, kind: 'item' }];
+    }
+    case 'shield': {
+      const s = Math.round(me.maxHp * SHIELD_RATIO[t]);
+      me.shield += s;
+      return [{ text: `${head}，${me.general.name}獲得 ${s} 點護罩`, kind: 'item' }];
+    }
+    case 'rage':
+      me.atk = Math.round(me.atk * (1 + RAGE_ATK[t]));
+      return [{ text: `${head}，${me.general.name}氣血狂湧，武力 +${Math.round(RAGE_ATK[t] * 100)}%（${me.atk}）`, kind: 'item' }];
+    case 'charge':
+      me.energy = Math.min(100, me.energy + CHARGE_ENERGY[t]);
+      return [{ text: `${head}，${me.general.name}能量 +${CHARGE_ENERGY[t]}`, kind: 'item' }];
+    case 'mist':
+      foe.atk = Math.round(foe.atk * (1 - MIST_ATK[t]));
+      return [{ text: `${head}，${foe.general.name}陷入迷蹤，武力降至 ${foe.atk}`, kind: 'item' }];
+    case 'bell':
+      foe.energy = Math.max(0, foe.energy - BELL_ENERGY[t]);
+      return [{ text: `${head}，${foe.general.name}心神震盪，能量歸 ${foe.energy}`, kind: 'item' }];
+    case 'ring': {
+      const dmg = duel.damage(foe, foe.maxHp * RING_DAMAGE[t]);
+      return [{ text: `${head}，法圈擊中${foe.general.name}，造成 ${dmg} 傷害！`, target: foe.side, damage: dmg, kind: 'item' }];
     }
   }
   return [{ text: head, kind: 'item' }];

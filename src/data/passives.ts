@@ -44,10 +44,8 @@ export interface PassiveFx {
   breakBonus?: number;
   /** 雷劫傷害減免 */
   tribulation?: number;
-  /** 秘境、仙山隕落率降低 */
+  /** 秘境隕落率降低 */
   realmSafety?: number;
-  /** 海外貿易獲利 */
-  trade?: number;
   /** 使用物品的體力消耗降低 */
   itemStamina?: number;
   /** 煉丹煉器畫符佈陣比試得分 */
@@ -89,8 +87,8 @@ export const PASSIVES: Record<string, Passive> = {
   jiangwan: P('社稷之器', '諸葛亮之後總攬國事，方整有威重。', { cityStones: 0.2, citySoldiers: 0.05 }),
   feiyi: P('舉重若輕', '處理政務過目不忘，談笑間決斷。', { itemStamina: 0.3, exp: 0.1 }),
   jianyong: P('談笑風生', '優游風議，性簡傲跌宕。', { contest: 0.2 }),
-  mizhu: P('富甲一方', '家資鉅億，傾家資助劉備。', { cityStones: 0.25, trade: 0.3 }),
-  sunqian: P('出使四方', '奉使袁紹、劉表，善於應對。', { trade: 0.2, contest: 0.1 }),
+  mizhu: P('富甲一方', '家資鉅億，傾家資助劉備。', { cityStones: 0.25 }),
+  sunqian: P('出使四方', '奉使袁紹、劉表，善於應對。', { contest: 0.1 }),
   yiji: P('機捷', '出使東吳，應對機敏，孫權嘆服。', { contest: 0.15, itemStamina: 0.1 }),
   wuyi: P('國舅', '劉備皇后之兄，督守漢中。', { garrisonDef: 0.15, citySoldiers: 0.15 }),
   zhangyi: P('沉毅', '從征有功，堅守不退。', { def: 0.1, siegeLead: 0.1 }),
@@ -108,7 +106,7 @@ export const PASSIVES: Record<string, Passive> = {
   chengpu: P('江東元老', '歷事孫堅三代，眾人皆呼程公。', { garrisonDef: 0.15, def: 0.1 }),
   lingtong: P('國士', '逍遙津死戰護主，部曲盡沒。', { rage: 0.2, atk: 0.05 }),
   handang: P('宿將', '隨孫氏三代征戰，弓馬嫻熟。', { def: 0.1, siegeLead: 0.1 }),
-  jiangqin: P('水軍都督', '江上作戰經驗老到。', { trade: 0.2, siegeLead: 0.1 }),
+  jiangqin: P('水軍都督', '江上作戰經驗老到。', { siegeLead: 0.1 }),
   chenwu: P('親衛', '孫策親近，常為先登。', { duelTaken: 0.1, hp: 0.1 }),
   xusheng: P('疑城計', '於建業江邊立假城，曹丕望而退兵。', { troops: 0.5 }),
   dingfeng: P('雪中奮短兵', '雪中棄甲持短兵，大破魏軍。', { firstStrike: true, duelDmg: 0.1 }),
@@ -117,7 +115,7 @@ export const PASSIVES: Record<string, Passive> = {
   zhuran: P('江陵堅守', '守江陵半年，城中疫病仍不失守。', { garrisonDef: 0.2, def: 0.1 }),
   zhangzhao: P('內事問張昭', '「內事不決問張昭，外事不決問周瑜。」', { cityStones: 0.2, citySoldiers: 0.1 }),
   zhanghong: P('建業之議', '勸孫權遷都秣陵，經營江東。', { cityStones: 0.15, contest: 0.1 }),
-  zhugejin: P('雅量', '諸葛亮之兄，德度雍容。', { contest: 0.15, trade: 0.1 }),
+  zhugejin: P('雅量', '諸葛亮之兄，德度雍容。', { contest: 0.15 }),
   kanze: P('詐降書', '為黃蓋獻詐降書，膽識過人。', { craft: { talisman: 10 }, contest: 0.1 }),
   yufan: P('易學大家', '精通易學，卜筮多驗。', { exp: 0.2, breakBonus: 0.1 }),
   guyong: P('不言之相', '寡言而處事精當，為相十九年。', { cityStones: 0.2 }),
@@ -125,7 +123,7 @@ export const PASSIVES: Record<string, Passive> = {
   lukang: P('羊陸之交', '與羊祜對峙而相敬，西陵大捷。', { garrisonDef: 0.25, siegeLead: 0.1 }),
   sunce: P('小霸王', '橫掃江東，勇冠一時。', { atk: 0.1, doubleStrike: 0.2 }),
   sunshangxiang: P('弓腰姬', '才捷剛猛，侍婢百人皆持刀侍立。', { craft: { forging: 10 }, skillDmg: 0.1 }),
-  lvfan: P('財計', '典掌財計，孫策器重。', { cityStones: 0.2, trade: 0.1 }),
+  lvfan: P('財計', '典掌財計，孫策器重。', { cityStones: 0.2 }),
   heqi: P('平定山越', '討平山越，治軍嚴整，器仗精良。', { siegeLead: 0.15, craft: { forging: 5 } }),
 
   // ───── 魏：制度嚴整，名將守城、謀臣如雲 ─────
@@ -183,7 +181,7 @@ export const PASSIVES: Record<string, Passive> = {
   dongyue: P('中郎將', '屯兵澠池。', { garrisonDef: 0.15 }),
   weixu: P('陷陣副將', '與高順同掌陷陣營。', { siegeLead: 0.1, def: 0.03 }),
   songxian: P('驍騎', '呂布麾下驍將。', { firstStrike: true, atk: 0.03 }),
-  houcheng: P('盜馬', '追回失馬，設宴慶賀反遭責。', { trade: 0.15, energyStart: 15 }),
+  houcheng: P('盜馬', '追回失馬，設宴慶賀反遭責。', { energyStart: 15 }),
   zangba: P('泰山寇', '割據青徐，威震泰山。', { garrisonDef: 0.2, citySoldiers: 0.1 }),
   haomeng: P('夜叛', '夜襲呂布府邸，事敗被斬。', { rage: 0.15, firstStrike: true }),
   caoxing: P('射傷夏侯惇', '一箭射中夏侯惇左目。', { skillDmg: 0.2 }),
@@ -239,8 +237,7 @@ export function fxText(f: PassiveFx): string {
   if (f.exp) t.push(`修為獲得 ${pct(f.exp)}`);
   if (f.breakBonus) t.push(`低階突破率 ${pct(f.breakBonus)}`);
   if (f.tribulation) t.push(`雷劫傷害 ${pct(-f.tribulation)}`);
-  if (f.realmSafety) t.push(`秘境、仙山隕落率 ${pct(-f.realmSafety)}`);
-  if (f.trade) t.push(`海外貿易獲利 ${pct(f.trade)}`);
+  if (f.realmSafety) t.push(`秘境隕落率 ${pct(-f.realmSafety)}`);
   if (f.itemStamina) t.push(`使用物品體力 ${pct(-f.itemStamina)}`);
   if (f.contest) t.push(`比試得分 ${pct(f.contest)}`);
   return t.join('・');

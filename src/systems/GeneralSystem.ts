@@ -65,7 +65,7 @@ export function passiveExp(g: General, city: City | null): number {
   if (g.status === 'garrison' && city) {
     // 繁榮度即靈氣濃度，再依地貌增減（山地、丘陵最宜修行）
     n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1) * (1 + terrainOf(city).spirit);
-    if (g.secluded) n *= 2;
+    if (g.secluded) n *= 2 * WORLD.seclusionMult;
   }
   return Math.round(n * WORLD.expMult * (1 + (fx(g).exp ?? 0)));
 }
@@ -86,7 +86,7 @@ export function breakChance(g: General): number {
   if (g.hp < maxHp(g) * 0.5) c -= 0.15;
   if (g.foundation && g.realm === 1) c = Math.max(c, 0.95);
   c -= g.demon * 0.3;
-  c += WORLD.breakBonus + (fx(g).breakBonus ?? 0);
+  c += WORLD.breakBonus + (fx(g).breakBonus ?? 0) + g.breakBoost;
   return Math.max(0.05, Math.min(0.95, c));
 }
 
@@ -109,6 +109,7 @@ export function attemptBreak(g: General, round: number): boolean {
   const ok = Math.random() < breakChance(g);
   g.foundation = false;
   g.demon = 0;
+  g.breakBoost = 0;
   if (ok) {
     levelUp(g);
     return true;
@@ -131,7 +132,7 @@ export function boltDamage(g: General): number {
   const def = defense(g);
   const reduce = def / (def + 300);
   const thunder = 1 - (fx(g).tribulation ?? 0);
-  return TRIBULATION_BASE[g.realm - 2] * (1 - reduce) * (1 - g.ward) * thunder * (1 + g.demon * 0.5) * WORLD.boltMult;
+  return TRIBULATION_BASE[g.realm - 2] * (1 - reduce) * (1 - g.ward) * thunder * (1 + g.demon * 0.5) * WORLD.boltMult * (1 - g.breakBoost);
 }
 
 export interface TribulationResult {
@@ -156,6 +157,7 @@ export function tribulation(g: General): TribulationResult {
   }
   g.ward = 0;
   g.demon = 0;
+  g.breakBoost = 0;
   if (hp > 0) {
     g.hp = hp;
     levelUp(g);
@@ -211,7 +213,7 @@ export function generalValue(g: General): number {
 /** 聽風樓招募價：本國將領較便宜 */
 export function recruitPrice(g: General, lord: string): number {
   const base = generalValue(g) * 0.6 + 2000;
-  return Math.round((base * (g.origin === lord ? 0.6 : 1.5)) / 100) * 100;
+  return Math.round((base * (g.origin === lord ? 0.6 : 1.5) * WORLD.recruitMult) / 100) * 100;
 }
 
 /** 裝備神器或寶衣；換下的裝備放回行囊 */

@@ -4,7 +4,7 @@ import { fxText, passiveOf } from '../data/passives';
 import { REALMS } from '../data/generals';
 import { ELEMENT_CSS, ELEMENT_NAMES, STAT_NAMES } from '../data/items';
 import { TRIBULATION_BOLTS, craft, power, type TribulationResult } from '../systems/GeneralSystem';
-import type { ContestResult, Duel, DuelEvent, Fighter, SiegeResult, Side } from '../systems/BattleSystem';
+import { WOUNDED_HP, WOUNDED_REDUCE, type ContestResult, type Duel, type DuelEvent, type Fighter, type SiegeResult, type Side } from '../systems/BattleSystem';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -37,6 +37,7 @@ export class BattleView {
       f.poison ? `<span class="ftag poison">中毒 ${f.poison.turns}</span>` : '',
       f.frozen ? '<span class="ftag frozen">定身</span>' : '',
       f.shield ? `<span class="ftag shield">護盾 ${Math.round(f.shield)}</span>` : '',
+      f.hp < f.maxHp * WOUNDED_HP ? `<span class="ftag wounded">瀕危・減傷 ${Math.round(WOUNDED_REDUCE * 100)}%</span>` : '',
     ].join('');
     return `
       <div class="fighter ${active ? 'active' : ''}" data-side="${f.side}" style="--fc:${LORDS[f.lord].css}">
@@ -129,6 +130,7 @@ export class BattleView {
           }
           await show(events);
         }
+        await show(duel.verdict());
         duel.finish();
         const win = duel.winner!;
         const w = duel.fighter(win);

@@ -26,7 +26,7 @@ export function cityIncome(city: City, garrison: General | null = null) {
   const t = terrainOf(city);
   const f = garrison ? fx(garrison) : {};
   return {
-    stones: Math.round(city.prosperity * 1.5 * (1 + t.stones) * (1 + (f.cityStones ?? 0))),
+    stones: Math.round(city.prosperity * 1.5 * (1 + t.stones) * (1 + (f.cityStones ?? 0)) * WORLD.incomeMult),
     soldiers: Math.round(city.prosperity * 2 * (1 + t.soldiers) * (1 + (f.citySoldiers ?? 0))),
   };
 }
@@ -174,4 +174,52 @@ export function totalAssets(state: GameState, id: LordId) {
 
 export function beastSiegeBonus(lord: Lord): number {
   return lord.beast ? beastPower(lord.beast).siege * 10 : 0;
+}
+
+// ───────────────────────── 城池排名 ─────────────────────────
+
+export type RankMetric = 'prosperity' | 'stones' | 'soldiers' | 'toll' | 'defense';
+
+export interface RankDef {
+  id: RankMetric;
+  name: string;
+  icon: string;
+  note: string;
+  value: (state: GameState, city: City) => number;
+  format: (n: number) => string;
+}
+
+export const RANK_METRICS: RankDef[] = [
+  { id: 'prosperity', name: '繁榮度', icon: '🏮', note: '城池的富庶與人氣，影響收入、過路費、靈氣濃度與佔領費', value: (_s, c) => c.prosperity, format: (n) => String(n) },
+  { id: 'stones', name: '靈石收入', icon: '💎', note: '每回合為主人帶來的靈石（含地貌、駐將被動與九州風雲）；無主城池為佔領後的預估值', value: (s, c) => cityIncomeOf(s, c).stones, format: (n) => fmtStones(n) },
+  { id: 'soldiers', name: '士兵收入', icon: '⚔️', note: '每回合為主人帶來的士兵；無主城池為佔領後的預估值', value: (s, c) => cityIncomeOf(s, c).soldiers, format: (n) => `+${n}` },
+  { id: 'toll', name: '過路費', icon: '💰', note: '他人踏入時要繳的費用；無主城池為佔領後的預估值', value: (s, c) => (c.owner === 'neutral' ? toll(c) : cityToll(s, c)), format: (n) => fmtStones(n) },
+  { id: 'defense', name: '守城戰力', icon: '🏯', note: '守軍、駐將、地貌與護城大陣的綜合戰力；無主城池無守軍', value: (s, c) => (c.owner === 'neutral' ? 0 : garrisonPower(s, c)), format: (n) => (n ? String(n) : '—') },
+];
+
+export interface RankEntry {
+  city: City;
+  value: number;
+  /** 並列時名次相同 */
+  rank: number;
+}
+
+/** 某項指標的全城池排名（由高到低） */
+export function rankCities(state: GameState, metric: RankMetric): RankEntry[] {
+  const def = RANK_METRICS.find((m) => m.id === metric)!;
+  const rows = Object.values(state.cities)
+    .map((city) => ({ city, value: def.value(state, city) }))
+    .sort((a, b) => b.value - a.value);
+  let rank = 0;
+  return rows.map((r, i) => {
+    if (i === 0 || rows[i - 1].value !== r.value) rank = i + 1;
+    return { ...r, rank };
+  });
+}
+
+/** 單一城池在各項指標的名次 */
+export function cityRanks(state: GameState, cityId: string): Record<RankMetric, number> {
+  const out = {} as Record<RankMetric, number>;
+  for (const m of RANK_METRICS) out[m.id] = rankCities(state, m.id).find((r) => r.city.id === cityId)!.rank;
+  return out;
 }

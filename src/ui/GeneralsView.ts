@@ -1,6 +1,7 @@
 import type { GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
-import { APTITUDE_DESC, APTITUDE_NAMES, REALMS, TRAIT_DESC, TRAIT_NAMES } from '../data/generals';
+import { APTITUDE_DESC, APTITUDE_NAMES, REALMS } from '../data/generals';
+import { fxText, passiveOf } from '../data/passives';
 import { ELEMENT_CSS, ELEMENT_NAMES, equipRealm, techniqueExp } from '../data/items';
 import {
   abolish,
@@ -122,10 +123,11 @@ export class GeneralsView {
       <div class="gc-head"><b>${g.name}</b><small>${originKingdom(g.origin)}</small><span class="realm">${REALMS[g.realm]}</span><span class="st">${status}</span></div>
       <div class="tags">
         <span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span>
-        ${g.trait ? `<span class="chip trait" title="${TRAIT_DESC[g.trait]}">${TRAIT_NAMES[g.trait]}</span>` : ''}
+        <span class="chip trait" title="${passiveOf(g).flavor}">【${passiveOf(g).name}】</span>
         ${buffs ? `<span class="chip buff">${buffs}</span>` : ''}
       </div>
       <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（化神圓滿）'}・每回合 +${passiveExp(g, city)}${bottleneck ? '・瓶頸' : ''}</span></div>
+      <div class="passive"><b>【${passiveOf(g).name}】</b>${fxText(passiveOf(g).fx)}<small>${passiveOf(g).flavor}</small></div>
       ${breakInfo ? `<div class="break-info">${breakInfo}</div>` : ''}
       <div class="bar hp"><i style="width:${(g.hp / maxHp(g)) * 100}%"></i><span>血量 ${g.hp} / ${maxHp(g)}</span></div>
       <div class="bar sta"><i style="width:${g.stamina}%"></i><span>體力 ${g.stamina} / 100</span></div>

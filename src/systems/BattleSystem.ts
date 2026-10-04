@@ -3,6 +3,9 @@ import { attack, craft, defense, maxHp, power } from './GeneralSystem';
 import { beastPower, elementMod } from '../data/items';
 import { beastSiegeBonus, garrisonPower } from './CitySystem';
 import { WORLD } from './WorldMods';
+import { fx, passiveOf } from '../data/passives';
+
+const passiveName = (g: General) => passiveOf(g).name;
 
 export type Side = 'a' | 'b';
 export type BattleKind = 'duel' | 'siege' | CraftStat;
@@ -53,6 +56,11 @@ export class Duel {
   constructor(aLord: Lord, aGen: General, bLord: Lord, bGen: General) {
     this.a = this.makeFighter('a', aLord, aGen);
     this.b = this.makeFighter('b', bLord, bGen);
+    // 震懾：壓低對手武力
+    this.a.atk = Math.round(this.a.atk * (1 - (fx(bGen).intimidate ?? 0)));
+    this.b.atk = Math.round(this.b.atk * (1 - (fx(aGen).intimidate ?? 0)));
+    // 先手：只有守方擁有時才改由守方先攻
+    if (fx(bGen).firstStrike && !fx(aGen).firstStrike) this.turn = 'b';
   }
 
   private makeFighter(side: Side, lord: Lord, g: General): Fighter {
@@ -65,7 +73,7 @@ export class Duel {
       atk: attack(g),
       def: defense(g),
       element: g.technique?.element ?? null,
-      energy: 0,
+      energy: fx(g).energyStart ?? 0,
       shield: 0,
       poison: null,
       frozen: 0,
@@ -102,14 +110,24 @@ export class Duel {
     return dmg;
   }
 
-  private strike(side: Side, mult: number): { dmg: number; elem: string } {
+  private strike(side: Side, mult: number, skill = false): { dmg: number; elem: string; heal: number } {
     const me = this.fighter(side);
     const foe = this.other(side);
+    const mine = fx(me.general);
     const em = elementMod(me.element, foe.element);
     // 五行輪轉：當令屬性傷害 +30%
     const tide = WORLD.element && me.element === WORLD.element ? 1.3 : 1;
-    const raw = me.atk * (0.9 + Math.random() * 0.2) * 1.6 * (100 / (100 + foe.def)) * em.mult * mult * tide;
-    return { dmg: this.damage(foe, raw), elem: em.text };
+    // 個人被動：擂台傷害、功法技能、血量低於一半的怒氣、對手的減傷
+    const passive =
+      (1 + (mine.duelDmg ?? 0)) *
+      (skill ? 1 + (mine.skillDmg ?? 0) : 1) *
+      (me.hp < me.maxHp / 2 ? 1 + (mine.rage ?? 0) : 1) *
+      (1 - (fx(foe.general).duelTaken ?? 0));
+    const raw = me.atk * (0.9 + Math.random() * 0.2) * 1.6 * (100 / (100 + foe.def)) * em.mult * mult * tide * passive;
+    const dmg = this.damage(foe, raw);
+    const heal = Math.min(me.maxHp - me.hp, Math.round(dmg * (mine.lifesteal ?? 0)));
+    me.hp += heal;
+    return { dmg, elem: em.text, heal };
   }
 
   /** 執行一個行動，回傳事件供畫面顯示 */
@@ -120,12 +138,20 @@ export class Duel {
     if (action === 'skill' && this.canSkill(side)) {
       me.energy = 0;
       const t = me.general.technique!;
-      const r = this.strike(side, t.skillPower);
+      const r = this.strike(side, t.skillPower, true);
       events.push({ text: `${me.general.name}施展【${t.skillName}】！造成 ${r.dmg} 傷害${r.elem ? `（${r.elem}）` : ''}`, target: foe.side, damage: r.dmg, kind: 'skill' });
+      if (r.heal) events.push({ text: `${me.general.name}吸取 ${r.heal} 血量`, target: side, heal: r.heal, kind: 'info' });
     } else {
+      const mine = fx(me.general);
       const r = this.strike(side, 1);
-      me.energy = Math.min(100, me.energy + 25);
+      me.energy = Math.min(100, me.energy + 25 + (mine.energyGain ?? 0));
       events.push({ text: `${me.general.name}攻擊，造成 ${r.dmg} 傷害${r.elem ? `（${r.elem}）` : ''}`, target: foe.side, damage: r.dmg, kind: 'hit' });
+      if (r.heal) events.push({ text: `${me.general.name}吸取 ${r.heal} 血量`, target: side, heal: r.heal, kind: 'info' });
+      // 連擊：有機率多砍一刀
+      if (!this.winner && mine.doubleStrike && Math.random() < mine.doubleStrike) {
+        const r2 = this.strike(side, 1);
+        events.push({ text: `${me.general.name}【${passiveName(me.general)}】連擊！再造成 ${r2.dmg} 傷害`, target: foe.side, damage: r2.dmg, kind: 'hit' });
+      }
     }
     foe.energy = Math.min(100, foe.energy + 15);
     return events.concat(this.endAction(side));
@@ -217,8 +243,8 @@ export function siegeAllowed(round: number): boolean {
 
 /** 煉丹、煉器、畫符、佈陣：比較能力值（之後會換成小遊戲）。攻方扣隨行士兵，守方扣城池守軍 */
 export function craftContest(a: General, b: General, stat: CraftStat, attacker: Lord, city: City): ContestResult {
-  const aScore = Math.round(craft(a, stat) * (0.85 + Math.random() * 0.3));
-  const bScore = Math.round(craft(b, stat) * (0.85 + Math.random() * 0.3));
+  const aScore = Math.round(craft(a, stat) * (0.85 + Math.random() * 0.3) * (1 + (fx(a).contest ?? 0)));
+  const bScore = Math.round(craft(b, stat) * (0.85 + Math.random() * 0.3) * (1 + (fx(b).contest ?? 0)));
   const winner: Side = aScore > bScore ? 'a' : 'b';
   const ratio = Math.min(aScore, bScore) / Math.max(aScore, bScore, 1);
   // 勝負越接近，勝方折損越多
@@ -240,8 +266,10 @@ export interface SiegeResult {
 
 /** 攻方戰力：士兵受武將武力統率加成，再加上武將本身戰力、靈獸與破城符 */
 export function siegeAttack(attacker: Lord, generals: General[]): number {
-  const command = 1 + generals.reduce((s, g) => s + attack(g), 0) / 600;
-  const base = attacker.soldiers * command + generals.reduce((s, g) => s + power(g) * 2, 0) + beastSiegeBonus(attacker);
+  // 統率：武力越高加成越大，攻城統率被動再加乘；兵力倍增取隊中最高者
+  const command = 1 + generals.reduce((s, g) => s + attack(g) * (1 + (fx(g).siegeLead ?? 0)), 0) / 600;
+  const troops = 1 + Math.max(0, ...generals.map((g) => fx(g).troops ?? 0));
+  const base = attacker.soldiers * troops * command + generals.reduce((s, g) => s + power(g) * 2, 0) + beastSiegeBonus(attacker);
   return Math.round(base * attacker.siegeBoost);
 }
 

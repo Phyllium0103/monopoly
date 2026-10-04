@@ -73,8 +73,6 @@ export type GeneralStatus = 'free' | 'sect' | 'garrison' | 'realm' | 'dead';
 
 /** 靈根：天靈根修煉快、偽靈根靠戰鬥成長 */
 export type Aptitude = 'heaven' | 'earth' | 'pseudo';
-/** 特殊體質 */
-export type Trait = 'poisonImmune' | 'divineStrength' | 'thunderBody';
 
 export interface General {
   id: string;
@@ -86,7 +84,6 @@ export interface General {
   realm: number;
   exp: number;
   aptitude: Aptitude;
-  trait: Trait | null;
   /** 上次低階突破失敗的回合（同一輪不能再試） */
   failedRound: number;
   /** 已服築基丹 */

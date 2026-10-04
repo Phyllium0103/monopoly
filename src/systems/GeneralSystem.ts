@@ -3,6 +3,7 @@ import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
 import { techniqueExp } from '../data/items';
 import { WORLD } from './WorldMods';
 import { terrainOf } from '../data/terrain';
+import { fx } from '../data/passives';
 
 export function realmName(g: General): string {
   return REALMS[g.realm];
@@ -10,22 +11,21 @@ export function realmName(g: General): string {
 
 export function attack(g: General): number {
   const t = g.technique?.power ?? 0;
-  const strength = g.trait === 'divineStrength' ? 1.1 : 1;
-  return Math.round((g.base.force + g.bonusForce + (g.weapon?.value ?? 0)) * REALM_MULT[g.realm] * (1 + t) * strength);
+  return Math.round((g.base.force + g.bonusForce + (g.weapon?.value ?? 0)) * REALM_MULT[g.realm] * (1 + t) * (1 + (fx(g).atk ?? 0)));
 }
 
 export function defense(g: General): number {
   const t = g.technique?.power ?? 0;
-  return Math.round((g.base.defense + g.bonusDefense + (g.armor?.value ?? 0)) * REALM_MULT[g.realm] * (1 + t * 0.5));
+  return Math.round((g.base.defense + g.bonusDefense + (g.armor?.value ?? 0)) * REALM_MULT[g.realm] * (1 + t * 0.5) * (1 + (fx(g).def ?? 0)));
 }
 
 export function maxHp(g: General): number {
-  return Math.round((g.base.hp + (g.armor?.hp ?? 0)) * REALM_MULT[g.realm]);
+  return Math.round((g.base.hp + (g.armor?.hp ?? 0)) * REALM_MULT[g.realm] * (1 + (fx(g).hp ?? 0)));
 }
 
 /** 煉丹／煉器／畫符／佈陣，境界越高越精 */
 export function craft(g: General, stat: CraftStat): number {
-  return Math.round(g.base[stat] * (1 + g.realm * 0.1));
+  return Math.round((g.base[stat] + (fx(g).craft?.[stat] ?? 0)) * (1 + g.realm * 0.1));
 }
 
 /** 綜合戰力，用於攻城、秘境與 AI 評估 */
@@ -67,7 +67,7 @@ export function passiveExp(g: General, city: City | null): number {
     n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1) * (1 + terrainOf(city).spirit);
     if (g.secluded) n *= 2;
   }
-  return Math.round(n * WORLD.expMult);
+  return Math.round(n * WORLD.expMult * (1 + (fx(g).exp ?? 0)));
 }
 
 // ───────────────────────── 突破 ─────────────────────────
@@ -86,7 +86,7 @@ export function breakChance(g: General): number {
   if (g.hp < maxHp(g) * 0.5) c -= 0.15;
   if (g.foundation && g.realm === 1) c = Math.max(c, 0.95);
   c -= g.demon * 0.3;
-  c += WORLD.breakBonus;
+  c += WORLD.breakBonus + (fx(g).breakBonus ?? 0);
   return Math.max(0.05, Math.min(0.95, c));
 }
 
@@ -130,7 +130,7 @@ export function boltCount(g: General): number {
 export function boltDamage(g: General): number {
   const def = defense(g);
   const reduce = def / (def + 300);
-  const thunder = g.trait === 'thunderBody' ? 0.7 : 1;
+  const thunder = 1 - (fx(g).tribulation ?? 0);
   return TRIBULATION_BASE[g.realm - 2] * (1 - reduce) * (1 - g.ward) * thunder * (1 + g.demon * 0.5) * WORLD.boltMult;
 }
 

@@ -4,6 +4,7 @@ import { addExp, attack, craft, defense, maxHp } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
 import { fmtStones } from '../game/Currency';
 import { LORDS } from '../faction/Faction';
+import { fx } from '../data/passives';
 
 export function def(item: Item): ItemDef {
   return ITEM_DEFS[item.defId];
@@ -13,10 +14,10 @@ export function nameOf(item: Item): string {
   return itemName(item.defId, item.tier);
 }
 
-export function requirement(item: Item) {
+export function requirement(item: Item, user?: General) {
   const d = def(item);
   const i = Math.min(item.tier, d.min.length - 1);
-  return { stat: d.stat, min: d.min[i], stamina: d.stamina[i] };
+  return { stat: d.stat, min: d.min[i], stamina: Math.round(d.stamina[i] * (1 - (user ? (fx(user).itemStamina ?? 0) : 0))) };
 }
 
 export function requirementText(item: Item): string {
@@ -26,7 +27,7 @@ export function requirementText(item: Item): string {
 
 /** 能力值與體力是否足以使用 */
 export function canUse(item: Item, user: General): { ok: boolean; reason: string } {
-  const r = requirement(item);
+  const r = requirement(item, user);
   if (craft(user, r.stat) < r.min) return { ok: false, reason: `${STAT_NAMES[r.stat]}不足（需 ${r.min}）` };
   if (user.stamina < r.stamina) return { ok: false, reason: `體力不足（需 ${r.stamina}）` };
   return { ok: true, reason: '' };
@@ -38,7 +39,7 @@ export function usableIn(item: Item, context: 'preroll' | 'battle'): boolean {
 }
 
 function consume(lord: Lord, item: Item, user: General) {
-  user.stamina -= requirement(item).stamina;
+  user.stamina -= requirement(item, user).stamina;
   lord.items = lord.items.filter((i) => i.uid !== item.uid);
 }
 
@@ -94,7 +95,7 @@ export function usePreroll(state: GameState, lord: Lord, item: Item, user: Gener
       g!.stamina = Math.min(100, g!.stamina + STAMINA_UP[t]);
       return `${head}，${g!.name}體力回復 ${STAMINA_UP[t]}。`;
     case 'poison': {
-      if (g!.trait === 'poisonImmune') return `${head}暗算${g!.name}，但${g!.name}百毒不侵！`;
+      if (fx(g!).poisonImmune) return `${head}暗算${g!.name}，但${g!.name}百毒不侵！`;
       const dmg = Math.min(g!.hp - 1, Math.round(maxHp(g!) * POISON[t] * 2.5));
       g!.hp -= dmg;
       return `${head}暗算${g!.name}，造成 ${dmg} 傷害！`;
@@ -156,7 +157,7 @@ export function useInDuel(duel: Duel, side: Side, lord: Lord, item: Item, user: 
       user.stamina = Math.min(100, user.stamina + STAMINA_UP[t]);
       return [{ text: `${head}，體力回復 ${STAMINA_UP[t]}`, kind: 'item' }];
     case 'poison':
-      if (foe.general.trait === 'poisonImmune') return [{ text: `${head}，但${foe.general.name}百毒不侵！`, kind: 'item' }];
+      if (fx(foe.general).poisonImmune) return [{ text: `${head}，但${foe.general.name}百毒不侵！`, kind: 'item' }];
       foe.poison = { dmg: POISON[t], turns: 3 };
       return [{ text: `${head}，${foe.general.name}中毒了！`, kind: 'item' }];
     case 'thunder': {
@@ -164,6 +165,7 @@ export function useInDuel(duel: Duel, side: Side, lord: Lord, item: Item, user: 
       return [{ text: `${head}，天雷轟擊${foe.general.name}，造成 ${dmg} 傷害！`, target: foe.side, damage: dmg, kind: 'item' }];
     }
     case 'freeze':
+      if (fx(foe.general).freezeImmune) return [{ text: `${head}，但${foe.general.name}不受定身！`, kind: 'item' }];
       foe.frozen = 1;
       return [{ text: `${head}，${foe.general.name}被定身！`, kind: 'item' }];
     case 'vajra': {

@@ -3,7 +3,8 @@ import { joinLord, nextUid } from '../game/GameState';
 import { merchantStock } from './EventSystem';
 import { fmtStones } from '../game/Currency';
 import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipRealm, itemName, makeBeast, makeEquipment, makeTechnique, rollTier, singleTier, techniqueExp, ELEMENT_NAMES } from '../data/items';
-import { APTITUDE_NAMES, REALMS, TRAIT_NAMES } from '../data/generals';
+import { APTITUDE_NAMES, REALMS } from '../data/generals';
+import { fxText, passiveOf } from '../data/passives';
 import { generalValue, power, realmName, recruitPrice } from './GeneralSystem';
 import { originKingdom } from '../faction/Faction';
 import type { Beast, Equipment, General, Item, Technique } from '../game/types';
@@ -86,7 +87,7 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
             kind: 'general',
             general: g,
             label: `${g.origin === 'immortal' ? '🧙 ' : ''}${g.name}（${originKingdom(g.origin)}）`,
-            sub: `${realmName(g)}・${APTITUDE_NAMES[g.aptitude]}${g.trait ? `・${TRAIT_NAMES[g.trait]}` : ''}｜戰力 ${power(g)}｜武${g.base.force} 防${g.base.defense} 丹${g.base.alchemy} 器${g.base.forging} 符${g.base.talisman} 陣${g.base.formation}${g.origin === lord.id ? '｜本國將領優惠' : ''}`,
+            sub: `${realmName(g)}・${APTITUDE_NAMES[g.aptitude]}｜被動【${passiveOf(g).name}】${fxText(passiveOf(g).fx)}｜戰力 ${power(g)}｜武${g.base.force} 防${g.base.defense} 丹${g.base.alchemy} 器${g.base.forging} 符${g.base.talisman} 陣${g.base.formation}${g.origin === lord.id ? '｜本國將領優惠' : ''}`,
             price: recruitPrice(g, lord.id),
           }) as Offer,
       );

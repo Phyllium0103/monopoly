@@ -1,4 +1,4 @@
-import type { Aptitude, LordId, Trait } from '../game/types';
+import type { Aptitude, LordId } from '../game/types';
 
 export const REALMS = ['凡人', '練氣', '築基', '金丹', '元嬰', '化神'] as const;
 /** 各境界修為上限；達到上限即進入瓶頸，需手動突破 */
@@ -11,12 +11,6 @@ export const APTITUDE_DESC: Record<Aptitude, string> = {
   earth: '資質平穩',
   pseudo: '吸收靈氣慢，但戰鬥勝利獲得雙倍修為',
 };
-export const TRAIT_NAMES: Record<Trait, string> = { poisonImmune: '百毒不侵', divineStrength: '天生神力', thunderBody: '雷靈之體' };
-export const TRAIT_DESC: Record<Trait, string> = {
-  poisonImmune: '不受毒丹影響',
-  divineStrength: '武力 +10%',
-  thunderBody: '雷劫傷害 -30%',
-};
 
 export interface GeneralSeed {
   id: string;
@@ -26,7 +20,6 @@ export interface GeneralSeed {
   s: [number, number, number, number, number, number, number];
   realm: number;
   aptitude: Aptitude;
-  trait?: Trait;
   /** 開局即在麾下 */
   start?: boolean;
   /** 開局駐守首都 */
@@ -35,11 +28,10 @@ export interface GeneralSeed {
 
 type Row = [string, string, number, number, number, number, number, number, number, number, Aptitude, string?];
 
-/** 旗標：S=開局麾下、G=開局駐守首都，後面接體質 */
+/** 旗標：S=開局麾下、SG=開局駐守首都（個人被動見 passives.ts） */
 function rows(origin: LordId, list: Row[]): GeneralSeed[] {
   return list.map(([id, name, f, d, hp, al, fo, ta, fm, realm, aptitude, flags = '']) => {
     const tokens = flags.split(' ');
-    const trait = (['poisonImmune', 'divineStrength', 'thunderBody'] as Trait[]).find((t) => tokens.includes(t));
     return {
       id,
       name,
@@ -47,7 +39,6 @@ function rows(origin: LordId, list: Row[]): GeneralSeed[] {
       s: [f, d, hp, al, fo, ta, fm],
       realm,
       aptitude,
-      trait,
       start: tokens.includes('S') || tokens.includes('SG'),
       garrison: tokens.includes('SG'),
     };
@@ -56,10 +47,10 @@ function rows(origin: LordId, list: Row[]): GeneralSeed[] {
 
 export const GENERAL_SEEDS: GeneralSeed[] = [
   ...rows('liu', [
-    ['guanyu', '關羽', 97, 85, 700, 20, 40, 25, 60, 1, 'earth', 'S poisonImmune'],
-    ['zhangfei', '張飛', 98, 70, 750, 10, 35, 10, 30, 1, 'pseudo', 'S divineStrength'],
+    ['guanyu', '關羽', 97, 85, 700, 20, 40, 25, 60, 1, 'earth', 'S'],
+    ['zhangfei', '張飛', 98, 70, 750, 10, 35, 10, 30, 1, 'pseudo', 'S'],
     ['zhaoyun', '趙雲', 95, 88, 680, 30, 45, 30, 50, 1, 'heaven', 'SG'],
-    ['zhugeliang', '諸葛亮', 45, 60, 420, 75, 70, 92, 99, 1, 'heaven', 'S thunderBody'],
+    ['zhugeliang', '諸葛亮', 45, 60, 420, 75, 70, 92, 99, 1, 'heaven', 'S'],
     ['huangzhong', '黃忠', 92, 72, 620, 25, 50, 20, 35, 0, 'earth', 'S'],
     ['machao', '馬超', 95, 75, 660, 15, 40, 15, 30, 1, 'pseudo', 'S'],
     ['weiyan', '魏延', 88, 75, 640, 20, 45, 20, 45, 0, 'pseudo', 'S'],
@@ -85,7 +76,7 @@ export const GENERAL_SEEDS: GeneralSeed[] = [
     ['yiji', '伊籍', 30, 50, 360, 60, 52, 70, 55, 0, 'earth'],
     ['wuyi', '吳懿', 75, 76, 580, 35, 50, 35, 60, 0, 'earth'],
     ['zhangyi', '張翼', 77, 74, 580, 30, 45, 30, 50, 0, 'earth'],
-    ['zhoucang', '周倉', 84, 70, 640, 15, 45, 15, 25, 0, 'pseudo', 'divineStrength'],
+    ['zhoucang', '周倉', 84, 70, 640, 15, 45, 15, 25, 0, 'pseudo', ''],
   ]),
   ...rows('sun', [
     ['zhouyu', '周瑜', 70, 70, 520, 70, 60, 80, 95, 1, 'heaven', 'S'],
@@ -95,7 +86,7 @@ export const GENERAL_SEEDS: GeneralSeed[] = [
     ['ganning', '甘寧', 94, 72, 640, 20, 40, 25, 40, 1, 'pseudo', 'S'],
     ['taishici', '太史慈', 93, 75, 650, 20, 45, 20, 35, 0, 'earth', 'S'],
     ['huanggai', '黃蓋', 82, 85, 680, 35, 70, 25, 45, 0, 'earth', 'S'],
-    ['zhoutai', '周泰', 88, 90, 720, 15, 40, 15, 30, 0, 'pseudo', 'S poisonImmune'],
+    ['zhoutai', '周泰', 88, 90, 720, 15, 40, 15, 30, 0, 'pseudo', 'S'],
     ['chengpu', '程普', 80, 80, 620, 40, 55, 40, 60, 0, 'earth', 'S'],
     ['lingtong', '凌統', 86, 72, 600, 20, 40, 25, 35, 0, 'earth'],
     ['handang', '韓當', 80, 78, 600, 25, 50, 25, 45, 0, 'earth'],
@@ -114,7 +105,7 @@ export const GENERAL_SEEDS: GeneralSeed[] = [
     ['guyong', '顧雍', 32, 55, 380, 70, 55, 68, 74, 0, 'earth'],
     ['buzhi', '步騭', 45, 60, 420, 60, 55, 65, 72, 0, 'earth'],
     ['lukang', '陸抗', 72, 74, 540, 55, 55, 75, 90, 0, 'heaven'],
-    ['sunce', '孫策', 96, 80, 700, 25, 45, 30, 60, 1, 'pseudo', 'divineStrength'],
+    ['sunce', '孫策', 96, 80, 700, 25, 45, 30, 60, 1, 'pseudo', ''],
     ['sunshangxiang', '孫尚香', 82, 70, 560, 35, 75, 40, 50, 0, 'earth'],
     ['lvfan', '呂範', 60, 66, 480, 50, 60, 55, 70, 0, 'earth'],
     ['heqi', '賀齊', 78, 76, 580, 30, 60, 35, 55, 0, 'earth'],
@@ -123,11 +114,11 @@ export const GENERAL_SEEDS: GeneralSeed[] = [
     ['xiahoudun', '夏侯惇', 91, 82, 680, 25, 55, 25, 50, 1, 'pseudo', 'SG'],
     ['xiahouyuan', '夏侯淵', 90, 72, 620, 20, 45, 25, 45, 0, 'earth', 'S'],
     ['zhangliao', '張遼', 93, 82, 660, 30, 50, 30, 70, 1, 'earth', 'S'],
-    ['xuchu', '許褚', 96, 85, 740, 10, 35, 10, 20, 0, 'pseudo', 'S divineStrength'],
-    ['dianwei', '典韋', 97, 88, 760, 10, 40, 10, 20, 1, 'pseudo', 'S divineStrength'],
+    ['xuchu', '許褚', 96, 85, 740, 10, 35, 10, 20, 0, 'pseudo', 'S'],
+    ['dianwei', '典韋', 97, 88, 760, 10, 40, 10, 20, 1, 'pseudo', 'S'],
     ['guojia', '郭嘉', 30, 50, 360, 80, 55, 90, 95, 0, 'heaven', 'S'],
     ['xunyu', '荀彧', 35, 55, 400, 85, 60, 80, 90, 0, 'heaven', 'S'],
-    ['simayi', '司馬懿', 65, 80, 520, 75, 65, 90, 97, 1, 'heaven', 'thunderBody'],
+    ['simayi', '司馬懿', 65, 80, 520, 75, 65, 90, 97, 1, 'heaven', ''],
     ['xuhuang', '徐晃', 90, 80, 640, 25, 55, 30, 55, 0, 'earth', 'S'],
     ['caoren', '曹仁', 85, 90, 700, 30, 60, 30, 70, 0, 'earth'],
     ['caohong', '曹洪', 82, 78, 620, 25, 50, 25, 45, 0, 'earth'],
@@ -152,20 +143,20 @@ export const GENERAL_SEEDS: GeneralSeed[] = [
     ['caopi', '曹丕', 70, 70, 520, 60, 55, 70, 75, 0, 'earth'],
   ]),
   ...rows('dong', [
-    ['lvbu', '呂布', 100, 85, 800, 10, 45, 15, 30, 2, 'pseudo', 'S divineStrength'],
+    ['lvbu', '呂布', 100, 85, 800, 10, 45, 15, 30, 2, 'pseudo', 'S'],
     ['huaxiong', '華雄', 90, 75, 660, 15, 40, 15, 25, 1, 'pseudo', 'SG'],
     ['lijue', '李傕', 78, 70, 580, 20, 40, 30, 40, 0, 'earth', 'S'],
     ['guosi', '郭汜', 76, 68, 560, 20, 40, 25, 35, 0, 'earth', 'S'],
     ['zhangji', '張濟', 72, 70, 560, 25, 45, 25, 40, 0, 'earth'],
     ['fanchou', '樊稠', 78, 72, 580, 15, 40, 15, 30, 0, 'earth'],
-    ['liru', '李儒', 35, 50, 380, 85, 55, 90, 85, 1, 'heaven', 'S poisonImmune'],
+    ['liru', '李儒', 35, 50, 380, 85, 55, 90, 85, 1, 'heaven', 'S'],
     ['jiaxu', '賈詡', 40, 60, 420, 80, 60, 95, 95, 1, 'heaven', 'S'],
     ['xurong', '徐榮', 82, 78, 600, 25, 50, 30, 65, 0, 'earth', 'S'],
     ['niufu', '牛輔', 70, 70, 560, 30, 40, 30, 40, 0, 'earth'],
     ['gaoshun', '高順', 88, 86, 660, 25, 60, 30, 75, 0, 'earth', 'S'],
     ['chengong', '陳宮', 40, 60, 420, 70, 55, 85, 90, 0, 'heaven'],
     ['zhangxiu', '張繡', 88, 76, 620, 25, 45, 30, 55, 0, 'earth'],
-    ['hucheer', '胡車兒', 85, 72, 620, 15, 40, 15, 25, 0, 'pseudo', 'divineStrength'],
+    ['hucheer', '胡車兒', 85, 72, 620, 15, 40, 15, 25, 0, 'pseudo', ''],
     ['huzhen', '胡軫', 78, 72, 580, 20, 40, 20, 35, 0, 'earth'],
     ['duanwei', '段煨', 72, 78, 560, 35, 50, 40, 60, 0, 'earth'],
     ['yangfeng', '楊奉', 76, 70, 560, 25, 45, 25, 40, 0, 'earth'],
@@ -178,7 +169,7 @@ export const GENERAL_SEEDS: GeneralSeed[] = [
     ['zangba', '臧霸', 84, 80, 620, 25, 50, 30, 60, 0, 'earth'],
     ['haomeng', '郝萌', 72, 68, 540, 20, 40, 20, 30, 0, 'earth'],
     ['caoxing', '曹性', 80, 70, 580, 20, 45, 25, 35, 0, 'earth'],
-    ['diaochan', '貂蟬', 45, 55, 420, 70, 60, 85, 80, 0, 'heaven', 'poisonImmune'],
+    ['diaochan', '貂蟬', 45, 55, 420, 70, 60, 85, 80, 0, 'heaven', ''],
     ['mateng', '馬騰', 88, 80, 660, 25, 50, 30, 60, 0, 'earth'],
     ['hansui', '韓遂', 80, 76, 600, 40, 55, 55, 75, 0, 'earth'],
     ['wangfang', '王方', 76, 70, 560, 20, 40, 20, 35, 0, 'earth'],

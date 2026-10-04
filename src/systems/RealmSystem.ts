@@ -6,6 +6,7 @@ import { PORT_CITIES } from '../data/board';
 import { WORLD } from './WorldMods';
 import { ITEM_DEFS, PILL_IDS, itemName, makeBeast, makeEquipment, makeTechnique, tierName } from '../data/items';
 import { fmtStones } from '../game/Currency';
+import { fx } from '../data/passives';
 
 export const REALM_TURNS = 5;
 export const TRADE_TURNS = 4;
@@ -17,7 +18,7 @@ export function deathChance(g: General, team: General[]): number {
   const teamPower = team.reduce((s, x) => s + power(x), 0);
   const own = Math.max(0.03, 0.4 - power(g) / 2500);
   const teamFactor = Math.max(0.6, Math.min(1.2, 1.3 - teamPower / 4000));
-  return Math.max(0.02, Math.min(0.45, own * teamFactor));
+  return Math.max(0.02, Math.min(0.45, own * teamFactor * (1 - (fx(g).realmSafety ?? 0))));
 }
 
 /** 尋訪仙山比秘境兇險一半 */
@@ -46,7 +47,7 @@ export function tradeSkill(team: General[]): number {
 
 /** 預估獲利倍率（未計入隨機） */
 export function tradeMultiplier(team: General[]): number {
-  return 1.3 + tradeSkill(team) / 150;
+  return (1.3 + tradeSkill(team) / 150) * (1 + Math.max(0, ...team.map((g) => fx(g).trade ?? 0)));
 }
 
 /** 遇到海盜的機率：隊伍武力越高越安全 */

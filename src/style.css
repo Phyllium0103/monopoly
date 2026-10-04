@@ -1402,3 +1402,26 @@ body {
   color: var(--red);
   font-weight: 700;
 }
+
+.passive {
+  margin: 4px 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(143, 228, 255, 0.08);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.passive b {
+  color: #8fe4ff;
+  margin-right: 4px;
+}
+.passive small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+.f-passive {
+  font-size: 12px;
+  color: #8fe4ff;
+  margin: 2px 0;
+}

@@ -1,7 +1,7 @@
 import type { Element, GameState, General, Lord, LordId } from '../game/types';
 import { citiesOf, generalsOf, nextUid } from '../game/GameState';
 import { aliveLords } from '../game/TurnManager';
-import { cityIncome, totalAssets } from './CitySystem';
+import { cityIncomeOf, totalAssets } from './CitySystem';
 import { inBottleneck, maxHp } from './GeneralSystem';
 import { ELEMENT_NAMES, makeBeast, makeEquipment, makeTechnique, techniqueExp } from '../data/items';
 import { REALMS } from '../data/generals';
@@ -128,7 +128,7 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
       for (const l of alive) {
         let n = 0;
         for (const c of citiesOf(state, l.id)) {
-          n += cityIncome(c).stones;
+          n += cityIncomeOf(state, c).stones;
           c.prosperity = Math.min(200, c.prosperity + 10);
         }
         l.stones += n;
@@ -211,13 +211,13 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
 // ───────────────────────── 仙人出山 ─────────────────────────
 
 function makeImmortals(): General[] {
-  const seeds: [string, string, number[], number, General['trait']][] = [
-    ['zuoci', '左慈', [45, 70, 520, 80, 70, 99, 90], 3, 'thunderBody'],
-    ['yuji', '于吉', [38, 66, 480, 88, 62, 97, 85], 3, 'poisonImmune'],
-    ['huatuo', '華佗', [30, 62, 460, 99, 78, 70, 60], 2, 'poisonImmune'],
-    ['guanlu', '管輅', [36, 62, 460, 70, 62, 90, 99], 3, null],
+  const seeds: [string, string, number[], number][] = [
+    ['zuoci', '左慈', [45, 70, 520, 80, 70, 99, 90], 3],
+    ['yuji', '于吉', [38, 66, 480, 88, 62, 97, 85], 3],
+    ['huatuo', '華佗', [30, 62, 460, 99, 78, 70, 60], 2],
+    ['guanlu', '管輅', [36, 62, 460, 70, 62, 90, 99], 3],
   ];
-  return seeds.map(([id, name, s, realm, trait]) => {
+  return seeds.map(([id, name, s, realm]) => {
     const g: General = {
       id,
       name,
@@ -227,7 +227,6 @@ function makeImmortals(): General[] {
       realm,
       exp: 0,
       aptitude: 'heaven',
-      trait,
       failedRound: 0,
       foundation: false,
       demon: 0,

@@ -38,7 +38,6 @@ export function createGameState(player: LordId): GameState {
       realm: g.realm,
       exp: 0,
       aptitude: g.aptitude,
-      trait: g.trait ?? null,
       failedRound: 0,
       foundation: false,
       demon: 0,

@@ -1,6 +1,6 @@
 import type { GameState, Lord } from './types';
 import { citiesOf, generalsOf } from './GameState';
-import { cityIncome } from '../systems/CitySystem';
+import { cityIncomeOf } from '../systems/CitySystem';
 import { terrainOf } from '../data/terrain';
 import { addExp, inBottleneck, passiveExp, recover } from '../systems/GeneralSystem';
 import { advanceExpeditions, type RealmOutcome } from '../systems/RealmSystem';
@@ -21,7 +21,7 @@ export function startTurn(state: GameState, lord: Lord): TurnReport {
   let stones = 0;
   let soldiers = 0;
   for (const city of citiesOf(state, lord.id)) {
-    const inc = cityIncome(city);
+    const inc = cityIncomeOf(state, city);
     stones += inc.stones;
     soldiers += inc.soldiers;
     city.prosperity = Math.min(200, city.prosperity + Math.max(0, 2 + terrainOf(city).growth));

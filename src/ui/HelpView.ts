@@ -1,6 +1,6 @@
 import { MAX_ROUNDS, PARTY_LIMIT, START_SOLDIERS, START_STONES } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
-import { APTITUDE_DESC, APTITUDE_NAMES, REALMS, REALM_EXP, TRAIT_DESC, TRAIT_NAMES } from '../data/generals';
+import { APTITUDE_DESC, APTITUDE_NAMES, REALMS, REALM_EXP } from '../data/generals';
 import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, STAT_NAMES } from '../data/items';
 import { MIN_GARRISON, GARRISON_STRENGTH, SOLDIER_PRICE } from '../systems/CitySystem';
 import { CONTEST_SOLDIERS, SIEGE_START_ROUND } from '../systems/BattleSystem';
@@ -151,8 +151,16 @@ const PAGES: Page[] = [
       <p>修為、武力、防禦、血量，以及${(['alchemy', 'forging', 'talisman', 'formation'] as const).map((k) => STAT_NAMES[k]).join('、')}。四項技藝除了比試，也是使用物品的門檻。</p>
       <h4>靈根</h4>
       ${list((Object.keys(APTITUDE_NAMES) as (keyof typeof APTITUDE_NAMES)[]).map((k) => `<b>${APTITUDE_NAMES[k]}</b>：${APTITUDE_DESC[k]}`))}
-      <h4>特殊體質</h4>
-      ${list((Object.keys(TRAIT_NAMES) as (keyof typeof TRAIT_NAMES)[]).map((k) => `<b>${TRAIT_NAMES[k]}</b>：${TRAIT_DESC[k]}`))}
+      <h4>專屬被動</h4>
+      <p>每位人物都有依其歷史評價、所屬陣營與實際戰力設計的專屬被動，可在武將名冊、聽風樓與擂台上查看。效果類型包括：</p>
+      ${list([
+        '<b>能力加乘</b>：武力、防禦、血量、四項技藝。',
+        '<b>擂台</b>：傷害提升、減傷、先手、<b>機率連擊</b>、開場能量、功法技能加傷、低血量怒氣、吸血、震懾敵將。',
+        '<b>攻守城</b>：<b>兵力倍增</b>（如張遼八百破十萬、郝昭陳倉之守）、攻城統率、守城戰力。',
+        '<b>內政</b>：駐守城池時提高靈石或士兵收入。',
+        '<b>修仙</b>：修為加成、突破率、雷劫減傷、秘境存活。',
+        '<b>其他</b>：海外貿易、比試得分、物品體力消耗、百毒不侵、不受定身。',
+      ])}
       <h4>隨行與宗門</h4>
       ${list([
         `主公身邊最多帶 <b>${PARTY_LIMIT}</b> 名隨行武將，其餘留在宗門。`,

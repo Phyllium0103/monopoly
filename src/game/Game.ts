@@ -18,7 +18,7 @@ import { REALMS } from '../data/generals';
 import { ITEM_DEFS, PILL_IDS, STAT_NAMES } from '../data/items';
 import { TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
-import { MIN_GARRISON, SOLDIER_PRICE, canOccupy, cityIncome, cityToll, eliminate, garrisonPower, occupy, occupyCost, pay, toll } from '../systems/CitySystem';
+import { MIN_GARRISON, SOLDIER_PRICE, canOccupy, cityIncome, cityIncomeOf, cityToll, eliminate, garrisonPower, occupy, occupyCost, pay, toll } from '../systems/CitySystem';
 import { attack, attemptBreak, battleExp, boltCount, boltDamage, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { canUse, def, nameOf, requirementText, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
@@ -1150,7 +1150,7 @@ export class Game {
     if (t.kind !== 'city') return `<div class="ip-head"><b>${TILE_INFO[t.kind].icon} ${t.name}</b></div><div class="ip-row">${TILE_INFO[t.kind].desc}</div>${people}`;
     const c = this.state.cities[t.cityId!];
     const g = c.garrisonGeneral ? this.state.generals[c.garrisonGeneral] : null;
-    const inc = cityIncome(c);
+    const inc = cityIncomeOf(this.state, c);
     return `
       <div class="ip-head" style="--fc:${ownerCss(c.owner)}"><b>${c.capital ? '★ ' : ''}${c.name}</b><span>${ownerName(c.owner)}</span></div>
       <table>

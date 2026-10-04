@@ -16,6 +16,7 @@ import { HelpView } from '../ui/HelpView';
 import { RankView } from '../ui/RankView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { REALMS } from '../data/generals';
+import { fxText, passiveOf } from '../data/passives';
 import { ITEM_DEFS, STAT_NAMES } from '../data/items';
 import { TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
@@ -34,6 +35,8 @@ type Phase = 'idle' | 'preroll' | 'busy' | 'postland' | 'pickTile' | 'pickDir';
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
+/** 選將時顯示的被動效果 */
+const pv = (g: General) => `<br><span class="sub-passive">【${passiveOf(g).name}】${fxText(passiveOf(g).fx)}</span>`;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export class Game {
@@ -489,7 +492,7 @@ export class Game {
   private async playerOccupy(lord: Lord, city: City) {
     const inc = cityIncome(city);
     const free = freeGenerals(this.state, lord.id);
-    const choices: Choice<string>[] = free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}`, value: g.id, color: originCss(g.origin) }));
+    const choices: Choice<string>[] = free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`, value: g.id, color: originCss(g.origin) }));
     const gid = await this.dialog.choose(
       `抵達${city.name}・是否佔領？`,
       `佔領費 ${fmtStones(occupyCost(city))}（持有 ${fmtStones(lord.stones)}）\n地貌 ${terrainOf(city).icon}${terrainOf(city).name}：${terrainEffects(terrainOf(city))}\n繁榮度 ${city.prosperity}｜每回合收入 ${fmtStones(inc.stones)}、士兵 +${inc.soldiers}｜過路費 ${fmtStones(toll(city, citiesOf(this.state, lord.id).length + 1))}（佔領後）\n請選擇駐守武將：`,
@@ -639,7 +642,7 @@ export class Game {
       const picked = await this.dialog.pickMany(
         `攻打${city.name}・選擇出征武將`,
         `最多派遣三名武將；選好武將後，可自行決定出兵數量。\n戰敗則出征的士兵全滅；勝方也會折損，雙方越接近折損越多。\n一名守軍約等於十名隨行士兵；武將武力越高，統率加成越大。守方約 ${garrisonPower(this.state, city)}。`,
-        pool.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・武力 ${attack(g)}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}`, value: g })),
+        pool.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・武力 ${attack(g)}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}${pv(g)}`, value: g })),
         1,
         3,
         '出征',
@@ -724,7 +727,7 @@ export class Game {
       '',
       pool.map((g) => ({
         label: g.name,
-        sub: stat ? `${STAT_NAMES[stat]} ${craft(g, stat)}・${REALMS[g.realm]}` : `${REALMS[g.realm]}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}${risky(g)}${g.technique ? `・${g.technique.name}` : ''}`,
+        sub: stat ? `${STAT_NAMES[stat]} ${craft(g, stat)}・${REALMS[g.realm]}${pv(g)}` : `${REALMS[g.realm]}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}${risky(g)}${g.technique ? `・${g.technique.name}` : ''}${pv(g)}`,
         value: g,
         color: originCss(g.origin),
       })),
@@ -748,7 +751,7 @@ export class Game {
       '使用物品會消耗該武將的體力，能力值須達到門檻。',
       users.map((g) => {
         const c = canUse(item, g);
-        return { label: g.name, sub: `體力 ${g.stamina}・${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}`, value: g, disabled: !c.ok, reason: c.reason };
+        return { label: g.name, sub: `體力 ${g.stamina}・${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
       }),
     );
     if (!user) return null;
@@ -768,7 +771,7 @@ export class Game {
       team = await this.dialog.pickMany(
         `🌀 ${realmName}`,
         `派遣三名武將探索秘境，歷時 ${REALM_TURNS} 回合。\n期間武將無法出戰；綜合屬性越高，個別隕落機率越低，帶回的寶物也越好。`,
-        free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}・單獨隕落率約 ${Math.round(deathChance(g, [g, g, g]) * 100)}%`, value: g })),
+        free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}・單獨隕落率約 ${Math.round(deathChance(g, [g, g, g]) * 100)}%${pv(g)}`, value: g })),
         3,
         3,
         '派遣',
@@ -848,7 +851,7 @@ export class Game {
       '只有隨行武將可以使用物品。',
       freeGenerals(this.state, lord.id).map((g) => {
         const c = canUse(item, g);
-        return { label: g.name, sub: `體力 ${g.stamina}・${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}`, value: g, disabled: !c.ok, reason: c.reason };
+        return { label: g.name, sub: `體力 ${g.stamina}・${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
       }),
     );
     if (!user) return;
@@ -1130,10 +1133,10 @@ export class Game {
       const party = freeGenerals(this.state, lord.id);
       const sect = sectGenerals(this.state, lord.id);
       const choices: Choice<General>[] = [
-        ...party.map((g) => ({ label: `▼ ${g.name}`, sub: `隨行 → 留守宗門｜${REALMS[g.realm]}・戰力 ${power(g)}`, value: g, color: '#c99a2e' })),
+        ...party.map((g) => ({ label: `▼ ${g.name}`, sub: `隨行 → 留守宗門｜${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`, value: g, color: '#c99a2e' })),
         ...sect.map((g) => ({
           label: `▲ ${g.name}`,
-          sub: `宗門 → 隨行｜${REALMS[g.realm]}・戰力 ${power(g)}`,
+          sub: `宗門 → 隨行｜${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`,
           value: g,
           disabled: party.length >= PARTY_LIMIT,
           reason: `隨行已滿 ${PARTY_LIMIT} 人`,

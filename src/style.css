@@ -1634,3 +1634,8 @@ body {
   display: block;
   color: #6a5030;
 }
+
+.sub-passive {
+  color: #2a7a9a;
+  font-size: 13px;
+}

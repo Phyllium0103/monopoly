@@ -5,8 +5,8 @@ import { LORDS, LORD_IDS } from '../faction/Faction';
 import { maxHp } from '../systems/GeneralSystem';
 
 export const MAX_ROUNDS = 40;
-/** 開局靈石：10 上品 */
-export const START_STONES = 100000;
+/** 開局靈石：3 上品 */
+export const START_STONES = 30000;
 export const START_SOLDIERS = 20000;
 /** 主公身邊最多隨行武將數，其餘留在宗門 */
 export const PARTY_LIMIT = 10;

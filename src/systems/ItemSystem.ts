@@ -1,9 +1,9 @@
 import type { City, GameState, General, Item, Lord } from '../game/types';
 import {
-  BELL_ENERGY, BONE_HP, BREAK_BOOST, CHARGE_ENERGY, DRAIN_STAMINA, ESSENCE_EXP, GATHER_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, PEARL_STAMINA, POISON, QI_EXP, RAGE_ATK, RING_DAMAGE,
+  BELL_ENERGY, BONE_HP, BREAK_BOOST, CHARGE_ENERGY, DRAIN_STAMINA, ESSENCE_EXP, GATHER_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, PEARL_STAMINA, POISON, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_DAMAGE,
   SHIELD_RATIO, SHUTTLE_STEPS, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, type ItemDef,
 } from '../data/items';
-import { freeGenerals } from '../game/GameState';
+import { freeGenerals, reviveGeneral } from '../game/GameState';
 import { addExp, attack, craft, defense, maxHp } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
 import { fmtStones } from '../game/Currency';
@@ -132,6 +132,9 @@ export function usePreroll(state: GameState, lord: Lord, item: Item, user: Gener
     case 'truce':
       lord.tollFree = true;
       return `${head}，本回合踏入敵城免繳過路費。`;
+    case 'revive':
+      reviveGeneral(state, lord.id, g!, REVIVE_HP[t], REVIVE_REALM_LOSS[t]);
+      return `${head}，${g!.name}還陽復生，歸入你的麾下（血量 ${Math.round(REVIVE_HP[t] * 100)}%）！`;
     case 'clearmind':
       g!.demon = 0;
       return `${head}，${g!.name}心魔盡消。`;

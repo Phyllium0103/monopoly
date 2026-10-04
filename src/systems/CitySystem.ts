@@ -1,6 +1,6 @@
 import type { City, GameState, General, Lord, LordId } from '../game/types';
 import { GARRISON_LIMIT, citiesOf, freeGenerals, garrisonOf, generalsOf, joinLord } from '../game/GameState';
-import { defense, generalValue, power } from './GeneralSystem';
+import { defense, generalSaleValue, generalValue, power, unequip } from './GeneralSystem';
 import { beastPower } from '../data/items';
 import { fmtProsperity, fmtStones } from '../game/Currency';
 import { WORLD } from './WorldMods';
@@ -18,7 +18,7 @@ export function toll(city: City, ownerCities = 1): number {
 }
 
 export function cityToll(state: GameState, city: City): number {
-  return city.owner === 'neutral' ? 0 : Math.round(toll(city, citiesOf(state, city.owner).length) * WORLD.tollMult);
+  return city.owner === 'neutral' ? 0 : toll(city, citiesOf(state, city.owner).length);
 }
 
 /** 城池收入，受地貌與駐將被動增減 */
@@ -95,6 +95,19 @@ export function citySaleValue(city: City): number {
   return Math.round(city.prosperity * 150);
 }
 
+/** 變賣一名隨行武將：自動卸下裝備放回行囊，武將離開進入聽風樓，換得靈石 */
+export function sellGeneral(lord: Lord, g: General): number {
+  const value = generalSaleValue(g);
+  unequip(lord, g, 'weapon');
+  unequip(lord, g, 'armor');
+  g.owner = null;
+  g.status = 'free';
+  g.cityId = null;
+  g.secluded = false;
+  lord.stones += value;
+  return value;
+}
+
 /** 變賣一座城池：守軍回到主公身邊、駐將歸隊，換得靈石 */
 export function sellCity(state: GameState, lord: Lord, city: City): number {
   const value = citySaleValue(city);
@@ -130,14 +143,9 @@ export function pay(state: GameState, from: Lord, amount: number, to: Lord | nul
     const party = freeGenerals(state, from.id);
     if (!party.length) break;
     const g = party[Math.floor(Math.random() * party.length)];
-    const offset = Math.min(remaining, generalValue(g));
-    remaining -= offset;
-    if (to) to.stones += offset;
-    g.owner = null;
-    g.status = 'free';
-    g.cityId = null;
-    g.secluded = false;
-    notes.push(`靈石不足，${g.name}離開投奔聽風樓，抵債 ${fmtStones(offset)}`);
+    const value = sellGeneral(from, g);
+    notes.push(`靈石不足，賣掉隨行武將${g.name}，得 ${fmtStones(value)}`);
+    settle();
   }
   const bankrupt = remaining > 0;
   if (bankrupt) eliminate(state, from);

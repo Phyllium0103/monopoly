@@ -20,8 +20,8 @@ import { fxText, passiveOf } from '../data/passives';
 import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
-import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, SOLDIER_PRICE, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, citySaleValue, eliminate, garrisonPower, occupy, occupyCost, pay, sellCity, toll } from '../systems/CitySystem';
-import { BREAK_FAIL_HP, attack, attemptBreak, battleExp, boltCount, boltDamage, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
+import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, SOLDIER_PRICE, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, citySaleValue, eliminate, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll } from '../systems/CitySystem';
+import { generalSaleValue, BREAK_FAIL_HP, attack, attemptBreak, battleExp, boltCount, boltDamage, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { itemChoices } from '../ui/ItemUI';
 import { canUse, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
@@ -30,7 +30,6 @@ import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, 
 import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
 import { rollRoadEvent } from '../systems/RoadEvents';
 import { EVENT_INTERVAL, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, syncWorldMods, tickWorldEvents } from '../systems/EventSystem';
-import { WORLD } from '../systems/WorldMods';
 
 type Phase = 'idle' | 'preroll' | 'busy' | 'postland' | 'pickTile';
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
@@ -486,28 +485,43 @@ export class Game {
     }
   }
 
-  /** 割地賠款：一座一座挑選要賣的城池，直到湊足金額或城池賣光 */
+  /** 割地賠款：自己挑選要變賣的城池或隨行武將，直到湊足金額；兩者都賣光就破產 */
   private async raiseFunds(lord: Lord, amount: number) {
+    type Sale = { kind: 'city'; city: City } | { kind: 'general'; general: General };
     while (lord.stones < amount) {
-      const cities = citiesOf(this.state, lord.id).sort((a, b) => a.prosperity - b.prosperity);
-      if (!cities.length) return;
-      const city = await this.dialog.choose(
-        '💸 靈石不足，必須割地賠款',
-        `需要支付 ${fmtStones(amount)}，持有 ${fmtStones(lord.stones)}，還差 ${fmtStones(amount - lord.stones)}。
-請選擇要變賣的城池（守軍會回到你身邊，駐將歸隊）：`,
-        cities.map((c) => ({
-          label: `${c.capital ? '★ ' : ''}${c.name}`,
+      const cities = citiesOf(this.state, lord.id).sort((x, y) => x.prosperity - y.prosperity);
+      const party = freeGenerals(this.state, lord.id);
+      if (!cities.length && !party.length) return;
+      const choices: Choice<Sale>[] = [
+        ...cities.map((c) => ({
+          label: `🏯 ${c.capital ? '★ ' : ''}${c.name}`,
           sub: `繁榮 ${fmtProsperity(c.prosperity)}・守軍 ${c.garrisonSoldiers}・駐將 ${c.garrisonGenerals.length} 人｜可得 ${fmtStones(citySaleValue(c))}`,
-          value: c,
+          value: { kind: 'city', city: c } as Sale,
           color: LORDS[lord.id].css,
         })),
+        ...party.map((g) => ({
+          label: `🧑 ${g.name}（${REALMS[g.realm]}）`,
+          sub: `戰力 ${power(g)}｜身價 ${fmtStones(generalSaleValue(g))}｜賣出後自動卸下裝備，離開進入聽風樓${pv(g)}`,
+          value: { kind: 'general', general: g } as Sale,
+          color: '#c99a2e',
+        })),
+      ];
+      const sale = await this.dialog.choose(
+        '💸 靈石不足，必須割地賠款',
+        `需要支付 ${fmtStones(amount)}，持有 ${fmtStones(lord.stones)}，還差 ${fmtStones(amount - lord.stones)}。\n請選擇要變賣的城池或隨行武將；城池與隨行武將都賣光仍湊不齊，就會破產出局！`,
+        choices,
         null,
         '💸',
       );
-      if (!city) continue;
-      const value = sellCity(this.state, lord, city);
-      this.ui.log(`${LORDS[lord.id].name}變賣城池「${city.name}」，得 ${fmtStones(value)}。`, 'bad');
-      this.world.syncCities(this.state);
+      if (!sale) continue;
+      if (sale.kind === 'city') {
+        const value = sellCity(this.state, lord, sale.city);
+        this.ui.log(`${LORDS[lord.id].name}變賣城池「${sale.city.name}」，得 ${fmtStones(value)}。`, 'bad');
+        this.world.syncCities(this.state);
+      } else {
+        const value = sellGeneral(lord, sale.general);
+        this.ui.log(`${LORDS[lord.id].name}賣掉隨行武將${sale.general.name}（裝備已卸下），得 ${fmtStones(value)}。`, 'bad');
+      }
       this.refresh();
     }
   }
@@ -616,7 +630,6 @@ export class Game {
         reason: !siegeAllowed(this.state.round) ? `前 ${SIEGE_START_ROUND - 1} 輪不能攻城，第 ${SIEGE_START_ROUND} 輪起開放` : !free.length ? noGen : '沒有士兵',
       },
     ];
-    if (WORLD.noBattle) for (const c of choices) if (c.value !== 'pay') Object.assign(c, { disabled: true, reason: '群雄會盟期間不能開戰' });
     const kind = await this.dialog.choose(
       `踏入${owner}的${city.name}`,
       `過路費 ${fmtStones(fee)}｜駐將 ${guards.length ? guards.map((g) => `${g.name}（${REALMS[g.realm]}・戰力 ${power(g)}）`).join('、') : '無'}・守軍 ${city.garrisonSoldiers}\n選擇繳費，或發起戰鬥。<b>戰鬥失敗將付雙倍過路費 ${fmtStones(fee * 2)}。</b>${fee * 2 > lord.stones ? '\n<b style="color:#b33a2a">⚠️ 雙倍過路費超過你持有的靈石，戰敗將先變賣城池，再不夠則隨行武將離開抵債，只剩主公一人時破產！</b>' : ''}`,
@@ -944,6 +957,19 @@ export class Game {
     const d = ITEM_DEFS[defId];
     const others = aliveLords(this.state).filter((l) => l.id !== lord.id);
     switch (d.target) {
+      case 'deadGeneral': {
+        const dead = Object.values(this.state.generals).filter((g) => g.status === 'dead');
+        if (!dead.length) {
+          this.ui.toast('目前沒有已死去的武將');
+          return null;
+        }
+        const g = await this.dialog.choose(
+          '選擇要復活的武將',
+          '死去的武將會歸入你的麾下。',
+          dead.map((x) => ({ label: x.name, sub: `${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, color: originCss(x.origin) })),
+        );
+        return g ? { general: g } : null;
+      }
       case 'ownGeneral': {
         const pool = generalsOf(this.state, lord.id).filter((g) => g.status !== 'realm');
         const g = await this.dialog.choose(

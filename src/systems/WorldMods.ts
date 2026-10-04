@@ -10,10 +10,6 @@ export const WORLD = {
   breakBonus: 0,
   /** 當令五行（五行輪轉） */
   element: null as Element | null,
-  /** 過路費倍率（群雄會盟） */
-  tollMult: 1,
-  /** 禁止開戰（群雄會盟） */
-  noBattle: false,
   /** 上古秘境現世 */
   realmBlessed: false,
   /** 城池靈石收入倍率（商路暢通、蝗災） */

@@ -125,11 +125,11 @@ export function attemptBreak(g: General, round: number): boolean {
   return false;
 }
 
-export const TRIBULATION_BOLTS = [3, 6, 9, 12, 15, 18, 21, 24];
-const TRIBULATION_BASE = [450, 600, 900, 1300, 1800, 2500, 3400, 4600];
+export const TRIBULATION_BOLTS = [3, 4, 5, 6, 7, 8, 9, 10];
+const TRIBULATION_BASE = [550, 700, 900, 1250, 1600, 2100, 2700, 3500];
 
 export function boltCount(g: General): number {
-  return TRIBULATION_BOLTS[g.realm - 2] ?? 24;
+  return TRIBULATION_BOLTS[g.realm - 2] ?? 10;
 }
 
 /** 單道天雷的預估傷害（防禦、寶衣、護法陣、體質、心魔都會影響） */
@@ -213,6 +213,14 @@ export function recover(g: General) {
 
 export function generalValue(g: General): number {
   return Math.round(power(g) * 8 + totalCraft(g) * 10 + (g.weapon?.price ?? 0) * 0.5 + (g.armor?.price ?? 0) * 0.5 + (g.technique?.price ?? 0) * 0.5);
+}
+
+/** 境界越高，武將身價倍數越大 */
+const REALM_SALE_MULT = [1, 1.6, 2.5, 4, 6, 9, 13, 18, 25, 35, 50];
+
+/** 破產變賣時的武將身價：依能力值與境界，遠高於招募價（不含裝備，賣出時裝備會自動卸下） */
+export function generalSaleValue(g: General): number {
+  return Math.round(((power(g) * 10 + totalCraft(g) * 14) * REALM_SALE_MULT[g.realm]) / 100) * 100;
 }
 
 /** 聽風樓招募價：本國將領較便宜 */

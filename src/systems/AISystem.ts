@@ -6,7 +6,6 @@ import { REALMS } from '../data/generals';
 import { equipRealm } from '../data/items';
 import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
 import { CONTEST_SOLDIERS, canDuel, siegeAllowed, siegeAttack, type BattleKind } from './BattleSystem';
-import { WORLD } from './WorldMods';
 import type { Offer } from './ShopSystem';
 import { deathChance, randomRealmLevel } from './RealmSystem';
 
@@ -68,6 +67,11 @@ export function aiPreroll(state: GameState, lord: Lord): string[] {
     const user = pill && gens.find((u) => canUse(pill, u).ok);
     if (pill && user) logs.push(usePreroll(state, lord, pill, user, { general: g }));
   }
+  // 還魂丹：復活戰力最強的亡者
+  const revivePill = lord.items.find((i) => i.defId === 'revive');
+  const deadBest = Object.values(state.generals).filter((g) => g.status === 'dead').sort((a, b) => power(b) - power(a))[0];
+  const reviver = revivePill && gens.find((u) => canUse(revivePill, u).ok);
+  if (revivePill && reviver && deadBest) logs.push(usePreroll(state, lord, revivePill, reviver, { general: deadBest }));
   // 群體陣法與法器：聚靈陣、回春陣、聚元珠、撒豆成兵符、地脈陣
   const party = freeGenerals(state, lord.id);
   const useGroup = (defId: string, target: PrerollTarget = {}) => {
@@ -178,7 +182,7 @@ const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
 /** 踏入敵城：繳費或選擇最有把握的戰鬥 */
 export function aiEnemyCity(state: GameState, lord: Lord, city: City): AiBattleChoice {
   const free = freeGenerals(state, lord.id).filter((g) => g.hp > maxHp(g) * 0.3);
-  if (!free.length || WORLD.noBattle) return { kind: 'pay', generals: [] };
+  if (!free.length) return { kind: 'pay', generals: [] };
   const owner = state.lords[city.owner as Lord['id']];
   const defenders = defenderPool(state, city);
   const cost = cityToll(state, city);
@@ -245,10 +249,10 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
   return want.sort((a, b) => b.price - a.price)[0];
 }
 
-/** 秘境：難度隨機，有三名以上空閒武將且風險可接受時才派遣 */
+/** 秘境：難度隨機，有空閒武將（不必滿三人）且風險可接受時才派遣 */
 export function aiRealm(state: GameState, lord: Lord): { team: General[]; level: number } | null {
   const free = freeGenerals(state, lord.id).sort((a, b) => power(b) - power(a));
-  if (free.length < 3 || Math.random() > 0.7) return null;
+  if (!free.length || Math.random() > 0.7) return null;
   const team = free.length >= 4 ? free.slice(1, 4) : free.slice(0, 3);
   const level = randomRealmLevel();
   const risk = team.reduce((s, g) => s + deathChance(g, team, level), 0) / team.length;

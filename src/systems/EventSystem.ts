@@ -3,7 +3,7 @@ import { citiesOf, freeGenerals, generalsOf, nextUid } from '../game/GameState';
 import { aliveLords } from '../game/TurnManager';
 import { cityIncomeOf, totalAssets } from './CitySystem';
 import { addExp, inBottleneck, maxHp } from './GeneralSystem';
-import { ELEMENT_NAMES, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, techniqueDesc } from '../data/items';
+import { ELEMENT_NAMES, ITEM_DEFS, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, techniqueDesc } from '../data/items';
 import { CITY_TERRAIN } from '../data/terrain';
 import { REALMS } from '../data/generals';
 import { LORDS } from '../faction/Faction';
@@ -41,7 +41,6 @@ export const WORLD_EVENTS: WorldEventDef[] = [
   { id: 'ancientRealm', name: '上古秘境現世', icon: '🌀', category: 'cultivation', duration: 5, desc: '上古秘境現世 5 輪，期間派入秘境的武將隕落率減半、帶回的寶物品階更高。' },
   { id: 'immortals', name: '仙人出山', icon: '🧙', category: 'cultivation', desc: '左慈、于吉、華佗、管輅四位方外高人現身聽風樓，能力極高但身價不菲。' },
   { id: 'edict', name: '天子詔令', icon: '📜', category: 'politics', desc: '天子下詔：總資產最高的主公上繳一成靈石，平分給其他主公。' },
-  { id: 'alliance', name: '群雄會盟', icon: '🤝', category: 'politics', duration: 3, desc: '群雄會盟 3 輪：過路費減半，且不能發起任何戰鬥。' },
   { id: 'beastTide', name: '妖獸潮', icon: '🐉', category: 'disaster', desc: '妖獸成群襲城，所有城池守軍 -15%；擁有靈獸的主公可由靈獸護城，免除損失。' },
   { id: 'quake', name: '天災地動', icon: '🌋', category: 'disaster', desc: '天崩地裂，隨機 3 座有主城池繁榮 -20。' },
   { id: 'bandits', name: '黃巾餘黨', icon: '🏴', category: 'disaster', duration: 5, desc: '黃巾餘黨盤踞 4 處驛道 5 輪，停在賊窩要繳買路錢，否則損兵。' },
@@ -75,8 +74,6 @@ export function syncWorldMods(state: GameState) {
   WORLD.boltMult = isActive(state, 'heavenFavor') ? 0.6 : 1;
   WORLD.breakBonus = isActive(state, 'heavenFavor') ? 0.15 : 0;
   WORLD.element = isActive(state, 'elementTide') ? state.favoredElement : null;
-  WORLD.tollMult = isActive(state, 'alliance') ? 0.5 : 1;
-  WORLD.noBattle = isActive(state, 'alliance');
   WORLD.realmBlessed = isActive(state, 'ancientRealm');
   WORLD.incomeMult = (isActive(state, 'tradeBoom') ? 1.3 : 1) * (isActive(state, 'locust') ? 0.6 : 1);
   WORLD.seclusionMult = isActive(state, 'spiritTide') ? 1.5 : 1;
@@ -345,10 +342,9 @@ export function merchantStock(state: GameState): Offer[] {
   out.push({ kind: 'technique', technique: t, label: t.name, sub: techniqueDesc(t), price: off(t.price) });
   const b = makeBeast(uid('b'), high());
   out.push({ kind: 'beast', beast: b, label: b.name, sub: b.desc, price: off(b.price) });
-  for (const defId of ['essence', 'thunderward']) {
-    const tier = defId === 'essence' ? 3 : 0;
-    const price = defId === 'essence' ? 24300 : 7000;
-    out.push({ kind: 'item', item: { uid: uid('i'), defId, tier, price }, label: defId === 'essence' ? '天品真元丹' : '避雷陣', sub: defId === 'essence' ? '修為 +1200' : '下次渡劫天雷傷害 -50%', price: off(price) });
+  for (const [defId, tier] of [['essence', 3], ['thunderward', 0]] as const) {
+    const item = makeItem(uid('i'), defId, tier);
+    out.push({ kind: 'item', item, label: itemName(defId, tier), sub: ITEM_DEFS[defId].desc(tier), price: off(item.price) });
   }
   return out;
 }

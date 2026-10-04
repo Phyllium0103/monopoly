@@ -2,7 +2,7 @@ import type { Aptitude, LordId } from '../game/types';
 
 export const REALMS = ['凡人', '煉氣', '築基', '金丹', '元嬰', '化神', '煉虛', '合體', '大乘', '渡劫', '真仙'] as const;
 /** 各境界修為上限；達到上限即進入瓶頸，需手動突破 */
-export const REALM_EXP = [150, 400, 1000, 2000, 4000, 7000, 11000, 16000, 22000, 30000];
+export const REALM_EXP = [150, 350, 800, 1600, 3200, 6000, 10000, 16000, 24000, 36000];
 export const REALM_MULT = [1, 1.25, 1.6, 2.1, 2.8, 3.8, 5, 6.5, 8.5, 11, 15];
 
 export const APTITUDE_NAMES: Record<Aptitude, string> = { heaven: '天靈根', earth: '地靈根', pseudo: '偽靈根' };

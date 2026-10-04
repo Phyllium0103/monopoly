@@ -143,6 +143,19 @@ export function garrisonOf(state: GameState, city: City): General[] {
   return city.garrisonGenerals.map((id) => state.generals[id]);
 }
 
+/** 復活死去的武將：歸入主公麾下，修為歸零，血量依比例，境界可能跌落 */
+export function reviveGeneral(state: GameState, lord: LordId, g: General, hpRatio = 1, realmLoss = 0) {
+  g.status = 'free';
+  g.exp = 0;
+  g.demon = 0;
+  g.ward = 0;
+  g.breakBoost = 0;
+  g.realm = Math.max(0, g.realm - realmLoss);
+  g.hp = Math.max(1, Math.round(maxHp(g) * hpRatio));
+  g.stamina = 100;
+  joinLord(state, lord, g);
+}
+
 /** 武將戰死：從主公與城池除名 */
 export function killGeneral(state: GameState, g: General) {
   if (g.cityId) {

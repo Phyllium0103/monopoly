@@ -1,11 +1,11 @@
 import type { GameState, Lord, TileKind } from '../game/types';
-import { joinLord, nextUid } from '../game/GameState';
+import { joinLord, nextUid, reviveGeneral } from '../game/GameState';
 import { merchantStock } from './EventSystem';
 import { fmtStones } from '../game/Currency';
-import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipRealm, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemTier, rollTier, techniqueDesc } from '../data/items';
-import { APTITUDE_NAMES, REALMS } from '../data/generals';
+import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipDesc, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemTier, rollTier, techniqueDesc } from '../data/items';
+import { APTITUDE_NAMES } from '../data/generals';
 import { fxText, passiveOf } from '../data/passives';
-import { generalValue, maxHp, power, realmName, recruitPrice } from './GeneralSystem';
+import { generalValue, power, realmName, recruitPrice } from './GeneralSystem';
 import { originKingdom } from '../faction/Faction';
 import type { Beast, Equipment, General, Item, Technique } from '../game/types';
 
@@ -58,7 +58,10 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
             price: Math.round((recruitPrice(g, lord.id) * 1.5) / 100) * 100,
           }) as Offer,
       );
-      return [...potions, ...revives];
+      // 百草堂常備一顆還魂丹，可帶回去復活死去的武將
+      const reviveItem = makeItem(uid('i'), 'revive', rollItemTier('revive', bias));
+      const pill: Offer = { kind: 'item', item: reviveItem, label: itemName('revive', reviveItem.tier), sub: `${ITEM_DEFS.revive.desc(reviveItem.tier)}｜${requirementOf('revive', reviveItem.tier)}`, price: reviveItem.price };
+      return [...potions, pill, ...revives];
     }
     case 'treasure':
       return shuffle([...ARTIFACT_IDS])
@@ -71,8 +74,7 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
     case 'forge':
       return Array.from({ length: 6 }, (_, i) => {
         const e = makeEquipment(uid('e'), i % 2 === 0 ? 'weapon' : 'armor', rollTier(bias));
-        const stat = e.kind === 'weapon' ? `武力 +${e.value}` : `防禦 +${e.value}、血量 +${e.hp}`;
-        return { kind: 'equipment', equipment: e, label: e.name, sub: `${e.kind === 'weapon' ? '神器' : '寶衣'}｜${stat}｜需${REALMS[equipRealm(e.tier)]}`, price: e.price } as Offer;
+        return { kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e), price: e.price } as Offer;
       });
     case 'library':
       return Array.from({ length: 5 }, () => {
@@ -129,18 +131,9 @@ export function buy(state: GameState, lord: Lord, offer: Offer): { ok: boolean; 
     case 'general':
       joinLord(state, lord.id, offer.general);
       break;
-    case 'revive': {
-      const g = offer.general;
-      g.status = 'free';
-      g.exp = 0;
-      g.demon = 0;
-      g.ward = 0;
-      g.breakBoost = 0;
-      g.hp = maxHp(g);
-      g.stamina = 100;
-      joinLord(state, lord.id, g);
+    case 'revive':
+      reviveGeneral(state, lord.id, offer.general);
       break;
-    }
   }
   return { ok: true, message: `花費 ${fmtStones(offer.price)} 購得「${offer.label}」。` };
 }

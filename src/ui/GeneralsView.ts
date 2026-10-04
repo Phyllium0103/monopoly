@@ -2,7 +2,7 @@ import type { GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS } from '../data/generals';
 import { fxText, passiveOf } from '../data/passives';
-import { ELEMENT_CSS, equipRealm, techniqueDesc, techniqueExp } from '../data/items';
+import { ELEMENT_CSS, equipDesc, equipRealm, techniqueDesc, techniqueExp } from '../data/items';
 import {
   abolish,
   attack,
@@ -68,7 +68,7 @@ export class GeneralsView {
     const manage = this.canManage();
 
     const bag = bagHtml(lord.items);
-    const gear = lord.gear.map((e) => `<span class="chip">${e.name}</span>`).join('') || '<span class="muted">無</span>';
+    const gear = lord.gear.map((e) => `<span class="chip" title="${equipDesc(e)}">${e.name}</span>`).join('') || '<span class="muted">無</span>';
     const scrolls = lord.scrolls.map((t) => `<span class="chip" style="border-color:${ELEMENT_CSS[t.element]}">${t.name}</span>`).join('') || '<span class="muted">無</span>';
     const party = gens.filter((g) => g.status === 'free').length;
 
@@ -138,8 +138,8 @@ export class GeneralsView {
         <span>煉丹 <b>${craft(g, 'alchemy')}</b></span><span>煉器 <b>${craft(g, 'forging')}</b></span><span>畫符 <b>${craft(g, 'talisman')}</b></span><span>佈陣 <b>${craft(g, 'formation')}</b></span>
       </div>
       <div class="equip">
-        <div>神器：${g.weapon ? `${g.weapon.name}（武 +${g.weapon.value}）` : '<span class="muted">無</span>'}</div>
-        <div>寶衣：${g.armor ? `${g.armor.name}（防 +${g.armor.value}、血 +${g.armor.hp}）` : '<span class="muted">無</span>'}</div>
+        <div title="${g.weapon ? equipDesc(g.weapon) : ''}">神器：${g.weapon ? `${g.weapon.name}（武 +${g.weapon.value}）` : '<span class="muted">無</span>'}</div>
+        <div title="${g.armor ? equipDesc(g.armor) : ''}">寶衣：${g.armor ? `${g.armor.name}（防 +${g.armor.value}、血 +${g.armor.hp}）` : '<span class="muted">無</span>'}</div>
         <div>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name}</span> 難度${'★'.repeat(t.difficulty)}・+${techniqueExp(t)}/回合` : '<span class="muted">未修習</span>'}</div>
       </div>
       <div class="gc-actions"></div>`;
@@ -176,7 +176,7 @@ export class GeneralsView {
           '',
           pool.map((x) => ({
             label: x.name,
-            sub: kind === 'weapon' ? `武力 +${x.value}` : `防禦 +${x.value}、血量 +${x.hp}`,
+            sub: equipDesc(x),
             value: x,
             disabled: g.realm < equipRealm(x.tier),
             reason: `需達${REALMS[equipRealm(x.tier)]}`,

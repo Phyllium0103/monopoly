@@ -20,7 +20,7 @@ export function fmtStones(n: number, compact = false): string {
   return (compact ? parts.slice(0, 2) : parts).join(' ');
 }
 
-/** 繁榮度可能有一位小數 */
+/** 繁榮度最多顯示兩位小數 */
 export function fmtProsperity(n: number): string {
-  return String(Math.round(n * 10) / 10);
+  return String(Math.round(n * 100) / 100);
 }

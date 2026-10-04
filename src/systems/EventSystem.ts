@@ -39,7 +39,7 @@ export const WORLD_EVENTS: WorldEventDef[] = [
   { id: 'heavenFavor', name: '天道垂青', icon: '⚡', category: 'cultivation', duration: 3, desc: '天道垂青，接下來 3 輪渡劫天雷傷害 -40%、低階突破成功率 +15%。' },
   { id: 'elementTide', name: '五行輪轉', icon: '🔥', category: 'cultivation', duration: 5, desc: '五行之一當令 5 輪，修習該屬性功法的武將在擂台上傷害 +30%。' },
   { id: 'ancientRealm', name: '上古秘境現世', icon: '🌀', category: 'cultivation', duration: 5, desc: '上古秘境現世 5 輪，期間派入秘境的武將隕落率減半、帶回的寶物品階更高。' },
-  { id: 'immortals', name: '仙人出山', icon: '🧙', category: 'cultivation', desc: '四位隱世的方外高人（左慈、于吉、華佗、水鏡先生、龐德公、張仲景……）現身聽風樓，能力極高但身價不菲。' },
+  { id: 'immortals', name: '仙人出山', icon: '🧙', category: 'cultivation', desc: '三位隱世的方外高人（從左慈、于吉、華佗、水鏡先生、龐德公、張仲景等十三位中隨機現身）出現在聽風樓，能力極高但身價不菲。' },
   { id: 'edict', name: '天子詔令', icon: '📜', category: 'politics', desc: '天子下詔：總資產最高的主公上繳一成靈石，平分給其他主公。' },
   { id: 'beastTide', name: '妖獸潮', icon: '🐉', category: 'disaster', desc: '妖獸成群襲城，所有城池守軍 -15%；擁有靈獸的主公可由靈獸護城，免除損失。' },
   { id: 'quake', name: '天災地動', icon: '🌋', category: 'disaster', desc: '天崩地裂，隨機 3 座有主城池繁榮 -20。' },
@@ -288,9 +288,12 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
 
 // ───────────────────────── 仙人出山 ─────────────────────────
 
-/** 每次現身 4 位尚未出現的隱藏武將 */
+/** 每次現身的隱藏武將數 */
+const HIDDEN_PER_EVENT = 3;
+
+/** 每次現身 3 位尚未出現的隱藏武將 */
 function revealHidden(state: GameState): General[] {
-  const pool = shuffle(HIDDEN_SEEDS.filter((h) => !state.generals[h.id])).slice(0, 4);
+  const pool = shuffle(HIDDEN_SEEDS.filter((h) => !state.generals[h.id])).slice(0, HIDDEN_PER_EVENT);
   return pool.map((h) => {
     const g = newGeneral(h, 'immortal', null, 'free', null);
     state.generals[h.id] = g;

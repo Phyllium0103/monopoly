@@ -94,7 +94,11 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
       });
     case 'tavern': {
       const free = shuffle(Object.values(state.generals).filter((g) => g.owner === null && g.status !== 'dead'));
-      const pool = [...free.filter((g) => g.origin === 'immortal'), ...free.filter((g) => g.origin !== 'immortal')].slice(0, 4);
+      // 隱藏武將最多占兩個名額，不會把一般將領全擠掉；一般將領不夠時才補隱藏武將
+      const hidden = free.filter((g) => g.origin === 'immortal');
+      const normal = free.filter((g) => g.origin !== 'immortal');
+      const pool = [...hidden.slice(0, 2), ...normal].slice(0, 4);
+      for (const g of hidden.slice(2)) if (pool.length < 4) pool.push(g);
       return pool.map(
         (g) =>
           ({

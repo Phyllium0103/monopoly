@@ -70,13 +70,36 @@ export interface PayResult {
   notes: string[];
 }
 
-/** 付款：先付靈石，不足時隨行武將隨機離開（進入聽風樓）以身價抵債；只剩主公一人仍付不清就破產 */
+/** 城池變賣價：佔領費的一半 */
+export function citySaleValue(city: City): number {
+  return Math.round(occupyCost(city) * 0.5);
+}
+
+/**
+ * 付款：先付靈石；不足時從繁榮度最低的城池開始變賣（守軍回到主公、駐將回到身邊），
+ * 城池賣光仍不足，隨行武將才隨機離開（進入聽風樓）以身價抵債；只剩主公一人仍付不清就破產
+ */
 export function pay(state: GameState, from: Lord, amount: number, to: Lord | null): PayResult {
   const notes: string[] = [];
-  const cash = Math.min(from.stones, amount);
-  from.stones -= cash;
-  if (to) to.stones += cash;
-  let remaining = amount - cash;
+  const settle = () => {
+    const cash = Math.min(from.stones, remaining);
+    from.stones -= cash;
+    if (to) to.stones += cash;
+    remaining -= cash;
+  };
+  let remaining = amount;
+  settle();
+  const owned = citiesOf(state, from.id).sort((a, b) => a.prosperity - b.prosperity);
+  while (remaining > 0 && owned.length) {
+    const city = owned.shift()!;
+    const value = citySaleValue(city);
+    from.soldiers += city.garrisonSoldiers;
+    city.garrisonSoldiers = 0;
+    releaseCity(state, city);
+    from.stones += value;
+    notes.push(`靈石不足，變賣城池「${city.name}」，得 ${fmtStones(value)}`);
+    settle();
+  }
   while (remaining > 0) {
     const party = freeGenerals(state, from.id);
     if (!party.length) break;

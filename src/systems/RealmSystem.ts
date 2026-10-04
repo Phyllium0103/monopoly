@@ -21,17 +21,19 @@ export interface RealmLevel {
   rolls: number;
 }
 
-/** 秘境難度：每次踏入秘境隨機決定。越難歷時越久、越兇險，獎勵也越稀有 */
+/** 秘境難度：以境界命名，由玩家選擇。越高階歷時越久、越兇險，獎勵也越稀有 */
 export const REALM_LEVELS: RealmLevel[] = [
-  { name: '簡單', icon: '🌱', turns: 3, risk: 0.5, tier: -1, exp: 0.7, rolls: 1 },
-  { name: '中等', icon: '🌿', turns: 5, risk: 1, tier: 1, exp: 1.2, rolls: 1 },
-  { name: '困難', icon: '🔥', turns: 7, risk: 1.9, tier: 4, exp: 2.2, rolls: 2 },
+  { name: '煉氣', icon: '🌱', turns: 3, risk: 0.4, tier: -1, exp: 0.7, rolls: 1 },
+  { name: '築基', icon: '🌿', turns: 4, risk: 0.65, tier: 0, exp: 1, rolls: 1 },
+  { name: '金丹', icon: '🍃', turns: 5, risk: 0.95, tier: 1, exp: 1.3, rolls: 1 },
+  { name: '元嬰', icon: '🔥', turns: 6, risk: 1.4, tier: 2, exp: 1.7, rolls: 1 },
+  { name: '化神', icon: '⚡', turns: 7, risk: 1.9, tier: 3, exp: 2.2, rolls: 2 },
+  { name: '煉虛', icon: '🌪️', turns: 8, risk: 2.5, tier: 4, exp: 2.8, rolls: 2 },
+  { name: '合體', icon: '🌋', turns: 9, risk: 3.2, tier: 5, exp: 3.5, rolls: 2 },
+  { name: '大乘', icon: '☄️', turns: 10, risk: 4, tier: 6, exp: 4.3, rolls: 3 },
+  { name: '渡劫', icon: '💀', turns: 12, risk: 5, tier: 7, exp: 5.5, rolls: 3 },
 ];
 
-/** 隨機抽一個難度 */
-export function randomRealmLevel(): number {
-  return Math.floor(Math.random() * REALM_LEVELS.length);
-}
 export const REALM_MIN_PARTY = 1;
 export const REALM_MAX_PARTY = 5;
 
@@ -45,7 +47,7 @@ export function deathChance(g: General, team: General[], level = 1): number {
   const teamPower = team.reduce((s, x) => s + power(x), 0);
   const own = Math.max(0.03, 0.4 - power(g) / 2500);
   const teamFactor = Math.max(0.6, Math.min(1.2, 1.3 - teamPower / 4000));
-  return Math.max(0.02, Math.min(0.75, own * teamFactor * REALM_LEVELS[level].risk * (1 - (fx(g).realmSafety ?? 0))));
+  return Math.max(0.02, Math.min(0.9, own * teamFactor * REALM_LEVELS[level].risk * (1 - (fx(g).realmSafety ?? 0))));
 }
 
 export function dispatch(lord: Lord, team: General[], realmName: string, level = 1) {

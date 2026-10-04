@@ -12,7 +12,8 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
   el.className = 'screen start-screen';
   el.innerHTML = `
     <div class="title-block">
-      <h1>仙途三國</h1>
+      <h1 class="long-title">丞相，這過路費比雷劫還狠！</h1>
+      <p class="title-en">Chancellor, This Toll is Worse Than Heavenly Tribulation!</p>
       <p class="subtitle">靈氣復甦，群雄修仙・擲骰爭天下</p>
     </div>
     <div class="mode-row"><span>遊戲模式</span><div class="mode-options"></div></div>

@@ -26,7 +26,7 @@ import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, 
 import { itemChoices } from '../ui/ItemUI';
 import { canUse, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
 import { buy, makeStock, type Offer, type ShopKind } from '../systems/ShopSystem';
-import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, randomRealmLevel } from '../systems/RealmSystem';
+import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch } from '../systems/RealmSystem';
 import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
 import { rollRoadEvent } from '../systems/RoadEvents';
 import { EVENT_INTERVAL, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, syncWorldMods, tickWorldEvents } from '../systems/EventSystem';
@@ -864,15 +864,27 @@ export class Game {
       return;
     }
     let team: General[] | null;
-    // 難度每次隨機：簡單、中等、困難
-    let level = randomRealmLevel();
+    let level = 0;
     if (this.human(lord)) {
+      const best = [...free].sort((x, y) => power(y) - power(x)).slice(0, 3);
+      const picked = await this.dialog.choose(
+        `🌀 ${realmName}・選擇難度`,
+        `難度以境界命名：越高階歷時越久、隕落率越高，寶物品階與修為也越多。
+接著選擇派遣人數（${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人）：人越多越安全，四人以上多得一份寶物。`,
+        REALM_LEVELS.map((l, i) => ({
+          label: `${l.icon} ${l.name}秘境`,
+          sub: `歷時 ${l.turns} 回合・隕落率 ×${l.risk}・寶物品階 ${l.tier >= 0 ? '+' : ''}${l.tier}・修為 ×${l.exp}・寶物 ${l.rolls} 份（四人以上 +1）｜以你最強三人估計，平均隕落率約 ${Math.round((best.reduce((sum, g) => sum + deathChance(g, best, i), 0) / best.length) * 100)}%`,
+          value: i,
+        })),
+        '取消',
+        '🌀',
+      );
+      if (picked === null) return;
+      level = picked;
       const L = REALM_LEVELS[level];
-      this.ui.toast(`${realmName}・本次難度：${L.icon} ${L.name}`);
       team = await this.dialog.pickMany(
-        `🌀 ${realmName}・本次難度：${L.icon} ${L.name}`,
-        `歷時 ${L.turns} 回合・隕落率 ×${L.risk}・寶物品階 ${L.tier >= 0 ? '+' : ''}${L.tier}・修為 ×${L.exp}・寶物 ${L.rolls} 份（四人以上 +1）
-期間武將無法出戰。選 ${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人：人越多個別隕落率越低。不想冒險可按取消，下次來難度會重新隨機。`,
+        `🌀 ${realmName}（${L.name}秘境）・選擇武將`,
+        `歷時 ${L.turns} 回合，期間武將無法出戰。選 ${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人；人越多個別隕落率越低，四人以上多得一份寶物。`,
         free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}・單獨隕落率約 ${Math.round(deathChance(g, [g, g, g], level) * 100)}%${pv(g)}`, value: g })),
         REALM_MIN_PARTY,
         REALM_MAX_PARTY,
@@ -881,11 +893,11 @@ export class Game {
     } else {
       const plan = aiRealm(this.state, lord);
       team = plan?.team ?? null;
-      level = plan?.level ?? level;
+      level = plan?.level ?? 0;
     }
     if (!team) return;
     dispatch(lord, team, realmName, level);
-    this.ui.log(`${LORDS[lord.id].name}派遣${team.map((g) => g.name).join('、')}進入${realmName}（${REALM_LEVELS[level].name}）。`, this.human(lord) ? 'good' : 'ai');
+    this.ui.log(`${LORDS[lord.id].name}派遣${team.map((g) => g.name).join('、')}進入${realmName}（${REALM_LEVELS[level].name}秘境）。`, this.human(lord) ? 'good' : 'ai');
     this.refresh();
   }
 

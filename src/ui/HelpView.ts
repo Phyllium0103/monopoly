@@ -319,7 +319,7 @@ const PAGES: Page[] = [
     html: () => `
       <h4>秘境</h4>
       ${list([
-        `停在秘境時，<b>難度每次隨機</b>決定（簡單／中等／困難），再選擇派遣 ${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 名隨行武將，不想冒險可取消。地圖上只有六處秘境，都在要道之上。`,
+        `停在秘境時，先<b>選擇難度</b>（以境界命名：${REALM_LEVELS.map((l) => l.name).join('、')}），再選擇派遣 ${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 名隨行武將，不想冒險可取消。地圖上只有六處秘境，都在要道之上。`,
         `難度影響：${REALM_LEVELS.map((l) => `${l.icon}${l.name}（${l.turns} 回合・隕落率 ×${l.risk}・寶物品階 ${l.tier >= 0 ? '+' : ''}${l.tier}・修為 ×${l.exp}${l.rolls > 1 ? `・寶物 ${l.rolls} 份` : ''}）`).join('、')}。`,
         '人越多個別隕落率越低；四人以上多得一份寶物。',
         '每名武將都可能隕落；綜合屬性越高，個別隕落機率越低。主公本人不能派去秘境。',

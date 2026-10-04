@@ -1251,3 +1251,112 @@ body {
   display: block;
   color: #6a5030;
 }
+
+/* ───────── 遊戲說明 ───────── */
+.help-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 6, 4, 0.6);
+}
+.help-card {
+  width: min(1000px, 94vw);
+  height: min(680px, 88vh);
+  display: flex;
+  flex-direction: column;
+  padding: 14px 18px 16px;
+  animation: pop 0.2s ease;
+}
+.help-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.help-head h2 {
+  margin: 0;
+  letter-spacing: 4px;
+}
+.help-card .btn.close {
+  background: #e4d4b0;
+  color: var(--ink);
+  border-color: #8a6a3a;
+}
+.help-main {
+  display: flex;
+  gap: 14px;
+  min-height: 0;
+  flex: 1;
+  margin-top: 10px;
+}
+.help-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 170px;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+.help-tab {
+  font-family: inherit;
+  font-size: 15px;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #c8b080;
+  background: #fbf6ea;
+  color: var(--ink);
+  cursor: pointer;
+}
+.help-tab:hover {
+  background: #fff;
+}
+.help-tab.on {
+  background: #f1d27a;
+  border-color: #8a6a1a;
+  font-weight: 700;
+}
+.help-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 16px 12px;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 8px;
+  font-size: 15px;
+  line-height: 1.8;
+  text-align: left;
+}
+.help-body h3 {
+  margin: 6px 0 4px;
+  font-size: 21px;
+}
+.help-body h4 {
+  margin: 12px 0 2px;
+  color: #8a4a1a;
+  font-size: 16px;
+}
+.help-body ul {
+  margin: 2px 0;
+  padding-left: 22px;
+}
+.help-body p {
+  margin: 4px 0;
+}
+.help-start {
+  margin-top: 14px;
+  font-size: 16px;
+}
+@media (max-width: 720px) {
+  .help-main {
+    flex-direction: column;
+  }
+  .help-tabs {
+    flex-direction: row;
+    width: auto;
+    overflow-x: auto;
+  }
+  .help-tab {
+    white-space: nowrap;
+  }
+}

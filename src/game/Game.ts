@@ -12,6 +12,7 @@ import { Dialog, type Choice } from '../ui/Dialog';
 import { GeneralsView } from '../ui/GeneralsView';
 import { BattleView } from '../ui/BattleView';
 import { openShop } from '../ui/ShopView';
+import { HelpView } from '../ui/HelpView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { REALMS } from '../data/generals';
 import { ITEM_DEFS, PILL_IDS, STAT_NAMES } from '../data/items';
@@ -39,6 +40,7 @@ export class Game {
   private dialog: Dialog;
   private generalsView: GeneralsView;
   private battleView: BattleView;
+  private help: HelpView;
   private state!: GameState;
   private sprites = new Map<LordId, CharacterSprite>();
   private phase: Phase = 'idle';
@@ -59,6 +61,8 @@ export class Game {
     this.dialog = new Dialog(uiRoot);
     this.generalsView = new GeneralsView(uiRoot, this.dialog, (g) => this.breakthroughFlow(g), () => this.canManage());
     this.battleView = new BattleView(uiRoot);
+    this.help = new HelpView(uiRoot);
+    this.ui.onHelp = () => this.help.open();
 
     this.sm.setPickables(this.world.pickables);
     this.sm.onUpdate((dt, time) => {
@@ -96,7 +100,7 @@ export class Game {
 
   showStart() {
     this.ui.hide();
-    showStartScreen(this.uiRoot, (id) => this.start(id));
+    showStartScreen(this.uiRoot, (id) => this.start(id), () => this.help.open());
   }
 
   // ───────────────────────── 開局 ─────────────────────────

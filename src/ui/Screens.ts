@@ -6,7 +6,7 @@ import { fmtStones } from '../game/Currency';
 import { MAX_ROUNDS } from '../game/GameState';
 
 /** 開始畫面：選擇主公 */
-export function showStartScreen(root: HTMLElement, onStart: (id: LordId) => void) {
+export function showStartScreen(root: HTMLElement, onStart: (id: LordId) => void, onHelp: () => void) {
   const el = document.createElement('div');
   el.className = 'screen start-screen';
   el.innerHTML = `
@@ -15,7 +15,9 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId) => void
       <p class="subtitle">靈氣復甦，群雄修仙・擲骰爭天下</p>
     </div>
     <div class="faction-cards"></div>
-    <p class="hint">擲骰環遊天下，佔城收過路費 · 對手破產出局 · ${MAX_ROUNDS} 輪後比總資產</p>`;
+    <p class="hint">擲骰環遊天下，佔城收過路費 · 對手破產出局 · ${MAX_ROUNDS} 輪後比總資產</p>
+    <button class="btn help-start">📖 遊戲說明</button>`;
+  (el.querySelector('.help-start') as HTMLButtonElement).onclick = onHelp;
   const cards = el.querySelector('.faction-cards')!;
   for (const id of LORD_IDS) {
     const d = LORDS[id];

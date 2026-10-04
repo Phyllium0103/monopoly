@@ -24,6 +24,7 @@ export class GameUI {
   private dice: HTMLDivElement;
   speed = 1;
   onSpeed: ((s: number) => void) | null = null;
+  onHelp: (() => void) | null = null;
 
   constructor(root: HTMLElement) {
     this.hud = document.createElement('div');
@@ -84,8 +85,9 @@ export class GameUI {
         }</div>
       </div>
       <div class="lords">${lords}</div>
-      <div class="speed">${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
-    this.top.querySelectorAll<HTMLButtonElement>('.speed button').forEach((b) => {
+      <div class="speed"><button class="btn mini help-btn">📖 說明</button>${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
+    (this.top.querySelector('.help-btn') as HTMLButtonElement).onclick = () => this.onHelp?.();
+    this.top.querySelectorAll<HTMLButtonElement>('.speed button[data-s]').forEach((b) => {
       b.onclick = () => {
         this.speed = Number(b.dataset.s);
         this.onSpeed?.(this.speed);

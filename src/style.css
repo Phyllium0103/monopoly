@@ -1360,3 +1360,11 @@ body {
     white-space: nowrap;
   }
 }
+.help-divider {
+  margin: 16px 0 6px;
+  border: none;
+  border-top: 2px dashed #b33a2a;
+}
+.help-body h4.disaster {
+  color: var(--red);
+}

@@ -6,7 +6,7 @@ import { MIN_GARRISON, GARRISON_STRENGTH, SOLDIER_PRICE } from '../systems/CityS
 import { CONTEST_SOLDIERS, SIEGE_START_ROUND } from '../systems/BattleSystem';
 import { TRIBULATION_BOLTS } from '../systems/GeneralSystem';
 import { REALM_TURNS } from '../systems/RealmSystem';
-import { DISASTER_AFTER, EVENT_INTERVAL, WORLD_EVENTS } from '../systems/EventSystem';
+import { DISASTER_AFTER, EVENT_INTERVAL, WORLD_EVENTS, type EventCategory } from '../systems/EventSystem';
 import { TILE_INFO } from '../data/board';
 import { LORDS, LORD_IDS } from '../faction/Faction';
 
@@ -16,6 +16,18 @@ interface Page {
 }
 
 const list = (items: string[]) => `<ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>`;
+
+const CATEGORY_TITLES: Record<EventCategory, string> = {
+  economy: '經濟',
+  cultivation: '修煉',
+  politics: '政治',
+  disaster: `災難（第 ${DISASTER_AFTER} 輪後才會出現）`,
+};
+
+function eventGroup(category: EventCategory): string {
+  const events = WORLD_EVENTS.filter((e) => e.category === category);
+  return `<h4 class="${category === 'disaster' ? 'disaster' : ''}">${CATEGORY_TITLES[category]}</h4>${list(events.map((e) => `${e.icon} <b>${e.name}</b>：${e.desc}`))}`;
+}
 
 const PAGES: Page[] = [
   {
@@ -153,7 +165,9 @@ const PAGES: Page[] = [
     title: '📜 天下大事',
     html: () => `
       <p>每 ${EVENT_INTERVAL} 輪隨機發生一件天下大事；<b>災難類第 ${DISASTER_AFTER} 輪之後才會出現</b>。持續型事件會顯示在左上角，標註剩餘輪數。</p>
-      ${list(WORLD_EVENTS.map((e) => `${e.icon} <b>${e.name}</b>${e.category === 'disaster' ? '（災難）' : ''}：${e.desc}`))}`,
+      ${(['economy', 'cultivation', 'politics'] as const).map((c) => eventGroup(c)).join('')}
+      <hr class="help-divider">
+      ${eventGroup('disaster')}`,
   },
   {
     title: '🏆 破產與勝利',

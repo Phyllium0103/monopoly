@@ -1190,7 +1190,7 @@ export class Game {
     this.world.syncCities(this.state);
     this.refresh();
 
-    if (playerAlive) {
+    if (playerAlive && !this.autoPlay) {
       const extra = def.duration ? `\n\n（持續 ${def.duration} 輪）` : '';
       await this.dialog.message(`九州風雲・${def.name}`, `${def.desc}${lines.length ? `\n\n${lines.join('\n')}` : ''}${extra}`, def.icon, def.id === 'auction' ? '參加拍賣' : '知道了');
     }
@@ -1206,7 +1206,7 @@ export class Game {
     const result = r.winner ? `${LORDS[r.winner].name}以 ${fmtStones(r.price)} 得標「${lot.label}」！` : `無人出價，「${lot.label}」流標。`;
     this.ui.log(`🔨 ${result}`, r.winner === this.state.player ? 'good' : 'info');
     this.refresh();
-    if (this.state.lords[this.state.player].alive) await this.dialog.message('拍賣結果', `${result}\n\n各家密封出價：\n${lines.join('\n')}`, '🔨');
+    if (this.state.lords[this.state.player].alive && !this.autoPlay) await this.dialog.message('拍賣結果', `${result}\n\n各家密封出價：\n${lines.join('\n')}`, '🔨');
   }
 
   /** 玩家密封出價；回傳 0 表示放棄 */

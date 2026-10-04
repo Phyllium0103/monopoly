@@ -241,6 +241,16 @@ export const PASSIVES: Record<string, Passive> = {
   guanning: P('割席', '與華歆割席斷交，隱居遼東，一生不仕，德行高潔。', { exp: 0.15, garrisonDef: 0.12, citySoldiers: 0.1 }),
   nanhua: P('南華老仙', '《三國演義》中授天書於張角的仙人，碧眼童顏，手執藜杖。', { craft: { talisman: 14, formation: 8 }, tribulation: 0.3, skillDmg: 0.15, freezeImmune: true }),
   pujing: P('玉泉點化', '玉泉山老僧，點化關羽的亡魂，一念可解怨結。', { def: 0.12, hp: 0.15, poisonImmune: true, exp: 0.1, realmSafety: 0.15 }),
+  sunjiao: P('皓首督江', '孫權堂弟，鎮守夏口，輕財好施，與士卒同甘苦。', { citySoldiers: 0.1, siegeLead: 0.06, hp: 0.05 }),
+  zhoufang: P('斷髮詐降', '鄱陽太守，斷髮謝罪，詐降曹休，誘魏軍入石亭大敗。', { contest: 0.14, craft: { talisman: 6 }, def: -0.04 }),
+  lukai: P('直諫之臣', '陸遜族子，敢於犯顏直諫，歷任丞相而不改其志。', { cityStones: 0.1, contest: 0.08, atk: -0.06 }),
+  wuguotai: P('國太', '孫堅之妻，孫策、孫權之母，江東內政重臣，說服孫權與劉備聯姻。', { citySoldiers: 0.12, garrisonDef: 0.06, atk: -0.1, hp: -0.1 }),
+  sunluban: P('大虎', '孫權長女，嫁周瑜之子周循又嫁全琮，宮中權勢頗盛。', { cityStones: 0.1, contest: 0.06, intimidate: 0.04, hp: -0.1 }),
+  zhuzhi: P('孫氏舊臣', '孫堅舊部，歷事孫氏三代，輔佐孫策平定江東。', { garrisonDef: 0.1, def: 0.05, citySoldiers: 0.05 }),
+  sundeng: P('東宮太子', '孫權長子，仁愛謙和，與將士同甘苦，惜英年早逝。', { exp: 0.1, citySoldiers: 0.08, realmSafety: 0.05, atk: -0.05 }),
+  liuzan: P('折衝斷後', '吳將，晚年猶多戰功，在逍遙津之後，戰死前仍高呼拒敵。', { rage: 0.18, duelTaken: 0.06, hp: -0.05 }),
+  niujin: P('逃軍斬', '曹魏猛將，以少擊多，以八百騎破敵數千。', { troops: 0.2, firstStrike: true, def: -0.04 }),
+  wangshuang: P('流星錘', '魏軍猛將，善使流星錘，連斬蜀將，終為魏延所殺。', { doubleStrike: 0.12, intimidate: 0.04, def: -0.06 }),
 };
 
 const EMPTY: Passive = { name: '無', flavor: '', fx: {} };

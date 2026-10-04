@@ -4,14 +4,16 @@ import { GENERAL_SEEDS } from '../data/generals';
 import { LORDS, LORD_IDS } from '../faction/Faction';
 import { maxHp } from '../systems/GeneralSystem';
 
-export const MAX_ROUNDS = 40;
+/** 開局可選的最大回合數；無盡模式為 null */
+export const ROUND_OPTIONS = [20, 30, 40, 60, 80, 100];
+export const DEFAULT_ROUNDS = 40;
 /** 開局靈石：3 上品 */
 export const START_STONES = 30000;
 export const START_SOLDIERS = 20000;
 /** 主公身邊最多隨行武將數，其餘留在宗門 */
 export const PARTY_LIMIT = 10;
 
-export function createGameState(player: LordId): GameState {
+export function createGameState(player: LordId, maxRounds: number | null = DEFAULT_ROUNDS): GameState {
   const cities: Record<string, City> = {};
   for (const s of BOARD.cities) {
     cities[s.id] = {
@@ -90,7 +92,7 @@ export function createGameState(player: LordId): GameState {
 
   return {
     round: 1,
-    maxRounds: MAX_ROUNDS,
+    maxRounds,
     order,
     turn: 0,
     player,

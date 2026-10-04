@@ -8,7 +8,7 @@ import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
 import { CONTEST_SOLDIERS, canDuel, siegeAllowed, siegeAttack, type BattleKind } from './BattleSystem';
 import { WORLD } from './WorldMods';
 import type { Offer } from './ShopSystem';
-import { deathChance } from './RealmSystem';
+import { REALM_LEVELS, deathChance } from './RealmSystem';
 
 /** 擲骰前：療傷、換裝、學功法、補兵 */
 export function aiPreroll(state: GameState, lord: Lord): string[] {
@@ -123,7 +123,7 @@ export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
       if (breakChance(g) < 0.8) helper('breakpill');
       if (breakChance(g) < 0.5 && !g.foundation) continue;
       const ok = attemptBreak(g, state.round);
-      logs.push(ok ? `✦ ${g.name}突破至【${REALMS[g.realm]}】！` : `${g.name}突破失敗，氣血翻湧。`);
+      logs.push(ok ? `✦ ${g.name}突破至【${REALMS[g.realm]}】！` : `${g.name}突破失敗，修為受損。`);
       continue;
     }
     // 雷劫：先回血、布陣
@@ -141,7 +141,7 @@ export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
   return logs;
 }
 
-/** 在聽風樓、空城或自己的城池：從宗門補滿隨行武將 */
+/** 在自己的城池：從宗門補滿隨行武將 */
 export function aiManageSect(state: GameState, lord: Lord): string[] {
   const party = freeGenerals(state, lord.id);
   const sect = sectGenerals(state, lord.id).sort((a, b) => power(b) - power(a));
@@ -228,6 +228,8 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
   const reserve = 6000;
   const affordable = offers.filter((o) => o.price <= lord.stones - reserve);
   if (!affordable.length) return null;
+  const revives = affordable.filter((o) => o.kind === 'revive' && o.price < lord.stones * 0.5);
+  if (revives.length && generalsOf(state, lord.id).length < 14) return revives.sort((a, b) => b.price - a.price)[0];
   const recruits = affordable.filter((o) => o.kind === 'general');
   if (recruits.length && generalsOf(state, lord.id).length < 14) return recruits.sort((a, b) => a.price - b.price)[0];
   const want = affordable.filter((o) => {
@@ -243,11 +245,14 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
   return want.sort((a, b) => b.price - a.price)[0];
 }
 
-/** 秘境：有三名以上空閒武將且風險可接受時派遣 */
-export function aiRealm(state: GameState, lord: Lord): General[] | null {
+/** 秘境：有三名以上空閒武將時，挑風險可接受的最高難度派遣 */
+export function aiRealm(state: GameState, lord: Lord): { team: General[]; level: number } | null {
   const free = freeGenerals(state, lord.id).sort((a, b) => power(b) - power(a));
-  if (free.length < 3) return null;
+  if (free.length < 3 || Math.random() > 0.6) return null;
   const team = free.length >= 4 ? free.slice(1, 4) : free.slice(0, 3);
-  const risk = team.reduce((s, g) => s + deathChance(g, team), 0) / 3;
-  return risk < 0.3 && Math.random() < 0.6 ? team : null;
+  for (let level = REALM_LEVELS.length - 1; level >= 0; level--) {
+    const risk = team.reduce((s, g) => s + deathChance(g, team, level), 0) / team.length;
+    if (risk < (level === 0 ? 0.3 : 0.2)) return { team, level };
+  }
+  return null;
 }

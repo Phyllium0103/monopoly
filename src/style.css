@@ -402,7 +402,7 @@ body {
   top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 110px;
+  font-size: 230px;
   line-height: 1;
   color: #fffaf0;
   text-shadow: 0 0 20px rgba(241, 210, 122, 0.9), 0 4px 10px #000;
@@ -411,7 +411,7 @@ body {
 }
 .dice small {
   display: block;
-  font-size: 29px;
+  font-size: 54px;
   color: var(--gold-light);
 }
 .dice.rolling {
@@ -1638,4 +1638,22 @@ body {
 .sub-passive {
   color: #2a7a9a;
   font-size: 13px;
+}
+
+.mode-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 6px 0 14px;
+  font-size: 18px;
+}
+.mode-options {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mode-options .btn.mini {
+  font-size: 16px;
+  padding: 5px 12px;
 }

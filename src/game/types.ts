@@ -109,6 +109,8 @@ export interface General {
 }
 
 export interface Expedition {
+  /** 秘境難度（對應 REALM_LEVELS） */
+  level: number;
   generalIds: string[];
   turnsLeft: number;
   realmName: string;
@@ -168,7 +170,8 @@ export interface Tile {
 
 export interface GameState {
   round: number;
-  maxRounds: number;
+  /** 最大回合數；null 為無盡模式（直到只剩一位主公沒破產） */
+  maxRounds: number | null;
   order: LordId[];
   turn: number;
   player: LordId;

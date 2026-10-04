@@ -6,7 +6,7 @@ import type { Dialog } from './Dialog';
 
 const SHOP_DESC: Record<ShopKind, string> = {
   treasure: '法器、陣法、符籙，可在擲骰前或戰鬥中使用。',
-  herb: '回血、增強能力、提升突破機率，還有毒丹。',
+  herb: '回血、增強能力、提升突破機率，還有毒丹。丹師也能讓亡者還陽，復活死去的武將。',
   forge: '神器加武力、寶衣加防禦與血量。品階越高越強，也需要越高境界。',
   library: '每位武將只能修習一種功法，五行相生相剋。',
   beast: '每位主公只能擁有一隻靈獸，新購入的會取代舊的。',
@@ -33,7 +33,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
           const b = document.createElement('button');
           b.className = 'btn primary mini';
           const blocked = sold.has(i) || (kind === 'tavern' && recruited);
-          b.textContent = sold.has(i) ? '已購' : kind === 'tavern' ? '招募' : '購買';
+          b.textContent = sold.has(i) ? (o.kind === 'revive' ? '已復活' : '已購') : kind === 'tavern' ? '招募' : o.kind === 'revive' ? '復活' : '購買';
           b.disabled = blocked || lord.stones < o.price;
           if (confirmBeast === i) b.textContent = '放生舊靈獸並購買？';
           b.onclick = () => {

@@ -1,11 +1,11 @@
-import { MAX_ROUNDS, PARTY_LIMIT, START_SOLDIERS, START_STONES } from '../game/GameState';
+import { DEFAULT_ROUNDS, PARTY_LIMIT, START_SOLDIERS, START_STONES } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS, REALM_EXP } from '../data/generals';
 import { ITEM_CATEGORIES, ITEM_DEFS, PILL_GRADES, STAT_NAMES } from '../data/items';
 import { MIN_GARRISON, GARRISON_STRENGTH, SOLDIER_PRICE } from '../systems/CitySystem';
 import { CONTEST_SOLDIERS, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE } from '../systems/BattleSystem';
 import { TRIBULATION_BOLTS } from '../systems/GeneralSystem';
-import { REALM_TURNS } from '../systems/RealmSystem';
+import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY } from '../systems/RealmSystem';
 import { DISASTER_AFTER, EVENT_INTERVAL, WORLD_EVENTS, type EventCategory } from '../systems/EventSystem';
 import { BOARD, TILE_INFO } from '../data/board';
 import { CITY_TERRAIN, TERRAIN, type TerrainId } from '../data/terrain';
@@ -90,7 +90,7 @@ const PAGES: Page[] = [
         '走到<b>岔路口</b>（地圖上標 🔱）時，會<b>隨機</b>走向其中一條路，無法自己選擇；開局時主公的出發方向也是隨機的。',
         '地圖四個角落的路上各有一座<b>傳送陣</b>（東北居庸關、西北河西走廊、西南瀘水、東南會稽），踩到會被隨機傳送到地圖上另一格。',
         '<b>同一次擲骰不能走回頭路</b>（死路例外），下一回合起可以自由選擇任何方向。',
-        '<b>秘境</b>都藏在岔出去的山徑盡頭（太行洞天、華山仙境、泰山福地、東海仙島、廬山幽谷、衡山靈境、武當玄境、峨眉金頂、崑崙墟），要專程繞一段路。',
+        '<b>秘境</b>只有六處，分散在各地的要道上：太行洞天、華山仙境、泰山福地、廬山幽谷、峨眉金頂、東海仙島。地圖上沒有死路，所有道路都能走通。',
         '商店與聽風樓散布在各條要道上：往哪走，決定你能買到什麼。',
         '滑鼠移到任何格子都能看到它<b>通往哪些地點</b>。',
       ])}
@@ -168,7 +168,7 @@ const PAGES: Page[] = [
       <h4>低階突破（${REALMS[0]} → ${REALMS[1]} → ${REALMS[2]}）</h4>
       ${list([
         '機率判定，名冊會顯示成功率；築基丹可把突破築基的成功率提升到 95%。',
-        '失敗會<b>氣血翻湧</b>：扣一半血量與體力，下一輪才能再試。',
+        '失敗會損失 <b>20% 修為</b>（所以又要重新累積才能再試），並氣血翻湧：練氣→築基失敗扣 10% 血量，築基→金丹失敗扣 20%，境界越高扣得越多。',
       ])}
       <h4>渡劫（${REALMS[2]}以上）</h4>
       ${list([
@@ -198,8 +198,9 @@ const PAGES: Page[] = [
       <h4>隨行與宗門</h4>
       ${list([
         `主公身邊最多帶 <b>${PARTY_LIMIT}</b> 名隨行武將，其餘留在宗門。`,
-        '只有在聽風樓、無主城池或自己的城池才能用「🏛️ 宗門」調度。',
-        '聽風樓可招募各國尚未出仕的將領，本國將領較便宜，一次只能招募一位。',
+        '只有<b>站在自己的城池</b>上，才能調度駐軍（「🏯 調度駐軍」）和用「🏛️ 宗門」調整隨行武將。',
+        '武將在擂台戰死、渡劫身死或死在秘境後，可到<b>百草堂</b>花錢復活（修為歸零，歸入你的麾下）；因主公破產離開的武將則是真的離開，會出現在聽風樓等待招募。',
+        '聽風樓可招募各國尚未出仕的將領（包含破產主公麾下離開的武將），本國將領較便宜，一次只能招募一位。',
       ])}
       <h4>功法</h4>
       <p>每位武將只能修習一種，學會後不可更換；想換只能<b>自廢修為</b>（境界歸零）。</p>`,
@@ -222,7 +223,9 @@ const PAGES: Page[] = [
     html: () => `
       <h4>秘境</h4>
       ${list([
-        `停在秘境時，可派三名隨行武將探索，歷時 ${REALM_TURNS} 回合，期間無法出戰。`,
+        `停在秘境時，可選擇<b>難度</b>與派遣人數（${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 名隨行武將），期間無法出戰。地圖上只有六處秘境，都在要道之上。`,
+        `難度：${REALM_LEVELS.map((l) => `${l.icon}${l.name}（${l.turns} 回合・隕落率 ×${l.risk}・寶物品階 ${l.tier >= 0 ? '+' : ''}${l.tier}・修為 ×${l.exp}${l.rolls > 1 ? `・寶物 ${l.rolls} 份` : ''}）`).join('、')}。`,
+        '人越多個別隕落率越低；四人以上多得一份寶物。',
         '每名武將都可能隕落；綜合屬性越高，個別隕落機率越低。',
         '歸來時依隊伍屬性帶回神器、寶衣、丹藥、功法或靈獸其一，並獲得大量修為。',
       ])}`,
@@ -246,7 +249,7 @@ const PAGES: Page[] = [
         '只剩主公一人仍付不清，就<b>破產出局</b>。',
       ])}
       <h4>勝利條件</h4>
-      ${list(['其他主公全部破產，剩你一人即一統天下。', `否則 ${MAX_ROUNDS} 輪結束時，依總資產（靈石、士兵、城池、將領、物品）排名。`])}`,
+      ${list(['其他主公全部破產，剩你一人即一統天下。', `開局可選擇最大回合數（預設 ${DEFAULT_ROUNDS} 輪）：回合數結束時，依總資產（靈石、士兵、城池、將領、物品）排名。`, '<b>無盡模式</b>：沒有回合上限，一直打到只剩一位主公沒破產。'])}`,
   },
   {
     title: '🖱️ 操作',

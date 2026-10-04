@@ -93,7 +93,7 @@ export function breakChance(g: General): number {
 export function canAttemptBreak(g: General, round: number): { ok: boolean; reason: string } {
   if (!inBottleneck(g)) return { ok: false, reason: '修為未滿' };
   if (g.status === 'realm' || g.status === 'dead') return { ok: false, reason: '不在宗門掌控中' };
-  if (!needsTribulation(g) && g.failedRound >= round) return { ok: false, reason: '氣血翻湧，下一輪才能再試' };
+  if (!needsTribulation(g) && g.failedRound >= round) return { ok: false, reason: '氣血未復，下一輪才能再試' };
   return { ok: true, reason: '' };
 }
 
@@ -104,7 +104,12 @@ export function levelUp(g: General) {
   g.hp = Math.max(1, Math.round(maxHp(g) * ratio));
 }
 
-/** 低階突破：機率判定，失敗扣一半血量與體力 */
+/** 低階突破失敗的血量懲罰（依突破前的境界）：境界越高扣得越多 */
+export const BREAK_FAIL_HP = [0.1, 0.2];
+/** 低階突破失敗損失的修為比例 */
+export const BREAK_FAIL_EXP = 0.2;
+
+/** 低階突破：機率判定，失敗損失 20% 修為與依境界而定的血量 */
 export function attemptBreak(g: General, round: number): boolean {
   const ok = Math.random() < breakChance(g);
   g.foundation = false;
@@ -114,8 +119,8 @@ export function attemptBreak(g: General, round: number): boolean {
     levelUp(g);
     return true;
   }
-  g.hp = Math.max(1, Math.round(g.hp / 2));
-  g.stamina = Math.round(g.stamina / 2);
+  g.exp = Math.round(g.exp * (1 - BREAK_FAIL_EXP));
+  g.hp = Math.max(1, g.hp - Math.round(maxHp(g) * (BREAK_FAIL_HP[g.realm] ?? 0.2)));
   g.failedRound = round;
   return false;
 }

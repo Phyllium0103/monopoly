@@ -7,7 +7,9 @@ const game = new Game(document.getElementById('app')!, document.getElementById('
 
 // ?lord=liu 可跳過選擇畫面直接開始
 const quick = new URLSearchParams(location.search).get('lord') as LordId | null;
-if (quick && LORD_IDS.includes(quick)) game.start(quick);
+const roundsParam = new URLSearchParams(location.search).get('rounds');
+const rounds = roundsParam === 'endless' ? null : roundsParam ? Number(roundsParam) : undefined;
+if (quick && LORD_IDS.includes(quick)) game.start(quick, rounds);
 else game.showStart();
 
 // 開發模式下方便除錯

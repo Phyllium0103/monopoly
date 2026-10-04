@@ -3,10 +3,11 @@ import { LORDS, LORD_IDS } from '../faction/Faction';
 import { GENERAL_SEEDS } from '../data/generals';
 import { totalAssets } from '../systems/CitySystem';
 import { fmtStones } from '../game/Currency';
-import { MAX_ROUNDS } from '../game/GameState';
+import { DEFAULT_ROUNDS, ROUND_OPTIONS } from '../game/GameState';
 
 /** 開始畫面：選擇主公 */
-export function showStartScreen(root: HTMLElement, onStart: (id: LordId) => void, onHelp: () => void) {
+export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRounds: number | null) => void, onHelp: () => void) {
+  let rounds: number | null = DEFAULT_ROUNDS;
   const el = document.createElement('div');
   el.className = 'screen start-screen';
   el.innerHTML = `
@@ -14,10 +15,30 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId) => void
       <h1>仙途三國</h1>
       <p class="subtitle">靈氣復甦，群雄修仙・擲骰爭天下</p>
     </div>
+    <div class="mode-row"><span>遊戲模式</span><div class="mode-options"></div></div>
     <div class="faction-cards"></div>
-    <p class="hint">擲骰環遊天下，佔城收過路費 · 對手破產出局 · ${MAX_ROUNDS} 輪後比總資產</p>
+    <p class="hint"></p>
     <button class="btn help-start">📖 遊戲說明</button>`;
   (el.querySelector('.help-start') as HTMLButtonElement).onclick = onHelp;
+  const hint = el.querySelector('.hint') as HTMLElement;
+  const options = el.querySelector('.mode-options')!;
+  const renderMode = () => {
+    options.innerHTML = '';
+    const add = (label: string, value: number | null) => {
+      const b = document.createElement('button');
+      b.className = `btn mini ${rounds === value ? 'on' : ''}`;
+      b.textContent = label;
+      b.onclick = () => {
+        rounds = value;
+        renderMode();
+      };
+      options.appendChild(b);
+    };
+    for (const r of ROUND_OPTIONS) add(`${r} 輪`, r);
+    add('♾️ 無盡模式', null);
+    hint.textContent = rounds === null ? '無盡模式：沒有回合上限，直到只剩一位主公沒破產為止 · 擲骰環遊天下，佔城收過路費' : `擲骰環遊天下，佔城收過路費 · 對手破產出局 · ${rounds} 輪後比總資產`;
+  };
+  renderMode();
   const cards = el.querySelector('.faction-cards')!;
   for (const id of LORD_IDS) {
     const d = LORDS[id];
@@ -39,7 +60,7 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId) => void
         .join('・')}</div>`;
     card.onclick = () => {
       el.remove();
-      onStart(id);
+      onStart(id, rounds);
     };
     cards.appendChild(card);
   }

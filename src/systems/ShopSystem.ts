@@ -5,7 +5,7 @@ import { fmtStones } from '../game/Currency';
 import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipRealm, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemTier, rollTier, techniqueExp, ELEMENT_NAMES } from '../data/items';
 import { APTITUDE_NAMES, REALMS } from '../data/generals';
 import { fxText, passiveOf } from '../data/passives';
-import { generalValue, power, realmName, recruitPrice } from './GeneralSystem';
+import { generalValue, maxHp, power, realmName, recruitPrice } from './GeneralSystem';
 import { originKingdom } from '../faction/Faction';
 import type { Beast, Equipment, General, Item, Technique } from '../game/types';
 
@@ -17,7 +17,8 @@ export type Offer =
   | { kind: 'equipment'; equipment: Equipment; label: string; sub: string; price: number }
   | { kind: 'technique'; technique: Technique; label: string; sub: string; price: number }
   | { kind: 'beast'; beast: Beast; label: string; sub: string; price: number }
-  | { kind: 'general'; general: General; label: string; sub: string; price: number };
+  | { kind: 'general'; general: General; label: string; sub: string; price: number }
+  | { kind: 'revive'; general: General; label: string; sub: string; price: number };
 
 export const SHOP_NAMES: Record<ShopKind, string> = {
   treasure: '天寶商行',
@@ -39,12 +40,26 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
   switch (kind) {
     case 'merchant':
       return merchantStock(state);
-    case 'herb':
-      return Array.from({ length: 6 }, () => {
+    case 'herb': {
+      const potions = Array.from({ length: 6 }, () => {
         const defId = PILL_IDS[Math.floor(Math.random() * PILL_IDS.length)];
         const item = makeItem(uid('i'), defId, rollItemTier(defId, bias));
         return { kind: 'item', item, label: itemName(defId, item.tier), sub: `${ITEM_DEFS[defId].desc(item.tier)}｜${requirementOf(defId, item.tier)}`, price: item.price } as Offer;
       });
+      // 百草堂的丹師能讓亡者還陽：復活戰死、渡劫失敗或死在秘境的武將
+      const dead = shuffle(Object.values(state.generals).filter((g) => g.status === 'dead')).slice(0, 3);
+      const revives = dead.map(
+        (g) =>
+          ({
+            kind: 'revive',
+            general: g,
+            label: `🕯️ 復活 ${g.name}（${originKingdom(g.origin)}）`,
+            sub: `${realmName(g)}・${APTITUDE_NAMES[g.aptitude]}｜被動【${passiveOf(g).name}】${fxText(passiveOf(g).fx)}｜復活後修為歸零、血量全滿，歸入你的麾下`,
+            price: Math.round((recruitPrice(g, lord.id) * 1.5) / 100) * 100,
+          }) as Offer,
+      );
+      return [...potions, ...revives];
+    }
     case 'treasure':
       return shuffle([...ARTIFACT_IDS])
         .slice(0, 8)
@@ -96,6 +111,7 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
 export function buy(state: GameState, lord: Lord, offer: Offer): { ok: boolean; message: string } {
   if (lord.stones < offer.price) return { ok: false, message: '靈石不足。' };
   if (offer.kind === 'general' && offer.general.owner) return { ok: false, message: '此人已出仕。' };
+  if (offer.kind === 'revive' && offer.general.status !== 'dead') return { ok: false, message: '此人已經復活了。' };
   lord.stones -= offer.price;
   switch (offer.kind) {
     case 'item':
@@ -113,11 +129,23 @@ export function buy(state: GameState, lord: Lord, offer: Offer): { ok: boolean; 
     case 'general':
       joinLord(state, lord.id, offer.general);
       break;
+    case 'revive': {
+      const g = offer.general;
+      g.status = 'free';
+      g.exp = 0;
+      g.demon = 0;
+      g.ward = 0;
+      g.breakBoost = 0;
+      g.hp = maxHp(g);
+      g.stamina = 100;
+      joinLord(state, lord.id, g);
+      break;
+    }
   }
   return { ok: true, message: `花費 ${fmtStones(offer.price)} 購得「${offer.label}」。` };
 }
 
 export function offerValue(offer: Offer): number {
-  return offer.kind === 'general' ? generalValue(offer.general) : offer.price;
+  return offer.kind === 'general' || offer.kind === 'revive' ? generalValue(offer.general) : offer.price;
 }
 

@@ -7,19 +7,46 @@ import { PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, 
 import { fx } from '../data/passives';
 import type { Expedition } from '../game/types';
 
-export const REALM_TURNS = 5;
+export interface RealmLevel {
+  name: string;
+  icon: string;
+  turns: number;
+  /** 隕落機率倍率 */
+  risk: number;
+  /** 寶物品階加成 */
+  tier: number;
+  /** 修為倍率 */
+  exp: number;
+  /** 基本寶物份數 */
+  rolls: number;
+}
+
+/** 秘境難度：越難歷時越久、越兇險，獎勵也越好 */
+export const REALM_LEVELS: RealmLevel[] = [
+  { name: '初階', icon: '🌱', turns: 3, risk: 0.45, tier: -1, exp: 0.6, rolls: 1 },
+  { name: '中階', icon: '🌿', turns: 5, risk: 1, tier: 0, exp: 1, rolls: 1 },
+  { name: '高階', icon: '🔥', turns: 6, risk: 1.7, tier: 2, exp: 1.7, rolls: 1 },
+  { name: '絕境', icon: '💀', turns: 8, risk: 2.6, tier: 4, exp: 2.6, rolls: 2 },
+];
+export const REALM_MIN_PARTY = 1;
+export const REALM_MAX_PARTY = 5;
+
+/** 人多寶物多：四人以上多得一份 */
+export function realmRolls(level: number, partySize: number): number {
+  return REALM_LEVELS[level].rolls + (partySize >= 4 ? 1 : 0);
+}
 
 /** 個別死亡機率：自身越強越低，隊伍越強也越低 */
-export function deathChance(g: General, team: General[]): number {
+export function deathChance(g: General, team: General[], level = 1): number {
   const teamPower = team.reduce((s, x) => s + power(x), 0);
   const own = Math.max(0.03, 0.4 - power(g) / 2500);
   const teamFactor = Math.max(0.6, Math.min(1.2, 1.3 - teamPower / 4000));
-  return Math.max(0.02, Math.min(0.45, own * teamFactor * (1 - (fx(g).realmSafety ?? 0))));
+  return Math.max(0.02, Math.min(0.75, own * teamFactor * REALM_LEVELS[level].risk * (1 - (fx(g).realmSafety ?? 0))));
 }
 
-export function dispatch(lord: Lord, team: General[], realmName: string) {
+export function dispatch(lord: Lord, team: General[], realmName: string, level = 1) {
   for (const g of team) g.status = 'realm';
-  lord.expeditions.push({ generalIds: team.map((g) => g.id), turnsLeft: REALM_TURNS, realmName, blessed: WORLD.realmBlessed });
+  lord.expeditions.push({ generalIds: team.map((g) => g.id), turnsLeft: REALM_LEVELS[level].turns, realmName, level, blessed: WORLD.realmBlessed });
 }
 
 export interface RealmOutcome {
@@ -91,7 +118,7 @@ function resolveExploration(state: GameState, lord: Lord, ex: Expedition, team: 
   const insights: string[] = [];
   const score = team.reduce((s, g) => s + power(g), 0);
   for (const g of team) {
-    const risk = deathChance(g, team) * (ex.blessed ? 0.5 : 1);
+    const risk = deathChance(g, team, ex.level) * (ex.blessed ? 0.5 : 1);
     if (Math.random() < risk) {
       killGeneral(state, g);
       dead.push(g);
@@ -99,14 +126,16 @@ function resolveExploration(state: GameState, lord: Lord, ex: Expedition, team: 
     }
     joinLord(state, lord.id, g);
     survivors.push(g);
-    const gain = addExp(g, 200 + score / 6 + Math.random() * 300);
+    const gain = addExp(g, (200 + score / 6 + Math.random() * 300) * REALM_LEVELS[ex.level].exp);
     if (g.realm < 2 && Math.random() < 0.15) {
       levelUp(g);
       insights.push(`${g.name}於秘境頓悟，直接突破至【${REALMS[g.realm]}】！`);
     } else insights.push(`${g.name}修為 +${gain}`);
   }
-  const reward = survivors.length ? grantReward(state, lord, survivors, team, ex.blessed ? 2 : 0) : null;
-  const summary = `${ex.realmName}探索歸來。${dead.length ? `${dead.map((g) => g.name).join('、')}不幸隕落。` : '全員平安。'}${reward ? `帶回${reward}！` : '一無所獲。'}`;
+  const bonus = (ex.blessed ? 2 : 0) + REALM_LEVELS[ex.level].tier;
+  const rewards = survivors.length ? Array.from({ length: realmRolls(ex.level, team.length) }, () => grantReward(state, lord, survivors, team, bonus)) : [];
+  const reward = rewards.length ? rewards.join('、') : null;
+  const summary = `${ex.realmName}（${REALM_LEVELS[ex.level].name}）探索歸來。${dead.length ? `${dead.map((g) => g.name).join('、')}不幸隕落。` : '全員平安。'}${reward ? `帶回${reward}！` : '一無所獲。'}`;
   return { realmName: ex.realmName, icon: '🌀', dead, survivors, reward, summary, insights };
 }
 

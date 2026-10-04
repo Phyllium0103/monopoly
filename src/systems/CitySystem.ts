@@ -2,7 +2,7 @@ import type { City, GameState, General, Lord, LordId } from '../game/types';
 import { citiesOf, freeGenerals, generalsOf, joinLord } from '../game/GameState';
 import { defense, generalValue, power } from './GeneralSystem';
 import { beastPower } from '../data/items';
-import { fmtStones } from '../game/Currency';
+import { fmtProsperity, fmtStones } from '../game/Currency';
 import { WORLD } from './WorldMods';
 import { terrainOf } from '../data/terrain';
 import { fx } from '../data/passives';
@@ -46,7 +46,7 @@ export function garrisonPower(state: GameState, city: City): number {
 
 /** 佔領無主城池需支付的安撫費 */
 export function occupyCost(city: City): number {
-  return city.prosperity * 60;
+  return Math.round(city.prosperity * 60);
 }
 
 export function canOccupy(state: GameState, lord: Lord, city?: City): boolean {
@@ -190,7 +190,7 @@ export interface RankDef {
 }
 
 export const RANK_METRICS: RankDef[] = [
-  { id: 'prosperity', name: '繁榮度', icon: '🏮', note: '城池的富庶與人氣，影響收入、過路費、靈氣濃度與佔領費', value: (_s, c) => c.prosperity, format: (n) => String(n) },
+  { id: 'prosperity', name: '繁榮度', icon: '🏮', note: '城池的富庶與人氣，影響收入、過路費、靈氣濃度與佔領費', value: (_s, c) => c.prosperity, format: (n) => fmtProsperity(n) },
   { id: 'stones', name: '靈石收入', icon: '💎', note: '每回合為主人帶來的靈石（含地貌、駐將被動與九州風雲）；無主城池為佔領後的預估值', value: (s, c) => cityIncomeOf(s, c).stones, format: (n) => fmtStones(n) },
   { id: 'soldiers', name: '士兵收入', icon: '⚔️', note: '每回合為主人帶來的士兵；無主城池為佔領後的預估值', value: (s, c) => cityIncomeOf(s, c).soldiers, format: (n) => `+${n}` },
   { id: 'toll', name: '過路費', icon: '💰', note: '他人踏入時要繳的費用；無主城池為佔領後的預估值', value: (s, c) => (c.owner === 'neutral' ? toll(c) : cityToll(s, c)), format: (n) => fmtStones(n) },

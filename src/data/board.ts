@@ -19,8 +19,8 @@ interface Spec {
 type PathItem = string | Spec;
 
 const city = (id: string, name: string, x: number, z: number, prosperity: number, owner?: LordId): NodeDef => ({ id, kind: 'city', name, pos: { x, z }, prosperity, owner });
-const node = (id: string, kind: SpecialKind, name: string, x: number, z: number): NodeDef => ({ id, kind, name, pos: { x, z } });
 const road = (name: string): Spec => ({ kind: 'road', name });
+const realm = (name: string): Spec => ({ kind: 'realm', name });
 const portal = (): Spec => ({ kind: 'portal', name: '傳送陣' });
 const shop = (kind: Exclude<SpecialKind, 'road' | 'realm' | 'portal'>, name: string): Spec => ({ kind, name });
 
@@ -66,35 +66,11 @@ const CITIES: NodeDef[] = [
   city('changan', '長安', -20, -13, 92, 'dong'),
 ];
 
-/** 岔路口與秘境（定點）。秘境都在岔出去的山徑盡頭，要繞路才進得去 */
-const NODES: NodeDef[] = [
-  node('tongguan', 'road', '潼關', -13, -13.5),
-  node('jingxing', 'road', '井陘', 4, -34.3),
-  node('pengcheng', 'road', '彭城', 39, -6.5),
-  node('shangyong', 'road', '上庸', -16, 4.5),
-  node('pengli', 'road', '彭蠡', 32, 22),
-  node('xiangjiang', 'road', '湘江', 13, 30.5),
-  node('leshan', 'road', '樂山', -37, 32),
-  node('qiantang', 'road', '錢塘', 45, 35.5),
-  node('longxi', 'road', '隴西', -43, -21.5),
-  node('taihang', 'realm', '太行洞天', 6, -42),
-  node('huashan', 'realm', '華山仙境', -14, -4),
-  node('taishan', 'realm', '泰山福地', 38, -14),
-  node('donghai', 'realm', '東海仙島', 53, 36),
-  node('lushan', 'realm', '廬山幽谷', 31, 32),
-  node('hengshan', 'realm', '衡山靈境', 16, 38),
-  node('wudang', 'realm', '武當玄境', -20, 11),
-  node('emei', 'realm', '峨眉金頂', -48, 34),
-  node('kunlun', 'realm', '崑崙墟', -54, -18),
-];
-
 /** 道路：每條由定點串到定點，中間的驛站、關隘與商店依序平均分布 */
 const PATHS: PathItem[][] = [
   // 中原：洛陽居天下之中，四通八達
   ['luoyang', road('孟津'), 'henei'],
-  ['luoyang', road('函谷關'), 'tongguan'],
-  ['tongguan', 'changan'],
-  ['tongguan', 'huashan'],
+  ['luoyang', road('函谷關'), realm('華山仙境'), 'changan'],
   ['luoyang', shop('library', '藏經閣'), 'wancheng'],
   ['luoyang', road('虎牢關'), 'chenliu'],
   ['chenliu', 'xuchang'],
@@ -106,9 +82,7 @@ const PATHS: PathItem[][] = [
   // 河北
   ['henei', road('壺關'), 'jinyang'],
   ['henei', shop('tavern', '聽風樓'), 'ye'],
-  ['jinyang', 'jingxing'],
-  ['jingxing', 'ye'],
-  ['jingxing', 'taihang'],
+  ['jinyang', realm('太行洞天'), 'ye'],
   ['ye', road('館陶'), shop('treasure', '天寶商行'), 'nanpi'],
   ['ye', road('白馬津'), shop('herb', '百草堂'), 'puyang'],
   ['nanpi', road('安平'), 'pingyuan'],
@@ -120,28 +94,20 @@ const PATHS: PathItem[][] = [
   ['puyang', road('東平'), shop('forge', '天工坊'), 'pingyuan'],
   ['pingyuan', road('臨淄'), 'beihai'],
   ['beihai', shop('library', '藏經閣'), 'xiapi'],
-  ['xiaopei', 'pengcheng'],
-  ['pengcheng', 'xiapi'],
-  ['pengcheng', 'taishan'],
+  ['xiaopei', realm('泰山福地'), 'xiapi'],
   ['shouchun', road('淮北'), 'xiaopei'],
   // 淮南、江東
   ['shouchun', 'hefei'],
   ['hefei', road('濡須口'), 'jianye'],
   ['hefei', road('廬江'), 'chaisang'],
   ['jianye', road('廣陵'), shop('herb', '百草堂'), 'xiapi'],
-  ['jianye', 'pengli'],
-  ['pengli', 'chaisang'],
-  ['pengli', 'lushan'],
+  ['jianye', road('牛渚'), realm('廬山幽谷'), 'chaisang'],
   ['jianye', shop('tavern', '聽風樓'), 'wujun'],
-  ['wujun', 'qiantang'],
-  ['qiantang', 'kuaiji'],
-  ['qiantang', 'donghai'],
+  ['wujun', realm('東海仙島'), 'kuaiji'],
   ['kuaiji', portal(), road('鄱陽'), shop('herb', '百草堂'), road('豫章'), 'guiyang'],
   // 荊楚、江南
   ['chaisang', road('赤壁'), road('烏林'), road('巴丘'), 'jiangling'],
-  ['chaisang', 'xiangjiang'],
-  ['xiangjiang', 'changsha'],
-  ['xiangjiang', 'hengshan'],
+  ['chaisang', road('湘江'), 'changsha'],
   ['changsha', road('耒陽'), 'guiyang'],
   ['guiyang', shop('beast', '萬獸園'), road('桂水'), 'lingling'],
   ['changsha', shop('forge', '天工坊'), 'lingling'],
@@ -152,22 +118,17 @@ const PATHS: PathItem[][] = [
   ['wancheng', road('新野'), 'xiangyang'],
   // 巴蜀、漢中
   ['wuling', road('牂牁'), shop('treasure', '天寶商行'), 'jianning'],
-  ['jianning', road('瀘水'), portal(), 'leshan'],
-  ['leshan', 'chengdu'],
-  ['leshan', 'emei'],
+  ['jianning', road('瀘水'), portal(), realm('峨眉金頂'), 'chengdu'],
   ['chengdu', shop('library', '藏經閣'), 'jiangzhou'],
   ['jiangzhou', road('夷陵'), 'jiangling'],
   ['chengdu', road('劍閣'), road('葭萌關'), road('陽平關'), 'hanzhong'],
   ['hanzhong', road('子午谷'), 'changan'],
-  ['hanzhong', 'shangyong'],
-  ['shangyong', 'xiangyang'],
-  ['shangyong', 'wudang'],
+  ['hanzhong', road('房陵'), road('上庸'), 'xiangyang'],
   // 關中、涼州
   ['hanzhong', shop('beast', '萬獸園'), road('祁山'), 'tianshui'],
   ['changan', road('街亭'), shop('tavern', '聽風樓'), 'tianshui'],
-  ['tianshui', 'longxi'],
-  ['longxi', portal(), 'wuwei'],
-  ['longxi', 'kunlun'],
+  ['tianshui', road('隴西'), portal(), 'wuwei'],
+  ['wuwei', road('張掖'), road('酒泉'), 'changan'],
 ];
 
 export interface CitySeed {
@@ -200,7 +161,6 @@ function buildBoard() {
     indexOf.set(c.id, idx);
     cities.push({ id: c.id, name: c.name, prosperity: c.prosperity!, owner: c.owner, tile: idx });
   }
-  for (const n of NODES) indexOf.set(n.id, addTile(n.kind, n.name, n.pos, null));
 
   const posOf = (id: string) => tiles[indexOf.get(id)!].pos;
   for (const path of PATHS) {
@@ -239,7 +199,7 @@ export const BOARD = buildBoard();
 
 export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
   city: { icon: '🏯', desc: '城池：停在無主城池可佔領；踏入他人城池需繳過路費或開戰' },
-  realm: { icon: '🌀', desc: '秘境：藏在岔出去的山徑盡頭。派遣三名武將探索五回合，可能隕落，歸來帶回寶物' },
+  realm: { icon: '🌀', desc: '秘境：位於要道之上，只有六處。可選擇難度與派遣人數探索，難度越高越危險，獎勵也越好' },
   treasure: { icon: '💰', desc: '天寶商行：販售法器、陣法、符籙' },
   herb: { icon: '🌿', desc: '百草堂：販售各種丹藥' },
   forge: { icon: '🔨', desc: '天工坊：販售神器、寶衣' },

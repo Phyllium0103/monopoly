@@ -31,7 +31,7 @@ export const EVENT_INTERVAL = 5;
 export const DISASTER_AFTER = 20;
 
 export const WORLD_EVENTS: WorldEventDef[] = [
-  { id: 'merchant', name: '旅行商人', icon: '🐫', category: 'economy', duration: 5, desc: '一支西域商隊在某格落腳 5 輪，停在那裡的主公可用 7 折購買地階、天階的稀有貨品。' },
+  { id: 'merchant', name: '旅行商人', icon: '🐫', category: 'economy', desc: '一支西域商隊停在地圖上的某個定點，不限時。第一位走到那裡的主公可用 7 折購買地階、天階的稀有貨品，交易後商隊便會離開。' },
   { id: 'windfall', name: '天降橫財', icon: '💰', category: 'economy', desc: '天降靈石雨，每位主公都得到一筆靈石，越窮的拿越多。' },
   { id: 'harvest', name: '五穀豐登', icon: '🌾', category: 'economy', desc: '風調雨順，各主公額外獲得一輪城池收入，所有城池繁榮 +10。' },
   { id: 'auction', name: '天寶拍賣會', icon: '🔨', category: 'economy', desc: '拍賣一件天階寶物，四位主公各自秘密出價，價高者得。' },
@@ -89,7 +89,6 @@ export function tickWorldEvents(state: GameState): string[] {
   for (const e of state.events) e.roundsLeft--;
   for (const e of state.events.filter((x) => x.roundsLeft <= 0)) {
     ended.push(`${e.icon} ${e.name}結束了。`);
-    if (e.id === 'merchant') state.merchantTile = null;
     if (e.id === 'bandits') state.banditTiles = [];
     if (e.id === 'elementTide') state.favoredElement = null;
   }
@@ -101,7 +100,7 @@ export function tickWorldEvents(state: GameState): string[] {
 /** 抽選本次事件：災難第 20 輪後才出現，盡量不重複 */
 export function pickWorldEvent(state: GameState): WorldEventDef {
   let pool = WORLD_EVENTS.filter((e) => e.category !== 'disaster' || state.round > DISASTER_AFTER);
-  pool = pool.filter((e) => !isActive(state, e.id));
+  pool = pool.filter((e) => !isActive(state, e.id) && !(e.id === 'merchant' && state.merchantTile !== null));
   const fresh = pool.filter((e) => !state.usedEvents.includes(e.id));
   if (fresh.length) pool = fresh;
   // 第 20 輪後提高災難出現機率
@@ -127,7 +126,7 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
       const candidates = state.tiles.filter((t) => t.kind === 'road' || t.kind === 'city');
       const tile = candidates[Math.floor(Math.random() * candidates.length)];
       state.merchantTile = tile.index;
-      lines.push(`商隊落腳於「${tile.name}」。`);
+      lines.push(`商隊落腳於「${tile.name}」，第一位走到那裡的主公可以向他們買東西。`);
       break;
     }
     case 'windfall': {

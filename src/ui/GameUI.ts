@@ -32,6 +32,10 @@ export class GameUI {
   onSpeed: ((s: number) => void) | null = null;
   onHelp: (() => void) | null = null;
   onRank: (() => void) | null = null;
+  onAuto: (() => void) | null = null;
+  onCheat: (() => void) | null = null;
+  /** 電腦託管中 */
+  auto = false;
 
   constructor(root: HTMLElement) {
     this.hud = document.createElement('div');
@@ -91,16 +95,18 @@ export class GameUI {
       })
       .join('');
     this.top.innerHTML = `
-      <div class="round">第 <b>${Math.min(state.round, state.maxRounds)}</b> / ${state.maxRounds} 輪
+      <div class="round">${state.maxRounds === null ? `第 <b>${state.round}</b> 輪・無盡` : `第 <b>${Math.min(state.round, state.maxRounds)}</b> / ${state.maxRounds} 輪`}
         <div class="world-events">${
           state.events.map((e) => `<span class="ev" title="${e.name}">${e.icon}${e.name} ${e.roundsLeft}</span>`).join('') ||
           `<span class="ev next">下次風雲：第 ${Math.ceil((state.round + 1) / 5) * 5} 輪</span>`
         }</div>
       </div>
       <div class="lords">${lords}</div>
-      <div class="speed"><button class="btn mini rank-btn">🏆 城池榜</button><button class="btn mini help-btn">📖 說明</button>${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
+      <div class="speed"><button class="btn mini cheat-btn" title="測試用：獲得大量靈石與所有物品">🧪 測試</button><button class="btn mini auto-btn ${this.auto ? 'on' : ''}" title="由電腦代打你的回合">${this.auto ? '🤖 託管中' : '🤖 託管'}</button><button class="btn mini rank-btn">🏆 城池榜</button><button class="btn mini help-btn">📖 說明</button>${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
     (this.top.querySelector('.help-btn') as HTMLButtonElement).onclick = () => this.onHelp?.();
     (this.top.querySelector('.rank-btn') as HTMLButtonElement).onclick = () => this.onRank?.();
+    (this.top.querySelector('.auto-btn') as HTMLButtonElement).onclick = () => this.onAuto?.();
+    (this.top.querySelector('.cheat-btn') as HTMLButtonElement).onclick = () => this.onCheat?.();
     this.top.querySelectorAll<HTMLButtonElement>('.speed button[data-s]').forEach((b) => {
       b.onclick = () => {
         this.speed = Number(b.dataset.s);

@@ -4,6 +4,7 @@ import { defense, generalValue, power } from './GeneralSystem';
 import { beastPower } from '../data/items';
 import { fmtStones } from '../game/Currency';
 import { WORLD } from './WorldMods';
+import { terrainOf } from '../data/terrain';
 
 export const SOLDIER_PRICE = 2;
 export const MIN_GARRISON = 300;
@@ -19,16 +20,18 @@ export function cityToll(state: GameState, city: City): number {
   return city.owner === 'neutral' ? 0 : Math.round(toll(city, citiesOf(state, city.owner).length) * WORLD.tollMult);
 }
 
+/** 城池收入，受地貌增減 */
 export function cityIncome(city: City) {
-  return { stones: Math.round(city.prosperity * 1.5), soldiers: city.prosperity * 2 };
+  const t = terrainOf(city);
+  return { stones: Math.round(city.prosperity * 1.5 * (1 + t.stones)), soldiers: Math.round(city.prosperity * 2 * (1 + t.soldiers)) };
 }
 
-/** 守城戰力：守軍 ×10，駐將防禦越高加成越多，再加上駐將本身戰力；護城大陣 ×1.5 */
+/** 守城戰力：守軍 ×10，駐將防禦越高加成越多，再加上駐將本身戰力；受地貌影響，護城大陣 ×1.5 */
 export function garrisonPower(state: GameState, city: City): number {
   const g = city.garrisonGeneral ? state.generals[city.garrisonGeneral] : null;
   const command = g ? 1 + defense(g) / 300 : 1;
   const base = city.garrisonSoldiers * GARRISON_STRENGTH * command + (g ? power(g) * 2 : 0);
-  return Math.round(base * (city.shieldTurns > 0 ? 1.5 : 1));
+  return Math.round(base * (1 + terrainOf(city).defense) * (city.shieldTurns > 0 ? 1.5 : 1));
 }
 
 /** 佔領無主城池需支付的安撫費 */

@@ -9,6 +9,7 @@ import { ISLANDS, ISLAND_TURNS, REALM_TURNS, TRADE_TURNS } from '../systems/Real
 import { PORT_CITIES } from '../data/board';
 import { DISASTER_AFTER, EVENT_INTERVAL, WORLD_EVENTS, type EventCategory } from '../systems/EventSystem';
 import { BOARD, TILE_INFO } from '../data/board';
+import { CITY_TERRAIN, TERRAIN, type TerrainId } from '../data/terrain';
 import { LORDS, LORD_IDS } from '../faction/Faction';
 
 interface Page {
@@ -17,6 +18,22 @@ interface Page {
 }
 
 const BOARD_NAMES = Object.fromEntries(BOARD.cities.map((c) => [c.id, c.name]));
+
+/** 地貌對照表 */
+function terrainTable(): string {
+  const cell = (v: number) => (v ? `<span class="${v > 0 ? 'up' : 'down'}">${v > 0 ? '+' : '−'}${Math.round(Math.abs(v) * 100)}%</span>` : '—');
+  const cities = (id: TerrainId) =>
+    Object.entries(CITY_TERRAIN)
+      .filter(([, t]) => t === id)
+      .map(([c]) => BOARD_NAMES[c])
+      .join('、');
+  const rows = (Object.keys(TERRAIN) as TerrainId[]).map((id) => {
+    const t = TERRAIN[id];
+    const growth = t.growth > 0 ? '<span class="up">較快</span>' : t.growth < 0 ? '<span class="down">較慢</span>' : '—';
+    return `<tr><td>${t.icon} ${t.name}</td><td>${cell(t.stones)}</td><td>${cell(t.soldiers)}</td><td>${cell(t.defense)}</td><td>${cell(t.spirit)}</td><td>${growth}</td><td class="cities">${cities(id)}</td></tr>`;
+  });
+  return `<table class="terrain-table"><tr><th>地貌</th><th>靈石</th><th>士兵</th><th>城防</th><th>靈氣</th><th>繁榮</th><th>城池</th></tr>${rows.join('')}</table>`;
+}
 
 const list = (items: string[]) => `<ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>`;
 
@@ -70,6 +87,9 @@ const PAGES: Page[] = [
         '<b>繳納過路費</b>後離開；或是發起<b>戰鬥</b>。',
         '戰鬥獲勝免繳過路費（攻城戰獲勝則直接奪城）；<b>戰敗須付雙倍過路費</b>。',
       ])}
+      <h4>地貌</h4>
+      <p>每座城池依真實地理有不同地貌，影響靈石與士兵收入、守城戰力、駐守武將吸收的靈氣與繁榮成長：</p>
+      ${terrainTable()}
       <h4>徵兵與調度</h4>
       ${list([`徵兵每名 ${SOLDIER_PRICE} 下品靈石。`, '「調度駐軍」可增派、撤回守軍或更換駐將。'])}`,
   },

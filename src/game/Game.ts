@@ -17,6 +17,7 @@ import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { REALMS } from '../data/generals';
 import { ITEM_DEFS, PILL_IDS, STAT_NAMES } from '../data/items';
 import { TILE_INFO } from '../data/board';
+import { terrainEffects, terrainOf } from '../data/terrain';
 import { MIN_GARRISON, SOLDIER_PRICE, canOccupy, cityIncome, cityToll, eliminate, garrisonPower, occupy, occupyCost, pay, toll } from '../systems/CitySystem';
 import { attack, attemptBreak, battleExp, boltCount, boltDamage, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
@@ -397,8 +398,7 @@ export class Game {
     const choices: Choice<string>[] = free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}`, value: g.id, color: originCss(g.origin) }));
     const gid = await this.dialog.choose(
       `抵達${city.name}・是否佔領？`,
-      `佔領費 ${fmtStones(occupyCost(city))}（持有 ${fmtStones(lord.stones)}）
-繁榮度 ${city.prosperity}｜每回合收入 ${fmtStones(inc.stones)}、士兵 +${inc.soldiers}｜過路費 ${fmtStones(toll(city, citiesOf(this.state, lord.id).length + 1))}（佔領後）\n請選擇駐守武將：`,
+      `佔領費 ${fmtStones(occupyCost(city))}（持有 ${fmtStones(lord.stones)}）\n地貌 ${terrainOf(city).icon}${terrainOf(city).name}：${terrainEffects(terrainOf(city))}\n繁榮度 ${city.prosperity}｜每回合收入 ${fmtStones(inc.stones)}、士兵 +${inc.soldiers}｜過路費 ${fmtStones(toll(city, citiesOf(this.state, lord.id).length + 1))}（佔領後）\n請選擇駐守武將：`,
       choices,
       '不佔領',
       '🏯',
@@ -1135,7 +1135,7 @@ export class Game {
     let text = `<b>${TILE_INFO[t.kind].icon} ${t.name}</b>`;
     if (t.kind === 'city') {
       const c = this.state.cities[t.cityId!];
-      text += `（${ownerName(c.owner)}）<br>繁榮 ${c.prosperity}${c.owner === 'neutral' ? '' : `・過路費 ${fmtStones(cityToll(this.state, c))}`}`;
+      text += `（${ownerName(c.owner)}）<br>${terrainOf(c).icon} ${terrainOf(c).name}・${terrainEffects(terrainOf(c))}<br>繁榮 ${c.prosperity}${c.owner === 'neutral' ? '' : `・過路費 ${fmtStones(cityToll(this.state, c))}`}`;
     } else text += `<br>${TILE_INFO[t.kind].desc}`;
     if (this.phase === 'pickTile') text += '<br><span class="tt-move">▶ 點擊傳送至此</span>';
     this.ui.showTooltip(text, this.mouse.x, this.mouse.y);
@@ -1154,6 +1154,7 @@ export class Game {
     return `
       <div class="ip-head" style="--fc:${ownerCss(c.owner)}"><b>${c.capital ? '★ ' : ''}${c.name}</b><span>${ownerName(c.owner)}</span></div>
       <table>
+        <tr><td>地貌</td><td title="${terrainOf(c).desc}">${terrainOf(c).icon} ${terrainOf(c).name}<small class="terrain-fx">${terrainEffects(terrainOf(c))}</small></td></tr>
         <tr><td>繁榮度</td><td>${c.prosperity}</td></tr>
         <tr><td>過路費</td><td>${c.owner === 'neutral' ? `佔領後約 ${fmtStones(toll(c))}` : fmtStones(cityToll(this.state, c))}</td></tr>
         <tr><td>每回合</td><td>${fmtStones(inc.stones)}・兵 +${inc.soldiers}</td></tr>

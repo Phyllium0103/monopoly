@@ -2,6 +2,7 @@ import type { City, CraftStat, Equipment, General, Lord, Technique } from '../ga
 import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
 import { techniqueExp } from '../data/items';
 import { WORLD } from './WorldMods';
+import { terrainOf } from '../data/terrain';
 
 export function realmName(g: General): string {
   return REALMS[g.realm];
@@ -62,7 +63,8 @@ export const SPIRIT_VEINS = new Set(['luoyang', 'changan']);
 export function passiveExp(g: General, city: City | null): number {
   let n = (30 + techniqueExp(g.technique)) * APTITUDE_MULT[g.aptitude];
   if (g.status === 'garrison' && city) {
-    n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1);
+    // 繁榮度即靈氣濃度，再依地貌增減（山地、丘陵最宜修行）
+    n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1) * (1 + terrainOf(city).spirit);
     if (g.secluded) n *= 2;
   }
   return Math.round(n * WORLD.expMult);

@@ -1,6 +1,7 @@
 import type { GameState, Lord } from './types';
 import { citiesOf, generalsOf } from './GameState';
 import { cityIncome } from '../systems/CitySystem';
+import { terrainOf } from '../data/terrain';
 import { addExp, inBottleneck, passiveExp, recover } from '../systems/GeneralSystem';
 import { advanceExpeditions, type RealmOutcome } from '../systems/RealmSystem';
 import { ITEM_DEFS, PILL_IDS, beastPower } from '../data/items';
@@ -23,7 +24,7 @@ export function startTurn(state: GameState, lord: Lord): TurnReport {
     const inc = cityIncome(city);
     stones += inc.stones;
     soldiers += inc.soldiers;
-    city.prosperity = Math.min(200, city.prosperity + 2);
+    city.prosperity = Math.min(200, city.prosperity + Math.max(0, 2 + terrainOf(city).growth));
     if (city.shieldTurns > 0) city.shieldTurns--;
   }
   lord.stones += stones;

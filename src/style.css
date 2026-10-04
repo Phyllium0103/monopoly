@@ -1368,3 +1368,37 @@ body {
 .help-body h4.disaster {
   color: var(--red);
 }
+.terrain-fx {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.terrain-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 4px 0 8px;
+}
+.terrain-table th,
+.terrain-table td {
+  border-bottom: 1px solid rgba(138, 106, 58, 0.3);
+  padding: 4px 6px;
+  text-align: center;
+  white-space: nowrap;
+}
+.terrain-table td.cities {
+  text-align: left;
+  white-space: normal;
+  font-size: 13px;
+  color: #6a5030;
+}
+.terrain-table .up {
+  color: #2a8a3a;
+  font-weight: 700;
+}
+.terrain-table .down {
+  color: var(--red);
+  font-weight: 700;
+}

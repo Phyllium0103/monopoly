@@ -8,7 +8,7 @@ import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
 import { CONTEST_SOLDIERS, canDuel, siegeAllowed, siegeAttack, type BattleKind } from './BattleSystem';
 import { WORLD } from './WorldMods';
 import type { Offer } from './ShopSystem';
-import { REALM_LEVELS, deathChance } from './RealmSystem';
+import { deathChance, randomRealmLevel } from './RealmSystem';
 
 /** 擲骰前：療傷、換裝、學功法、補兵 */
 export function aiPreroll(state: GameState, lord: Lord): string[] {
@@ -245,14 +245,12 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
   return want.sort((a, b) => b.price - a.price)[0];
 }
 
-/** 秘境：有三名以上空閒武將時，挑風險可接受的最高難度派遣 */
+/** 秘境：難度隨機，有三名以上空閒武將且風險可接受時才派遣 */
 export function aiRealm(state: GameState, lord: Lord): { team: General[]; level: number } | null {
   const free = freeGenerals(state, lord.id).sort((a, b) => power(b) - power(a));
-  if (free.length < 3 || Math.random() > 0.6) return null;
+  if (free.length < 3 || Math.random() > 0.7) return null;
   const team = free.length >= 4 ? free.slice(1, 4) : free.slice(0, 3);
-  for (let level = REALM_LEVELS.length - 1; level >= 0; level--) {
-    const risk = team.reduce((s, g) => s + deathChance(g, team, level), 0) / team.length;
-    if (risk < (level === 0 ? 0.3 : 0.2)) return { team, level };
-  }
-  return null;
+  const level = randomRealmLevel();
+  const risk = team.reduce((s, g) => s + deathChance(g, team, level), 0) / team.length;
+  return risk < 0.25 ? { team, level } : null;
 }

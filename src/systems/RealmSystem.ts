@@ -21,13 +21,17 @@ export interface RealmLevel {
   rolls: number;
 }
 
-/** 秘境難度：越難歷時越久、越兇險，獎勵也越好 */
+/** 秘境難度：每次踏入秘境隨機決定。越難歷時越久、越兇險，獎勵也越稀有 */
 export const REALM_LEVELS: RealmLevel[] = [
-  { name: '初階', icon: '🌱', turns: 3, risk: 0.45, tier: -1, exp: 0.6, rolls: 1 },
-  { name: '中階', icon: '🌿', turns: 5, risk: 1, tier: 0, exp: 1, rolls: 1 },
-  { name: '高階', icon: '🔥', turns: 6, risk: 1.7, tier: 2, exp: 1.7, rolls: 1 },
-  { name: '絕境', icon: '💀', turns: 8, risk: 2.6, tier: 4, exp: 2.6, rolls: 2 },
+  { name: '簡單', icon: '🌱', turns: 3, risk: 0.5, tier: -1, exp: 0.7, rolls: 1 },
+  { name: '中等', icon: '🌿', turns: 5, risk: 1, tier: 1, exp: 1.2, rolls: 1 },
+  { name: '困難', icon: '🔥', turns: 7, risk: 1.9, tier: 4, exp: 2.2, rolls: 2 },
 ];
+
+/** 隨機抽一個難度 */
+export function randomRealmLevel(): number {
+  return Math.floor(Math.random() * REALM_LEVELS.length);
+}
 export const REALM_MIN_PARTY = 1;
 export const REALM_MAX_PARTY = 5;
 

@@ -114,7 +114,7 @@ export function techniqueExp(t: Technique | null): number {
 
 // ───────────────────────── 靈獸 ─────────────────────────
 
-const BEASTS: { name: string; skill: BeastSkill }[] = [
+export const BEASTS: { name: string; skill: BeastSkill }[] = [
   { name: '火麒麟', skill: 'attack' },
   { name: '金翅大鵬', skill: 'attack' },
   { name: '雷鷹', skill: 'attack' },

@@ -235,19 +235,20 @@ export function siegeAttack(attacker: Lord, generals: General[]): number {
   return Math.round(base * attacker.siegeBoost);
 }
 
-/** 攻城戰：最多三名武將 + 全部隨行士兵 vs 駐將 + 守軍（一名守軍約等於十名隨行士兵） */
+/** 攻城戰：最多三名武將 + 全部未派遣的隨行士兵 vs 駐將 + 城池守軍（一名守軍約等於十名隨行士兵） */
 export function siege(state: GameState, attacker: Lord, generals: General[], city: City): SiegeResult {
   const atk = Math.round(siegeAttack(attacker, generals) * (0.85 + Math.random() * 0.3));
   const def = Math.round(garrisonPower(state, city) * (0.9 + Math.random() * 0.2));
   const win = atk > def;
   let attackerLoss: number;
   let defenderLoss: number;
+  // 敗方投入的兵力全滅；勝方折損隨雙方差距縮小而增加
   if (win) {
-    attackerLoss = Math.round(attacker.soldiers * Math.min(0.5, (def / atk) * 0.6));
+    attackerLoss = Math.round(attacker.soldiers * Math.min(0.8, (def / atk) * 0.6));
     defenderLoss = city.garrisonSoldiers;
   } else {
-    attackerLoss = Math.round(attacker.soldiers * 0.4);
-    defenderLoss = Math.round(city.garrisonSoldiers * Math.min(0.5, (atk / def) * 0.3));
+    attackerLoss = attacker.soldiers;
+    defenderLoss = Math.round(city.garrisonSoldiers * Math.min(0.8, (atk / def) * 0.6));
   }
   attacker.soldiers -= attackerLoss;
   city.garrisonSoldiers -= defenderLoss;

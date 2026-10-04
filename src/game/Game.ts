@@ -425,7 +425,7 @@ export class Game {
       })),
       {
         label: '🏯 攻城戰',
-        sub: `最多三將 + 全部 ${lord.soldiers} 兵，勝則奪城｜我方約 ${siegeAttack(lord, [...free].sort((a, b) => attack(b) - attack(a)).slice(0, 3))} vs 守方約 ${garrisonPower(this.state, city)}`,
+        sub: `最多三將 + 未派遣的 ${lord.soldiers} 兵；勝則奪城，敗則士兵全滅｜我方約 ${siegeAttack(lord, [...free].sort((a, b) => attack(b) - attack(a)).slice(0, 3))} vs 守方約 ${garrisonPower(this.state, city)}`,
         value: 'siege',
         disabled: !free.length || lord.soldiers <= 0,
         reason: !free.length ? noGen : '沒有士兵',
@@ -508,7 +508,7 @@ export class Game {
       const pool = freeGenerals(this.state, attacker.id);
       const picked = await this.dialog.pickMany(
         `攻打${city.name}・選擇出征武將`,
-        `最多派遣三名武將，率領全部 ${attacker.soldiers} 名士兵攻城。\n一名守軍約等於十名隨行士兵；武將武力越高，統率加成越大。守方約 ${garrisonPower(this.state, city)}。`,
+        `最多派遣三名武將，率領全部未派遣的 ${attacker.soldiers} 名士兵攻城。\n戰敗則士兵全滅；勝方也會折損，雙方越接近折損越多。\n一名守軍約等於十名隨行士兵；武將武力越高，統率加成越大。守方約 ${garrisonPower(this.state, city)}。`,
         pool.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・武力 ${attack(g)}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}`, value: g })),
         1,
         3,

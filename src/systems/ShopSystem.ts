@@ -2,7 +2,7 @@ import type { GameState, Lord, TileKind } from '../game/types';
 import { joinLord, nextUid } from '../game/GameState';
 import { merchantStock } from './EventSystem';
 import { fmtStones } from '../game/Currency';
-import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipRealm, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemTier, rollTier, techniqueExp, ELEMENT_NAMES } from '../data/items';
+import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipRealm, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemTier, rollTier, techniqueDesc } from '../data/items';
 import { APTITUDE_NAMES, REALMS } from '../data/generals';
 import { fxText, passiveOf } from '../data/passives';
 import { generalValue, maxHp, power, realmName, recruitPrice } from './GeneralSystem';
@@ -81,7 +81,7 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
           kind: 'technique',
           technique: t,
           label: t.name,
-          sub: `${ELEMENT_NAMES[t.element]}屬性｜能力 +${Math.round(t.power * 100)}%｜難度 ${'★'.repeat(t.difficulty)}｜每回合修為 +${techniqueExp(t)}｜技能「${t.skillName}」×${t.skillPower}`,
+          sub: techniqueDesc(t),
           price: t.price,
         } as Offer;
       });

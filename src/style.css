@@ -1657,3 +1657,92 @@ body {
   font-size: 16px;
   padding: 5px 12px;
 }
+
+/* ───────── 物品介面 ───────── */
+.item-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 8px;
+  border-radius: 7px;
+  font-size: 15px;
+  vertical-align: middle;
+}
+.item-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+.tier-badge {
+  margin-left: 7px;
+  padding: 0 7px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.item-cat {
+  margin-left: 8px;
+  font-size: 12.5px;
+  opacity: 0.8;
+}
+.item-count {
+  margin-left: 8px;
+  color: #8a5f14;
+  font-weight: 700;
+}
+.item-effect {
+  display: block;
+  color: #4a3420;
+}
+.item-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
+.ichip {
+  padding: 0 8px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  background: rgba(60, 40, 20, 0.12);
+  color: #4a3420;
+}
+.ichip.req {
+  background: rgba(60, 130, 200, 0.18);
+  color: #1f5a96;
+}
+.ichip.sta {
+  background: rgba(200, 140, 30, 0.2);
+  color: #8a5a0a;
+}
+.ichip.time {
+  background: rgba(120, 80, 180, 0.16);
+  color: #5a3a96;
+}
+.item-row .item-title {
+  margin-bottom: 2px;
+}
+.bag-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin: 3px 0;
+}
+.bag-cat {
+  padding: 1px 9px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+.bag-chip {
+  padding: 0 8px;
+  border: 1px solid;
+  border-radius: 10px;
+  font-size: 13.5px;
+  background: rgba(255, 255, 255, 0.06);
+  cursor: help;
+}

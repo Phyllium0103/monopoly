@@ -150,7 +150,8 @@ export interface City {
   owner: Owner;
   prosperity: number;
   capital: boolean;
-  garrisonGeneral: string | null;
+  /** 駐守的武將（最多 3 人） */
+  garrisonGenerals: string[];
   garrisonSoldiers: number;
   /** 護城大陣剩餘回合 */
   shieldTurns: number;

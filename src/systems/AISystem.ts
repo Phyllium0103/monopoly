@@ -134,7 +134,7 @@ export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
     if (boltDamage(g) * boltCount(g) * 1.1 > g.hp) continue;
     const cityId = g.cityId;
     const r = tribulation(g);
-    if (r.fate === 'death' && cityId) state.cities[cityId].garrisonGeneral = null;
+    if (r.fate === 'death' && cityId) state.cities[cityId].garrisonGenerals = state.cities[cityId].garrisonGenerals.filter((id) => id !== g.id);
     if (r.success) logs.push(`⚡ ${g.name}渡過 ${r.bolts.length} 道天雷，突破至【${REALMS[g.realm]}】！`);
     else logs.push(r.fate === 'death' ? `⚡ ${g.name}渡劫失敗，身死道消……` : `⚡ ${g.name}渡劫失敗，兵解重修，跌回凡人。`);
   }
@@ -211,7 +211,7 @@ function duelScore(g: General): number {
 export function defenderPool(state: GameState, city: City): General[] {
   if (city.owner === 'neutral') return [];
   const pool = freeGenerals(state, city.owner);
-  if (city.garrisonGeneral) pool.unshift(state.generals[city.garrisonGeneral]);
+  pool.unshift(...city.garrisonGenerals.map((id) => state.generals[id]));
   return pool;
 }
 

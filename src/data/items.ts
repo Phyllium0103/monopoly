@@ -55,7 +55,7 @@ export function makeEquipment(uid: string, kind: 'weapon' | 'armor', tier: Tier)
   };
 }
 
-/** 裝備需要的境界：黃品凡人、玄品練氣、地品築基、天品金丹 */
+/** 裝備需要的境界：黃品凡人、玄品煉氣、地品築基、天品金丹 */
 export function equipRealm(tier: Tier): number {
   return Math.floor(tier / 3);
 }
@@ -95,7 +95,7 @@ export function makeTechnique(uid: string, tier: Tier): Technique {
   const t = pick(TECHNIQUES[element]);
   return {
     uid,
-    name: `${tierName(tier, '階')}・${t.name}`,
+    name: `${tierName(tier, '階')}・【${ELEMENT_NAMES[element]}】${t.name}`,
     tier,
     element,
     difficulty: 1 + Math.floor(Math.random() * 5),
@@ -104,6 +104,18 @@ export function makeTechnique(uid: string, tier: Tier): Technique {
     skillPower: Math.round((1.6 + tier * 0.15) * 100) / 100,
     price: tierPrice(tier, 700),
   };
+}
+
+/** 五行相剋：回傳 e 剋誰、被誰剋 */
+export function elementRelation(e: Element): { beats: Element; beatenBy: Element } {
+  const beatenBy = (Object.keys(OVERCOME) as Element[]).find((x) => OVERCOME[x] === e)!;
+  return { beats: OVERCOME[e], beatenBy };
+}
+
+/** 功法說明（可含 HTML）：屬性、相剋、能力加成、每回合修為、技能 */
+export function techniqueDesc(t: Technique): string {
+  const r = elementRelation(t.element);
+  return `<b style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】屬性</b>（剋${ELEMENT_NAMES[r.beats]}、被${ELEMENT_NAMES[r.beatenBy]}剋）｜武力 +${Math.round(t.power * 100)}%、防禦 +${Math.round(t.power * 50)}%｜難度 ${'★'.repeat(t.difficulty)}｜每回合修為 +${techniqueExp(t)}｜技能「${t.skillName}」造成 ×${t.skillPower} 傷害（能量滿 100 施放）`;
 }
 
 /** 功法帶來的每回合修為：黃階 +20、玄階 +40、地階 +70、天階 +100，同階上中下品再遞增 */
@@ -236,7 +248,7 @@ export const ITEM_DEFS: Record<string, ItemDef> = {
   guard: { id: 'guard', name: '護體丹', category: '丹藥', stat: 'alchemy', min: [10, 30, 50, 70], stamina: [12, 18, 24, 30], timing: 'both', target: 'ownGeneral', price: PILL_PRICE.map((p) => p * 2), desc: (t) => `永久防禦 +${STAT_UP[t]}` },
   qi: { id: 'qi', name: '凝氣丹', category: '丹藥', stat: 'alchemy', min: [5, 25, 45, 65], stamina: PILL_STAMINA, timing: 'preroll', target: 'ownGeneral', price: PILL_PRICE.map((p) => Math.round(p * 1.2)), desc: (t) => `修為 +${QI_EXP[t]}` },
   essence: { id: 'essence', name: '真元丹', category: '丹藥', stat: 'alchemy', min: [15, 35, 55, 75], stamina: [15, 20, 26, 32], timing: 'preroll', target: 'ownGeneral', price: PILL_PRICE.map((p) => p * 3), desc: (t) => `修為 +${ESSENCE_EXP[t]}` },
-  foundation: { id: 'foundation', name: '築基丹', category: '丹藥', stat: 'alchemy', min: [35], stamina: [18], timing: 'preroll', target: 'ownGeneral', price: [4500], desc: () => '練氣突破築基的成功率提升至 95%' },
+  foundation: { id: 'foundation', name: '築基丹', category: '丹藥', stat: 'alchemy', min: [35], stamina: [18], timing: 'preroll', target: 'ownGeneral', price: [4500], desc: () => '煉氣突破築基的成功率提升至 95%' },
   vigor: { id: 'vigor', name: '回氣丹', category: '丹藥', stat: 'alchemy', min: [0, 20, 40, 60], stamina: [5, 8, 10, 12], timing: 'both', target: 'ownGeneral', price: PILL_PRICE.map((p) => Math.round(p * 0.6)), desc: (t) => `回復 ${STAMINA_UP[t]} 體力` },
   poison: { id: 'poison', name: '斷腸毒丹', category: '丹藥', stat: 'alchemy', min: [15, 35, 55, 75], stamina: [12, 18, 24, 30], timing: 'both', target: 'enemyGeneral', battleTarget: 'enemyGeneral', price: PILL_PRICE, desc: (t) => `戰鬥中每回合扣 ${POISON[t] * 100}% 血量（3 回合）；平時直接扣 ${Math.round(POISON[t] * 250)}% 血量` },
   clearmind: { id: 'clearmind', name: '清心丹', category: '丹藥', stat: 'alchemy', min: [40], stamina: [15], timing: 'preroll', target: 'ownGeneral', price: [3500], desc: () => '化解一名武將身上的心魔' },

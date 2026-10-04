@@ -233,7 +233,7 @@ export class BattleView {
     });
   }
 
-  showSiege(r: SiegeResult, attackers: General[], attackerLord: LordId, city: City, defender: General | null, playerIsAttacker: boolean): Promise<void> {
+  showSiege(r: SiegeResult, attackers: General[], attackerLord: LordId, city: City, defenders: General[], playerIsAttacker: boolean): Promise<void> {
     return new Promise((resolve) => {
       const body = this.open(`🏯 攻城戰・${city.name}`);
       const win = r.win === playerIsAttacker;
@@ -248,7 +248,7 @@ export class BattleView {
           <div class="vs">VS</div>
           <div class="siege-side" style="--fc:${city.owner === 'neutral' ? '#999' : LORDS[city.owner].css}">
             <h3>守方・${city.name}</h3>
-            <div>${defender ? `${defender.name}（戰力 ${power(defender)}）` : '無駐將'}</div>
+            ${defenders.length ? defenders.map((d) => `<div>${d.name}（戰力 ${power(d)}）</div>`).join('') : '<div>無駐將</div>'}
             <div>城池駐軍加成 ×1.5${city.shieldTurns > 0 ? '・護城大陣 ×1.5' : ''}</div>
             <div class="siege-power">${r.defense}</div>
             <small>守軍損失 ${r.defenderLoss}</small>

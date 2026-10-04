@@ -23,7 +23,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       owner: s.owner ?? 'neutral',
       prosperity: s.prosperity,
       capital: !!s.owner,
-      garrisonGeneral: null,
+      garrisonGenerals: [],
       garrisonSoldiers: s.owner ? 1000 : 0,
       shieldTurns: 0,
     };
@@ -59,7 +59,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     };
     gen.hp = maxHp(gen);
     generals[g.id] = gen;
-    if (g.garrison) cities[capital].garrisonGeneral = g.id;
+    if (g.garrison) cities[capital].garrisonGenerals.push(g.id);
   }
 
   // 玩家先行，其餘依序
@@ -136,11 +136,18 @@ export function joinLord(state: GameState, lord: LordId, g: General) {
   g.status = freeGenerals(state, lord).length < PARTY_LIMIT ? 'free' : 'sect';
 }
 
+/** 一座城池最多駐守的武將數 */
+export const GARRISON_LIMIT = 3;
+
+export function garrisonOf(state: GameState, city: City): General[] {
+  return city.garrisonGenerals.map((id) => state.generals[id]);
+}
+
 /** 武將戰死：從主公與城池除名 */
 export function killGeneral(state: GameState, g: General) {
   if (g.cityId) {
     const city = state.cities[g.cityId];
-    if (city && city.garrisonGeneral === g.id) city.garrisonGeneral = null;
+    if (city) city.garrisonGenerals = city.garrisonGenerals.filter((id) => id !== g.id);
   }
   g.status = 'dead';
   g.owner = null;

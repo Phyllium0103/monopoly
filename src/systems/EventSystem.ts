@@ -3,7 +3,7 @@ import { citiesOf, freeGenerals, generalsOf, nextUid } from '../game/GameState';
 import { aliveLords } from '../game/TurnManager';
 import { cityIncomeOf, totalAssets } from './CitySystem';
 import { addExp, inBottleneck, maxHp } from './GeneralSystem';
-import { ELEMENT_NAMES, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, techniqueExp } from '../data/items';
+import { ELEMENT_NAMES, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, techniqueDesc } from '../data/items';
 import { CITY_TERRAIN } from '../data/terrain';
 import { REALMS } from '../data/generals';
 import { LORDS } from '../faction/Faction';
@@ -342,7 +342,7 @@ export function merchantStock(state: GameState): Offer[] {
     out.push({ kind: 'equipment', equipment: e, label: e.name, sub: `${e.kind === 'weapon' ? `神器｜武力 +${e.value}` : `寶衣｜防禦 +${e.value}、血量 +${e.hp}`}｜需${REALMS[Math.floor(e.tier / 3)]}`, price: off(e.price) });
   }
   const t = makeTechnique(uid('t'), high());
-  out.push({ kind: 'technique', technique: t, label: t.name, sub: `${ELEMENT_NAMES[t.element]}屬性｜能力 +${Math.round(t.power * 100)}%｜每回合修為 +${techniqueExp(t)}`, price: off(t.price) });
+  out.push({ kind: 'technique', technique: t, label: t.name, sub: techniqueDesc(t), price: off(t.price) });
   const b = makeBeast(uid('b'), high());
   out.push({ kind: 'beast', beast: b, label: b.name, sub: b.desc, price: off(b.price) });
   for (const defId of ['essence', 'thunderward']) {
@@ -372,7 +372,7 @@ export function auctionLot(state: GameState): Offer {
   }
   if (r < 0.65) {
     const t = makeTechnique(uid('t'), tier);
-    return { kind: 'technique', technique: t, label: t.name, sub: `天階功法｜${ELEMENT_NAMES[t.element]}屬性｜能力 +${Math.round(t.power * 100)}%｜每回合修為 +${techniqueExp(t)}`, price: t.price };
+    return { kind: 'technique', technique: t, label: t.name, sub: `天階功法｜${techniqueDesc(t)}`, price: t.price };
   }
   const b = makeBeast(uid('b'), tier);
   return { kind: 'beast', beast: b, label: b.name, sub: `天階靈獸｜${b.desc}`, price: b.price };

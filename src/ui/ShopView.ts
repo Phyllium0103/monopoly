@@ -3,6 +3,7 @@ import { fmtStones } from '../game/Currency';
 import { SHOP_NAMES, buy, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { TILE_INFO } from '../data/board';
 import type { Dialog } from './Dialog';
+import { itemInfoHtml, itemLabel } from './ItemUI';
 
 const SHOP_DESC: Record<ShopKind, string> = {
   treasure: '法器、陣法、符籙，可在擲骰前或戰鬥中使用。',
@@ -29,7 +30,8 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
         offers.forEach((o, i) => {
           const row = document.createElement('div');
           row.className = `shop-row ${sold.has(i) ? 'sold' : ''}`;
-          row.innerHTML = `<div class="sr-main"><b>${o.label}</b><small>${o.sub}</small></div><div class="sr-price">${fmtStones(o.price)}</div>`;
+          const main = o.kind === 'item' ? `<div class="sr-main item-row"><div class="item-title">${itemLabel(o.item.defId, o.item.tier)}</div><small>${itemInfoHtml(o.item.defId, o.item.tier)}</small></div>` : `<div class="sr-main"><b>${o.label}</b><small>${o.sub}</small></div>`;
+          row.innerHTML = `${main}<div class="sr-price">${fmtStones(o.price)}</div>`;
           const b = document.createElement('button');
           b.className = 'btn primary mini';
           const blocked = sold.has(i) || (kind === 'tavern' && recruited);

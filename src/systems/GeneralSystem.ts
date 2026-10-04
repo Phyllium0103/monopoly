@@ -125,11 +125,11 @@ export function attemptBreak(g: General, round: number): boolean {
   return false;
 }
 
-export const TRIBULATION_BOLTS = [3, 6, 9];
-const TRIBULATION_BASE = [450, 600, 900];
+export const TRIBULATION_BOLTS = [3, 6, 9, 12, 15, 18, 21, 24];
+const TRIBULATION_BASE = [450, 600, 900, 1300, 1800, 2500, 3400, 4600];
 
 export function boltCount(g: General): number {
-  return TRIBULATION_BOLTS[g.realm - 2] ?? 9;
+  return TRIBULATION_BOLTS[g.realm - 2] ?? 24;
 }
 
 /** 單道天雷的預估傷害（防禦、寶衣、護法陣、體質、心魔都會影響） */
@@ -227,6 +227,15 @@ export function equip(lord: Lord, g: General, e: Equipment) {
   g[e.kind] = e;
   lord.gear = lord.gear.filter((x) => x.uid !== e.uid);
   if (old) lord.gear.push(old);
+  g.hp = Math.min(g.hp, maxHp(g));
+}
+
+/** 卸下神器或寶衣，放回行囊 */
+export function unequip(lord: Lord, g: General, kind: 'weapon' | 'armor') {
+  const e = g[kind];
+  if (!e) return;
+  g[kind] = null;
+  lord.gear.push(e);
   g.hp = Math.min(g.hp, maxHp(g));
 }
 

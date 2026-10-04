@@ -1,5 +1,5 @@
 import type { City, GameState, General, Lord, LordId } from '../game/types';
-import { citiesOf, freeGenerals, generalsOf, joinLord } from '../game/GameState';
+import { GARRISON_LIMIT, citiesOf, freeGenerals, garrisonOf, generalsOf, joinLord } from '../game/GameState';
 import { defense, generalValue, power } from './GeneralSystem';
 import { beastPower } from '../data/items';
 import { fmtProsperity, fmtStones } from '../game/Currency';
@@ -14,7 +14,7 @@ export const GARRISON_STRENGTH = 10;
 
 /** 過路費：隨繁榮度加速成長（前期便宜、後期昂貴），同一主公城池越多也越貴 */
 export function toll(city: City, ownerCities = 1): number {
-  return Math.round(Math.pow(city.prosperity, 1.5) * 7 * (city.capital ? 1.2 : 1) * (1 + 0.1 * Math.max(0, ownerCities - 1)));
+  return Math.round(Math.pow(city.prosperity, 1.2) * 7 * (city.capital ? 1.2 : 1) * (1 + 0.1 * Math.max(0, ownerCities - 1)));
 }
 
 export function cityToll(state: GameState, city: City): number {
@@ -22,9 +22,14 @@ export function cityToll(state: GameState, city: City): number {
 }
 
 /** 城池收入，受地貌與駐將被動增減 */
-export function cityIncome(city: City, garrison: General | null = null) {
+export function cityIncome(city: City, garrison: General[] = []) {
   const t = terrainOf(city);
-  const f = garrison ? fx(garrison) : {};
+  // 多名駐將的收入加成相加
+  const f = { cityStones: 0, citySoldiers: 0 };
+  for (const g of garrison) {
+    f.cityStones += fx(g).cityStones ?? 0;
+    f.citySoldiers += fx(g).citySoldiers ?? 0;
+  }
   return {
     stones: Math.round(city.prosperity * 1.5 * (1 + t.stones) * (1 + (f.cityStones ?? 0)) * WORLD.incomeMult),
     soldiers: Math.round(city.prosperity * 2 * (1 + t.soldiers) * (1 + (f.citySoldiers ?? 0))),
@@ -32,16 +37,17 @@ export function cityIncome(city: City, garrison: General | null = null) {
 }
 
 export function cityIncomeOf(state: GameState, city: City) {
-  return cityIncome(city, city.garrisonGeneral ? state.generals[city.garrisonGeneral] : null);
+  return cityIncome(city, garrisonOf(state, city));
 }
 
 /** 守城戰力：守軍 ×10，駐將防禦越高加成越多，再加上駐將本身戰力；受地貌影響，護城大陣 ×1.5 */
 export function garrisonPower(state: GameState, city: City): number {
-  const g = city.garrisonGeneral ? state.generals[city.garrisonGeneral] : null;
-  const command = g ? 1 + defense(g) / 300 : 1;
-  const f = g ? fx(g) : {};
-  const base = city.garrisonSoldiers * GARRISON_STRENGTH * (1 + (f.troops ?? 0)) * command + (g ? power(g) * 2 : 0);
-  return Math.round(base * (1 + terrainOf(city).defense) * (1 + (f.garrisonDef ?? 0)) * (city.shieldTurns > 0 ? 1.5 : 1));
+  const gens = garrisonOf(state, city);
+  // 駐將越多、防禦越高，守軍加成越大；兵力倍增與守城被動取其中最高者
+  const command = 1 + gens.reduce((sum, g) => sum + defense(g), 0) / 450;
+  const f = { troops: Math.max(0, ...gens.map((g) => fx(g).troops ?? 0)), garrisonDef: Math.max(0, ...gens.map((g) => fx(g).garrisonDef ?? 0)) };
+  const base = city.garrisonSoldiers * GARRISON_STRENGTH * (1 + f.troops) * command + gens.reduce((sum, g) => sum + power(g) * 2, 0);
+  return Math.round(base * (1 + terrainOf(city).defense) * (1 + f.garrisonDef) * (city.shieldTurns > 0 ? 1.5 : 1));
 }
 
 /** 佔領無主城池需支付的安撫費 */
@@ -55,25 +61,25 @@ export function canOccupy(state: GameState, lord: Lord, city?: City): boolean {
 }
 
 /** 派遣武將與士兵駐守，佔領城池；cost 為支付的靈石（攻城奪下則為 0） */
-export function occupy(state: GameState, lord: Lord, city: City, generalId: string, soldiers: number, cost = 0) {
+export function occupy(state: GameState, lord: Lord, city: City, generalIds: string | string[], soldiers: number, cost = 0) {
   lord.stones -= cost;
-  const g = state.generals[generalId];
-  g.status = 'garrison';
-  g.cityId = city.id;
+  const ids = (Array.isArray(generalIds) ? generalIds : [generalIds]).slice(0, GARRISON_LIMIT);
+  for (const id of ids) {
+    const g = state.generals[id];
+    g.status = 'garrison';
+    g.cityId = city.id;
+  }
   lord.soldiers -= soldiers;
   city.owner = lord.id;
-  city.garrisonGeneral = generalId;
+  city.garrisonGenerals = ids;
   city.garrisonSoldiers = soldiers;
 }
 
 /** 城池回歸無主：駐將回到主公身邊（或宗門），守軍解散 */
 export function releaseCity(state: GameState, city: City) {
-  if (city.garrisonGeneral) {
-    const g = state.generals[city.garrisonGeneral];
-    if (g.status === 'garrison' && g.owner) joinLord(state, g.owner, g);
-  }
+  for (const g of garrisonOf(state, city)) if (g.status === 'garrison' && g.owner) joinLord(state, g.owner, g);
   city.owner = 'neutral';
-  city.garrisonGeneral = null;
+  city.garrisonGenerals = [];
   city.garrisonSoldiers = 0;
   city.shieldTurns = 0;
 }
@@ -84,9 +90,19 @@ export interface PayResult {
   notes: string[];
 }
 
-/** 城池變賣價：佔領費的一半 */
+/** 城池變賣價：繁榮度 ×150（約佔領費的 2.5 倍），割地賠款時才不會賤賣 */
 export function citySaleValue(city: City): number {
-  return Math.round(occupyCost(city) * 0.5);
+  return Math.round(city.prosperity * 150);
+}
+
+/** 變賣一座城池：守軍回到主公身邊、駐將歸隊，換得靈石 */
+export function sellCity(state: GameState, lord: Lord, city: City): number {
+  const value = citySaleValue(city);
+  lord.soldiers += city.garrisonSoldiers;
+  city.garrisonSoldiers = 0;
+  releaseCity(state, city);
+  lord.stones += value;
+  return value;
 }
 
 /**
@@ -106,11 +122,7 @@ export function pay(state: GameState, from: Lord, amount: number, to: Lord | nul
   const owned = citiesOf(state, from.id).sort((a, b) => a.prosperity - b.prosperity);
   while (remaining > 0 && owned.length) {
     const city = owned.shift()!;
-    const value = citySaleValue(city);
-    from.soldiers += city.garrisonSoldiers;
-    city.garrisonSoldiers = 0;
-    releaseCity(state, city);
-    from.stones += value;
+    const value = sellCity(state, from, city);
     notes.push(`靈石不足，變賣城池「${city.name}」，得 ${fmtStones(value)}`);
     settle();
   }

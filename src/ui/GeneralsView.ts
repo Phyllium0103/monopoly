@@ -2,7 +2,7 @@ import type { GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS } from '../data/generals';
 import { fxText, passiveOf } from '../data/passives';
-import { ELEMENT_CSS, ELEMENT_NAMES, equipRealm, techniqueExp } from '../data/items';
+import { ELEMENT_CSS, equipRealm, techniqueDesc, techniqueExp } from '../data/items';
 import {
   abolish,
   attack,
@@ -13,6 +13,7 @@ import {
   craft,
   defense,
   equip,
+  unequip,
   expCap,
   inBottleneck,
   learn,
@@ -21,7 +22,7 @@ import {
   passiveExp,
   power,
 } from '../systems/GeneralSystem';
-import { nameOf } from '../systems/ItemSystem';
+import { bagHtml } from './ItemUI';
 import { LORDS, originKingdom } from '../faction/Faction';
 import type { Dialog } from './Dialog';
 
@@ -66,9 +67,7 @@ export class GeneralsView {
     const gens = generalsOf(state, lord.id);
     const manage = this.canManage();
 
-    const items = new Map<string, number>();
-    for (const i of lord.items) items.set(nameOf(i), (items.get(nameOf(i)) ?? 0) + 1);
-    const bag = [...items].map(([n, c]) => `<span class="chip">${n}${c > 1 ? ` ×${c}` : ''}</span>`).join('') || '<span class="muted">無</span>';
+    const bag = bagHtml(lord.items);
     const gear = lord.gear.map((e) => `<span class="chip">${e.name}</span>`).join('') || '<span class="muted">無</span>';
     const scrolls = lord.scrolls.map((t) => `<span class="chip" style="border-color:${ELEMENT_CSS[t.element]}">${t.name}</span>`).join('') || '<span class="muted">無</span>';
     const party = gens.filter((g) => g.status === 'free').length;
@@ -141,7 +140,7 @@ export class GeneralsView {
       <div class="equip">
         <div>神器：${g.weapon ? `${g.weapon.name}（武 +${g.weapon.value}）` : '<span class="muted">無</span>'}</div>
         <div>寶衣：${g.armor ? `${g.armor.name}（防 +${g.armor.value}、血 +${g.armor.hp}）` : '<span class="muted">無</span>'}</div>
-        <div>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name}【${ELEMENT_NAMES[t.element]}】</span> 難度${'★'.repeat(t.difficulty)}・+${techniqueExp(t)}/回合` : '<span class="muted">未修習</span>'}</div>
+        <div>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name}</span> 難度${'★'.repeat(t.difficulty)}・+${techniqueExp(t)}/回合` : '<span class="muted">未修習</span>'}</div>
       </div>
       <div class="gc-actions"></div>`;
 
@@ -187,13 +186,19 @@ export class GeneralsView {
         this.render(state, lord);
       });
     }
+    for (const kind of ['weapon', 'armor'] as const) {
+      btn(kind === 'weapon' ? '卸下神器' : '卸下寶衣', away || !g[kind], () => {
+        unequip(lord, g, kind);
+        this.render(state, lord);
+      });
+    }
     btn('學習功法', away || !!t || !lord.scrolls.length, async () => {
       const s = await this.dialog.choose(
         `${g.name}・學習功法`,
         '每位武將只能修習一種功法，學會後不可更換，除非自廢修為。',
         lord.scrolls.map((x) => ({
           label: x.name,
-          sub: `${ELEMENT_NAMES[x.element]}屬性｜能力 +${Math.round(x.power * 100)}%｜難度 ${'★'.repeat(x.difficulty)}｜每回合修為 +${techniqueExp(x)}`,
+          sub: techniqueDesc(x),
           value: x,
           color: ELEMENT_CSS[x.element],
         })),

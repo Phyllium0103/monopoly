@@ -1,5 +1,5 @@
 import type { City, GameState, General, Lord, LordId } from '../game/types';
-import { GARRISON_LIMIT, citiesOf, freeGenerals, garrisonOf, generalsOf, joinLord } from '../game/GameState';
+import { GARRISON_LIMIT, citiesOf, deployable, garrisonOf, generalsOf, joinLord } from '../game/GameState';
 import { defense, generalSaleValue, generalValue, power, unequip } from './GeneralSystem';
 import { beastPower } from '../data/items';
 import { fmtProsperity, fmtStones } from '../game/Currency';
@@ -57,7 +57,7 @@ export function occupyCost(city: City): number {
 
 export function canOccupy(state: GameState, lord: Lord, city?: City): boolean {
   if (city && lord.stones < occupyCost(city)) return false;
-  return lord.soldiers >= MIN_GARRISON && freeGenerals(state, lord.id).length > 0;
+  return lord.soldiers >= MIN_GARRISON && deployable(state, lord.id).length > 0;
 }
 
 /** 派遣武將與士兵駐守，佔領城池；cost 為支付的靈石（攻城奪下則為 0） */
@@ -140,7 +140,7 @@ export function pay(state: GameState, from: Lord, amount: number, to: Lord | nul
     settle();
   }
   while (remaining > 0) {
-    const party = freeGenerals(state, from.id);
+    const party = deployable(state, from.id);
     if (!party.length) break;
     const g = party[Math.floor(Math.random() * party.length)];
     const value = sellGeneral(from, g);
@@ -157,6 +157,12 @@ export function eliminate(state: GameState, lord: Lord) {
   lord.stones = 0;
   for (const city of citiesOf(state, lord.id)) releaseCity(state, city);
   for (const g of generalsOf(state, lord.id)) {
+    if (g.isLord) {
+      g.status = 'dead';
+      g.owner = null;
+      g.cityId = null;
+      continue;
+    }
     g.owner = null;
     g.status = 'free';
     g.cityId = null;

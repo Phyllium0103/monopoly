@@ -1,11 +1,11 @@
 import type { Element, GameState, General, Lord, LordId } from '../game/types';
-import { citiesOf, freeGenerals, generalsOf, nextUid } from '../game/GameState';
+import { citiesOf, freeGenerals, generalsOf, newGeneral, nextUid } from '../game/GameState';
+import { HIDDEN_SEEDS } from '../data/generals';
 import { aliveLords } from '../game/TurnManager';
 import { cityIncomeOf, totalAssets } from './CitySystem';
 import { addExp, inBottleneck, maxHp } from './GeneralSystem';
-import { ELEMENT_NAMES, ITEM_DEFS, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, techniqueDesc } from '../data/items';
+import { ELEMENT_NAMES, ITEM_DEFS, equipDesc, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, techniqueDesc } from '../data/items';
 import { CITY_TERRAIN } from '../data/terrain';
-import { REALMS } from '../data/generals';
 import { LORDS } from '../faction/Faction';
 import { fmtStones } from '../game/Currency';
 import type { Offer } from './ShopSystem';
@@ -39,7 +39,7 @@ export const WORLD_EVENTS: WorldEventDef[] = [
   { id: 'heavenFavor', name: '天道垂青', icon: '⚡', category: 'cultivation', duration: 3, desc: '天道垂青，接下來 3 輪渡劫天雷傷害 -40%、低階突破成功率 +15%。' },
   { id: 'elementTide', name: '五行輪轉', icon: '🔥', category: 'cultivation', duration: 5, desc: '五行之一當令 5 輪，修習該屬性功法的武將在擂台上傷害 +30%。' },
   { id: 'ancientRealm', name: '上古秘境現世', icon: '🌀', category: 'cultivation', duration: 5, desc: '上古秘境現世 5 輪，期間派入秘境的武將隕落率減半、帶回的寶物品階更高。' },
-  { id: 'immortals', name: '仙人出山', icon: '🧙', category: 'cultivation', desc: '左慈、于吉、華佗、管輅四位方外高人現身聽風樓，能力極高但身價不菲。' },
+  { id: 'immortals', name: '仙人出山', icon: '🧙', category: 'cultivation', desc: '四位隱世的方外高人（左慈、于吉、華佗、水鏡先生、龐德公、張仲景……）現身聽風樓，能力極高但身價不菲。' },
   { id: 'edict', name: '天子詔令', icon: '📜', category: 'politics', desc: '天子下詔：總資產最高的主公上繳一成靈石，平分給其他主公。' },
   { id: 'beastTide', name: '妖獸潮', icon: '🐉', category: 'disaster', desc: '妖獸成群襲城，所有城池守軍 -15%；擁有靈獸的主公可由靈獸護城，免除損失。' },
   { id: 'quake', name: '天災地動', icon: '🌋', category: 'disaster', desc: '天崩地裂，隨機 3 座有主城池繁榮 -20。' },
@@ -154,10 +154,10 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
       break;
     }
     case 'immortals':
-      for (const g of makeImmortals()) {
-        if (!state.generals[g.id]) state.generals[g.id] = g;
+      {
+        const shown = revealHidden(state);
+        lines.push(shown.length ? `${shown.map((g) => g.name).join('、')}現身聽風樓，等候有緣人。` : '隱世高人都已現身，這次無人出山。');
       }
-      lines.push('四位仙人已在聽風樓等候有緣人。');
       break;
     case 'edict': {
       const richest = [...alive].sort((a, b) => totalAssets(state, b.id).total - totalAssets(state, a.id).total)[0];
@@ -288,40 +288,12 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
 
 // ───────────────────────── 仙人出山 ─────────────────────────
 
-function makeImmortals(): General[] {
-  const seeds: [string, string, number[], number][] = [
-    ['zuoci', '左慈', [45, 70, 520, 80, 70, 99, 90], 3],
-    ['yuji', '于吉', [38, 66, 480, 88, 62, 97, 85], 3],
-    ['huatuo', '華佗', [30, 62, 460, 99, 78, 70, 60], 2],
-    ['guanlu', '管輅', [36, 62, 460, 70, 62, 90, 99], 3],
-  ];
-  return seeds.map(([id, name, s, realm]) => {
-    const g: General = {
-      id,
-      name,
-      origin: 'immortal',
-      owner: null,
-      base: { force: s[0], defense: s[1], hp: s[2], alchemy: s[3], forging: s[4], talisman: s[5], formation: s[6] },
-      realm,
-      exp: 0,
-      aptitude: 'heaven',
-      failedRound: 0,
-      foundation: false,
-      demon: 0,
-      ward: 0,
-      breakBoost: 0,
-      secluded: false,
-      hp: 0,
-      stamina: 100,
-      bonusForce: 0,
-      bonusDefense: 0,
-      weapon: null,
-      armor: null,
-      technique: null,
-      status: 'free',
-      cityId: null,
-    };
-    g.hp = maxHp(g);
+/** 每次現身 4 位尚未出現的隱藏武將 */
+function revealHidden(state: GameState): General[] {
+  const pool = shuffle(HIDDEN_SEEDS.filter((h) => !state.generals[h.id])).slice(0, 4);
+  return pool.map((h) => {
+    const g = newGeneral(h, 'immortal', null, 'free', null);
+    state.generals[h.id] = g;
     return g;
   });
 }
@@ -336,7 +308,7 @@ export function merchantStock(state: GameState): Offer[] {
   const out: Offer[] = [];
   for (let i = 0; i < 2; i++) {
     const e = makeEquipment(uid('e'), i === 0 ? 'weapon' : 'armor', high());
-    out.push({ kind: 'equipment', equipment: e, label: e.name, sub: `${e.kind === 'weapon' ? `神器｜武力 +${e.value}` : `寶衣｜防禦 +${e.value}、血量 +${e.hp}`}｜需${REALMS[Math.floor(e.tier / 3)]}`, price: off(e.price) });
+    out.push({ kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e), price: off(e.price) });
   }
   const t = makeTechnique(uid('t'), high());
   out.push({ kind: 'technique', technique: t, label: t.name, sub: techniqueDesc(t), price: off(t.price) });
@@ -364,7 +336,7 @@ export function auctionLot(state: GameState): Offer {
   const r = Math.random();
   if (r < 0.3) {
     const e = makeEquipment(uid('e'), Math.random() < 0.5 ? 'weapon' : 'armor', tier);
-    return { kind: 'equipment', equipment: e, label: e.name, sub: e.kind === 'weapon' ? `天階神器｜武力 +${e.value}｜需金丹` : `天階寶衣｜防禦 +${e.value}、血量 +${e.hp}｜需金丹`, price: e.price };
+    return { kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e), price: e.price };
   }
   if (r < 0.65) {
     const t = makeTechnique(uid('t'), tier);

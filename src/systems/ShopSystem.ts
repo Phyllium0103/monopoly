@@ -47,7 +47,7 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
         return { kind: 'item', item, label: itemName(defId, item.tier), sub: `${ITEM_DEFS[defId].desc(item.tier)}｜${requirementOf(defId, item.tier)}`, price: item.price } as Offer;
       });
       // 百草堂的丹師能讓亡者還陽：復活戰死、渡劫失敗或死在秘境的武將
-      const dead = shuffle(Object.values(state.generals).filter((g) => g.status === 'dead')).slice(0, 3);
+      const dead = shuffle(Object.values(state.generals).filter((g) => g.status === 'dead' && !g.isLord)).slice(0, 3);
       const revives = dead.map(
         (g) =>
           ({

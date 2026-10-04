@@ -15,7 +15,7 @@ export const LORDS: Record<LordId, LordDef> = {
   cao: { id: 'cao', name: '曹操', kingdom: '魏', title: '魏武', color: 0x3d6fd6, css: '#4f80e8', capital: 'xuchang', desc: '挾天子以令諸侯，猛將謀臣如雲。' },
   sun: { id: 'sun', name: '孫權', kingdom: '吳', title: '吳侯', color: 0xd64535, css: '#ec5a48', capital: 'jianye', desc: '坐擁江東，水軍與謀士冠絕天下。' },
   liu: { id: 'liu', name: '劉備', kingdom: '蜀', title: '昭烈', color: 0x2fa35a, css: '#3cc06c', capital: 'chengdu', desc: '仁德服眾，五虎上將所向披靡。' },
-  dong: { id: 'dong', name: '董卓', kingdom: '西涼', title: '太師', color: 0x7a3fb0, css: '#a46ae8', capital: 'changan', desc: '西涼鐵騎橫行，坐擁天下第一猛將。' },
+  dong: { id: 'dong', name: '董卓', kingdom: '群雄', title: '太師', color: 0x7a3fb0, css: '#a46ae8', capital: 'changan', desc: '群雄割據，西涼鐵騎與河北豪傑並起，坐擁天下第一猛將。' },
 };
 
 export const LORD_IDS: LordId[] = ['cao', 'sun', 'liu', 'dong'];

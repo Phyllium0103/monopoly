@@ -1,6 +1,6 @@
 import type { City, General, GameState, Lord, LordId } from './types';
 import { BOARD } from '../data/board';
-import { GENERAL_SEEDS } from '../data/generals';
+import { GENERAL_SEEDS, type GeneralSeed } from '../data/generals';
 import { LORDS, LORD_IDS } from '../faction/Faction';
 import { maxHp } from '../systems/GeneralSystem';
 
@@ -12,6 +12,45 @@ export const START_STONES = 30000;
 export const START_SOLDIERS = 20000;
 /** 主公身邊最多隨行武將數，其餘留在宗門 */
 export const PARTY_LIMIT = 10;
+
+/** 由種子資料建立武將 */
+export function newGeneral(
+  seed: { id: string; name: string; s: GeneralSeed['s']; realm: number; aptitude: General['aptitude'] },
+  origin: General['origin'],
+  owner: LordId | null,
+  status: General['status'],
+  cityId: string | null,
+  isLord = false,
+): General {
+  const g: General = {
+    id: seed.id,
+    name: seed.name,
+    origin,
+    owner,
+    isLord,
+    base: { force: seed.s[0], defense: seed.s[1], hp: seed.s[2], alchemy: seed.s[3], forging: seed.s[4], talisman: seed.s[5], formation: seed.s[6] },
+    realm: seed.realm,
+    exp: 0,
+    aptitude: seed.aptitude,
+    failedRound: 0,
+    foundation: false,
+    demon: 0,
+    ward: 0,
+    breakBoost: 0,
+    secluded: false,
+    hp: 0,
+    stamina: 100,
+    bonusForce: 0,
+    bonusDefense: 0,
+    weapon: null,
+    armor: null,
+    technique: null,
+    status,
+    cityId,
+  };
+  g.hp = maxHp(g);
+  return g;
+}
 
 export function createGameState(player: LordId, maxRounds: number | null = DEFAULT_ROUNDS): GameState {
   const cities: Record<string, City> = {};
@@ -30,35 +69,18 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
   }
 
   const generals: Record<string, General> = {};
+  const freeCount: Record<string, number> = {};
   for (const g of GENERAL_SEEDS) {
     const capital = LORDS[g.origin as LordId].capital;
-    const gen: General = {
-      id: g.id,
-      name: g.name,
-      origin: g.origin,
-      owner: g.start ? (g.origin as LordId) : null,
-      base: { force: g.s[0], defense: g.s[1], hp: g.s[2], alchemy: g.s[3], forging: g.s[4], talisman: g.s[5], formation: g.s[6] },
-      realm: g.realm,
-      exp: 0,
-      aptitude: g.aptitude,
-      failedRound: 0,
-      foundation: false,
-      demon: 0,
-      ward: 0,
-      breakBoost: 0,
-      secluded: false,
-      hp: 0,
-      stamina: 100,
-      bonusForce: 0,
-      bonusDefense: 0,
-      weapon: null,
-      armor: null,
-      technique: null,
-      status: g.garrison ? 'garrison' : 'free',
-      cityId: g.garrison ? capital : null,
-    };
-    gen.hp = maxHp(gen);
-    generals[g.id] = gen;
+    const owner = g.start ? (g.origin as LordId) : null;
+    // 隨行最多 PARTY_LIMIT 人，多出來的開局放在宗門
+    let status: General['status'] = 'free';
+    if (g.garrison) status = 'garrison';
+    else if (owner) {
+      freeCount[owner] = (freeCount[owner] ?? 0) + 1;
+      if (freeCount[owner] > PARTY_LIMIT) status = 'sect';
+    }
+    generals[g.id] = newGeneral(g, g.origin, owner, status, g.garrison ? capital : null, !!g.lord);
     if (g.garrison) cities[capital].garrisonGenerals.push(g.id);
   }
 
@@ -123,6 +145,11 @@ export function freeGenerals(state: GameState, lord: LordId): General[] {
   return generalsOf(state, lord).filter((g) => g.status === 'free');
 }
 
+/** 可以派去駐守城池、探索秘境、被變賣的隨行武將（不含主公本人） */
+export function deployable(state: GameState, lord: LordId): General[] {
+  return freeGenerals(state, lord).filter((g) => !g.isLord);
+}
+
 /** 留在宗門的將領 */
 export function sectGenerals(state: GameState, lord: LordId): General[] {
   return generalsOf(state, lord).filter((g) => g.status === 'sect');
@@ -158,6 +185,11 @@ export function reviveGeneral(state: GameState, lord: LordId, g: General, hpRati
 
 /** 武將戰死：從主公與城池除名 */
 export function killGeneral(state: GameState, g: General) {
+  // 主公本人不會戰死，只是重傷
+  if (g.isLord) {
+    g.hp = 1;
+    return;
+  }
   if (g.cityId) {
     const city = state.cities[g.cityId];
     if (city) city.garrisonGenerals = city.garrisonGenerals.filter((id) => id !== g.id);

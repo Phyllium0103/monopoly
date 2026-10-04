@@ -2,7 +2,7 @@ import type { GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS } from '../data/generals';
 import { fxText, passiveOf } from '../data/passives';
-import { ELEMENT_CSS, equipDesc, equipRealm, techniqueDesc, techniqueExp } from '../data/items';
+import { ELEMENT_CSS, equipDesc, equipRealm, equipStats, techniqueDesc, techniqueExp } from '../data/items';
 import {
   abolish,
   attack,
@@ -122,7 +122,7 @@ export class GeneralsView {
 
     card.innerHTML = `
       ${ready ? `<div class="ready-banner">✨ 修為圓滿，可以${needsTribulation(g) ? '渡劫' : '突破'}了！</div>` : ''}
-      <div class="gc-head"><b>${g.name}</b><small>${originKingdom(g.origin)}</small><span class="realm">${REALMS[g.realm]}</span><span class="st">${status}</span></div>
+      <div class="gc-head"><b>${g.name}</b><small>${originKingdom(g.origin)}</small><span class="realm">${REALMS[g.realm]}</span>${g.isLord ? '<span class="lord-tag">主公</span>' : ''}<span class="st">${status}</span></div>
       <div class="tags">
         <span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span>
         <span class="chip trait" title="${passiveOf(g).flavor}">【${passiveOf(g).name}】</span>
@@ -138,8 +138,8 @@ export class GeneralsView {
         <span>煉丹 <b>${craft(g, 'alchemy')}</b></span><span>煉器 <b>${craft(g, 'forging')}</b></span><span>畫符 <b>${craft(g, 'talisman')}</b></span><span>佈陣 <b>${craft(g, 'formation')}</b></span>
       </div>
       <div class="equip">
-        <div title="${g.weapon ? equipDesc(g.weapon) : ''}">神器：${g.weapon ? `${g.weapon.name}（武 +${g.weapon.value}）` : '<span class="muted">無</span>'}</div>
-        <div title="${g.armor ? equipDesc(g.armor) : ''}">寶衣：${g.armor ? `${g.armor.name}（防 +${g.armor.value}、血 +${g.armor.hp}）` : '<span class="muted">無</span>'}</div>
+        <div title="${g.weapon ? equipDesc(g.weapon) : ''}">神器：${g.weapon ? `${g.weapon.name}（${equipStats(g.weapon)}）` : '<span class="muted">無</span>'}</div>
+        <div title="${g.armor ? equipDesc(g.armor) : ''}">寶衣：${g.armor ? `${g.armor.name}（${equipStats(g.armor)}）` : '<span class="muted">無</span>'}</div>
         <div>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name}</span> 難度${'★'.repeat(t.difficulty)}・+${techniqueExp(t)}/回合` : '<span class="muted">未修習</span>'}</div>
       </div>
       <div class="gc-actions"></div>`;

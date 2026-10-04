@@ -51,7 +51,7 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
       <div class="fc-sect">${d.name}</div>
       <p class="fc-motto">${d.desc}</p>
       <p class="fc-bonus">開局麾下<br>${gens
-        .filter((g) => g.start)
+        .filter((g) => g.start && !g.lord)
         .map((g) => g.name)
         .join('・')}</p>
       <div class="fc-heroes">可招募：${gens

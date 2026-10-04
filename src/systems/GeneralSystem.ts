@@ -1,6 +1,6 @@
 import type { City, CraftStat, Equipment, General, Lord, Technique } from '../game/types';
 import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
-import { techniqueExp } from '../data/items';
+import { ELEMENT_BIAS, techniqueExp } from '../data/items';
 import { WORLD } from './WorldMods';
 import { terrainOf } from '../data/terrain';
 import { fx } from '../data/passives';
@@ -10,22 +10,22 @@ export function realmName(g: General): string {
 }
 
 export function attack(g: General): number {
-  const t = g.technique?.power ?? 0;
-  return Math.round((g.base.force + g.bonusForce + (g.weapon?.value ?? 0)) * REALM_MULT[g.realm] * (1 + t) * (1 + (fx(g).atk ?? 0)));
+  const t = (g.technique?.power ?? 0) * (g.technique ? ELEMENT_BIAS[g.technique.element].atk : 1);
+  return Math.round((g.base.force + g.bonusForce + (g.weapon?.force ?? 0) + (g.armor?.force ?? 0)) * REALM_MULT[g.realm] * (1 + t) * (1 + (fx(g).atk ?? 0)));
 }
 
 export function defense(g: General): number {
-  const t = g.technique?.power ?? 0;
-  return Math.round((g.base.defense + g.bonusDefense + (g.armor?.value ?? 0)) * REALM_MULT[g.realm] * (1 + t * 0.5) * (1 + (fx(g).def ?? 0)));
+  const t = (g.technique?.power ?? 0) * (g.technique ? ELEMENT_BIAS[g.technique.element].def : 1);
+  return Math.round((g.base.defense + g.bonusDefense + (g.armor?.defense ?? 0) + (g.weapon?.defense ?? 0)) * REALM_MULT[g.realm] * (1 + t * 0.5) * (1 + (fx(g).def ?? 0)));
 }
 
 export function maxHp(g: General): number {
-  return Math.round((g.base.hp + (g.armor?.hp ?? 0)) * REALM_MULT[g.realm] * (1 + (fx(g).hp ?? 0)));
+  return Math.round((g.base.hp + (g.armor?.hp ?? 0) + (g.weapon?.hp ?? 0)) * REALM_MULT[g.realm] * (1 + (fx(g).hp ?? 0)));
 }
 
 /** 煉丹／煉器／畫符／佈陣，境界越高越精 */
 export function craft(g: General, stat: CraftStat): number {
-  return Math.round((g.base[stat] + (fx(g).craft?.[stat] ?? 0)) * (1 + g.realm * 0.1));
+  return Math.round((g.base[stat] + (fx(g).craft?.[stat] ?? 0) + (g.weapon?.craft[stat] ?? 0) + (g.armor?.craft[stat] ?? 0)) * (1 + g.realm * 0.1));
 }
 
 /** 綜合戰力，用於攻城、秘境與 AI 評估 */
@@ -168,7 +168,7 @@ export function tribulation(g: General): TribulationResult {
     levelUp(g);
     return { bolts, success: true, fate: null, fromRealm };
   }
-  if (Math.random() < 0.5) {
+  if (!g.isLord && Math.random() < 0.5) {
     g.status = 'dead';
     g.owner = null;
     g.cityId = null;

@@ -1746,3 +1746,13 @@ body {
   background: rgba(255, 255, 255, 0.06);
   cursor: help;
 }
+
+.lord-tag {
+  margin-left: 4px;
+  padding: 0 7px;
+  border-radius: 8px;
+  background: #b8892a;
+  color: #fff6d8;
+  font-size: 12.5px;
+  font-weight: 700;
+}

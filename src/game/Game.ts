@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { City, CraftStat, General, GameState, Lord, LordId } from './types';
-import { DEFAULT_ROUNDS, GARRISON_LIMIT, PARTY_LIMIT, citiesOf, garrisonOf, createGameState, currentLord, freeGenerals, generalsOf, joinLord, killGeneral, nextUid, sectGenerals } from './GameState';
+import { DEFAULT_ROUNDS, GARRISON_LIMIT, deployable, PARTY_LIMIT, citiesOf, garrisonOf, createGameState, currentLord, freeGenerals, generalsOf, joinLord, killGeneral, nextUid, sectGenerals } from './GameState';
 import { advance, aliveLords, startTurn } from './TurnManager';
 import { fmtProsperity, fmtStones } from './Currency';
 import { SceneManager } from '../scene/SceneManager';
@@ -490,7 +490,7 @@ export class Game {
     type Sale = { kind: 'city'; city: City } | { kind: 'general'; general: General };
     while (lord.stones < amount) {
       const cities = citiesOf(this.state, lord.id).sort((x, y) => x.prosperity - y.prosperity);
-      const party = freeGenerals(this.state, lord.id);
+      const party = deployable(this.state, lord.id);
       if (!cities.length && !party.length) return;
       const choices: Choice<Sale>[] = [
         ...cities.map((c) => ({
@@ -571,7 +571,7 @@ export class Game {
 
   private async playerOccupy(lord: Lord, city: City) {
     const inc = cityIncome(city);
-    const free = freeGenerals(this.state, lord.id);
+    const free = deployable(this.state, lord.id);
     const choices: Choice<string>[] = free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`, value: g.id, color: originCss(g.origin) }));
     const gids = await this.dialog.pickMany(
       `抵達${city.name}・是否佔領？`,
@@ -708,8 +708,14 @@ export class Game {
   /** 武將在擂台上被當場擊殺 */
   private onGeneralSlain(g: General, involved: boolean) {
     const owner = g.owner;
+    const lordHurt = g.isLord;
     killGeneral(this.state, g);
     this.world.syncCities(this.state);
+    if (lordHurt) {
+      this.ui.log(`${g.name}被當場重創，僥倖保住性命（主公不會戰死）。`, owner === this.state.player ? 'bad' : involved ? 'good' : 'ai');
+      this.refresh();
+      return;
+    }
     this.ui.log(`💀 ${g.name}戰死擂台，從此除名！`, owner === this.state.player ? 'bad' : involved ? 'good' : 'ai');
     if (involved) this.ui.toast(`${g.name}戰死擂台`);
     this.refresh();
@@ -771,11 +777,15 @@ export class Game {
       joinLord(this.state, defender.id, og);
     }
     city.garrisonGenerals = [];
-    let gids = [[...team].sort((a, b) => power(a) - power(b))[0].id];
+    const weakest = [...team].filter((x) => !x.isLord).sort((a, b) => power(a) - power(b))[0] ?? deployable(this.state, attacker.id)[0];
+    let gids = weakest ? [weakest.id] : [];
     let soldiers = Math.min(attacker.soldiers, Math.max(MIN_GARRISON, Math.round(attacker.soldiers * 0.4)));
     if (this.human(attacker)) {
-      const picked = await this.dialog.pickMany(`攻下${city.name}！派誰駐守？`, `最多 ${GARRISON_LIMIT} 人，駐將越多守城越強。`, team.map((x) => ({ label: x.name, sub: `戰力 ${power(x)}${pv(x)}`, value: x.id })), 1, Math.min(GARRISON_LIMIT, team.length), '駐守');
-      if (picked) gids = picked;
+      const cand = deployable(this.state, attacker.id);
+      if (cand.length) {
+        const picked = await this.dialog.pickMany(`攻下${city.name}！派誰駐守？`, `最多 ${GARRISON_LIMIT} 人，駐將越多守城越強。（主公本人不能駐守）`, cand.map((x) => ({ label: x.name, sub: `戰力 ${power(x)}${pv(x)}`, value: x.id })), 1, Math.min(GARRISON_LIMIT, cand.length), '駐守');
+        if (picked) gids = picked;
+      } else gids = [];
       if (attacker.soldiers > 0) {
         const s = await this.dialog.slider(
           `派多少士兵駐守${city.name}？`,
@@ -797,7 +807,7 @@ export class Game {
     occupy(this.state, attacker, city, gids, Math.max(0, soldiers));
     this.world.syncCities(this.state);
     this.world.captureEffect(city.tile, LORDS[attacker.id].color);
-    this.ui.log(`${LORDS[attacker.id].name}奪下${city.name}，由${gids.map((id) => this.state.generals[id].name).join('、')}駐守。`, this.human(attacker) ? 'good' : this.human(defender) ? 'bad' : 'ai');
+    this.ui.log(`${LORDS[attacker.id].name}奪下${city.name}，由${gids.length ? gids.map((id) => this.state.generals[id].name).join('、') : '（無駐將）'}駐守。`, this.human(attacker) ? 'good' : this.human(defender) ? 'bad' : 'ai');
     this.refresh();
     return true;
   }
@@ -844,7 +854,7 @@ export class Game {
   // ───────────────────────── 秘境、商店、驛道 ─────────────────────────
 
   private async landRealm(lord: Lord, realmName: string) {
-    const free = freeGenerals(this.state, lord.id);
+    const free = deployable(this.state, lord.id);
     if (!free.length) {
       if (this.human(lord)) this.ui.toast(`探索${realmName}需要至少一名隨行武將`);
       return;
@@ -1061,7 +1071,7 @@ export class Game {
       cities.map((c) => ({ label: c.name, sub: `駐將 ${c.garrisonGenerals.length ? garrisonOf(this.state, c).map((g) => g.name).join('、') : '無'}（${c.garrisonGenerals.length}/${GARRISON_LIMIT}）・守軍 ${c.garrisonSoldiers}・繁榮 ${fmtProsperity(c.prosperity)}`, value: c })),
     );
     if (!city) return;
-    const free = freeGenerals(this.state, lord.id);
+    const free = deployable(this.state, lord.id);
     const action = await this.dialog.choose(`調度${city.name}`, '', [
       { label: '增派士兵', sub: `從隨行士兵調入（目前 ${lord.soldiers}）`, value: 'add', disabled: lord.soldiers < 100, reason: '士兵不足' },
       { label: '撤回士兵', sub: `至少保留 ${MIN_GARRISON} 守軍`, value: 'remove', disabled: city.garrisonSoldiers - MIN_GARRISON < 100, reason: '守軍已達下限' },
@@ -1089,7 +1099,7 @@ export class Game {
     } else if (action === 'swap') {
       for (;;) {
         const on = garrisonOf(this.state, city);
-        const party = freeGenerals(this.state, lord.id);
+        const party = deployable(this.state, lord.id);
         const g = await this.dialog.choose(
           `🏯 ${city.name}・調整駐將（${on.length}/${GARRISON_LIMIT}）`,
           '點選駐將可撤回，點選隨行武將可派駐。',
@@ -1243,7 +1253,8 @@ export class Game {
 
   private async manageSect(lord: Lord) {
     for (;;) {
-      const party = freeGenerals(this.state, lord.id);
+      const allFree = freeGenerals(this.state, lord.id);
+      const party = allFree.filter((g) => !g.isLord);
       const sect = sectGenerals(this.state, lord.id);
       const choices: Choice<General>[] = [
         ...party.map((g) => ({ label: `▼ ${g.name}`, sub: `隨行 → 留守宗門｜${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`, value: g, color: '#c99a2e' })),
@@ -1251,12 +1262,12 @@ export class Game {
           label: `▲ ${g.name}`,
           sub: `宗門 → 隨行｜${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`,
           value: g,
-          disabled: party.length >= PARTY_LIMIT,
+          disabled: allFree.length >= PARTY_LIMIT,
           reason: `隨行已滿 ${PARTY_LIMIT} 人`,
           color: '#5aa8ec',
         })),
       ];
-      const g = await this.dialog.choose(`🏛️ 宗門調度（隨行 ${party.length}/${PARTY_LIMIT}）`, '隨行武將最多十名，其餘留在宗門。點選武將即可切換。', choices, '完成');
+      const g = await this.dialog.choose(`🏛️ 宗門調度（隨行 ${allFree.length}/${PARTY_LIMIT}）`, '隨行武將最多十名，其餘留在宗門。點選武將即可切換。', choices, '完成');
       if (!g) break;
       g.status = g.status === 'free' ? 'sect' : 'free';
     }

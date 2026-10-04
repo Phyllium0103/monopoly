@@ -1,9 +1,9 @@
 import type { City, CraftStat, GameState, General, Lord } from '../game/types';
-import { PARTY_LIMIT, citiesOf, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
+import { PARTY_LIMIT, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
 import { MIN_GARRISON, SOLDIER_PRICE, cityToll, garrisonPower, occupyCost } from './CitySystem';
 import { REALMS } from '../data/generals';
-import { equipRealm } from '../data/items';
+import { equipRealm, equipScore } from '../data/items';
 import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
 import { CONTEST_SOLDIERS, canDuel, siegeAllowed, siegeAttack, type BattleKind } from './BattleSystem';
 import type { Offer } from './ShopSystem';
@@ -16,10 +16,10 @@ export function aiPreroll(state: GameState, lord: Lord): string[] {
 
   // 自動裝備最好的神器、寶衣
   for (const kind of ['weapon', 'armor'] as const) {
-    const pool = lord.gear.filter((e) => e.kind === kind).sort((a, b) => b.value - a.value);
+    const pool = lord.gear.filter((e) => e.kind === kind).sort((a, b) => equipScore(b) - equipScore(a));
     for (const e of pool) {
       const candidates = gens
-        .filter((g) => g.realm >= equipRealm(e.tier) && (g[kind]?.value ?? 0) < e.value)
+        .filter((g) => g.realm >= equipRealm(e.tier) && (g[kind] ? equipScore(g[kind]!) : -1) < equipScore(e))
         .sort((a, b) => (kind === 'weapon' ? b.base.force - a.base.force : b.base.defense - a.base.defense));
       const g = candidates[0];
       if (!g) continue;
@@ -160,7 +160,7 @@ export function aiManageSect(state: GameState, lord: Lord): string[] {
 
 /** 停在無主城池：是否佔領 */
 export function aiOccupy(state: GameState, lord: Lord, city: City): { generalId: string; soldiers: number } | null {
-  const free = freeGenerals(state, lord.id);
+  const free = deployable(state, lord.id);
   if (!free.length || lord.soldiers < MIN_GARRISON) return null;
   // 保留一筆備用金應付過路費
   if (lord.stones - occupyCost(city) < 8000) return null;
@@ -251,7 +251,7 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
 
 /** 秘境：難度隨機，有空閒武將（不必滿三人）且風險可接受時才派遣 */
 export function aiRealm(state: GameState, lord: Lord): { team: General[]; level: number } | null {
-  const free = freeGenerals(state, lord.id).sort((a, b) => power(b) - power(a));
+  const free = deployable(state, lord.id).sort((a, b) => power(b) - power(a));
   if (!free.length || Math.random() > 0.7) return null;
   const team = free.length >= 4 ? free.slice(1, 4) : free.slice(0, 3);
   const level = randomRealmLevel();

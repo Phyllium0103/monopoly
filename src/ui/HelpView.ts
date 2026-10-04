@@ -1,7 +1,8 @@
+import { GENERAL_SEEDS, HIDDEN_SEEDS } from '../data/generals';
 import { DEFAULT_ROUNDS, PARTY_LIMIT, START_SOLDIERS, START_STONES } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS, REALM_EXP } from '../data/generals';
-import { BEASTS, ELEMENT_NAMES, ITEM_CATEGORIES, ITEM_DEFS, PILL_GRADES, STAT_NAMES, beastPower, describeBeast, equipRealm, techniqueExp, tierName, tierPrice } from '../data/items';
+import { BEASTS, ELEMENT_NAMES, ITEM_CATEGORIES, ITEM_DEFS, PILL_GRADES, STAT_NAMES, beastPower, describeBeast, EQUIP_DESIGNS, equipRealm, techniqueExp, tierName, tierPrice } from '../data/items';
 import { MIN_GARRISON, GARRISON_STRENGTH, SOLDIER_PRICE } from '../systems/CitySystem';
 import { CONTEST_SOLDIERS, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE } from '../systems/BattleSystem';
 import { TRIBULATION_BOLTS } from '../systems/GeneralSystem';
@@ -59,12 +60,18 @@ function techniqueTable(): string {
   return `<table class="terrain-table"><tr><th>品階</th><th>武力加成</th><th>技能傷害</th><th>每回合修為</th><th>價格</th></tr>${rows.join('')}</table>`;
 }
 
-/** 神器、寶衣十二階 */
+/** 神器、寶衣十二階：以「基準值」說明，各款式再乘上自己的比例 */
 function equipTable(): string {
   const rows = Array.from({ length: 12 }, (_, t) => {
-    return `<tr><td>${tierName(t)}</td><td>武力 +${4 + t * 5}</td><td>防禦 +${3 + t * 4}・血量 +${20 + t * 25}</td><td>${REALMS[equipRealm(t)]}</td><td>${fmtStones(tierPrice(t), true)}</td></tr>`;
+    return `<tr><td>${tierName(t)}</td><td>${Math.round(4 + t * 4.5)}</td><td>${Math.round(3 + t * 3.5)}</td><td>${20 + t * 22}</td><td>${Math.round(3 + t * 2.8)}</td><td>${REALMS[equipRealm(t)]}</td><td>${fmtStones(tierPrice(t), true)}</td></tr>`;
   });
-  return `<table class="terrain-table"><tr><th>品階</th><th>神器</th><th>寶衣</th><th>需要境界</th><th>價格</th></tr>${rows.join('')}</table>`;
+  const list = (kind: 'weapon' | 'armor') =>
+    EQUIP_DESIGNS.filter((d) => d.kind === kind)
+      .map((d) => `${d.name}（${Object.entries(d.w).map(([k, v]) => `${{ force: '武', defense: '防', hp: '血', alchemy: '丹', forging: '器', talisman: '符', formation: '陣' }[k]}${v}`).join(' ')}）`)
+      .join('、');
+  return `<table class="terrain-table"><tr><th>品階</th><th>武力基準</th><th>防禦基準</th><th>血量基準</th><th>技藝基準</th><th>需要境界</th><th>價格</th></tr>${rows.join('')}</table>
+    <p>每件裝備的實際數值＝基準值 × 款式比例（括號內，例如「武1」＝武力 100%、「丹0.5」＝煉丹 50%）。</p>
+    <p><b>20 種神器</b>：${list('weapon')}</p><p><b>20 種寶衣</b>：${list('armor')}</p>`;
 }
 
 const list = (items: string[]) => `<ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>`;
@@ -94,7 +101,7 @@ const PAGES: Page[] = [
         '<b>結束回合</b>：按「結束回合」或 Enter。',
       ])}
       <h4>開局資源</h4>
-      ${list([`靈石 ${fmtStones(START_STONES)}`, `隨行士兵 ${START_SOLDIERS}`, '首都一座，以及 15 名本國將領（1 名駐守首都，其餘隨行最多 10 人、剩下的在宗門）；各國另有 25 名將領可在聽風樓招募（共 160 位人物）'])}
+      ${list([`靈石 ${fmtStones(START_STONES)}`, `隨行士兵 ${START_SOLDIERS}`, `首都一座，主公本人（可出戰，但不能派進城池、不會戰死、不能被變賣）與 15 名本國將領（1 名駐守首都，其餘隨行；隨行最多 ${PARTY_LIMIT} 人，多的放在宗門）；其餘將領在聽風樓招募（共 ${GENERAL_SEEDS.length} 位人物，另有 ${HIDDEN_SEEDS.length} 位隱藏武將）`])}
       <h4>靈石</h4>
       <p>分為下品、中品、上品、極品，每 100 個自動換算成高一階。例如 15230 下品會顯示為「1上品 52中品 30下品」。</p>`,
   },
@@ -242,7 +249,7 @@ const PAGES: Page[] = [
       <h4>功法</h4>
       ${list([
         '每位武將只能修習一種功法，學會後不可更換；想換只能<b>自廢修為</b>（境界歸零）。在武將名冊「學習功法」。',
-        '功法分<b>天地玄黃 × 上中下</b>共 12 階，另有 <b>金木水火土</b> 五行屬性與 1～5 星<b>難度</b>。',
+        '功法分<b>天地玄黃 × 上中下</b>共 12 階；<b>每個品階有五種功法，金木水火土屬性各一</b>，每個屬性共有 5 種名稱與技能。另有 1～5 星<b>難度</b>。各屬性有所偏重：金偏攻、土水偏守、火的技能更猛。',
         '<b>能力加成</b>：武力提升（防禦提升其一半）；<b>每回合修為</b>：功法品階越高，周天吐納越多。',
         '<b>技能</b>：擂台戰攻擊累積能量，能量滿 100 就能施放功法技能，造成 ×技能倍率的傷害。',
         `<b>五行</b>：${ELEMENT_NAMES.metal}剋${ELEMENT_NAMES.wood}、${ELEMENT_NAMES.wood}剋${ELEMENT_NAMES.earth}、${ELEMENT_NAMES.earth}剋${ELEMENT_NAMES.water}、${ELEMENT_NAMES.water}剋${ELEMENT_NAMES.fire}、${ELEMENT_NAMES.fire}剋${ELEMENT_NAMES.metal}：剋制方傷害 ×1.35，被剋 ×0.75，相生 ×0.9。五行輪轉事件期間，當令屬性傷害再 +30%。`,
@@ -253,7 +260,7 @@ const PAGES: Page[] = [
       <h4>神器與寶衣</h4>
       ${list([
         '<b>神器</b>加武力，<b>寶衣</b>加防禦與血量，各武將各一件，在武將名冊裝備、<b>卸下</b>；換下或卸下的回到行囊。滑鼠移到裝備名稱上，或在裝備清單裡，都能看到<b>裝備說明</b>（種類、品階、數值、需要境界、價值）。',
-        '同樣分 12 階，<b>品階越高需要越高境界</b>才能裝備（黃階凡人、玄階煉氣、地階築基、天階金丹）。',
+        '同樣分 12 階，<b>品階越高需要越高境界</b>才能裝備：每兩階提高一個境界——黃品下／中凡人、黃品上／玄品下煉氣、玄品中／上築基、地品金丹、天品下／中元嬰、天品上化神。除了武力、防禦、血量，部分裝備還有<b>煉丹、煉器、畫符、佈陣</b>加成；共 20 種神器與 20 種寶衣，每種都有 12 個品階。',
         '買得到的地方：天工坊；也可能從秘境、驛道奇遇、兵器庫事件、拍賣會取得。',
       ])}
       ${equipTable()}

@@ -28,9 +28,13 @@ export interface Equipment {
   kind: 'weapon' | 'armor';
   name: string;
   tier: Tier;
-  /** 神器加武力；寶衣加防禦 */
-  value: number;
+  /** 款式編號（見 EQUIP_DESIGNS） */
+  designId: string;
+  force: number;
+  defense: number;
   hp: number;
+  /** 煉丹、煉器、畫符、佈陣加成 */
+  craft: Partial<Record<CraftStat, number>>;
   price: number;
 }
 
@@ -94,6 +98,8 @@ export interface General {
   ward: number;
   /** 破境丹：下次低階突破成功率加成，或雷劫傷害減免 */
   breakBoost: number;
+  /** 主公本人：可出戰，但不能駐守城池、不會戰死、不能被變賣 */
+  isLord: boolean;
   /** 駐守城池時閉關修煉 */
   secluded: boolean;
   hp: number;

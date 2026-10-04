@@ -41,74 +41,178 @@ export function elementMod(a: Element | null, b: Element | null): { mult: number
 
 // ───────────────────────── 神器、寶衣 ─────────────────────────
 
-const WEAPONS = ['青鋒劍', '寒鐵槍', '赤焰刀', '雷霆戟', '玄冰弓', '斬龍劍', '落日弓', '破軍戟', '流雲刀', '紫電劍'];
-const ARMORS = ['雲紋袍', '玄武鎧', '鱗甲衣', '金蠶衣', '天蠶寶甲', '赤霞袍', '冰綃衣', '獸王甲', '紫綬仙衣', '八卦道袍'];
+type StatKey = 'force' | 'defense' | 'hp' | CraftStat;
 
-export function makeEquipment(uid: string, kind: 'weapon' | 'armor', tier: Tier): Equipment {
+export interface EquipDesign {
+  id: string;
+  kind: 'weapon' | 'armor';
+  name: string;
+  /** 各項能力占一階基準值的比例 */
+  w: Partial<Record<StatKey, number>>;
+}
+
+const D = (kind: 'weapon' | 'armor', name: string, w: EquipDesign['w']): EquipDesign => ({ id: `${kind}-${name}`, kind, name, w });
+
+/** 20 種神器與 20 種寶衣：除了武力、防禦、血量，也有煉丹、煉器、畫符、佈陣的加成 */
+export const EQUIP_DESIGNS: EquipDesign[] = [
+  D('weapon', '青鋒劍', { force: 1 }),
+  D('weapon', '寒鐵槍', { force: 1, defense: 0.4 }),
+  D('weapon', '赤焰刀', { force: 1, forging: 0.5 }),
+  D('weapon', '雷霆戟', { force: 1.1 }),
+  D('weapon', '玄冰弓', { force: 0.9, talisman: 0.5 }),
+  D('weapon', '斬龍劍', { force: 1.15 }),
+  D('weapon', '落日弓', { force: 1, defense: 0.3 }),
+  D('weapon', '破軍戟', { force: 0.9, formation: 0.5 }),
+  D('weapon', '流雲刀', { force: 1, hp: 0.4 }),
+  D('weapon', '紫電劍', { force: 0.9, talisman: 0.5 }),
+  D('weapon', '玄武盾劍', { defense: 1, force: 0.5 }),
+  D('weapon', '鎮岳錘', { force: 0.8, defense: 0.7 }),
+  D('weapon', '丹霞鼎', { alchemy: 1.2 }),
+  D('weapon', '百草杖', { alchemy: 1, hp: 0.6 }),
+  D('weapon', '八陣旗', { formation: 1.2 }),
+  D('weapon', '鑄魂錘', { forging: 1.2, force: 0.3 }),
+  D('weapon', '天工鑿', { forging: 1.2 }),
+  D('weapon', '赤霄爐', { forging: 0.8, alchemy: 0.6 }),
+  D('weapon', '神符筆', { talisman: 1.2 }),
+  D('weapon', '太極羅盤', { formation: 0.9, talisman: 0.5 }),
+  D('armor', '雲紋袍', { defense: 1, hp: 0.6 }),
+  D('armor', '玄武鎧', { defense: 1.2, hp: 0.8 }),
+  D('armor', '鱗甲衣', { defense: 1.1, force: 0.3 }),
+  D('armor', '金蠶衣', { defense: 0.9, hp: 1.2 }),
+  D('armor', '天蠶寶甲', { defense: 1, hp: 1 }),
+  D('armor', '赤霞袍', { defense: 0.7, talisman: 0.6, hp: 0.5 }),
+  D('armor', '冰綃衣', { defense: 0.8, formation: 0.5, hp: 0.5 }),
+  D('armor', '獸王甲', { defense: 0.8, force: 0.6, hp: 0.6 }),
+  D('armor', '紫綬仙衣', { defense: 0.6, formation: 0.8 }),
+  D('armor', '八卦道袍', { defense: 0.5, formation: 1, hp: 0.4 }),
+  D('armor', '丹心袍', { defense: 0.5, alchemy: 1, hp: 0.5 }),
+  D('armor', '藥王衣', { alchemy: 0.8, hp: 1.2 }),
+  D('armor', '鑄心甲', { defense: 0.8, forging: 0.8 }),
+  D('armor', '匠神圍裙', { forging: 1, hp: 0.6 }),
+  D('armor', '符籙法衣', { talisman: 1, defense: 0.4, hp: 0.4 }),
+  D('armor', '太乙道袍', { formation: 0.7, talisman: 0.7 }),
+  D('armor', '龍鱗戰袍', { force: 0.7, defense: 0.8, hp: 0.5 }),
+  D('armor', '虎賁鎧', { force: 0.5, hp: 1, defense: 0.5 }),
+  D('armor', '青鸞羽衣', { talisman: 0.7, defense: 0.6, hp: 0.4 }),
+  D('armor', '九宮法衣', { formation: 0.7, defense: 0.7, hp: 0.4 }),
+];
+
+/** 一階的基準值：隨品階成長 */
+const unit = (t: Tier) => ({ force: 4 + 4.5 * t, defense: 3 + 3.5 * t, hp: 20 + 22 * t, craft: 3 + 2.8 * t });
+
+export function makeEquipment(uid: string, kind: 'weapon' | 'armor', tier: Tier, designId?: string): Equipment {
+  const pool = EQUIP_DESIGNS.filter((d) => d.kind === kind);
+  const d = (designId && pool.find((x) => x.id === designId)) || pick(pool);
+  const u = unit(tier);
+  const craft: Equipment['craft'] = {};
+  for (const k of ['alchemy', 'forging', 'talisman', 'formation'] as const) if (d.w[k]) craft[k] = Math.max(1, Math.round((d.w[k] ?? 0) * u.craft));
+  const weight = Object.values(d.w).reduce((s, v) => s + (v ?? 0), 0);
   return {
     uid,
     kind,
-    name: `${tierName(tier)}・${pick(kind === 'weapon' ? WEAPONS : ARMORS)}`,
+    name: `${tierName(tier)}・${d.name}`,
     tier,
-    value: kind === 'weapon' ? 4 + tier * 5 : 3 + tier * 4,
-    hp: kind === 'armor' ? 20 + tier * 25 : 0,
-    price: tierPrice(tier),
+    designId: d.id,
+    force: Math.round((d.w.force ?? 0) * u.force),
+    defense: Math.round((d.w.defense ?? 0) * u.defense),
+    hp: Math.round((d.w.hp ?? 0) * u.hp),
+    craft,
+    price: Math.round((tierPrice(tier) * (0.8 + weight * 0.2)) / 10) * 10,
   };
 }
 
-/** 裝備需要的境界：黃品凡人、玄品煉氣、地品築基、天品金丹 */
+/** 裝備需要的境界：每兩階提高一個境界——黃品下、中凡人，黃品上、玄品下煉氣，……天品中、上化神 */
 export function equipRealm(tier: Tier): number {
-  return Math.floor(tier / 3);
+  return Math.floor(tier / 2);
+}
+
+/** 裝備的綜合評分（AI 比較用） */
+export function equipScore(e: Equipment): number {
+  return e.force * 2 + e.defense * 2 + e.hp / 8 + Object.values(e.craft).reduce((s, v) => s + (v ?? 0), 0) * 1.5;
+}
+
+const CRAFT_SHORT: Record<CraftStat, string> = { alchemy: '煉丹', forging: '煉器', talisman: '畫符', formation: '佈陣' };
+
+/** 裝備的能力加成文字，例如「武力 +12、防禦 +5、畫符 +6」 */
+export function equipStats(e: Equipment): string {
+  const parts: string[] = [];
+  if (e.force) parts.push(`武力 +${e.force}`);
+  if (e.defense) parts.push(`防禦 +${e.defense}`);
+  if (e.hp) parts.push(`血量 +${e.hp}`);
+  for (const k of ['alchemy', 'forging', 'talisman', 'formation'] as const) if (e.craft[k]) parts.push(`${CRAFT_SHORT[k]} +${e.craft[k]}`);
+  return parts.join('、');
 }
 
 /** 裝備說明：種類、品階、數值、需要境界與價值 */
 export function equipDesc(e: Equipment): string {
-  const stat = e.kind === 'weapon' ? `武力 +${e.value}` : `防禦 +${e.value}、血量 +${e.hp}`;
-  return `${e.kind === 'weapon' ? '神器' : '寶衣'}｜${tierName(e.tier)}｜${stat}｜需要${REALMS[equipRealm(e.tier)]}以上｜價值 ${e.price}下品`;
+  return `${e.kind === 'weapon' ? '神器' : '寶衣'}｜${tierName(e.tier)}｜${equipStats(e)}｜需要${REALMS[equipRealm(e.tier)]}以上｜價值 ${e.price}下品`;
 }
 
 // ───────────────────────── 功法 ─────────────────────────
 
+/** 每個屬性 5 種功法名稱與技能：同一品階的五種功法屬性各不相同 */
 const TECHNIQUES: Record<Element, { name: string; skill: string }[]> = {
   metal: [
     { name: '庚金劍訣', skill: '萬劍歸宗' },
     { name: '太白劍經', skill: '太白貫日' },
     { name: '金剛不壞功', skill: '金剛伏魔' },
+    { name: '白虎斷岳訣', skill: '虎嘯金風' },
+    { name: '天罡劍典', skill: '天罡鎮世' },
   ],
   wood: [
     { name: '青木長生功', skill: '萬木回春' },
     { name: '乙木神雷訣', skill: '青雷破空' },
     { name: '枯榮禪功', skill: '一葉枯榮' },
+    { name: '九轉青蓮訣', skill: '青蓮化生' },
+    { name: '藤甲纏龍訣', skill: '古藤縛龍' },
   ],
   water: [
     { name: '玄水真經', skill: '滄海橫流' },
     { name: '癸水天罡訣', skill: '天河倒懸' },
     { name: '寒冰掌', skill: '冰封千里' },
+    { name: '北冥神功', skill: '北冥吞海' },
+    { name: '洗心訣', skill: '清波滌塵' },
   ],
   fire: [
     { name: '離火焚天訣', skill: '焚天烈焰' },
     { name: '赤陽神功', skill: '大日焚身' },
     { name: '三昧真火訣', skill: '三昧真火' },
+    { name: '朱雀涅槃經', skill: '浴火重生' },
+    { name: '烈焰天劍訣', skill: '火雲焚野' },
   ],
   earth: [
     { name: '厚土玄功', skill: '山崩地裂' },
     { name: '戊土鎮岳訣', skill: '五岳鎮壓' },
     { name: '不動明王經', skill: '明王怒' },
+    { name: '玄龜負山訣', skill: '玄龜鎮海' },
+    { name: '黃沙裂地訣', skill: '黃沙漫天' },
   ],
 };
 
-export function makeTechnique(uid: string, tier: Tier): Technique {
-  const element = pick(Object.keys(TECHNIQUES) as Element[]);
-  const t = pick(TECHNIQUES[element]);
+/** 各屬性的偏重：金偏攻、土水偏守、火的技能更猛 */
+export const ELEMENT_BIAS: Record<Element, { atk: number; def: number; skill: number }> = {
+  metal: { atk: 1.15, def: 0.9, skill: 1 },
+  wood: { atk: 1, def: 1, skill: 1 },
+  water: { atk: 0.95, def: 1.15, skill: 1 },
+  fire: { atk: 1.05, def: 0.85, skill: 1.1 },
+  earth: { atk: 0.9, def: 1.3, skill: 1 },
+};
+
+export const ELEMENT_LIST: Element[] = ['metal', 'wood', 'water', 'fire', 'earth'];
+
+/** 某品階某屬性的功法（每個品階共五種，屬性各不相同）；difficulty 隨機 */
+export function makeTechnique(uid: string, tier: Tier, element?: Element): Technique {
+  const el = element ?? pick(ELEMENT_LIST);
+  const t = TECHNIQUES[el][tier % 5];
   return {
     uid,
-    name: `${tierName(tier, '階')}・【${ELEMENT_NAMES[element]}】${t.name}`,
+    name: `${tierName(tier, '階')}・【${ELEMENT_NAMES[el]}】${t.name}`,
     tier,
-    element,
+    element: el,
     difficulty: 1 + Math.floor(Math.random() * 5),
     power: Math.round((0.05 + tier * 0.03) * 100) / 100,
     skillName: t.skill,
-    skillPower: Math.round((1.6 + tier * 0.15) * 100) / 100,
+    skillPower: Math.round((1.6 + tier * 0.15) * ELEMENT_BIAS[el].skill * 100) / 100,
     price: tierPrice(tier, 600),
   };
 }
@@ -122,7 +226,7 @@ export function elementRelation(e: Element): { beats: Element; beatenBy: Element
 /** 功法說明（可含 HTML）：屬性、相剋、能力加成、每回合修為、技能 */
 export function techniqueDesc(t: Technique): string {
   const r = elementRelation(t.element);
-  return `<b style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】屬性</b>（剋${ELEMENT_NAMES[r.beats]}、被${ELEMENT_NAMES[r.beatenBy]}剋）｜武力 +${Math.round(t.power * 100)}%、防禦 +${Math.round(t.power * 50)}%｜難度 ${'★'.repeat(t.difficulty)}｜每回合修為 +${techniqueExp(t)}｜技能「${t.skillName}」造成 ×${t.skillPower} 傷害（能量滿 100 施放）`;
+  return `<b style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】屬性</b>（剋${ELEMENT_NAMES[r.beats]}、被${ELEMENT_NAMES[r.beatenBy]}剋）｜武力 +${Math.round(t.power * ELEMENT_BIAS[t.element].atk * 100)}%、防禦 +${Math.round(t.power * 0.5 * ELEMENT_BIAS[t.element].def * 100)}%｜難度 ${'★'.repeat(t.difficulty)}｜每回合修為 +${techniqueExp(t)}｜技能「${t.skillName}」造成 ×${t.skillPower} 傷害（能量滿 100 施放）`;
 }
 
 /** 功法帶來的每回合修為：黃階 +20、玄階 +40、地階 +70、天階 +100，同階上中下品再遞增 */

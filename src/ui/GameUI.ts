@@ -77,7 +77,12 @@ export class GameUI {
       })
       .join('');
     this.top.innerHTML = `
-      <div class="round">第 <b>${Math.min(state.round, state.maxRounds)}</b> / ${state.maxRounds} 輪</div>
+      <div class="round">第 <b>${Math.min(state.round, state.maxRounds)}</b> / ${state.maxRounds} 輪
+        <div class="world-events">${
+          state.events.map((e) => `<span class="ev" title="${e.name}">${e.icon}${e.name} ${e.roundsLeft}</span>`).join('') ||
+          `<span class="ev next">下次大事：第 ${Math.ceil((state.round + 1) / 5) * 5} 輪</span>`
+        }</div>
+      </div>
       <div class="lords">${lords}</div>
       <div class="speed">${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
     this.top.querySelectorAll<HTMLButtonElement>('.speed button').forEach((b) => {

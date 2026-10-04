@@ -28,12 +28,12 @@ export function createGameState(player: LordId): GameState {
 
   const generals: Record<string, General> = {};
   for (const g of GENERAL_SEEDS) {
-    const capital = LORDS[g.origin].capital;
+    const capital = LORDS[g.origin as LordId].capital;
     const gen: General = {
       id: g.id,
       name: g.name,
       origin: g.origin,
-      owner: g.start ? g.origin : null,
+      owner: g.start ? (g.origin as LordId) : null,
       base: { force: g.s[0], defense: g.s[1], hp: g.s[2], alchemy: g.s[3], forging: g.s[4], talisman: g.s[5], formation: g.s[6] },
       realm: g.realm,
       exp: 0,
@@ -98,6 +98,11 @@ export function createGameState(player: LordId): GameState {
     tiles: BOARD.tiles,
     over: false,
     uid: 1,
+    events: [],
+    usedEvents: [],
+    merchantTile: null,
+    banditTiles: [],
+    favoredElement: null,
   };
 }
 

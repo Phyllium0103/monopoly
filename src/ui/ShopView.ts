@@ -11,6 +11,7 @@ const SHOP_DESC: Record<ShopKind, string> = {
   library: '每位武將只能修習一種功法，五行相生相剋。',
   beast: '每位主公只能擁有一隻靈獸，新購入的會取代舊的。',
   tavern: '每次只能招募一位。本國將領價格較低。',
+  merchant: '西域商隊帶來的地階、天階稀有貨品，一律 7 折。',
 };
 
 /** 商店介面；玩家可連續購買，按離開結束 */
@@ -19,7 +20,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
   let recruited = false;
   let confirmBeast = -1;
   return dialog.custom<void>(
-    `${TILE_INFO[kind].icon} ${SHOP_NAMES[kind]}`,
+    `${kind === 'merchant' ? '🐫' : TILE_INFO[kind].icon} ${SHOP_NAMES[kind]}`,
     (body, done) => {
       const render = () => {
         body.innerHTML = `<p class="dialog-text">${SHOP_DESC[kind]}</p><div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;

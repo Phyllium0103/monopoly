@@ -31,6 +31,7 @@ export class World {
   private highlights = new THREE.Group();
   private hover: THREE.Mesh;
   private time = 0;
+  private eventMarkers: THREE.Group[] = [];
 
   constructor(
     scene: THREE.Scene,
@@ -251,8 +252,44 @@ export class World {
       .then(() => this.root.remove(beam));
   }
 
+  /** 天下大事的地圖標記：旅行商人、黃巾賊窩 */
+  setEventMarkers(merchantTile: number | null, banditTiles: number[]) {
+    for (const m of this.eventMarkers) {
+      m.removeFromParent();
+      m.traverse((o) => {
+        if (o instanceof CSS2DObject) o.element.remove();
+      });
+    }
+    this.eventMarkers = [];
+    const add = (tile: number, color: number, text: string, cls: string) => {
+      const g = new THREE.Group();
+      const p = this.tilePosition(tile);
+      g.position.set(p.x, p.y, p.z);
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.6, 6), new THREE.MeshStandardMaterial({ color: 0x4a3020 }));
+      pole.position.set(0.9, 1.3, -0.6);
+      const flag = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.6), new THREE.MeshStandardMaterial({ color, side: THREE.DoubleSide, emissive: color, emissiveIntensity: 0.3 }));
+      flag.position.set(1.4, 2.3, -0.6);
+      flag.userData.wave = true;
+      g.add(pole, flag);
+      const el = document.createElement('div');
+      el.className = `event-marker ${cls}`;
+      el.textContent = text;
+      const label = new CSS2DObject(el);
+      label.position.set(0.9, 3, -0.6);
+      g.add(label);
+      this.root.add(g);
+      this.eventMarkers.push(g);
+    };
+    if (merchantTile !== null) add(merchantTile, 0xe8b84a, '🐫 旅行商人', 'merchant');
+    for (const t of banditTiles) add(t, 0xd8c040, '🏴 賊窩', 'bandit');
+  }
+
   update(dt: number) {
     this.time += dt;
+    for (const m of this.eventMarkers) {
+      const flag = m.children.find((c) => c.userData.wave);
+      if (flag) flag.rotation.y = Math.sin(this.time * 3) * 0.4;
+    }
     const t = this.time;
     for (const e of this.cities.values()) animateCity(e.visual, t);
     for (const b of this.buildings) animateBuilding(b, t);

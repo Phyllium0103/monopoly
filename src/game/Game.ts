@@ -6,7 +6,7 @@ import { fmtStones } from './Currency';
 import { SceneManager } from '../scene/SceneManager';
 import { World } from '../world/World';
 import { CharacterSprite } from '../character/CharacterSprite';
-import { LORDS, LORD_IDS, ownerCss, ownerName } from '../faction/Faction';
+import { LORDS, LORD_IDS, originCss, ownerCss, ownerName } from '../faction/Faction';
 import { GameUI, type ActionButton } from '../ui/GameUI';
 import { Dialog, type Choice } from '../ui/Dialog';
 import { GeneralsView } from '../ui/GeneralsView';
@@ -20,9 +20,11 @@ import { MIN_GARRISON, SOLDIER_PRICE, canOccupy, cityIncome, cityToll, eliminate
 import { attack, attemptBreak, battleExp, boltCount, boltDamage, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { canUse, def, nameOf, requirementText, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
-import { makeStock, type ShopKind } from '../systems/ShopSystem';
+import { makeStock, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { deathChance, dispatch, REALM_TURNS } from '../systems/RealmSystem';
 import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
+import { EVENT_INTERVAL, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, syncWorldMods, tickWorldEvents } from '../systems/EventSystem';
+import { WORLD } from '../systems/WorldMods';
 
 type Phase = 'idle' | 'preroll' | 'busy' | 'postland' | 'pickTile';
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
@@ -103,6 +105,8 @@ export class Game {
     this.token++;
     this.state = createGameState(player);
     this.world.clearHighlights();
+    syncWorldMods(this.state);
+    this.world.setEventMarkers(null, []);
     this.world.syncCities(this.state);
     for (const s of this.sprites.values()) s.dispose();
     this.sprites.clear();
@@ -142,6 +146,8 @@ export class Game {
           return;
         }
         this.ui.log(`── 第 ${this.state.round} 輪 ──`, 'turn');
+        await this.newRoundEvents();
+        if (token !== this.token || this.state.over) return;
       }
     }
   }
@@ -278,6 +284,9 @@ export class Game {
   private async land(lord: Lord, tile: number) {
     const t = this.state.tiles[tile];
     this.refresh();
+    if (tile === this.state.merchantTile) await this.landShop(lord, 'merchant');
+    if (this.state.banditTiles.includes(tile)) await this.banditEvent(lord);
+    if (!lord.alive) return;
     switch (t.kind) {
       case 'city':
         return this.landCity(lord, this.state.cities[t.cityId!]);
@@ -381,7 +390,7 @@ export class Game {
   private async playerOccupy(lord: Lord, city: City) {
     const inc = cityIncome(city);
     const free = freeGenerals(this.state, lord.id);
-    const choices: Choice<string>[] = free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}`, value: g.id, color: LORDS[g.origin].css }));
+    const choices: Choice<string>[] = free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}`, value: g.id, color: originCss(g.origin) }));
     const gid = await this.dialog.choose(
       `抵達${city.name}・是否佔領？`,
       `佔領費 ${fmtStones(occupyCost(city))}（持有 ${fmtStones(lord.stones)}）
@@ -431,6 +440,7 @@ export class Game {
         reason: !siegeAllowed(this.state.round) ? `前 ${SIEGE_START_ROUND - 1} 輪不能攻城，第 ${SIEGE_START_ROUND} 輪起開放` : !free.length ? noGen : '沒有士兵',
       },
     ];
+    if (WORLD.noBattle) for (const c of choices) if (c.value !== 'pay') Object.assign(c, { disabled: true, reason: '群雄會盟期間不能開戰' });
     const kind = await this.dialog.choose(
       `踏入${owner}的${city.name}`,
       `過路費 ${fmtStones(fee)}｜駐將 ${guard ? `${guard.name}（${REALMS[guard.realm]}・戰力 ${power(guard)}）` : '無'}・守軍 ${city.garrisonSoldiers}\n選擇繳費，或發起戰鬥。<b>戰鬥失敗將付雙倍過路費 ${fmtStones(fee * 2)}。</b>${fee * 2 > lord.stones ? '\n<b style="color:#b33a2a">⚠️ 雙倍過路費超過你持有的靈石，戰敗將先變賣城池，再不夠則隨行武將離開抵債，只剩主公一人時破產！</b>' : ''}`,
@@ -564,7 +574,7 @@ export class Game {
         label: g.name,
         sub: stat ? `${STAT_NAMES[stat]} ${craft(g, stat)}・${REALMS[g.realm]}` : `${REALMS[g.realm]}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}${g.technique ? `・${g.technique.name}` : ''}`,
         value: g,
-        color: LORDS[g.origin].css,
+        color: originCss(g.origin),
       })),
       cancelable ? '取消' : null,
     );
@@ -814,6 +824,119 @@ export class Game {
       city.garrisonGeneral = g.id;
     }
     this.world.syncCities(this.state);
+    this.refresh();
+  }
+
+  // ───────────────────────── 天下大事 ─────────────────────────
+
+  /** 新的一輪：持續事件倒數；每 5 輪抽一件天下大事 */
+  private async newRoundEvents() {
+    for (const msg of tickWorldEvents(this.state)) this.ui.log(msg, 'info');
+    this.world.setEventMarkers(this.state.merchantTile, this.state.banditTiles);
+    if (this.state.round % EVENT_INTERVAL !== 0) return;
+
+    const def = pickWorldEvent(this.state);
+    const before = new Map(LORD_IDS.map((id) => [id, this.state.lords[id].position]));
+    const lines = applyWorldEvent(this.state, def);
+    const playerAlive = this.state.lords[this.state.player].alive;
+    this.ui.log(`【天下大事】${def.icon} ${def.name}：${def.desc}`, 'turn');
+    for (const l of lines) this.ui.log(l, 'info');
+    this.ui.toast(`天下大事・${def.icon} ${def.name}`);
+
+    if (def.id === 'shuffle') {
+      for (const id of LORD_IDS) {
+        const lord = this.state.lords[id];
+        if (!lord.alive || before.get(id) === lord.position) continue;
+        const sprite = this.sprites.get(id)!;
+        this.world.beamEffect(sprite.group.position, 0xc9a0ff);
+        sprite.setGroundPosition(this.slotPosition(id, lord.position));
+        this.world.beamEffect(sprite.group.position, 0xc9a0ff);
+      }
+    }
+    this.world.setEventMarkers(this.state.merchantTile, this.state.banditTiles);
+    this.world.syncCities(this.state);
+    this.refresh();
+
+    if (playerAlive) {
+      const extra = def.duration ? `\n\n（持續 ${def.duration} 輪）` : '';
+      await this.dialog.message(`天下大事・${def.name}`, `${def.desc}${lines.length ? `\n\n${lines.join('\n')}` : ''}${extra}`, def.icon, def.id === 'auction' ? '參加拍賣' : '知道了');
+    }
+    if (def.id === 'auction') await this.runAuction();
+  }
+
+  private async runAuction() {
+    const lot = auctionLot(this.state);
+    const bids: { id: LordId; bid: number }[] = [];
+    for (const l of aliveLords(this.state)) bids.push({ id: l.id, bid: l.isPlayer ? await this.playerBid(l, lot) : aiBid(this.state, l, lot) });
+    const r = resolveAuction(this.state, lot, bids);
+    const lines = r.bids.map((b) => `${LORDS[b.id].name}：${b.bid ? fmtStones(b.bid) : '放棄'}`);
+    const result = r.winner ? `${LORDS[r.winner].name}以 ${fmtStones(r.price)} 得標「${lot.label}」！` : `無人出價，「${lot.label}」流標。`;
+    this.ui.log(`🔨 ${result}`, r.winner === this.state.player ? 'good' : 'info');
+    this.refresh();
+    if (this.state.lords[this.state.player].alive) await this.dialog.message('拍賣結果', `${result}\n\n各家密封出價：\n${lines.join('\n')}`, '🔨');
+  }
+
+  /** 玩家密封出價；回傳 0 表示放棄 */
+  private playerBid(lord: Lord, lot: Offer): Promise<number> {
+    return this.dialog.custom<number>('🔨 天寶拍賣會・密封出價', (body, done) => {
+      let bid = 0;
+      const set = (v: number) => {
+        bid = Math.max(0, Math.min(lord.stones, Math.round(v / 100) * 100));
+        render();
+      };
+      const button = (parent: Element, label: string, cls: string, fn: () => void, disabled = false) => {
+        const b = document.createElement('button');
+        b.className = `btn ${cls}`;
+        b.textContent = label;
+        b.disabled = disabled;
+        b.onclick = fn;
+        parent.appendChild(b);
+      };
+      const render = () => {
+        body.innerHTML = `
+          <div class="lot"><b>${lot.label}</b><small>${lot.sub}</small><small>市價約 ${fmtStones(lot.price)}</small></div>
+          <p class="dialog-text">四位主公各自秘密出價，價高者得，得標者支付自己的出價。<br>持有靈石：${fmtStones(lord.stones)}</p>
+          <div class="bid-box"><div class="bid-amount">${bid ? fmtStones(bid) : '尚未出價'}</div><div class="bid-row steps"></div><div class="bid-row quick"></div></div>
+          <div class="dialog-buttons"></div>`;
+        const steps = body.querySelector('.steps')!;
+        for (const d of [-10000, -1000, 1000, 10000]) button(steps, `${d > 0 ? '+' : '−'}${fmtStones(Math.abs(d))}`, 'mini', () => set(bid + d));
+        const quick = body.querySelector('.quick')!;
+        button(quick, '市價', 'mini', () => set(lot.price));
+        button(quick, '一半家產', 'mini', () => set(lord.stones / 2));
+        button(quick, '傾家蕩產', 'mini', () => set(lord.stones));
+        const actions = body.querySelector('.dialog-buttons')!;
+        button(actions, '密封出價', 'primary', () => done(bid), bid <= 0);
+        button(actions, '放棄', '', () => done(0));
+      };
+      render();
+    });
+  }
+
+  /** 黃巾賊窩：繳買路錢或損兵 */
+  private async banditEvent(lord: Lord) {
+    const cost = banditToll(this.state);
+    const loss = Math.round(lord.soldiers * 0.1);
+    let payIt: boolean;
+    if (lord.isPlayer) {
+      const r = await this.dialog.choose(
+        '🏴 黃巾賊窩',
+        `一群黃巾餘黨攔路，要求買路錢 ${fmtStones(cost)}。`,
+        [
+          { label: '💰 繳買路錢', sub: fmtStones(cost), value: 'pay', disabled: lord.stones < cost, reason: '靈石不足' },
+          { label: '⚔️ 硬闖', sub: `折損一成士兵（約 ${loss} 人）`, value: 'fight' },
+        ],
+        null,
+        '🏴',
+      );
+      payIt = r === 'pay';
+    } else payIt = lord.stones > cost * 3;
+    if (payIt) {
+      lord.stones -= cost;
+      this.ui.log(`${LORDS[lord.id].name}向黃巾賊繳了買路錢 ${fmtStones(cost)}。`, lord.isPlayer ? 'bad' : 'ai');
+    } else {
+      lord.soldiers -= loss;
+      this.ui.log(`${LORDS[lord.id].name}硬闖賊窩，折損 ${loss} 名士兵。`, lord.isPlayer ? 'bad' : 'ai');
+    }
     this.refresh();
   }
 

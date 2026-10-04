@@ -30,6 +30,15 @@ export function ownerName(owner: Owner): string {
   return owner === 'neutral' ? '無主' : LORDS[owner].name;
 }
 
+/** 將領所屬國名（仙人為方外） */
+export function originKingdom(origin: LordId | 'immortal'): string {
+  return origin === 'immortal' ? '方外' : LORDS[origin].kingdom;
+}
+
+export function originCss(origin: LordId | 'immortal'): string {
+  return origin === 'immortal' ? '#c9a0ff' : LORDS[origin].css;
+}
+
 export function ownerCss(owner: Owner): string {
   return owner === 'neutral' ? '#b0aa9c' : LORDS[owner].css;
 }

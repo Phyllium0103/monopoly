@@ -79,7 +79,8 @@ export type Trait = 'poisonImmune' | 'divineStrength' | 'thunderBody';
 export interface General {
   id: string;
   name: string;
-  origin: LordId;
+  /** 所屬國；immortal 為仙人出山事件的方外高人 */
+  origin: LordId | 'immortal';
   owner: LordId | null;
   base: Stats;
   realm: number;
@@ -112,6 +113,8 @@ export interface Expedition {
   generalIds: string[];
   turnsLeft: number;
   realmName: string;
+  /** 上古秘境現世期間派遣：死亡率減半、獎勵更好 */
+  blessed?: boolean;
 }
 
 export interface Lord {
@@ -172,4 +175,18 @@ export interface GameState {
   tiles: Tile[];
   over: boolean;
   uid: number;
+  /** 進行中的天下大事 */
+  events: ActiveEvent[];
+  /** 本局已發生過的事件 */
+  usedEvents: string[];
+  merchantTile: number | null;
+  banditTiles: number[];
+  favoredElement: Element | null;
+}
+
+export interface ActiveEvent {
+  id: string;
+  name: string;
+  icon: string;
+  roundsLeft: number;
 }

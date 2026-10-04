@@ -1,13 +1,15 @@
 import type { GameState, Lord, TileKind } from '../game/types';
 import { joinLord, nextUid } from '../game/GameState';
+import { merchantStock } from './EventSystem';
 import { fmtStones } from '../game/Currency';
 import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipRealm, itemName, makeBeast, makeEquipment, makeTechnique, rollTier, singleTier, techniqueExp, ELEMENT_NAMES } from '../data/items';
 import { APTITUDE_NAMES, REALMS, TRAIT_NAMES } from '../data/generals';
 import { generalValue, power, realmName, recruitPrice } from './GeneralSystem';
-import { LORDS } from '../faction/Faction';
+import { originKingdom } from '../faction/Faction';
 import type { Beast, Equipment, General, Item, Technique } from '../game/types';
 
-export type ShopKind = Exclude<TileKind, 'city' | 'realm' | 'road'>;
+/** 地圖上的商店，加上旅行商人事件的商隊 */
+export type ShopKind = Exclude<TileKind, 'city' | 'realm' | 'road'> | 'merchant';
 
 export type Offer =
   | { kind: 'item'; item: Item; label: string; sub: string; price: number }
@@ -23,6 +25,7 @@ export const SHOP_NAMES: Record<ShopKind, string> = {
   library: '藏經閣',
   beast: '萬獸園',
   tavern: '聽風樓',
+  merchant: '旅行商人',
 };
 
 const shuffle = <T,>(arr: T[]): T[] => arr.map((v) => [Math.random(), v] as const).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
@@ -33,6 +36,8 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
   // 隨回合推進，高階貨品更常見
   const bias = Math.min(0.9, state.round / 40);
   switch (kind) {
+    case 'merchant':
+      return merchantStock(state);
     case 'herb':
       return Array.from({ length: 6 }, () => {
         const defId = PILL_IDS[Math.floor(Math.random() * PILL_IDS.length)];
@@ -73,13 +78,14 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
         return { kind: 'beast', beast: b, label: b.name, sub: b.desc, price: b.price } as Offer;
       });
     case 'tavern': {
-      const pool = shuffle(Object.values(state.generals).filter((g) => g.owner === null && g.status !== 'dead')).slice(0, 4);
+      const free = shuffle(Object.values(state.generals).filter((g) => g.owner === null && g.status !== 'dead'));
+      const pool = [...free.filter((g) => g.origin === 'immortal'), ...free.filter((g) => g.origin !== 'immortal')].slice(0, 4);
       return pool.map(
         (g) =>
           ({
             kind: 'general',
             general: g,
-            label: `${g.name}（${LORDS[g.origin].kingdom}）`,
+            label: `${g.origin === 'immortal' ? '🧙 ' : ''}${g.name}（${originKingdom(g.origin)}）`,
             sub: `${realmName(g)}・${APTITUDE_NAMES[g.aptitude]}${g.trait ? `・${TRAIT_NAMES[g.trait]}` : ''}｜戰力 ${power(g)}｜武${g.base.force} 防${g.base.defense} 丹${g.base.alchemy} 器${g.base.forging} 符${g.base.talisman} 陣${g.base.formation}${g.origin === lord.id ? '｜本國將領優惠' : ''}`,
             price: recruitPrice(g, lord.id),
           }) as Offer,

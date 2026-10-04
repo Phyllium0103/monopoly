@@ -2,6 +2,7 @@ import type { Beast, City, CraftStat, Element, GameState, General, Lord, LordId 
 import { attack, craft, defense, maxHp, power } from './GeneralSystem';
 import { beastPower, elementMod } from '../data/items';
 import { beastSiegeBonus, garrisonPower } from './CitySystem';
+import { WORLD } from './WorldMods';
 
 export type Side = 'a' | 'b';
 export type BattleKind = 'duel' | 'siege' | CraftStat;
@@ -105,7 +106,9 @@ export class Duel {
     const me = this.fighter(side);
     const foe = this.other(side);
     const em = elementMod(me.element, foe.element);
-    const raw = me.atk * (0.9 + Math.random() * 0.2) * 1.6 * (100 / (100 + foe.def)) * em.mult * mult;
+    // 五行輪轉：當令屬性傷害 +30%
+    const tide = WORLD.element && me.element === WORLD.element ? 1.3 : 1;
+    const raw = me.atk * (0.9 + Math.random() * 0.2) * 1.6 * (100 / (100 + foe.def)) * em.mult * mult * tide;
     return { dmg: this.damage(foe, raw), elem: em.text };
   }
 

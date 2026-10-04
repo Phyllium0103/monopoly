@@ -3,6 +3,7 @@ import { citiesOf, freeGenerals, generalsOf, joinLord } from '../game/GameState'
 import { defense, generalValue, power } from './GeneralSystem';
 import { beastPower } from '../data/items';
 import { fmtStones } from '../game/Currency';
+import { WORLD } from './WorldMods';
 
 export const SOLDIER_PRICE = 2;
 export const MIN_GARRISON = 300;
@@ -15,7 +16,7 @@ export function toll(city: City, ownerCities = 1): number {
 }
 
 export function cityToll(state: GameState, city: City): number {
-  return city.owner === 'neutral' ? 0 : toll(city, citiesOf(state, city.owner).length);
+  return city.owner === 'neutral' ? 0 : Math.round(toll(city, citiesOf(state, city.owner).length) * WORLD.tollMult);
 }
 
 export function cityIncome(city: City) {

@@ -1185,3 +1185,69 @@ body {
   font-size: 14px;
   color: #bfe0ff;
 }
+
+/* ───────── 天下大事 ───────── */
+.world-events {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 2px;
+  max-width: 230px;
+}
+.ev {
+  font-size: 12px;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: rgba(201, 154, 46, 0.3);
+  color: var(--gold-light);
+  white-space: nowrap;
+}
+.ev.next {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+}
+.event-marker {
+  padding: 1px 7px;
+  font-size: 13px;
+  border-radius: 10px;
+  white-space: nowrap;
+  font-weight: 700;
+  color: #2a1a06;
+  background: #f1d27a;
+  border: 1px solid #8a6a1a;
+}
+.event-marker.bandit {
+  background: #c8a020;
+  color: #2a1a06;
+}
+.bid-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.bid-amount {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--red);
+}
+.bid-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.lot {
+  padding: 10px 14px;
+  border: 2px solid #c99a2e;
+  border-radius: 8px;
+  background: #fbf6ea;
+  margin-bottom: 8px;
+}
+.lot b {
+  font-size: 18px;
+}
+.lot small {
+  display: block;
+  color: #6a5030;
+}

@@ -6,6 +6,7 @@ import { REALMS } from '../data/generals';
 import { equipRealm } from '../data/items';
 import { canUse, def, usePreroll } from './ItemSystem';
 import { CONTEST_SOLDIERS, siegeAllowed, siegeAttack, type BattleKind } from './BattleSystem';
+import { WORLD } from './WorldMods';
 import type { Offer } from './ShopSystem';
 import { deathChance } from './RealmSystem';
 
@@ -152,7 +153,7 @@ const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
 /** 踏入敵城：繳費或選擇最有把握的戰鬥 */
 export function aiEnemyCity(state: GameState, lord: Lord, city: City): AiBattleChoice {
   const free = freeGenerals(state, lord.id).filter((g) => g.hp > maxHp(g) * 0.3);
-  if (!free.length) return { kind: 'pay', generals: [] };
+  if (!free.length || WORLD.noBattle) return { kind: 'pay', generals: [] };
   const owner = state.lords[city.owner as Lord['id']];
   const defenders = defenderPool(state, city);
   const cost = cityToll(state, city);

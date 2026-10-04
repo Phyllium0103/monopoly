@@ -2,6 +2,7 @@ import type { GameState, General, Lord } from '../game/types';
 import { joinLord, nextUid } from '../game/GameState';
 import { addExp, craft, levelUp, power, totalCraft } from './GeneralSystem';
 import { REALMS } from '../data/generals';
+import { WORLD } from './WorldMods';
 import { ITEM_DEFS, PILL_IDS, itemName, makeBeast, makeEquipment, makeTechnique, tierName } from '../data/items';
 
 export const REALM_TURNS = 5;
@@ -16,7 +17,7 @@ export function deathChance(g: General, team: General[]): number {
 
 export function dispatch(lord: Lord, team: General[], realmName: string) {
   for (const g of team) g.status = 'realm';
-  lord.expeditions.push({ generalIds: team.map((g) => g.id), turnsLeft: REALM_TURNS, realmName });
+  lord.expeditions.push({ generalIds: team.map((g) => g.id), turnsLeft: REALM_TURNS, realmName, blessed: WORLD.realmBlessed });
 }
 
 export interface RealmOutcome {
@@ -29,9 +30,9 @@ export interface RealmOutcome {
 }
 
 /** 依隊伍屬性決定獎勵種類與品階 */
-function grantReward(state: GameState, lord: Lord, team: General[], all: General[]): string {
+function grantReward(state: GameState, lord: Lord, team: General[], all: General[], bonus = 0): string {
   const score = all.reduce((s, g) => s + power(g) + totalCraft(g) * 0.5, 0);
-  const tier = Math.max(0, Math.min(11, Math.floor(score / 450) + Math.floor(Math.random() * 3) - 1));
+  const tier = Math.max(0, Math.min(11, Math.floor(score / 450) + Math.floor(Math.random() * 3) - 1 + bonus));
   const sum = (f: (g: General) => number) => team.reduce((s, g) => s + f(g), 0);
   const weights: [string, number][] = [
     ['weapon', sum((g) => g.base.force)],
@@ -90,7 +91,7 @@ export function advanceExpeditions(state: GameState, lord: Lord): RealmOutcome[]
     const insights: string[] = [];
     const score = team.reduce((s, g) => s + power(g), 0);
     for (const g of team) {
-      if (Math.random() < deathChance(g, team)) {
+      if (Math.random() < deathChance(g, team) * (ex.blessed ? 0.5 : 1)) {
         g.status = 'dead';
         g.owner = null;
         dead.push(g);
@@ -105,7 +106,7 @@ export function advanceExpeditions(state: GameState, lord: Lord): RealmOutcome[]
         insights.push(`${g.name}於秘境頓悟，直接突破至【${REALMS[g.realm]}】！`);
       } else insights.push(`${g.name}修為 +${gain}`);
     }
-    const reward = survivors.length ? grantReward(state, lord, survivors, team) : null;
+    const reward = survivors.length ? grantReward(state, lord, survivors, team, ex.blessed ? 2 : 0) : null;
     outcomes.push({ realmName: ex.realmName, dead, survivors, reward, insights });
   }
   return outcomes;

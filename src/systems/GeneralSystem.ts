@@ -1,6 +1,7 @@
 import type { City, CraftStat, Equipment, General, Lord, Technique } from '../game/types';
 import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
 import { techniqueExp } from '../data/items';
+import { WORLD } from './WorldMods';
 
 export function realmName(g: General): string {
   return REALMS[g.realm];
@@ -64,7 +65,7 @@ export function passiveExp(g: General, city: City | null): number {
     n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1);
     if (g.secluded) n *= 2;
   }
-  return Math.round(n);
+  return Math.round(n * WORLD.expMult);
 }
 
 // ───────────────────────── 突破 ─────────────────────────
@@ -83,6 +84,7 @@ export function breakChance(g: General): number {
   if (g.hp < maxHp(g) * 0.5) c -= 0.15;
   if (g.foundation && g.realm === 1) c = Math.max(c, 0.95);
   c -= g.demon * 0.3;
+  c += WORLD.breakBonus;
   return Math.max(0.05, Math.min(0.95, c));
 }
 
@@ -127,7 +129,7 @@ export function boltDamage(g: General): number {
   const def = defense(g);
   const reduce = def / (def + 300);
   const thunder = g.trait === 'thunderBody' ? 0.7 : 1;
-  return TRIBULATION_BASE[g.realm - 2] * (1 - reduce) * (1 - g.ward) * thunder * (1 + g.demon * 0.5);
+  return TRIBULATION_BASE[g.realm - 2] * (1 - reduce) * (1 - g.ward) * thunder * (1 + g.demon * 0.5) * WORLD.boltMult;
 }
 
 export interface TribulationResult {

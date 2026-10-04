@@ -21,7 +21,7 @@ import {
   power,
 } from '../systems/GeneralSystem';
 import { nameOf } from '../systems/ItemSystem';
-import { LORDS } from '../faction/Faction';
+import { LORDS, originKingdom } from '../faction/Faction';
 import type { Dialog } from './Dialog';
 
 const SECTIONS: { status: General['status']; title: string }[] = [
@@ -119,7 +119,7 @@ export class GeneralsView {
     const buffs = [g.foundation ? '已服築基丹' : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? `心魔 ×${g.demon}` : ''].filter(Boolean).join('・');
 
     card.innerHTML = `
-      <div class="gc-head"><b>${g.name}</b><small>${LORDS[g.origin].kingdom}</small><span class="realm">${REALMS[g.realm]}</span><span class="st">${status}</span></div>
+      <div class="gc-head"><b>${g.name}</b><small>${originKingdom(g.origin)}</small><span class="realm">${REALMS[g.realm]}</span><span class="st">${status}</span></div>
       <div class="tags">
         <span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span>
         ${g.trait ? `<span class="chip trait" title="${TRAIT_DESC[g.trait]}">${TRAIT_NAMES[g.trait]}</span>` : ''}

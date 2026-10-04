@@ -26,6 +26,11 @@ export class GameUI {
   private tooltip: HTMLDivElement;
   private dice: HTMLDivElement;
   private report: HTMLDivElement;
+  private overlay: HTMLDivElement;
+  private rollBtn: HTMLButtonElement;
+  private logPanel: HTMLDivElement;
+  private logOpen = true;
+  private closeReport: (() => void) | null = null;
   /** 正在蒐集電腦這回合的行動 */
   private collecting: string[] | null = null;
   speed = 1;
@@ -46,7 +51,9 @@ export class GameUI {
       <div class="info-panel hidden"></div>
       <div class="bottom-panel"><div class="action-panel"></div></div>
       <div class="toast"></div>
+      <div class="report-overlay hidden"></div>
       <div class="turn-report hidden"></div>
+      <button class="roll-btn hidden" title="擲骰（空白鍵）"><span class="roll-dice">🎲</span><b>擲骰</b><small>空白鍵</small></button>
       <div class="dice hidden"></div>
       <div class="tooltip hidden"></div>
       <div class="help">左鍵拖曳旋轉 · 右鍵平移 · 滾輪縮放 · WASD 移動視角</div>`;
@@ -60,6 +67,12 @@ export class GameUI {
     this.tooltip = q('.tooltip');
     this.dice = q('.dice');
     this.report = q('.turn-report');
+    this.overlay = q('.report-overlay');
+    this.rollBtn = q('.roll-btn');
+    this.logPanel = q('.log-panel');
+    // 點擊任何地方都能立刻關閉電腦行動結果
+    this.overlay.addEventListener('click', () => this.closeReport?.());
+    this.report.addEventListener('click', () => this.closeReport?.());
   }
 
   show() {
@@ -73,7 +86,8 @@ export class GameUI {
   reset() {
     this.logEl.innerHTML = '';
     this.info.classList.add('hidden');
-    this.report.classList.add('hidden');
+    this.closeReport?.();
+    this.hideRoll();
     this.collecting = null;
   }
 
@@ -102,11 +116,16 @@ export class GameUI {
         }</div>
       </div>
       <div class="lords">${lords}</div>
-      <div class="speed"><button class="btn mini cheat-btn" title="測試用：獲得大量靈石與所有物品">🧪 測試</button><button class="btn mini auto-btn ${this.auto ? 'on' : ''}" title="由電腦代打你的回合">${this.auto ? '🤖 託管中' : '🤖 託管'}</button><button class="btn mini rank-btn">🏆 城池榜</button><button class="btn mini help-btn">📖 說明</button>${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
+      <div class="speed"><button class="btn mini log-btn ${this.logOpen ? 'on' : ''}" title="開關天下紀事">📜 紀事</button><button class="btn mini cheat-btn" title="測試用：獲得大量靈石與所有物品">🧪 測試</button><button class="btn mini auto-btn ${this.auto ? 'on' : ''}" title="由電腦代打你的回合">${this.auto ? '🤖 託管中' : '🤖 託管'}</button><button class="btn mini rank-btn">🏆 城池榜</button><button class="btn mini help-btn">📖 說明</button>${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
     (this.top.querySelector('.help-btn') as HTMLButtonElement).onclick = () => this.onHelp?.();
     (this.top.querySelector('.rank-btn') as HTMLButtonElement).onclick = () => this.onRank?.();
     (this.top.querySelector('.auto-btn') as HTMLButtonElement).onclick = () => this.onAuto?.();
     (this.top.querySelector('.cheat-btn') as HTMLButtonElement).onclick = () => this.onCheat?.();
+    (this.top.querySelector('.log-btn') as HTMLButtonElement).onclick = () => {
+      this.logOpen = !this.logOpen;
+      this.logPanel.classList.toggle('hidden', !this.logOpen);
+      this.renderTop(state);
+    };
     this.top.querySelectorAll<HTMLButtonElement>('.speed button[data-s]').forEach((b) => {
       b.onclick = () => {
         this.speed = Number(b.dataset.s);
@@ -162,18 +181,39 @@ export class GameUI {
     return lines;
   }
 
-  /** 在畫面上顯示一位主公這回合的行動結果 */
-  showReport(title: string, css: string, lines: string[]) {
+  /** 在畫面中央顯示一位主公這回合的行動結果；點擊任何地方立刻關閉，也會在時間到時自動關閉 */
+  showReport(title: string, css: string, lines: string[], autoCloseMs = 5000): Promise<void> {
+    this.closeReport?.();
     this.report.style.setProperty('--fc', css);
     this.report.innerHTML = `
-      <div class="tr-head"><b>${title}</b><button class="tr-close" title="關閉">✕</button></div>
+      <div class="tr-head"><b>${title}</b><span class="tr-tip">點擊任意處關閉</span></div>
       <ul>${(lines.length ? lines : ['按兵不動，沒有特別的行動。']).map((l) => `<li>${l}</li>`).join('')}</ul>`;
-    (this.report.querySelector('.tr-close') as HTMLButtonElement).onclick = () => this.hideReport();
     this.report.classList.remove('hidden');
+    this.overlay.classList.remove('hidden');
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => this.closeReport?.(), autoCloseMs);
+      this.closeReport = () => {
+        clearTimeout(timer);
+        this.report.classList.add('hidden');
+        this.overlay.classList.add('hidden');
+        this.closeReport = null;
+        resolve();
+      };
+    });
   }
 
   hideReport() {
-    this.report.classList.add('hidden');
+    this.closeReport?.();
+  }
+
+  /** 擲骰大圓鈕 */
+  showRoll(onClick: () => void) {
+    this.rollBtn.classList.remove('hidden');
+    this.rollBtn.onclick = onClick;
+  }
+
+  hideRoll() {
+    this.rollBtn.classList.add('hidden');
   }
 
   toast(msg: string) {

@@ -132,6 +132,8 @@ export interface Lord {
   stones: number;
   soldiers: number;
   position: number;
+  /** 上一格：移動方向固定，不走回頭路；傳送後歸零，由下一步隨機決定方向 */
+  lastTile: number | null;
   /** 迷魂陣：剩餘停留回合 */
   stunned: number;
   tollFree: boolean;

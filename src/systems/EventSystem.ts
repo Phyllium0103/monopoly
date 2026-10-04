@@ -200,7 +200,10 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
     }
     case 'shuffle': {
       const positions = shuffle(alive.map((l) => l.position));
-      alive.forEach((l, i) => (l.position = positions[i]));
+      alive.forEach((l, i) => {
+        l.position = positions[i];
+        l.lastTile = null;
+      });
       lines.push(alive.map((l) => `${LORDS[l.id].name} → ${state.tiles[l.position].name}`).join('、'));
       break;
     }

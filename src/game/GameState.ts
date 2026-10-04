@@ -97,6 +97,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       stones: START_STONES,
       soldiers: START_SOLDIERS,
       position: cities[LORDS[id].capital].tile,
+      lastTile: null,
       stunned: 0,
       tollFree: false,
       siegeBoost: 1,

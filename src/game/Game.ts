@@ -31,7 +31,7 @@ import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, ai
 import { rollRoadEvent } from '../systems/RoadEvents';
 import { EVENT_INTERVAL, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, syncWorldMods, tickWorldEvents } from '../systems/EventSystem';
 
-type Phase = 'idle' | 'preroll' | 'busy' | 'postland' | 'pickTile';
+type Phase = 'idle' | 'preroll' | 'busy' | 'pickTile';
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
@@ -55,7 +55,6 @@ export class Game {
   private hoverTile: number | null = null;
   private mouse = { x: 0, y: 0 };
   private rollResolver: ((c: RollChoice) => void) | null = null;
-  private endResolver: (() => void) | null = null;
   private tileResolver: ((t: number | null) => void) | null = null;
   /** 本回合開始時新進入瓶頸的武將，玩家回合開始時提示 */
   private pendingBreak: string[] = [];
@@ -105,7 +104,6 @@ export class Game {
         e.preventDefault();
         this.rollResolver?.({ type: 'roll' });
       }
-      if (e.key === 'Enter' && this.phase === 'postland') this.endResolver?.();
       if (e.key === 'Escape' && this.phase === 'pickTile') this.tileResolver?.(null);
     });
     this.sm.start();
@@ -149,7 +147,7 @@ export class Game {
         for (const msg of aiPreroll(this.state, player)) this.ui.log(`${LORDS[player.id].name}：${msg}`, 'ai');
         this.world.syncCities(this.state);
         this.rollResolver?.({ type: 'roll' });
-      } else if (this.phase === 'postland') this.endResolver?.();
+      }
     }
     this.refresh();
   }
@@ -230,8 +228,7 @@ export class Game {
   private async showTurnReport(lord: Lord, token: number) {
     const lines = this.ui.endReport();
     if (token !== this.token) return;
-    this.ui.showReport(`${LORDS[lord.id].name}・第 ${this.state.round} 輪行動結果`, LORDS[lord.id].css, lines);
-    await this.wait(Math.min(5000, 1500 + lines.length * 500));
+    await this.ui.showReport(`${LORDS[lord.id].name}・第 ${this.state.round} 輪行動結果`, LORDS[lord.id].css, lines, Math.min(6000, 2000 + lines.length * 600) / this.speed);
   }
 
   private async checkEnd(): Promise<boolean> {
@@ -296,11 +293,9 @@ export class Game {
     if (choice.type === 'teleport') await this.teleport(lord, choice.tile);
     else await this.moveLord(lord, await this.rollDice(lord));
     if (!lord.alive || this.state.over) return;
-    this.phase = 'postland';
-    this.refresh();
-    if (!this.autoPlay) await new Promise<void>((r) => (this.endResolver = r));
-    this.endResolver = null;
+    // 落地處理完畢就直接結束回合
     this.phase = 'busy';
+    this.refresh();
   }
 
   /** 有武將修為圓滿時，提示玩家前往突破 */
@@ -364,8 +359,8 @@ export class Game {
 
   private async moveLord(lord: Lord, steps: number) {
     const sprite = this.sprites.get(lord.id)!;
-    // 同一次擲骰中不走回頭路；死路才能掉頭
-    let prev: number | null = null;
+    // 移動方向固定：不走回頭路（連回合之間也是），只有開局與傳送後的方向是隨機的
+    let prev: number | null = lord.lastTile;
     for (let i = 1; i <= steps; i++) {
       const here = lord.position;
       const links = this.state.tiles[here].links;
@@ -376,6 +371,7 @@ export class Game {
       const to = this.slotPosition(lord.id, next);
       await sprite.moveAlong([from, to], this.sm.animator, (p) => this.sm.cameraController.follow(p));
       prev = here;
+      lord.lastTile = here;
       lord.position = next;
       this.refresh();
       if (!lord.alive) return;
@@ -397,6 +393,7 @@ export class Game {
     this.world.beamEffect(sprite.group.position, 0xc9a0ff);
     await this.wait(500);
     lord.position = tile;
+    lord.lastTile = null;
     sprite.setGroundPosition(this.slotPosition(lord.id, tile));
     this.world.beamEffect(sprite.group.position, 0xc9a0ff);
     this.sm.cameraController.focus(sprite.group.position);
@@ -1264,7 +1261,7 @@ export class Game {
   /** 玩家回合內才能突破、閉關 */
   private canManage(): boolean {
     const cur = currentLord(this.state);
-    return cur.isPlayer && (this.phase === 'preroll' || this.phase === 'postland');
+    return cur.isPlayer && this.phase === 'preroll';
   }
 
   private async manageSect(lord: Lord) {
@@ -1436,9 +1433,8 @@ export class Game {
       hint = `${LORDS[current.id].name}行動中……`;
       buttons.push(roster);
     } else if (this.phase === 'preroll') {
-      hint = '擲骰前可先使用物品、徵兵或整備武將（調度駐軍與宗門要站在自己的城池）';
+      hint = '擲骰前可先使用物品、徵兵或整備武將（調度駐軍與宗門要站在自己的城池）；擲完骰、處理完落地事件，回合就會自動結束';
       buttons.push(
-        { label: '🎲 擲骰', sub: '空白鍵', kind: 'primary', onClick: () => this.rollResolver?.({ type: 'roll' }) },
         { label: '🎒 使用物品', sub: `${player.items.length} 件`, onClick: () => void this.useItemPreroll(player) },
         { label: '⚔️ 徵兵', sub: `${SOLDIER_PRICE}/名`, onClick: () => void this.recruitSoldiers(player) },
         { label: '🏯 調度駐軍', sub: this.canSwapSect(player) ? undefined : '需在自己的城池', disabled: !this.canSwapSect(player), onClick: () => void this.manageGarrison(player) },
@@ -1448,16 +1444,11 @@ export class Game {
     } else if (this.phase === 'pickTile') {
       hint = '傳送陣：點選地圖上任一格（右鍵或 Esc 取消）';
       buttons.push({ label: '✖ 取消', onClick: () => this.tileResolver?.(null) });
-    } else if (this.phase === 'postland') {
-      hint = '本回合行動完畢';
-      buttons.push(
-        roster,
-        { label: '🏯 調度駐軍', sub: this.canSwapSect(player) ? undefined : '需在自己的城池', disabled: !this.canSwapSect(player), onClick: () => void this.manageGarrison(player) },
-        { label: '🏛️ 宗門', sub: this.canSwapSect(player) ? `隨行 ${freeGenerals(this.state, player.id).length}/${PARTY_LIMIT}` : '需在自己的城池', disabled: !this.canSwapSect(player), onClick: () => void this.manageSect(player) },
-        { label: '結束回合', sub: 'Enter', kind: 'primary', onClick: () => this.endResolver?.() },
-      );
     } else hint = '……';
     this.ui.renderActions(buttons, hint);
+    // 擲骰：右側偏下的大圓鈕
+    if (!this.state.over && player.alive && myTurn && !this.autoPlay && this.phase === 'preroll') this.ui.showRoll(() => this.rollResolver?.({ type: 'roll' }));
+    else this.ui.hideRoll();
 
     this.ui.renderInfo(this.tileInfoHtml(this.hoverTile ?? player.position));
     this.hoverTile = null;

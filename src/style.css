@@ -1780,3 +1780,86 @@ body {
   margin: 4px 0;
   font-size: 18px;
 }
+
+/* ───────── 擲骰大圓鈕、行動結果大方框、紀事開關 ───────── */
+.roll-btn {
+  position: absolute;
+  right: 42px;
+  bottom: 170px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 4px solid #f1d27a;
+  background: radial-gradient(circle at 35% 30%, #f6d36a, #b8892a 70%);
+  color: #2a1a06;
+  font-family: inherit;
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.55), 0 0 28px rgba(241, 210, 122, 0.55);
+  animation: rollPulse 1.4s ease-in-out infinite;
+}
+.roll-btn:hover {
+  filter: brightness(1.12);
+  transform: scale(1.05);
+}
+.roll-btn:active {
+  transform: scale(0.96);
+}
+.roll-btn.hidden {
+  display: none;
+}
+.roll-btn .roll-dice {
+  font-size: 52px;
+  line-height: 1;
+}
+.roll-btn b {
+  font-size: 30px;
+  letter-spacing: 4px;
+}
+.roll-btn small {
+  font-size: 13px;
+  opacity: 0.7;
+}
+@keyframes rollPulse {
+  50% {
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.55), 0 0 48px rgba(255, 224, 120, 0.95);
+  }
+}
+.report-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(10, 6, 4, 0.45);
+  cursor: pointer;
+}
+.report-overlay.hidden {
+  display: none;
+}
+.turn-report {
+  z-index: 41;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(760px, 86vw) !important;
+  max-height: 70vh !important;
+  padding: 18px 28px 22px !important;
+  font-size: 22px !important;
+  line-height: 1.7 !important;
+  cursor: pointer;
+}
+.turn-report .tr-head b {
+  font-size: 30px !important;
+}
+.tr-tip {
+  color: var(--muted);
+  font-size: 14px;
+}
+.turn-report li {
+  margin: 6px 0 !important;
+}
+.log-panel.hidden {
+  display: none;
+}

@@ -77,7 +77,6 @@ const PATHS: PathItem[][] = [
   ['chenliu', road('官渡'), 'puyang'],
   ['chenliu', shop('tavern', '聽風樓'), 'xiaopei'],
   ['xuchang', shop('beast', '萬獸園'), 'runan'],
-  ['xuchang', shop('herb', '百草堂'), 'wancheng'],
   ['runan', shop('treasure', '天寶商行'), 'shouchun'],
   // 河北
   ['henei', road('壺關'), 'jinyang'],
@@ -90,7 +89,6 @@ const PATHS: PathItem[][] = [
   ['ji', road('居庸關'), portal(), 'beiping'],
   ['beiping', shop('forge', '天工坊'), 'nanpi'],
   // 山東、徐州
-  ['puyang', road('濟陰'), 'xiaopei'],
   ['puyang', road('東平'), shop('forge', '天工坊'), 'pingyuan'],
   ['pingyuan', road('臨淄'), 'beihai'],
   ['beihai', shop('library', '藏經閣'), 'xiapi'],
@@ -99,8 +97,6 @@ const PATHS: PathItem[][] = [
   // 淮南、江東
   ['shouchun', 'hefei'],
   ['hefei', road('濡須口'), 'jianye'],
-  ['hefei', road('廬江'), 'chaisang'],
-  ['jianye', road('廣陵'), shop('herb', '百草堂'), 'xiapi'],
   ['jianye', road('牛渚'), realm('廬山幽谷'), 'chaisang'],
   ['jianye', shop('tavern', '聽風樓'), 'wujun'],
   ['wujun', realm('東海仙島'), 'kuaiji'],
@@ -115,7 +111,7 @@ const PATHS: PathItem[][] = [
   ['lingling', road('零陵道'), 'wuling'],
   ['wuling', road('公安'), 'jiangling'],
   ['jiangling', road('長阪坡'), 'xiangyang'],
-  ['wancheng', road('新野'), 'xiangyang'],
+  ['wancheng', shop('herb', '百草堂'), 'xiangyang'],
   // 巴蜀、漢中
   ['wuling', road('牂牁'), shop('treasure', '天寶商行'), 'jianning'],
   ['jianning', road('瀘水'), portal(), realm('峨眉金頂'), 'chengdu'],
@@ -123,12 +119,10 @@ const PATHS: PathItem[][] = [
   ['jiangzhou', road('夷陵'), 'jiangling'],
   ['chengdu', road('劍閣'), road('葭萌關'), road('陽平關'), 'hanzhong'],
   ['hanzhong', road('子午谷'), 'changan'],
-  ['hanzhong', road('房陵'), road('上庸'), 'xiangyang'],
   // 關中、涼州
   ['hanzhong', shop('beast', '萬獸園'), road('祁山'), 'tianshui'],
-  ['changan', road('街亭'), shop('tavern', '聽風樓'), 'tianshui'],
   ['tianshui', road('隴西'), portal(), 'wuwei'],
-  ['wuwei', road('張掖'), road('酒泉'), 'changan'],
+  ['wuwei', road('張掖'), shop('tavern', '聽風樓'), 'changan'],
 ];
 
 export interface CitySeed {

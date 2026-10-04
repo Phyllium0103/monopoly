@@ -9,6 +9,7 @@ import type { Duel, DuelEvent, Side } from './BattleSystem';
 import { fmtStones } from '../game/Currency';
 import { LORDS } from '../faction/Faction';
 import { fx } from '../data/passives';
+import { APTITUDE_NAMES } from '../data/generals';
 import { traitOf } from '../faction/Faction';
 
 export function def(item: Item): ItemDef {
@@ -136,6 +137,18 @@ export function usePreroll(state: GameState, lord: Lord, item: Item, user: Gener
     case 'revive':
       reviveGeneral(state, lord.id, g!, REVIVE_HP[t], REVIVE_REALM_LOSS[t]);
       return `${head}，${g!.name}還陽復生，歸入你的麾下（血量 ${Math.round(REVIVE_HP[t] * 100)}%）！`;
+    case 'rootup1':
+    case 'rootup2': {
+      const order = ['pseudo', 'earth', 'heaven'] as const;
+      const from = order.indexOf(g!.aptitude);
+      const to = Math.min(2, from + (item.defId === 'rootup1' ? 1 : 2));
+      if (to === from) {
+        const n = addExp(g!, 300);
+        return `${head}，${g!.name}已是天靈根，藥力化為修為 +${n}。`;
+      }
+      g!.aptitude = order[to];
+      return `${head}，${g!.name}洗髓伐骨，靈根提升為【${APTITUDE_NAMES[g!.aptitude]}】！`;
+    }
     case 'clearmind':
       g!.demon = 0;
       return `${head}，${g!.name}心魔盡消。`;

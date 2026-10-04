@@ -61,7 +61,15 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
       // 百草堂常備一顆還魂丹，可帶回去復活死去的武將
       const reviveItem = makeItem(uid('i'), 'revive', rollItemTier('revive', bias));
       const pill: Offer = { kind: 'item', item: reviveItem, label: itemName('revive', reviveItem.tier), sub: `${ITEM_DEFS.revive.desc(reviveItem.tier)}｜${requirementOf('revive', reviveItem.tier)}`, price: reviveItem.price };
-      return [...potions, pill, ...revives];
+      // 偶爾有提升靈根的丹藥
+      const rare: Offer[] = [];
+      for (const [defId, chance] of [['rootup1', 0.45], ['rootup2', 0.2]] as const) {
+        if (Math.random() < chance) {
+          const it = makeItem(uid('i'), defId, 0);
+          rare.push({ kind: 'item', item: it, label: itemName(defId, 0), sub: `${ITEM_DEFS[defId].desc(0)}｜${requirementOf(defId, 0)}`, price: it.price });
+        }
+      }
+      return [...potions, pill, ...rare, ...revives];
     }
     case 'treasure':
       return shuffle([...ARTIFACT_IDS])

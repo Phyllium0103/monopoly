@@ -25,14 +25,14 @@ export interface RealmLevel {
 /** 秘境難度：以境界命名，由玩家選擇。越高階歷時越久、越兇險，獎勵也越稀有 */
 export const REALM_LEVELS: RealmLevel[] = [
   { name: '煉氣', icon: '🌱', turns: 3, risk: 0.4, tier: -1, exp: 0.7, rolls: 1 },
-  { name: '築基', icon: '🌿', turns: 4, risk: 0.65, tier: 0, exp: 1, rolls: 1 },
-  { name: '金丹', icon: '🍃', turns: 5, risk: 0.95, tier: 1, exp: 1.3, rolls: 1 },
-  { name: '元嬰', icon: '🔥', turns: 6, risk: 1.4, tier: 2, exp: 1.7, rolls: 1 },
-  { name: '化神', icon: '⚡', turns: 7, risk: 1.9, tier: 3, exp: 2.2, rolls: 2 },
-  { name: '煉虛', icon: '🌪️', turns: 8, risk: 2.5, tier: 4, exp: 2.8, rolls: 2 },
-  { name: '合體', icon: '🌋', turns: 9, risk: 3.2, tier: 5, exp: 3.5, rolls: 2 },
-  { name: '大乘', icon: '☄️', turns: 10, risk: 4, tier: 6, exp: 4.3, rolls: 3 },
-  { name: '渡劫', icon: '💀', turns: 12, risk: 5, tier: 7, exp: 5.5, rolls: 3 },
+  { name: '築基', icon: '🌿', turns: 3, risk: 0.65, tier: 0, exp: 1, rolls: 1 },
+  { name: '金丹', icon: '🍃', turns: 3, risk: 0.95, tier: 1, exp: 1.3, rolls: 1 },
+  { name: '元嬰', icon: '🔥', turns: 3, risk: 1.4, tier: 2, exp: 1.7, rolls: 1 },
+  { name: '化神', icon: '⚡', turns: 3, risk: 1.9, tier: 3, exp: 2.2, rolls: 2 },
+  { name: '煉虛', icon: '🌪️', turns: 3, risk: 2.5, tier: 4, exp: 2.8, rolls: 2 },
+  { name: '合體', icon: '🌋', turns: 3, risk: 3.2, tier: 5, exp: 3.5, rolls: 2 },
+  { name: '大乘', icon: '☄️', turns: 3, risk: 4, tier: 6, exp: 4.3, rolls: 3 },
+  { name: '渡劫', icon: '💀', turns: 3, risk: 5, tier: 7, exp: 5.5, rolls: 3 },
 ];
 
 export const REALM_MIN_PARTY = 1;

@@ -184,17 +184,34 @@ export function reviveGeneral(state: GameState, lord: LordId, g: General, hpRati
   joinLord(state, lord, g);
 }
 
-/** 武將戰死：從主公與城池除名 */
-export function killGeneral(state: GameState, g: General) {
+/** 城池失去所有駐將就成為空城：守軍離開，回到主公身邊。回傳是否變成空城 */
+export function abandonIfEmpty(state: GameState, cityId: string | null): boolean {
+  if (!cityId) return false;
+  const c = state.cities[cityId];
+  if (!c || c.owner === 'neutral' || c.garrisonGenerals.length) return false;
+  state.lords[c.owner].soldiers += c.garrisonSoldiers;
+  c.garrisonSoldiers = 0;
+  c.owner = 'neutral';
+  c.shieldTurns = 0;
+  return true;
+}
+
+/** 武將戰死：從主公與城池除名；若因此變成空城，回傳城池 id */
+export function killGeneral(state: GameState, g: General): string | null {
+  let abandoned: string | null = null;
   if (g.cityId) {
     const city = state.cities[g.cityId];
-    if (city) city.garrisonGenerals = city.garrisonGenerals.filter((id) => id !== g.id);
+    if (city) {
+      city.garrisonGenerals = city.garrisonGenerals.filter((id) => id !== g.id);
+      if (abandonIfEmpty(state, g.cityId)) abandoned = g.cityId;
+    }
   }
   g.status = 'dead';
   g.owner = null;
   g.cityId = null;
   g.secluded = false;
   g.hp = 0;
+  return abandoned;
 }
 
 export function citiesOf(state: GameState, lord: LordId): City[] {

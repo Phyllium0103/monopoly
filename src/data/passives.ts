@@ -24,6 +24,8 @@ export interface PassiveFx {
   intimidate?: number;
   /** 擂台必定先手 */
   firstStrike?: boolean;
+  /** 擂台爆擊機率（基礎只有 3%；爆擊傷害 ×1.5） */
+  crit?: number;
   /** 擂台每次攻擊有機率多砍一刀 */
   doubleStrike?: number;
   /** 攻城或守城時部隊兵力倍增（1 = 兵力加倍） */
@@ -66,17 +68,17 @@ const P = (name: string, flavor: string, fx: PassiveFx): Passive => ({ name, fla
  */
 export const PASSIVES: Record<string, Passive> = {
   // ───── 蜀：英雄豪傑，重單挑與氣節 ─────
-  guanyu: P('武聖', '威震華夏，溫酒斬華雄；刮骨療毒而面不改色。然剛而自矜，不屑借助外物。', { duelDmg: 0.08, doubleStrike: 0.12, poisonImmune: true, itemStamina: -0.15 }),
-  zhangfei: P('萬人敵', '據水斷橋，瞋目橫矛，曹軍無敢近者。暴而無恩，不擅鬥智。', { intimidate: 0.14, rage: 0.2, contest: -0.1 }),
-  zhaoyun: P('一身是膽', '長坂坡七進七出，渾身是膽。進退有度，攻守兼備。', { duelTaken: 0.12, doubleStrike: 0.15, def: 0.04 }),
+  guanyu: P('武聖', '威震華夏，溫酒斬華雄；刮骨療毒而面不改色。然剛而自矜，不屑借助外物。', { crit: 0.1, duelDmg: 0.08, doubleStrike: 0.12, poisonImmune: true, itemStamina: -0.15 }),
+  zhangfei: P('萬人敵', '據水斷橋，瞋目橫矛，曹軍無敢近者。暴而無恩，不擅鬥智。', { crit: 0.06, intimidate: 0.14, rage: 0.2, contest: -0.1 }),
+  zhaoyun: P('一身是膽', '長坂坡七進七出，渾身是膽。進退有度，攻守兼備。', { crit: 0.08, duelTaken: 0.12, doubleStrike: 0.15, def: 0.04 }),
   zhugeliang: P('臥龍', '鞠躬盡瘁，八陣圖困敵，借東風、禳星斗。然體弱積勞。', { craft: { formation: 10 }, garrisonDef: 0.2, tribulation: 0.25, hp: -0.1 }),
-  huangzhong: P('老當益壯', '定軍山一戰陣斬夏侯淵，百步穿楊，箭無虛發。年事已高，體力不濟。', { skillDmg: 0.2, doubleStrike: 0.1, hp: -0.05 }),
-  machao: P('錦馬超', '西涼鐵騎渭水破曹，割鬚棄袍。銳於進取，疏於防守。', { troops: 0.25, doubleStrike: 0.12, def: -0.05 }),
-  weiyan: P('鎮守漢中', '「若曹操舉天下而來，請為大王拒之。」性矜高，人多不與。', { garrisonDef: 0.25, atk: 0.04, rage: 0.1 }),
+  huangzhong: P('老當益壯', '定軍山一戰陣斬夏侯淵，百步穿楊，箭無虛發。年事已高，體力不濟。', { crit: 0.12, skillDmg: 0.2, doubleStrike: 0.1, hp: -0.05 }),
+  machao: P('錦馬超', '西涼鐵騎渭水破曹，割鬚棄袍。銳於進取，疏於防守。', { crit: 0.08, troops: 0.25, doubleStrike: 0.12, def: -0.05 }),
+  weiyan: P('鎮守漢中', '「若曹操舉天下而來，請為大王拒之。」性矜高，人多不與。', { crit: 0.06, garrisonDef: 0.25, atk: 0.04, rage: 0.1 }),
   pangtong: P('鳳雛', '與臥龍齊名，獻連環之計。不拘小節，身子單薄。', { craft: { talisman: 8 }, contest: 0.12, exp: 0.12, hp: -0.1 }),
   jiangwei: P('幼麟', '承丞相遺志，九伐中原，文武兼資。', { siegeLead: 0.12, exp: 0.12 }),
   fazheng: P('謀主', '策劃定軍山，奇畫策算，睚眥必報。', { contest: 0.15, siegeLead: 0.08, def: -0.05 }),
-  madai: P('伏兵斬將', '「誰敢殺我？」應聲斬魏延於馬下。', { firstStrike: true, duelDmg: 0.08 }),
+  madai: P('伏兵斬將', '「誰敢殺我？」應聲斬魏延於馬下。', { crit: 0.06, firstStrike: true, duelDmg: 0.08 }),
   guanping: P('隨父征戰', '追隨關羽轉戰荊襄，忠勇不二。', { def: 0.08, garrisonDef: 0.12 }),
   guanxing: P('青龍傳人', '承父親青龍刀法，少年英武。', { skillDmg: 0.12, exp: 0.1 }),
   zhangbao: P('虎父無犬子', '丈八蛇矛，勇猛不遜其父，惜早逝。', { rage: 0.2, hp: 0.05, realmSafety: -0.1 }),
@@ -100,12 +102,12 @@ export const PASSIVES: Record<string, Passive> = {
   dengzhi: P('出使東吳', '孫權稱其「和合二國，唯有鄧芝」。', { contest: 0.2, realmSafety: 0.1 }),
 
   // ───── 吳：水戰、經濟與火攻 ─────
-  zhouyu: P('赤壁火攻', '羽扇綸巾，談笑間檣櫓灰飛煙滅。曲有誤，周郎顧。', { skillDmg: 0.22, craft: { formation: 8 }, hp: -0.05 }),
+  zhouyu: P('赤壁火攻', '羽扇綸巾，談笑間檣櫓灰飛煙滅。曲有誤，周郎顧。', { crit: 0.06, skillDmg: 0.22, craft: { formation: 8 }, hp: -0.05 }),
   lusu: P('榻上策', '鼎足江東之策，為孫權定大計；性好施，家財散盡。', { cityStones: 0.18, contest: 0.1, atk: -0.05 }),
   lvmeng: P('白衣渡江', '士別三日，當刮目相待。', { exp: 0.25, firstStrike: true, tribulation: -0.1 }),
   luxun: P('火燒連營', '夷陵一把火，燒退劉備七百里連營。', { troops: 0.4, skillDmg: 0.12, rage: -0.1 }),
-  ganning: P('百騎劫營', '錦帆賊出身，率百騎夜襲曹營無一損傷。', { energyStart: 45, doubleStrike: 0.12, def: -0.04 }),
-  taishici: P('信義篤烈', '神亭與孫策酣鬥，一諾千金，弓馬絕倫。', { doubleStrike: 0.12, rage: 0.14, energyGain: 3 }),
+  ganning: P('百騎劫營', '錦帆賊出身，率百騎夜襲曹營無一損傷。', { crit: 0.08, energyStart: 45, doubleStrike: 0.12, def: -0.04 }),
+  taishici: P('信義篤烈', '神亭與孫策酣鬥，一諾千金，弓馬絕倫。', { crit: 0.1, doubleStrike: 0.12, rage: 0.14, energyGain: 3 }),
   huanggai: P('苦肉計', '受杖詐降，火攻赤壁，老當益壯。', { hp: 0.22, craft: { forging: 6 }, poisonImmune: true }),
   zhoutai: P('不屈', '捨身護主，身被十二創而不退。', { duelTaken: 0.18, poisonImmune: true, atk: -0.03 }),
   chengpu: P('江東元老', '歷事孫堅三代，眾人皆呼程公。', { garrisonDef: 0.14, def: 0.08 }),
@@ -113,7 +115,7 @@ export const PASSIVES: Record<string, Passive> = {
   handang: P('宿將', '隨孫氏三代征戰，弓馬嫻熟，善於督軍。', { def: 0.08, siegeLead: 0.1 }),
   jiangqin: P('水軍都督', '江上作戰經驗老到，生活簡樸。', { siegeLead: 0.1, realmSafety: 0.1 }),
   xusheng: P('疑城計', '於建業江邊立假城，曹丕望而退兵。', { troops: 0.45, garrisonDef: 0.05 }),
-  dingfeng: P('雪中奮短兵', '雪中棄甲持短兵，大破魏軍。', { firstStrike: true, duelDmg: 0.08 }),
+  dingfeng: P('雪中奮短兵', '雪中棄甲持短兵，大破魏軍。', { crit: 0.08, firstStrike: true, duelDmg: 0.08 }),
   panzhang: P('擒關羽', '伏兵臨沮，擒獲關羽；性奢侈好財。', { intimidate: 0.08, duelDmg: 0.08, cityStones: -0.05 }),
   zhuhuan: P('濡須督', '以寡擊眾，大破曹仁於濡須。', { garrisonDef: 0.22 }),
   zhuran: P('江陵堅守', '守江陵半年，城中疫病仍不失守。', { garrisonDef: 0.18, def: 0.08 }),
@@ -122,18 +124,18 @@ export const PASSIVES: Record<string, Passive> = {
   yufan: P('易學大家', '精通易學，卜筮多驗；性疏直，數犯顏。', { exp: 0.18, breakBonus: 0.1, def: -0.04 }),
   guyong: P('不言之相', '寡言而處事精當，為相十九年。', { cityStones: 0.18, contest: 0.05 }),
   lukang: P('羊陸之交', '與羊祜對峙而相敬，西陵大捷。', { garrisonDef: 0.22, siegeLead: 0.08 }),
-  sunce: P('小霸王', '橫掃江東，勇冠一時，卻死於刺客之手。', { atk: 0.08, doubleStrike: 0.15, def: -0.06 }),
-  sunshangxiang: P('弓腰姬', '才捷剛猛，侍婢百人皆持刀侍立。', { craft: { forging: 8 }, skillDmg: 0.1, firstStrike: true }),
+  sunce: P('小霸王', '橫掃江東，勇冠一時，卻死於刺客之手。', { crit: 0.08, atk: 0.08, doubleStrike: 0.15, def: -0.06 }),
+  sunshangxiang: P('弓腰姬', '才捷剛猛，侍婢百人皆持刀侍立。', { crit: 0.1, craft: { forging: 8 }, skillDmg: 0.1, firstStrike: true }),
   lvfan: P('財計', '典掌財計，孫策器重。', { cityStones: 0.18, contest: 0.05 }),
   heqi: P('平定山越', '討平山越，治軍嚴整，器仗精良。', { siegeLead: 0.12, craft: { forging: 5 } }),
   sunjian: P('江東猛虎', '破虜將軍，身先士卒，勇冠三軍，惜早歿於峴山。', { atk: 0.06, rage: 0.15, hp: 0.08, realmSafety: -0.1 }),
 
   // ───── 魏：制度嚴整，名將守城、謀臣如雲 ─────
-  xiahoudun: P('拔矢啖睛', '「父精母血，不可棄也！」', { rage: 0.26, hp: 0.08, contest: -0.08 }),
-  xiahouyuan: P('虎步關右', '三日五百，六日一千，急行如風。勇而少謀，終敗於定軍山。', { firstStrike: true, siegeLead: 0.12, def: -0.05 }),
-  zhangliao: P('威震逍遙津', '八百破十萬，江東小兒聞名止啼。', { troops: 0.6, intimidate: 0.1 }),
-  xuchu: P('虎痴', '裸衣鬥馬超，力大如牛；有勇少謀。', { atk: 0.1, hp: 0.1, doubleStrike: 0.08, craft: { formation: -6 } }),
-  dianwei: P('古之惡來', '雙戟死戰護主，身被數十創。', { rage: 0.26, doubleStrike: 0.12, tribulation: -0.1 }),
+  xiahoudun: P('拔矢啖睛', '「父精母血，不可棄也！」', { crit: 0.06, rage: 0.26, hp: 0.08, contest: -0.08 }),
+  xiahouyuan: P('虎步關右', '三日五百，六日一千，急行如風。勇而少謀，終敗於定軍山。', { crit: 0.1, firstStrike: true, siegeLead: 0.12, def: -0.05 }),
+  zhangliao: P('威震逍遙津', '八百破十萬，江東小兒聞名止啼。', { crit: 0.08, troops: 0.6, intimidate: 0.1 }),
+  xuchu: P('虎痴', '裸衣鬥馬超，力大如牛；有勇少謀。', { crit: 0.06, atk: 0.1, hp: 0.1, doubleStrike: 0.08, craft: { formation: -6 } }),
+  dianwei: P('古之惡來', '雙戟死戰護主，身被數十創。', { crit: 0.08, rage: 0.26, doubleStrike: 0.12, tribulation: -0.1 }),
   guojia: P('鬼才', '十勝十敗之論，算無遺策，可惜天不假年。', { contest: 0.2, exp: 0.18, hp: -0.15 }),
   xunyu: P('王佐之才', '居中持重，為曹操舉薦群賢。', { cityStones: 0.22, contest: 0.1, atk: -0.05 }),
   simayi: P('冢虎', '鷹視狼顧，隱忍待時。', { tribulation: 0.25, def: 0.1, exp: 0.08 }),
@@ -145,7 +147,7 @@ export const PASSIVES: Record<string, Passive> = {
   yujin: P('毅重', '治軍嚴整，得賊物無所私入；晚節不保。', { garrisonDef: 0.18, citySoldiers: 0.1, tribulation: -0.08 }),
   lidian: P('儒將', '好學問，敬賢士，不與諸將爭功。', { exp: 0.14, def: 0.05, craft: { alchemy: 4 } }),
   zhanghe: P('巧變', '識變數，善處營陣，諸葛亮亦憚之。', { duelTaken: 0.1, siegeLead: 0.1 }),
-  pangde: P('抬櫬死戰', '抬棺出戰，力戰關羽而死節。', { rage: 0.26, intimidate: 0.04, def: -0.04 }),
+  pangde: P('抬櫬死戰', '抬棺出戰，力戰關羽而死節。', { crit: 0.1, rage: 0.26, intimidate: 0.04, def: -0.04 }),
   wenpin: P('江夏屏障', '鎮守江夏數十年，吳人不敢犯。', { garrisonDef: 0.22, def: 0.04 }),
   manchong: P('合肥新城', '築合肥新城以拒吳軍，執法嚴明。', { garrisonDef: 0.22, craft: { formation: 5 } }),
   chengyu: P('剛戾', '膽略過人，獨守鄄城以拒呂布；為人剛戾，多與人忤。', { contest: 0.14, citySoldiers: 0.1, def: -0.04 }),
@@ -155,7 +157,7 @@ export const PASSIVES: Record<string, Passive> = {
   dengai: P('偷渡陰平', '鑿山開道，奇兵直取成都；口吃，不善爭辯。', { troops: 0.35, realmSafety: 0.15, contest: -0.1 }),
   haozhao: P('陳倉之守', '千餘人守陳倉，拒諸葛亮數萬大軍二十餘日。', { troops: 0.4, garrisonDef: 0.2, siegeLead: -0.1 }),
   caopi: P('魏文帝', '受禪稱帝，著《典論》，文采斐然。', { cityStones: 0.14, contest: 0.08, hp: -0.05 }),
-  caozhang: P('黃鬚兒', '徒手搏猛獸，臂力過人，不好讀書。', { atk: 0.07, rage: 0.15, intimidate: 0.05, contest: -0.12 }),
+  caozhang: P('黃鬚兒', '徒手搏猛獸，臂力過人，不好讀書。', { crit: 0.08, atk: 0.07, rage: 0.15, intimidate: 0.05, contest: -0.12 }),
   caoang: P('宛城之殤', '曹操長子，宛城夜襲讓馬救父而死。', { duelTaken: 0.1, def: 0.05, realmSafety: -0.1 }),
   xushu: P('走馬薦諸葛', '先事劉備，後歸曹操，終身不為之出一謀。', { craft: { formation: 6 }, exp: 0.1, contest: 0.08 }),
   zhonghui: P('才能兼備', '少有才名，伐蜀有功，志大而終敗。', { exp: 0.12, craft: { talisman: 5 }, tribulation: -0.1 }),
@@ -163,8 +165,8 @@ export const PASSIVES: Record<string, Passive> = {
   caozhi: P('七步成詩', '才高八斗，「本是同根生，相煎何太急」。', { craft: { talisman: 12 }, atk: -0.1, hp: -0.1 }),
 
   // ───── 西涼與群雄：驍騎悍將、毒士奇謀 ─────
-  lvbu: P('人中呂布', '人中呂布，馬中赤兔；轅門射戟，天下無雙，然反覆無義。', { atk: 0.08, doubleStrike: 0.2, intimidate: 0.08, itemStamina: -0.2, def: -0.05 }),
-  huaxiong: P('斬將先鋒', '汜水關前連斬聯軍數將，終為關羽所斬。', { firstStrike: true, duelDmg: 0.08, def: -0.04 }),
+  lvbu: P('人中呂布', '人中呂布，馬中赤兔；轅門射戟，天下無雙，然反覆無義。', { crit: 0.1, atk: 0.08, doubleStrike: 0.2, intimidate: 0.08, itemStamina: -0.2, def: -0.05 }),
+  huaxiong: P('斬將先鋒', '汜水關前連斬聯軍數將，終為關羽所斬。', { crit: 0.1, firstStrike: true, duelDmg: 0.08, def: -0.04 }),
   lijue: P('劫駕亂政', '挾持天子，縱兵劫掠長安。', { siegeLead: 0.1, cityStones: 0.1, citySoldiers: -0.05 }),
   guosi: P('縱兵擄掠', '與李傕相攻，關中殘破。', { citySoldiers: 0.14, atk: 0.03, garrisonDef: -0.08 }),
   liru: P('鴆殺', '鴆殺少帝，董卓心腹謀主。', { craft: { alchemy: 14 }, poisonImmune: true, hp: -0.08 }),
@@ -183,8 +185,8 @@ export const PASSIVES: Record<string, Passive> = {
   yanxing: P('閻行擲矛', '韓遂部將，與馬超單挑，一矛折馬超矛。', { duelDmg: 0.08, doubleStrike: 0.1 }),
   chenggongying: P('韓遂謀主', '勸韓遂割據涼州，屢獻奇策。', { contest: 0.14, craft: { formation: 5 }, hp: -0.05 }),
   zhanglu: P('五斗米道', '雄踞漢中，以符水治病、設義舍施米肉。', { craft: { alchemy: 10 }, cityStones: 0.1, poisonImmune: true, atk: -0.05 }),
-  yanliang: P('河北上將', '袁紹麾下第一勇將，白馬一戰先登，卻輕敵被關羽所斬。', { duelDmg: 0.08, rage: 0.1, def: -0.06 }),
-  wenchou: P('河北名將', '與顏良並稱，延津追擊曹軍，終為曹軍所殺。', { duelDmg: 0.06, firstStrike: true, hp: -0.05 }),
+  yanliang: P('河北上將', '袁紹麾下第一勇將，白馬一戰先登，卻輕敵被關羽所斬。', { crit: 0.08, duelDmg: 0.08, rage: 0.1, def: -0.06 }),
+  wenchou: P('河北名將', '與顏良並稱，延津追擊曹軍，終為曹軍所殺。', { crit: 0.06, duelDmg: 0.06, firstStrike: true, hp: -0.05 }),
   jiling: P('轅門射戟', '袁術大將，統兵十萬攻小沛，卻遇呂布轅門射戟。', { troops: 0.2, def: 0.05, itemStamina: -0.1 }),
   juyi: P('先登死士', '袁紹麾下，以八百先登死士大破公孫瓚白馬義從。', { troops: 0.4, garrisonDef: -0.1, firstStrike: true }),
   jushou: P('監軍', '勸袁紹迎天子、屯兵待變，見識遠大，不被採納。', { contest: 0.16, craft: { formation: 6 }, atk: -0.05 }),
@@ -201,10 +203,10 @@ export const PASSIVES: Record<string, Passive> = {
   sunquan: P('碧眼紫髯', '坐斷東南戰未休，善用人才，能屈能伸。', { garrisonDef: 0.15, cityStones: 0.1, contest: 0.08, atk: -0.04 }),
   dongzhuo: P('暴虐太師', '廢立天子，火燒洛陽，西涼鐵騎橫行，殘暴失人心。', { atk: 0.06, intimidate: 0.1, hp: 0.1, cityStones: 0.08, def: -0.04, realmSafety: -0.1 }),
   menghuo: P('南蠻王', '諸葛亮七擒七縱而心服，驍勇善戰，統率蠻兵。', { hp: 0.15, troops: 0.2, rage: 0.12, contest: -0.1 }),
-  zhurongfuren: P('飛刀', '南蠻女將，善使飛刀，百發百中，與孟獲並肩作戰。', { firstStrike: true, skillDmg: 0.12, craft: { forging: 5 } }),
+  zhurongfuren: P('飛刀', '南蠻女將，善使飛刀，百發百中，與孟獲並肩作戰。', { crit: 0.12, firstStrike: true, skillDmg: 0.12, craft: { forging: 5 } }),
   huangyueying: P('巧婦', '諸葛亮之妻，才智巧思過人，木牛流馬之圖出自其手。', { craft: { forging: 12, formation: 6 }, exp: 0.1, hp: -0.1 }),
-  shamoke: P('五溪蠻王', '率五溪蠻兵助劉備伐吳，驍勇善射，終死於陣前。', { troops: 0.25, rage: 0.12, def: -0.05 }),
-  guansuo: P('花關索', '傳說中的關羽三子，隨諸葛亮南征，武藝不凡。', { doubleStrike: 0.1, firstStrike: true, hp: -0.03 }),
+  shamoke: P('五溪蠻王', '率五溪蠻兵助劉備伐吳，驍勇善射，終死於陣前。', { crit: 0.1, troops: 0.25, rage: 0.12, def: -0.05 }),
+  guansuo: P('花關索', '傳說中的關羽三子，隨諸葛亮南征，武藝不凡。', { crit: 0.06, doubleStrike: 0.1, firstStrike: true, hp: -0.03 }),
   mifang: P('開城獻荊', '降吳獻江陵，使關羽腹背受敵；貪生而失節。', { cityStones: 0.06, garrisonDef: -0.15, contest: 0.05 }),
   zhugezhan: P('綿竹死節', '諸葛亮之子，在綿竹迎戰鄧艾，父子皆死國事。', { garrisonDef: 0.12, duelTaken: 0.08, exp: 0.08 }),
   zhangxingcai: P('虎女', '張飛之女，傳說中隨軍北伐，繼承父親豪勇。', { rage: 0.14, def: 0.05, doubleStrike: 0.06 }),
@@ -217,13 +219,13 @@ export const PASSIVES: Record<string, Passive> = {
   zhenji: P('洛神', '曹植《洛神賦》中的原型，才貌雙全，嫁曹丕為后。', { craft: { talisman: 8, alchemy: 4 }, intimidate: 0.04, hp: -0.1 }),
   xuyou: P('官渡之變', '叛袁投曹，獻奇襲烏巢之計，恃功而驕終被殺。', { contest: 0.15, firstStrike: true, def: -0.06 }),
   jianggan: P('盜書', '自詡才辯，赤壁前往周瑜營中勸降，反中反間計。', { contest: 0.1, realmSafety: 0.1, garrisonDef: -0.1 }),
-  lvlingqi: P('戟中女傑', '傳說呂布之女，勇武絕倫，披甲上陣。', { atk: 0.04, doubleStrike: 0.1, energyStart: 15 }),
+  lvlingqi: P('戟中女傑', '傳說呂布之女，勇武絕倫，披甲上陣。', { crit: 0.1, atk: 0.04, doubleStrike: 0.1, energyStart: 15 }),
   yuanshao: P('四世三公', '河北霸主，名門之後，坐擁四州，終因多疑寡斷而敗。', { cityStones: 0.12, citySoldiers: 0.12, contest: -0.08, rage: -0.1 }),
   yuanshu: P('僭號稱帝', '據淮南，稱帝建號，驕奢淫逸，終眾叛親離。', { cityStones: 0.14, siegeLead: 0.06, garrisonDef: -0.1, def: -0.04 }),
   zhangjiao: P('大賢良師', '太平道首領，創黃巾起義，符水治病，聚眾數十萬。', { craft: { talisman: 12, alchemy: 6 }, citySoldiers: 0.15, tribulation: 0.2, hp: -0.05 }),
   zhangbaoyj: P('地公將軍', '張角之弟，作法呼風喚雨，鎮守廣宗。', { craft: { talisman: 8 }, skillDmg: 0.1, def: -0.03 }),
   zhangliang: P('人公將軍', '張角三弟，統兵出戰，與皇甫嵩對陣而死。', { troops: 0.15, rage: 0.1, def: -0.03 }),
-  gongsunzan: P('白馬將軍', '白馬義從縱橫塞北，威震烏桓，後敗於袁紹。', { troops: 0.25, firstStrike: true, garrisonDef: -0.06 }),
+  gongsunzan: P('白馬將軍', '白馬義從縱橫塞北，威震烏桓，後敗於袁紹。', { crit: 0.08, troops: 0.25, firstStrike: true, garrisonDef: -0.06 }),
   liubiao: P('荊襄九郡', '坐鎮荊州，單馬入宜城，保境安民，但無進取之志。', { garrisonDef: 0.14, cityStones: 0.1, atk: -0.08 }),
   shenpei: P('忠烈守鄴', '袁紹謀臣，死守鄴城，寧死不降。', { garrisonDef: 0.22, contest: 0.06, def: 0.04 }),
   taoqian: P('三讓徐州', '徐州牧，仁厚長者，三讓徐州於劉備。', { cityStones: 0.12, garrisonDef: 0.06, atk: -0.08 }),
@@ -282,6 +284,7 @@ export function fxText(f: PassiveFx): string {
   if (f.lifesteal) t.push(`傷害吸血 ${pct(f.lifesteal)}`);
   if (f.intimidate) t.push(`擂台上敵將武力 ${pct(-f.intimidate)}`);
   if (f.firstStrike) t.push('擂台必定先手');
+  if (f.crit) t.push(`爆擊機率 +${Math.round(f.crit * 100)}%`);
   if (f.doubleStrike) t.push(`擂台攻擊 ${Math.round(f.doubleStrike * 100)}% 機率連擊`);
   if (f.troops) t.push(f.troops >= 1 ? `作戰時兵力 ×${1 + f.troops}` : `作戰時兵力 ${pct(f.troops)}`);
   if (f.poisonImmune) t.push('百毒不侵');

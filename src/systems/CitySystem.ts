@@ -38,7 +38,7 @@ export function cityIncome(city: City, garrison: General[] = []) {
     f.citySoldiers += fx(g).citySoldiers ?? 0;
   }
   return {
-    stones: Math.round(city.prosperity * 1.5 * (1 + t.stones) * (1 + (f.cityStones ?? 0)) * WORLD.incomeMult * (1 + (tr.stonesMult ?? 0))),
+    stones: Math.round(city.prosperity * 3 * (1 + t.stones) * (1 + (f.cityStones ?? 0)) * WORLD.incomeMult * (1 + (tr.stonesMult ?? 0))),
     soldiers: Math.round(city.prosperity * 2 * (1 + t.soldiers) * (1 + (f.citySoldiers ?? 0)) * (1 + (tr.soldiersMult ?? 0))),
   };
 }

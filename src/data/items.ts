@@ -98,7 +98,7 @@ export const EQUIP_DESIGNS: EquipDesign[] = [
 ];
 
 /** 一階的基準值：隨品階成長 */
-const unit = (t: Tier) => ({ force: 4 + 4.5 * t, defense: 3 + 3.5 * t, hp: 20 + 22 * t, craft: 3 + 2.8 * t });
+const unit = (t: Tier) => ({ force: 4 + 4.5 * t, defense: 3 + 3.5 * t, hp: 40 + 40 * t, craft: 3 + 2.8 * t });
 
 export function makeEquipment(uid: string, kind: 'weapon' | 'armor', tier: Tier, designId?: string): Equipment {
   const pool = EQUIP_DESIGNS.filter((d) => d.kind === kind);
@@ -106,7 +106,9 @@ export function makeEquipment(uid: string, kind: 'weapon' | 'armor', tier: Tier,
   const u = unit(tier);
   const craft: Equipment['craft'] = {};
   for (const k of ['alchemy', 'forging', 'talisman', 'formation'] as const) if (d.w[k]) craft[k] = Math.max(1, Math.round((d.w[k] ?? 0) * u.craft));
-  const weight = Object.values(d.w).reduce((s, v) => s + (v ?? 0), 0);
+  // 每件裝備都附帶血量：神器至少 0.4、寶衣至少 0.6 倍的基準血量
+  const hpW = Math.max(d.w.hp ?? 0, kind === 'weapon' ? 0.4 : 0.6);
+  const weight = Object.values({ ...d.w, hp: hpW }).reduce((s, v) => s + (v ?? 0), 0);
   return {
     uid,
     kind,
@@ -115,7 +117,7 @@ export function makeEquipment(uid: string, kind: 'weapon' | 'armor', tier: Tier,
     designId: d.id,
     force: Math.round((d.w.force ?? 0) * u.force),
     defense: Math.round((d.w.defense ?? 0) * u.defense),
-    hp: Math.round((d.w.hp ?? 0) * u.hp),
+    hp: Math.round(hpW * u.hp),
     craft,
     price: Math.round((tierPrice(tier) * (0.8 + weight * 0.2)) / 10) * 10,
   };
@@ -369,6 +371,8 @@ export const ITEM_DEFS: Record<string, ItemDef> = {
   bone: { id: 'bone', name: '壯骨丹', category: '丹藥', stat: 'alchemy', min: [20, 35, 55, 75], stamina: [12, 18, 24, 30], timing: 'preroll', target: 'ownGeneral', price: price4(2.2), desc: (t) => `永久血量 +${BONE_HP[t]}（基礎值，隨境界放大）` },
   breakpill: { id: 'breakpill', name: '破境丹', category: '丹藥', stat: 'alchemy', min: [30, 45, 60, 80], stamina: [15, 20, 25, 30], timing: 'preroll', target: 'ownGeneral', price: price4(3), desc: (t) => `下次低階突破成功率 +${BREAK_BOOST[t] * 100}%，或下次渡劫天雷傷害 -${BREAK_BOOST[t] * 100}%` },
   revive: { id: 'revive', name: '還魂丹', category: '丹藥', stat: 'alchemy', min: [60, 70, 80, 90], stamina: [30, 35, 40, 50], timing: 'preroll', target: 'deadGeneral', price: [3500, 9000, 22000, 50000], desc: (t) => `復活一名已死去的武將，歸入你的麾下：血量 ${REVIVE_HP[t] * 100}%${REVIVE_REALM_LOSS[t] ? `、境界跌落 ${REVIVE_REALM_LOSS[t]} 級` : '、境界不變'}，修為歸零` },
+  rootup1: { id: 'rootup1', name: '地品洗髓丹', category: '丹藥', stat: 'alchemy', min: [75], stamina: [30], timing: 'preroll', target: 'ownGeneral', price: [12000], desc: () => '靈根提升 1 階（偽靈根→地靈根、地靈根→天靈根）' },
+  rootup2: { id: 'rootup2', name: '天品伐骨丹', category: '丹藥', stat: 'alchemy', min: [90], stamina: [40], timing: 'preroll', target: 'ownGeneral', price: [30000], desc: () => '靈根提升 2 階（偽靈根→天靈根）' },
   rage: { id: 'rage', name: '狂暴丹', category: '丹藥', stat: 'alchemy', min: [25, 40, 55, 75], stamina: [12, 18, 24, 30], timing: 'battle', target: 'none', battleTarget: 'ownGeneral', price: price4(1.5), desc: (t) => `戰鬥：本場擂台武力 +${RAGE_ATK[t] * 100}%` },
 
   // ───── 陣法（佈陣）─────

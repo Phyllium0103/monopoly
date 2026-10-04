@@ -42,7 +42,13 @@ export interface DuelEvent {
   damage?: number;
   heal?: number;
   kind?: 'hit' | 'skill' | 'beast' | 'item' | 'info';
+  /** 爆擊 */
+  crit?: boolean;
 }
+
+/** 擂台基礎爆擊機率與爆擊倍率 */
+export const CRIT_BASE = 0.03;
+export const CRIT_MULT = 1.5;
 
 const MAX_ACTIONS = 60;
 /** 血量低於一成就會認輸（保住性命） */
@@ -160,7 +166,7 @@ export class Duel {
     return dmg;
   }
 
-  private strike(side: Side, mult: number, skill = false): { dmg: number; elem: string; heal: number } {
+  private strike(side: Side, mult: number, skill = false): { dmg: number; elem: string; heal: number; crit: boolean } {
     const me = this.fighter(side);
     const foe = this.other(side);
     const mine = fx(me.general);
@@ -173,11 +179,12 @@ export class Duel {
       (skill ? 1 + (mine.skillDmg ?? 0) : 1) *
       (me.hp < me.maxHp / 2 ? 1 + (mine.rage ?? 0) : 1) *
       (1 - (fx(foe.general).duelTaken ?? 0));
-    const raw = me.atk * (0.9 + Math.random() * 0.2) * 1.6 * (100 / (100 + foe.def)) * em.mult * mult * tide * passive;
+    const crit = Math.random() < CRIT_BASE + (mine.crit ?? 0);
+    const raw = me.atk * (0.9 + Math.random() * 0.2) * 1.6 * (100 / (100 + foe.def)) * em.mult * mult * tide * passive * (crit ? CRIT_MULT : 1);
     const dmg = this.damage(foe, raw);
     const heal = Math.min(me.maxHp - me.hp, Math.round(dmg * (mine.lifesteal ?? 0)));
     me.hp += heal;
-    return { dmg, elem: em.text, heal };
+    return { dmg, elem: em.text, heal, crit };
   }
 
   /** 執行一個行動，回傳事件供畫面顯示 */
@@ -189,13 +196,13 @@ export class Duel {
       me.energy = 0;
       const t = me.general.technique!;
       const r = this.strike(side, t.skillPower, true);
-      events.push({ text: `${me.general.name}施展【${t.skillName}】！造成 ${r.dmg} 傷害${r.elem ? `（${r.elem}）` : ''}`, target: foe.side, damage: r.dmg, kind: 'skill' });
+      events.push({ text: `${me.general.name}施展【${t.skillName}】！${r.crit ? '【暴擊】' : ''}造成 ${r.dmg} 傷害${r.elem ? `（${r.elem}）` : ''}`, target: foe.side, damage: r.dmg, kind: 'skill', crit: r.crit });
       if (r.heal) events.push({ text: `${me.general.name}吸取 ${r.heal} 血量`, target: side, heal: r.heal, kind: 'info' });
     } else {
       const mine = fx(me.general);
       const r = this.strike(side, 1);
       me.energy = Math.min(100, me.energy + 25 + (mine.energyGain ?? 0));
-      events.push({ text: `${me.general.name}攻擊，造成 ${r.dmg} 傷害${r.elem ? `（${r.elem}）` : ''}`, target: foe.side, damage: r.dmg, kind: 'hit' });
+      events.push({ text: `${me.general.name}攻擊，${r.crit ? '【暴擊】' : ''}造成 ${r.dmg} 傷害${r.elem ? `（${r.elem}）` : ''}`, target: foe.side, damage: r.dmg, kind: 'hit', crit: r.crit });
       if (r.heal) events.push({ text: `${me.general.name}吸取 ${r.heal} 血量`, target: side, heal: r.heal, kind: 'info' });
       // 連擊：有機率多砍一刀
       if (!this.winner && mine.doubleStrike && Math.random() < mine.doubleStrike) {

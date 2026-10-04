@@ -24,15 +24,26 @@ export class Dialog {
   private el: HTMLDivElement;
   /** 按 Esc 時的動作；必須做出選擇的視窗為 null */
   private onEsc: (() => void) | null = null;
+  /** 點擊視窗外的空白處：可以略過的視窗才會關閉（戰鬥、購買等不會） */
+  private onOutside: (() => void) | null = null;
+  /** 按 Enter 確認 */
+  private onEnter: (() => void) | null = null;
 
   constructor(root: HTMLElement) {
     this.el = document.createElement('div');
     this.el.className = 'dialog-backdrop hidden';
     root.appendChild(this.el);
+    this.el.addEventListener('click', (e) => {
+      if (e.target === this.el) this.onOutside?.();
+    });
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.isOpen && this.onEsc) {
+      if (!this.isOpen) return;
+      if (e.key === 'Escape' && this.onEsc) {
         e.preventDefault();
         this.onEsc();
+      } else if (e.key === 'Enter' && this.onEnter) {
+        e.preventDefault();
+        this.onEnter();
       }
     });
   }
@@ -53,6 +64,8 @@ export class Dialog {
 
   close() {
     this.onEsc = null;
+    this.onOutside = null;
+    this.onEnter = null;
     this.el.classList.add('hidden');
     this.el.innerHTML = '';
   }
@@ -86,6 +99,7 @@ export class Dialog {
           this.close();
           resolve(null);
         };
+        this.onOutside = this.onEsc;
         const row = document.createElement('div');
         row.className = 'dialog-buttons';
         const b = document.createElement('button');
@@ -137,6 +151,7 @@ export class Dialog {
         this.close();
         resolve(null);
       };
+      this.onOutside = this.onEsc;
       ok.onclick = () => {
         this.close();
         resolve([...picked].map((i) => choices[i].value));
@@ -208,6 +223,8 @@ export class Dialog {
         this.close();
         resolve(null);
       };
+      this.onOutside = this.onEsc;
+      this.onEnter = () => ok.click();
       ok.onclick = () => {
         this.close();
         resolve(value);
@@ -231,6 +248,8 @@ export class Dialog {
         resolve();
       };
       this.onEsc = () => b.click();
+      this.onOutside = this.onEsc;
+      this.onEnter = this.onEsc;
       row.appendChild(b);
       card.appendChild(row);
     });
@@ -256,6 +275,8 @@ export class Dialog {
         resolve(false);
       };
       this.onEsc = () => n.click();
+      this.onOutside = this.onEsc;
+      this.onEnter = () => y.click();
       row.append(y, n);
       card.appendChild(row);
     });

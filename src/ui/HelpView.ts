@@ -63,14 +63,14 @@ function techniqueTable(): string {
 /** 神器、寶衣十二階：以「基準值」說明，各款式再乘上自己的比例 */
 function equipTable(): string {
   const rows = Array.from({ length: 12 }, (_, t) => {
-    return `<tr><td>${tierName(t)}</td><td>${Math.round(4 + t * 4.5)}</td><td>${Math.round(3 + t * 3.5)}</td><td>${20 + t * 22}</td><td>${Math.round(3 + t * 2.8)}</td><td>${REALMS[equipRealm(t)]}</td><td>${fmtStones(tierPrice(t), true)}</td></tr>`;
+    return `<tr><td>${tierName(t)}</td><td>${Math.round(4 + t * 4.5)}</td><td>${Math.round(3 + t * 3.5)}</td><td>${40 + t * 40}</td><td>${Math.round(3 + t * 2.8)}</td><td>${REALMS[equipRealm(t)]}</td><td>${fmtStones(tierPrice(t), true)}</td></tr>`;
   });
   const list = (kind: 'weapon' | 'armor') =>
     EQUIP_DESIGNS.filter((d) => d.kind === kind)
       .map((d) => `${d.name}（${Object.entries(d.w).map(([k, v]) => `${{ force: '武', defense: '防', hp: '血', alchemy: '丹', forging: '器', talisman: '符', formation: '陣' }[k]}${v}`).join(' ')}）`)
       .join('、');
   return `<table class="terrain-table"><tr><th>品階</th><th>武力基準</th><th>防禦基準</th><th>血量基準</th><th>技藝基準</th><th>需要境界</th><th>價格</th></tr>${rows.join('')}</table>
-    <p>每件裝備的實際數值＝基準值 × 款式比例（括號內，例如「武1」＝武力 100%、「丹0.5」＝煉丹 50%）。</p>
+    <p>每件裝備的實際數值＝基準值 × 款式比例（括號內，例如「武1」＝武力 100%、「丹0.5」＝煉丹 50%）。<b>每件裝備都附帶血量</b>：款式沒標「血」的，神器至少給 0.4 倍、寶衣至少給 0.6 倍的基準血量。</p>
     <p><b>20 種神器</b>：${list('weapon')}</p><p><b>20 種寶衣</b>：${list('armor')}</p>`;
 }
 
@@ -133,7 +133,7 @@ const PAGES: Page[] = [
     html: () => `
       <h4>佔領</h4>
       ${list([
-        '骰子停在<b>無主城池</b>時，可以支付佔領費，派 1～3 名隨行武將與士兵駐守；駐將越多守城越強、收入加成也會相加。',
+        '骰子停在<b>無主城池</b>時，可以支付佔領費，派 1～3 名隨行武將與士兵駐守；駐將越多守城越強、收入加成也會相加。<b>城池至少要有一名駐將</b>；駐將全部陣亡（擂台戰死、渡劫身死）後，城池就成為<b>空城</b>，守軍離開、回到主公身邊。',
         `守軍至少 ${MIN_GARRISON} 人；一名城池守軍約等於 ${GARRISON_STRENGTH} 名隨行士兵。`,
         '城池每回合為主人帶來靈石與士兵，繁榮度每回合成長，過路費也隨之上漲（過路費 ≈ 繁榮度^1.2 × 7）。',
         '同一位主公擁有的城池越多，每座城的過路費越貴。',
@@ -161,6 +161,7 @@ const PAGES: Page[] = [
       <h4>擂台戰</h4>
       ${list([
         '雙方各派一名武將回合制單挑：攻擊累積能量，能量滿可施放功法技能。<b>守方只能派該城的駐將應戰</b>（主公身邊的隨行武將不會來援）；城裡沒有駐將，就無人應戰，攻方不戰而勝。比試也是如此。',
+        '<b>爆擊</b>：每次攻擊有 3% 機率爆擊，傷害 ×1.5；擅長一擊制勝的武將（黃忠、太史慈、呂布、關羽、祝融夫人……）爆擊機率更高。',
         `<b>瀕危</b>：血量低於 ${WOUNDED_HP * 100}% 的武將，受到的傷害減少 ${WOUNDED_REDUCE * 100}%。`,
         `<b>認輸</b>：血量被打到 ${SURRENDER_HP * 100}% 以下就會認輸，保住性命；認輸的一方判負。`,
         '<b>戰死</b>：若血量被一擊（攻擊、技能、物品）直接打到歸零，武將當場戰死，從此除名——所以別讓血量偏低的武將硬撐。',
@@ -362,6 +363,7 @@ const PAGES: Page[] = [
         '空白鍵擲骰（或按右側的大圓鈕）；<b>Esc</b> 可關閉大部分彈出視窗（取消選單、離開商店、關閉說明），也能取消傳送陣選位。',
         '右上角可切換 1×／2×／4× 遊戲速度。',
         '點擊格子或主公可在右側查看詳細資訊。',
+        '點擊視窗外的空白處也能關閉可略過的視窗（戰鬥、購買等不能跳過的視窗除外）；突破、渡劫等確認視窗可按 <b>Enter</b> 確認。',
       ])}`,
   },
 ];

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { City, CraftStat, General, GameState, Lord, LordId } from './types';
-import { DEFAULT_ROUNDS, GARRISON_LIMIT, deployable, PARTY_LIMIT, citiesOf, garrisonOf, createGameState, currentLord, freeGenerals, generalsOf, joinLord, killGeneral, nextUid, sectGenerals } from './GameState';
+import { DEFAULT_ROUNDS, GARRISON_LIMIT, abandonIfEmpty, deployable, PARTY_LIMIT, citiesOf, garrisonOf, createGameState, currentLord, freeGenerals, generalsOf, joinLord, killGeneral, nextUid, sectGenerals } from './GameState';
 import { advance, aliveLords, startTurn } from './TurnManager';
 import { fmtProsperity, fmtStones } from './Currency';
 import { SceneManager } from '../scene/SceneManager';
@@ -713,8 +713,9 @@ export class Game {
   /** 武將在擂台上被當場擊殺 */
   private async onGeneralSlain(g: General, involved: boolean) {
     const owner = g.owner;
-    killGeneral(this.state, g);
+    const abandoned = killGeneral(this.state, g);
     this.world.syncCities(this.state);
+    if (abandoned) this.ui.log(`🏚️ ${this.state.cities[abandoned].name}失去所有駐將，成為空城，守軍離去。`, 'bad');
     this.ui.log(`💀 ${g.name}戰死擂台，從此除名！`, owner === this.state.player ? 'bad' : involved ? 'good' : 'ai');
     if (involved) this.ui.toast(`${g.name}戰死擂台`);
     this.refresh();
@@ -806,6 +807,13 @@ export class Game {
       } else soldiers = 0;
     }
     occupy(this.state, attacker, city, gids, Math.max(0, soldiers));
+    if (!gids.length) {
+      abandonIfEmpty(this.state, city.id);
+      this.world.syncCities(this.state);
+      this.ui.log(`${LORDS[attacker.id].name}攻破${city.name}，卻無將可派駐，城池淪為空城。`, this.human(attacker) ? 'bad' : 'ai');
+      this.refresh();
+      return true;
+    }
     this.world.syncCities(this.state);
     this.world.captureEffect(city.tile, LORDS[attacker.id].color);
     this.ui.log(`${LORDS[attacker.id].name}奪下${city.name}，由${gids.length ? gids.map((id) => this.state.generals[id].name).join('、') : '（無駐將）'}駐守。`, this.human(attacker) ? 'good' : this.human(defender) ? 'bad' : 'ai');
@@ -1117,7 +1125,7 @@ export class Game {
           `🏯 ${city.name}・調整駐將（${on.length}/${GARRISON_LIMIT}）`,
           '點選駐將可撤回，點選隨行武將可派駐。',
           [
-            ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, sub: `駐守中｜${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, color: '#c99a2e' })),
+            ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, sub: `駐守中｜${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, color: '#c99a2e', disabled: on.length <= 1, reason: '城池至少要有一名駐將' })),
             ...party.map((x) => ({ label: `▲ 派駐 ${x.name}`, sub: `隨行｜${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, disabled: on.length >= GARRISON_LIMIT, reason: `已滿 ${GARRISON_LIMIT} 人`, color: '#5aa8ec' })),
           ],
           '完成',
@@ -1328,7 +1336,10 @@ export class Game {
     const startHp = g.hp;
     const startMax = maxHp(g);
     const r = tribulation(g);
-    if (r.fate === 'death' && cityId) this.state.cities[cityId].garrisonGenerals = this.state.cities[cityId].garrisonGenerals.filter((id) => id !== g.id);
+    if (r.fate === 'death' && cityId) {
+      this.state.cities[cityId].garrisonGenerals = this.state.cities[cityId].garrisonGenerals.filter((id) => id !== g.id);
+      if (abandonIfEmpty(this.state, cityId)) this.ui.log(`🏚️ ${this.state.cities[cityId].name}失去所有駐將，成為空城，守軍離去。`, 'bad');
+    }
     await this.battleView.showTribulation(g.name, r, startHp, startMax, () => this.speed);
     if (r.success) this.world.beamEffect(sprite.group.position, 0xbfe0ff);
     const msg = r.success

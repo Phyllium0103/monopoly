@@ -1,5 +1,5 @@
 import type { City, CraftStat, GameState, General, Lord } from '../game/types';
-import { PARTY_LIMIT, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
+import { PARTY_LIMIT, abandonIfEmpty, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
 import { MIN_GARRISON, eliminate, recruitCost, cityToll, garrisonPower, occupyCost } from './CitySystem';
 import { REALMS } from '../data/generals';
@@ -66,6 +66,12 @@ export function aiPreroll(state: GameState, lord: Lord): string[] {
     const pill = lord.items.find((i) => i.defId === 'clearmind');
     const user = pill && gens.find((u) => canUse(pill, u).ok);
     if (pill && user) logs.push(usePreroll(state, lord, pill, user, { general: g }));
+  }
+  // 靈根丹：給戰力最強的非天靈根武將
+  for (const pill of lord.items.filter((i) => i.defId === 'rootup1' || i.defId === 'rootup2')) {
+    const user = gens.find((u) => canUse(pill, u).ok);
+    const target = strongest.find((g) => g.aptitude !== 'heaven');
+    if (user && target) logs.push(usePreroll(state, lord, pill, user, { general: target }));
   }
   // 還魂丹：復活戰力最強的亡者
   const revivePill = lord.items.find((i) => i.defId === 'revive');
@@ -138,7 +144,10 @@ export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
     if (boltDamage(g) * boltCount(g) * 1.1 > g.hp) continue;
     const cityId = g.cityId;
     const r = tribulation(g);
-    if (r.fate === 'death' && cityId) state.cities[cityId].garrisonGenerals = state.cities[cityId].garrisonGenerals.filter((id) => id !== g.id);
+    if (r.fate === 'death' && cityId) {
+      state.cities[cityId].garrisonGenerals = state.cities[cityId].garrisonGenerals.filter((id) => id !== g.id);
+      if (abandonIfEmpty(state, cityId)) logs.push(`🏚️ ${state.cities[cityId].name}失去所有駐將，成為空城。`);
+    }
     if (r.fate === 'death' && g.isLord) {
       logs.push(`⚡ ${g.name}渡劫失敗，身死道消……主公陣亡，敗北出局！`);
       eliminate(state, lord);

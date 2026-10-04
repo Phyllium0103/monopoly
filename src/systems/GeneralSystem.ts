@@ -127,7 +127,9 @@ export function attemptBreak(g: General, round: number): boolean {
 }
 
 export const TRIBULATION_BOLTS = [3, 4, 5, 6, 7, 8, 9, 10];
-const TRIBULATION_BASE = [550, 700, 900, 1250, 1600, 2100, 2700, 3500];
+const TRIBULATION_BASE = [420, 540, 700, 950, 1250, 1650, 2150, 2800];
+/** 單道天雷傷害的浮動範圍：預估值的 ±35% */
+export const BOLT_SPREAD = 0.35;
 
 export function boltCount(g: General): number {
   return TRIBULATION_BOLTS[g.realm - 2] ?? 10;
@@ -156,7 +158,7 @@ export function tribulation(g: General): TribulationResult {
   const bolts: number[] = [];
   let hp = g.hp;
   for (let i = 0; i < boltCount(g); i++) {
-    const dmg = Math.round(per * (0.8 + Math.random() * 0.4));
+    const dmg = Math.round(per * (1 - BOLT_SPREAD + Math.random() * BOLT_SPREAD * 2));
     bolts.push(dmg);
     hp -= dmg;
     if (hp <= 0) break;

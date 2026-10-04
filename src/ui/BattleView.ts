@@ -103,7 +103,7 @@ export class BattleView {
         for (const e of events) {
           logLines.push(e.text);
           render();
-          if (e.target && e.damage) this.float(e.target, `-${e.damage}`, e.kind === 'skill' ? 'dmg crit' : 'dmg');
+          if (e.target && e.damage) this.float(e.target, `${e.crit ? '暴擊 ' : ''}-${e.damage}`, e.kind === 'skill' || e.crit ? 'dmg crit' : 'dmg');
           if (e.target && e.heal) this.float(e.target, `+${e.heal}`, 'heal');
           await sleep(420 / speed());
         }

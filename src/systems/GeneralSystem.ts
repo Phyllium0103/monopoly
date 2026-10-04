@@ -76,9 +76,10 @@ export function needsTribulation(g: General): boolean {
 
 /** 低階突破成功率 */
 export function breakChance(g: General): number {
-  const base = [0.75, 0.6][g.realm] ?? 0.5;
+  const base = [0.9, 0.75][g.realm] ?? 0.5;
   let c = base + (g.aptitude === 'heaven' ? 0.15 : g.aptitude === 'pseudo' ? -0.1 : 0);
-  c -= ((g.technique?.difficulty ?? 3) - 1) * 0.03;
+  // 只有修習高難度功法才會拖累突破
+  if (g.technique) c -= (g.technique.difficulty - 1) * 0.03;
   if (g.hp < maxHp(g) * 0.5) c -= 0.15;
   if (g.foundation && g.realm === 1) c = Math.max(c, 0.95);
   c -= g.demon * 0.3;

@@ -26,12 +26,12 @@ import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, 
 import { canUse, def, nameOf, requirementText, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
 import { makeStock, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { REALM_TURNS, deathChance, dispatch } from '../systems/RealmSystem';
-import { aiChooseDirection, aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
+import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
 import { rollRoadEvent } from '../systems/RoadEvents';
 import { EVENT_INTERVAL, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, syncWorldMods, tickWorldEvents } from '../systems/EventSystem';
 import { WORLD } from '../systems/WorldMods';
 
-type Phase = 'idle' | 'preroll' | 'busy' | 'postland' | 'pickTile' | 'pickDir';
+type Phase = 'idle' | 'preroll' | 'busy' | 'postland' | 'pickTile';
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
@@ -57,10 +57,6 @@ export class Game {
   private rollResolver: ((c: RollChoice) => void) | null = null;
   private endResolver: (() => void) | null = null;
   private tileResolver: ((t: number | null) => void) | null = null;
-  /** 岔路選擇：可前進的格子、剩餘步數與等待玩家點選的回呼 */
-  private dirOptions: number[] = [];
-  private dirStepsLeft = 0;
-  private dirResolver: ((t: number) => void) | null = null;
   /** 本回合開始時新進入瓶頸的武將，玩家回合開始時提示 */
   private pendingBreak: string[] = [];
 
@@ -145,7 +141,7 @@ export class Game {
     this.ui.reset();
     this.ui.show();
     this.ui.log(`天地靈氣復甦，${LORDS[player].name}起兵逐鹿天下！`, 'turn');
-    this.ui.log('擲骰沿道路前進，遇到岔路可自行選擇方向：停在無主城池才能派將佔領，踏入他人城池須繳過路費或開戰。', 'info');
+    this.ui.log('擲骰沿道路前進，遇到岔路隨機轉向：停在無主城池才能派將佔領，踏入他人城池須繳過路費或開戰。', 'info');
     void this.loop(this.token);
   }
 
@@ -314,61 +310,30 @@ export class Game {
     const sprite = this.sprites.get(lord.id)!;
     // 同一次擲骰中不走回頭路；死路才能掉頭
     let prev: number | null = null;
-    const route: string[] = [];
     for (let i = 1; i <= steps; i++) {
       const here = lord.position;
       const links = this.state.tiles[here].links;
       let options = links.filter((n) => n !== prev);
       if (!options.length) options = [...links];
-      const next = options.length > 1 ? await this.chooseDirection(lord, here, options, steps - i + 1) : options[0];
+      const next = this.randomDirection(options);
       const from = sprite.group.position.clone();
       const to = this.slotPosition(lord.id, next);
       await sprite.moveAlong([from, to], this.sm.animator, (p) => this.sm.cameraController.follow(p));
       prev = here;
       lord.position = next;
-      route.push(this.state.tiles[next].name);
       this.refresh();
       if (!lord.alive) return;
     }
-    if (!lord.isPlayer) this.ui.log(`${LORDS[lord.id].name}一路經過 ${route.join(' → ')}，停在「${this.state.tiles[lord.position].name}」。`, 'ai');
+    if (!lord.isPlayer) {
+      this.ui.restartReport();
+      this.ui.log(`${LORDS[lord.id].name}停在「${this.state.tiles[lord.position].name}」。`, 'ai');
+    }
     await this.land(lord, lord.position);
   }
 
-  /** 岔路口：玩家點選地圖或按鈕決定方向，電腦評估各方向的收益 */
-  private async chooseDirection(lord: Lord, here: number, options: number[], stepsLeft: number): Promise<number> {
-    if (!lord.isPlayer) {
-      return aiChooseDirection(this.state, lord, here, options, stepsLeft);
-    }
-    this.dirOptions = options;
-    this.dirStepsLeft = stepsLeft;
-    this.phase = 'pickDir';
-    this.sm.cameraController.focus(this.sprites.get(lord.id)!.group.position);
-    this.world.showHighlights(options, 0x7fe08a);
-    this.refresh();
-    const next = await new Promise<number>((r) => (this.dirResolver = r));
-    this.dirResolver = null;
-    this.world.clearHighlights();
-    this.phase = 'busy';
-    this.refresh();
-    return next;
-  }
-
-  /** 岔路口某個方向前方的景象：沿途的關隘驛站，直到下一個城池、建築或岔口 */
-  private routeHint(start: number, from: number): string {
-    const rest: string[] = [];
-    let prev = from;
-    let cur = start;
-    for (let guard = 0; guard < 6; guard++) {
-      const ahead = this.state.tiles[cur].links.filter((n) => n !== prev);
-      if (this.state.tiles[cur].kind !== 'road' || ahead.length !== 1) break;
-      prev = cur;
-      cur = ahead[0];
-      const t = this.state.tiles[cur];
-      rest.push(t.kind === 'road' ? t.name : `${TILE_INFO[t.kind].icon}${t.name}`);
-    }
-    if (rest.length) return `→ ${rest.join(' → ')}`;
-    const t = this.state.tiles[start];
-    return t.kind === 'road' ? '岔路口' : TILE_INFO[t.kind].desc.split('：')[0];
+  /** 岔路口：隨機走其中一條路 */
+  private randomDirection(options: number[]): number {
+    return options[Math.floor(Math.random() * options.length)];
   }
 
   private async teleport(lord: Lord, tile: number) {
@@ -383,6 +348,16 @@ export class Game {
     await this.land(lord, tile);
   }
 
+  /** 踩到角落的傳送陣：隨機傳送到任一格（不會落在傳送陣上） */
+  private async landPortal(lord: Lord) {
+    const here = lord.position;
+    const dests = this.state.tiles.filter((t) => t.kind !== 'portal' && t.index !== here);
+    const dest = dests[Math.floor(Math.random() * dests.length)];
+    this.ui.log(`${LORDS[lord.id].name}踏入傳送陣，被送到「${dest.name}」！`, lord.isPlayer ? 'good' : 'ai');
+    if (lord.isPlayer) this.ui.toast(`傳送陣！被送到「${dest.name}」`);
+    await this.teleport(lord, dest.index);
+  }
+
   private async land(lord: Lord, tile: number) {
     const t = this.state.tiles[tile];
     this.refresh();
@@ -394,6 +369,8 @@ export class Game {
         return this.landCity(lord, this.state.cities[t.cityId!]);
       case 'realm':
         return this.landRealm(lord, t.name);
+      case 'portal':
+        return this.landPortal(lord);
       case 'road':
         return this.roadEvent(lord, t.name);
       default:
@@ -1220,10 +1197,6 @@ export class Game {
       this.tileResolver?.(tile);
       return;
     }
-    if (this.phase === 'pickDir') {
-      if (this.dirOptions.includes(tile)) this.dirResolver?.(tile);
-      return;
-    }
     this.hoverTile = tile;
     this.refresh();
   }
@@ -1244,7 +1217,6 @@ export class Game {
     } else text += `<br>${TILE_INFO[t.kind].desc}`;
     text += `<br><span class="tt-links">通往：${t.links.map((n) => this.state.tiles[n].name).join('、')}</span>`;
     if (this.phase === 'pickTile') text += '<br><span class="tt-move">▶ 點擊傳送至此</span>';
-    if (this.phase === 'pickDir' && this.dirOptions.includes(tile)) text += '<br><span class="tt-move">▶ 點擊走這條路</span>';
     this.ui.showTooltip(text, this.mouse.x, this.mouse.y);
   }
 
@@ -1304,12 +1276,6 @@ export class Game {
         { label: '🏛️ 宗門', sub: `隨行 ${freeGenerals(this.state, player.id).length}/${PARTY_LIMIT}`, disabled: !this.canSwapSect(player), onClick: () => void this.manageSect(player) },
         roster,
       );
-    } else if (this.phase === 'pickDir') {
-      hint = `前方是岔路（還剩 ${this.dirStepsLeft} 步）：點選地圖上發光的格子，或按下方按鈕選擇方向`;
-      for (const o of this.dirOptions) {
-        const t = this.state.tiles[o];
-        buttons.push({ label: `${TILE_INFO[t.kind].icon} ${t.name}`, sub: this.routeHint(o, this.state.lords[this.state.player].position), kind: 'primary', onClick: () => this.dirResolver?.(o) });
-      }
     } else if (this.phase === 'pickTile') {
       hint = '傳送陣：點選地圖上任一格（右鍵或 Esc 取消）';
       buttons.push({ label: '✖ 取消', onClick: () => this.tileResolver?.(null) });

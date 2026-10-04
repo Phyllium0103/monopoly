@@ -154,7 +154,7 @@ export interface City {
   shieldTurns: number;
 }
 
-export type TileKind = 'city' | 'realm' | 'treasure' | 'herb' | 'forge' | 'library' | 'beast' | 'tavern' | 'road';
+export type TileKind = 'city' | 'realm' | 'treasure' | 'herb' | 'forge' | 'library' | 'beast' | 'tavern' | 'road' | 'portal';
 
 export interface Tile {
   index: number;

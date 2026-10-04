@@ -136,6 +136,19 @@ export function buildSpecial(kind: TileKind): BuildingVisual {
       g.add(banner);
       break;
     }
+    case 'portal': {
+      g.add(mesh(new THREE.CylinderGeometry(1.4, 1.6, 0.25, 16), m(0x3a2a5a), 0, 0.13, 0));
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(1, 0.1, 8, 32), new THREE.MeshBasicMaterial({ color: 0xc9a0ff, transparent: true, opacity: 0.85 }));
+      ring.position.y = 1.3;
+      ring.userData.spin = 1.4;
+      animated.push(ring);
+      g.add(ring);
+      const core = mesh(new THREE.OctahedronGeometry(0.4), m(0xe0c8ff, 0x8a4ad8), 0, 1.3, 0);
+      core.userData.spin = -2;
+      animated.push(core);
+      g.add(core);
+      break;
+    }
     case 'realm': {
       g.add(mesh(new THREE.CylinderGeometry(1.8, 2.1, 0.4, 8), m(0x4d4a5a), 0, 0.2, 0));
       for (let i = 0; i < 4; i++) {

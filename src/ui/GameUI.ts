@@ -144,6 +144,11 @@ export class GameUI {
     this.collecting = [];
   }
 
+  /** 丟掉目前蒐集的內容，只保留之後的結果 */
+  restartReport() {
+    this.collecting = [];
+  }
+
   /** 結束蒐集並回傳這回合的行動紀錄 */
   endReport(): string[] {
     const lines = this.collecting ?? [];

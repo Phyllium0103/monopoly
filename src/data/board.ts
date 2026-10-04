@@ -21,7 +21,8 @@ type PathItem = string | Spec;
 const city = (id: string, name: string, x: number, z: number, prosperity: number, owner?: LordId): NodeDef => ({ id, kind: 'city', name, pos: { x, z }, prosperity, owner });
 const node = (id: string, kind: SpecialKind, name: string, x: number, z: number): NodeDef => ({ id, kind, name, pos: { x, z } });
 const road = (name: string): Spec => ({ kind: 'road', name });
-const shop = (kind: Exclude<SpecialKind, 'road' | 'realm'>, name: string): Spec => ({ kind, name });
+const portal = (): Spec => ({ kind: 'portal', name: '傳送陣' });
+const shop = (kind: Exclude<SpecialKind, 'road' | 'realm' | 'portal'>, name: string): Spec => ({ kind, name });
 
 /**
  * 城池：依真實地理座標（東為 +x、南為 +z）。繁榮度依東漢末年的實際盛衰，每座都不同：
@@ -112,7 +113,7 @@ const PATHS: PathItem[][] = [
   ['ye', road('白馬津'), shop('herb', '百草堂'), 'puyang'],
   ['nanpi', road('安平'), 'pingyuan'],
   ['nanpi', road('易京'), 'ji'],
-  ['ji', road('居庸關'), 'beiping'],
+  ['ji', road('居庸關'), portal(), 'beiping'],
   ['beiping', shop('forge', '天工坊'), 'nanpi'],
   // 山東、徐州
   ['puyang', road('濟陰'), 'xiaopei'],
@@ -135,7 +136,7 @@ const PATHS: PathItem[][] = [
   ['wujun', 'qiantang'],
   ['qiantang', 'kuaiji'],
   ['qiantang', 'donghai'],
-  ['kuaiji', road('鄱陽'), shop('herb', '百草堂'), road('豫章'), 'guiyang'],
+  ['kuaiji', portal(), road('鄱陽'), shop('herb', '百草堂'), road('豫章'), 'guiyang'],
   // 荊楚、江南
   ['chaisang', road('赤壁'), road('烏林'), road('巴丘'), 'jiangling'],
   ['chaisang', 'xiangjiang'],
@@ -151,7 +152,7 @@ const PATHS: PathItem[][] = [
   ['wancheng', road('新野'), 'xiangyang'],
   // 巴蜀、漢中
   ['wuling', road('牂牁'), shop('treasure', '天寶商行'), 'jianning'],
-  ['jianning', road('瀘水'), 'leshan'],
+  ['jianning', road('瀘水'), portal(), 'leshan'],
   ['leshan', 'chengdu'],
   ['leshan', 'emei'],
   ['chengdu', shop('library', '藏經閣'), 'jiangzhou'],
@@ -165,7 +166,7 @@ const PATHS: PathItem[][] = [
   ['hanzhong', shop('beast', '萬獸園'), road('祁山'), 'tianshui'],
   ['changan', road('街亭'), shop('tavern', '聽風樓'), 'tianshui'],
   ['tianshui', 'longxi'],
-  ['longxi', 'wuwei'],
+  ['longxi', portal(), 'wuwei'],
   ['longxi', 'kunlun'],
 ];
 
@@ -245,6 +246,7 @@ export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
   library: { icon: '📜', desc: '藏經閣：販售功法' },
   beast: { icon: '🐉', desc: '萬獸園：販售靈獸，每位主公限一隻' },
   tavern: { icon: '🏮', desc: '聽風樓：招募各國尚未出仕的將領' },
+  portal: { icon: '🌌', desc: '傳送陣：位於四個角落的路上，踩到會被隨機傳送到地圖上的另一格' },
   road: { icon: '🛤️', desc: '驛道：可能遇到奇遇。道路有岔口時可以選擇前進的方向' },
 };
 

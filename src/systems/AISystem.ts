@@ -1,7 +1,7 @@
 import type { City, CraftStat, GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, citiesOf, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
-import { MIN_GARRISON, SOLDIER_PRICE, canOccupy, cityToll, garrisonPower, occupyCost } from './CitySystem';
+import { MIN_GARRISON, SOLDIER_PRICE, cityToll, garrisonPower, occupyCost } from './CitySystem';
 import { REALMS } from '../data/generals';
 import { equipRealm } from '../data/items';
 import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
@@ -250,70 +250,4 @@ export function aiRealm(state: GameState, lord: Lord): General[] | null {
   const team = free.length >= 4 ? free.slice(1, 4) : free.slice(0, 3);
   const risk = team.reduce((s, g) => s + deathChance(g, team), 0) / 3;
   return risk < 0.3 && Math.random() < 0.6 ? team : null;
-}
-
-// ───────────────────────── 岔路選擇 ─────────────────────────
-
-/** 電腦評估停在某格的好處：能佔的城、買得起的商店、可探索的秘境都加分，踏入敵城要小心 */
-function tileValue(state: GameState, lord: Lord, tile: number): number {
-  const t = state.tiles[tile];
-  const free = freeGenerals(state, lord.id);
-  let v: number;
-  switch (t.kind) {
-    case 'city': {
-      const c = state.cities[t.cityId!];
-      if (c.owner === 'neutral') v = canOccupy(state, lord, c) && lord.stones - occupyCost(c) > 8000 ? 6 + c.prosperity / 40 : 0.5;
-      else if (c.owner === lord.id) v = 1.5;
-      else v = lord.tollFree ? 0.5 : -Math.min(6, (cityToll(state, c) / Math.max(1, lord.stones)) * 8) - 0.3;
-      break;
-    }
-    case 'realm':
-      v = free.length >= 3 ? 3 : 0.2;
-      break;
-    case 'beast':
-      v = lord.beast || lord.stones < 15000 ? 0.4 : 3;
-      break;
-    case 'tavern':
-      v = generalsOf(state, lord.id).length < 14 && lord.stones > 10000 ? 3 : 0.5;
-      break;
-    case 'herb':
-      v = lord.stones > 8000 ? 2.5 + (free.some((g) => g.hp < maxHp(g) * 0.6) ? 1 : 0) : 0.5;
-      break;
-    case 'forge':
-    case 'library':
-    case 'treasure':
-      v = lord.stones > 12000 ? 2.5 : 0.5;
-      break;
-    default:
-      v = 0.8;
-  }
-  if (tile === state.merchantTile) v += 3;
-  if (state.banditTiles.includes(tile)) v -= 2;
-  return v;
-}
-
-/** 遇到岔路：比較每個方向走完剩餘步數後，最可能落腳處的價值（之後的岔路假設會選最好的） */
-export function aiChooseDirection(state: GameState, lord: Lord, here: number, options: number[], stepsLeft: number): number {
-  const memo = new Map<string, number>();
-  const expect = (tile: number, prev: number, rem: number): number => {
-    if (rem === 0) return tileValue(state, lord, tile);
-    const key = `${tile}:${prev}:${rem}`;
-    const hit = memo.get(key);
-    if (hit !== undefined) return hit;
-    let next = state.tiles[tile].links.filter((n) => n !== prev);
-    if (!next.length) next = state.tiles[tile].links;
-    const v = Math.max(...next.map((n) => expect(n, tile, rem - 1)));
-    memo.set(key, v);
-    return v;
-  };
-  let best = options[0];
-  let bestScore = -Infinity;
-  for (const o of options) {
-    const score = expect(o, here, stepsLeft - 1) + Math.random() * 0.6;
-    if (score > bestScore) {
-      bestScore = score;
-      best = o;
-    }
-  }
-  return best;
 }

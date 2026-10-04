@@ -78,6 +78,7 @@ export class GeneralsView {
         <span class="muted">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : '・非你的回合，無法突破或閉關'}</span>
         <button class="btn close">關閉 ✕</button>
       </div>
+      <div class="ready-section"></div>
       <div class="bag">
         <div><b>行囊</b>${bag}</div>
         <div><b>神器寶衣</b>${gear}</div>
@@ -87,10 +88,23 @@ export class GeneralsView {
       <div class="sections"></div>`;
     (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
 
+    // 可以突破的武將暫時移到最上方
+    const ready = gens.filter((g) => canAttemptBreak(g, state.round).ok);
+    const readyBox = this.el.querySelector('.ready-section') as HTMLElement;
+    if (ready.length) {
+      const h = document.createElement('h3');
+      h.className = 'section-title ready-title';
+      h.textContent = `✨ 可以突破的武將（${ready.length}）`;
+      const grid = document.createElement('div');
+      grid.className = 'general-grid';
+      for (const g of ready) grid.appendChild(this.card(state, lord, g, manage));
+      readyBox.append(h, grid);
+    }
+    const readyIds = new Set(ready.map((g) => g.id));
+
     const sections = this.el.querySelector('.sections')!;
     for (const sec of SECTIONS) {
-      // 可以突破的武將排在最前面
-      const list = gens.filter((g) => g.status === sec.status).sort((a, b) => Number(inBottleneck(b)) - Number(inBottleneck(a)));
+      const list = gens.filter((g) => g.status === sec.status && !readyIds.has(g.id));
       if (!list.length) continue;
       const h = document.createElement('h3');
       h.className = 'section-title';

@@ -216,12 +216,10 @@ function duelScore(g: General): number {
   return attack(g) * Math.sqrt(g.hp) + defense(g) * 3;
 }
 
-/** 守方可出戰的將領：駐將 + 主公身邊的將領 */
+/** 守方可出戰的將領：只有派駐在該城的駐將 */
 export function defenderPool(state: GameState, city: City): General[] {
   if (city.owner === 'neutral') return [];
-  const pool = freeGenerals(state, city.owner);
-  pool.unshift(...city.garrisonGenerals.map((id) => state.generals[id]));
-  return pool;
+  return city.garrisonGenerals.map((id) => state.generals[id]);
 }
 
 export function aiDefender(state: GameState, city: City, kind: BattleKind): General | null {

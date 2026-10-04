@@ -205,6 +205,13 @@ export interface ContestResult {
 /** 鬥法雙方各需投入的兵力 */
 export const CONTEST_SOLDIERS = 500;
 
+/** 前 10 輪休養生息，只能比武鬥法，第 11 輪起才能攻城 */
+export const SIEGE_START_ROUND = 11;
+
+export function siegeAllowed(round: number): boolean {
+  return round >= SIEGE_START_ROUND;
+}
+
 /** 煉丹、煉器、畫符、佈陣：比較能力值（之後會換成小遊戲）。攻方扣隨行士兵，守方扣城池守軍 */
 export function craftContest(a: General, b: General, stat: CraftStat, attacker: Lord, city: City): ContestResult {
   const aScore = Math.round(craft(a, stat) * (0.85 + Math.random() * 0.3));

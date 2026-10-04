@@ -18,7 +18,7 @@ import { ITEM_DEFS, PILL_IDS, STAT_NAMES } from '../data/items';
 import { TILE_INFO } from '../data/board';
 import { MIN_GARRISON, SOLDIER_PRICE, canOccupy, cityIncome, cityToll, eliminate, garrisonPower, occupy, occupyCost, pay, toll } from '../systems/CitySystem';
 import { attack, attemptBreak, battleExp, boltCount, boltDamage, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
-import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, craftContest, siege, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
+import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { canUse, def, nameOf, requirementText, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
 import { makeStock, type ShopKind } from '../systems/ShopSystem';
 import { deathChance, dispatch, REALM_TURNS } from '../systems/RealmSystem';
@@ -427,8 +427,8 @@ export class Game {
         label: '🏯 攻城戰',
         sub: `最多三將 + 未派遣的 ${lord.soldiers} 兵；勝則奪城，敗則士兵全滅｜我方約 ${siegeAttack(lord, [...free].sort((a, b) => attack(b) - attack(a)).slice(0, 3))} vs 守方約 ${garrisonPower(this.state, city)}`,
         value: 'siege',
-        disabled: !free.length || lord.soldiers <= 0,
-        reason: !free.length ? noGen : '沒有士兵',
+        disabled: !siegeAllowed(this.state.round) || !free.length || lord.soldiers <= 0,
+        reason: !siegeAllowed(this.state.round) ? `前 ${SIEGE_START_ROUND - 1} 輪不能攻城，第 ${SIEGE_START_ROUND} 輪起開放` : !free.length ? noGen : '沒有士兵',
       },
     ];
     const kind = await this.dialog.choose(

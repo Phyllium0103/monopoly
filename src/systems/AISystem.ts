@@ -5,7 +5,7 @@ import { MIN_GARRISON, SOLDIER_PRICE, cityToll, garrisonPower, occupyCost } from
 import { REALMS } from '../data/generals';
 import { equipRealm } from '../data/items';
 import { canUse, def, usePreroll } from './ItemSystem';
-import { CONTEST_SOLDIERS, siegeAttack, type BattleKind } from './BattleSystem';
+import { CONTEST_SOLDIERS, siegeAllowed, siegeAttack, type BattleKind } from './BattleSystem';
 import type { Offer } from './ShopSystem';
 import { deathChance } from './RealmSystem';
 
@@ -159,7 +159,7 @@ export function aiEnemyCity(state: GameState, lord: Lord, city: City): AiBattleC
 
   // 攻城：明顯優勢才打
   const team = [...free].sort((a, b) => attack(b) - attack(a)).slice(0, 3);
-  if (siegeAttack(lord, team) > garrisonPower(state, city) * 1.3 && free.length >= 2) return { kind: 'siege', generals: team };
+  if (siegeAllowed(state.round) && siegeAttack(lord, team) > garrisonPower(state, city) * 1.3 && free.length >= 2) return { kind: 'siege', generals: team };
 
   // 單挑
   const best = [...free].sort((a, b) => duelScore(b) - duelScore(a))[0];

@@ -21,8 +21,9 @@ type PathItem = string | Spec;
 const city = (id: string, name: string, x: number, z: number, prosperity: number, owner?: LordId): NodeDef => ({ id, kind: 'city', name, pos: { x, z }, prosperity, owner });
 const road = (name: string): Spec => ({ kind: 'road', name });
 const realm = (name: string): Spec => ({ kind: 'realm', name });
+const vein = (): Spec => ({ kind: 'vein', name: '靈脈' });
 const portal = (): Spec => ({ kind: 'portal', name: '傳送陣' });
-const shop = (kind: Exclude<SpecialKind, 'road' | 'realm' | 'portal'>, name: string): Spec => ({ kind, name });
+const shop = (kind: Exclude<SpecialKind, 'road' | 'realm' | 'portal' | 'vein'>, name: string): Spec => ({ kind, name });
 
 /**
  * 城池：依真實地理座標（東為 +x、南為 +z）。繁榮度依東漢末年的實際盛衰，每座都不同：
@@ -79,7 +80,7 @@ const PATHS: PathItem[][] = [
   ['xuchang', shop('beast', '萬獸園'), 'runan'],
   ['runan', shop('treasure', '天寶商行'), 'shouchun'],
   // 河北
-  ['henei', road('壺關'), 'jinyang'],
+  ['henei', road('壺關'), vein(), 'jinyang'],
   ['henei', shop('tavern', '聽風樓'), 'ye'],
   ['jinyang', realm('太行洞天'), 'ye'],
   ['ye', road('館陶'), shop('treasure', '天寶商行'), 'nanpi'],
@@ -90,12 +91,12 @@ const PATHS: PathItem[][] = [
   ['beiping', shop('forge', '天工坊'), 'nanpi'],
   // 山東、徐州
   ['puyang', road('東平'), shop('forge', '天工坊'), 'pingyuan'],
-  ['pingyuan', road('臨淄'), 'beihai'],
+  ['pingyuan', road('臨淄'), vein(), 'beihai'],
   ['beihai', shop('library', '藏經閣'), 'xiapi'],
   ['xiaopei', realm('泰山福地'), 'xiapi'],
   ['shouchun', road('淮北'), 'xiaopei'],
   // 淮南、江東
-  ['shouchun', 'hefei'],
+  ['shouchun', vein(), 'hefei'],
   ['hefei', road('濡須口'), 'jianye'],
   ['jianye', road('牛渚'), realm('廬山幽谷'), 'chaisang'],
   ['jianye', shop('tavern', '聽風樓'), 'wujun'],
@@ -107,7 +108,7 @@ const PATHS: PathItem[][] = [
   ['changsha', road('耒陽'), 'guiyang'],
   ['guiyang', shop('beast', '萬獸園'), road('桂水'), 'lingling'],
   ['changsha', shop('forge', '天工坊'), 'lingling'],
-  ['changsha', road('洞庭'), road('沅水'), 'wuling'],
+  ['changsha', road('洞庭'), vein(), road('沅水'), 'wuling'],
   ['lingling', road('零陵道'), 'wuling'],
   ['wuling', road('公安'), 'jiangling'],
   ['jiangling', road('長阪坡'), 'xiangyang'],
@@ -116,9 +117,9 @@ const PATHS: PathItem[][] = [
   ['wuling', road('牂牁'), shop('treasure', '天寶商行'), 'jianning'],
   ['jianning', road('瀘水'), portal(), realm('峨眉金頂'), 'chengdu'],
   ['chengdu', shop('library', '藏經閣'), 'jiangzhou'],
-  ['jiangzhou', road('夷陵'), 'jiangling'],
+  ['jiangzhou', road('夷陵'), vein(), 'jiangling'],
   ['chengdu', road('劍閣'), road('葭萌關'), road('陽平關'), 'hanzhong'],
-  ['hanzhong', road('子午谷'), 'changan'],
+  ['hanzhong', road('子午谷'), vein(), 'changan'],
   // 關中、涼州
   ['hanzhong', shop('beast', '萬獸園'), road('祁山'), 'tianshui'],
   ['tianshui', road('隴西'), portal(), 'wuwei'],
@@ -201,6 +202,7 @@ export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
   beast: { icon: '🐉', desc: '萬獸園：販售靈獸，每位主公限一隻' },
   tavern: { icon: '🏮', desc: '聽風樓：招募各國尚未出仕的將領' },
   portal: { icon: '🌌', desc: '傳送陣：位於四個角落的路上，踩到會被隨機傳送到地圖上的另一格' },
+  vein: { icon: '💎', desc: '靈脈：路過就能獲得靈石（不用停下），依主公本人的境界計算，每輪每位主公只領一次' },
   road: { icon: '🛤️', desc: '驛道：可能遇到奇遇。遇到岔路口時會隨機轉向' },
 };
 

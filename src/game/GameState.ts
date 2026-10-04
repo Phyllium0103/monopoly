@@ -98,6 +98,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       soldiers: Math.round(START_SOLDIERS * (1 + (TRAITS[id].startSoldiers ?? 0))),
       position: cities[LORDS[id].capital].tile,
       lastTile: null,
+      veinsTapped: [],
       stunned: 0,
       tollFree: false,
       siegeBoost: 1,
@@ -165,7 +166,7 @@ export function joinLord(state: GameState, lord: LordId, g: General) {
 }
 
 /** 一座城池最多駐守的武將數 */
-export const GARRISON_LIMIT = 3;
+export const GARRISON_LIMIT = 5;
 
 export function garrisonOf(state: GameState, city: City): General[] {
   return city.garrisonGenerals.map((id) => state.generals[id]);

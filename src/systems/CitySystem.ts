@@ -8,6 +8,12 @@ import { terrainOf } from '../data/terrain';
 import { fx } from '../data/passives';
 import { traitOf } from '../faction/Faction';
 
+/** 靈脈路過獎勵：基礎 400 靈石 ×（1＋主公境界） */
+export const VEIN_STONES = 400;
+export function veinStones(lordRealm: number): number {
+  return VEIN_STONES * (1 + lordRealm);
+}
+
 export const SOLDIER_PRICE = 2;
 
 /** 徵兵花費：陣營特色可打折 */

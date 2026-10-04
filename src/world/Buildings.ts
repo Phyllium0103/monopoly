@@ -136,6 +136,18 @@ export function buildSpecial(kind: TileKind): BuildingVisual {
       g.add(banner);
       break;
     }
+    case 'vein': {
+      g.add(mesh(new THREE.CylinderGeometry(1.1, 1.3, 0.2, 8), m(0x2a4a5a), 0, 0.1, 0));
+      for (let i = 0; i < 3; i++) {
+        const a = (i / 3) * Math.PI * 2;
+        const crystal = mesh(new THREE.OctahedronGeometry(0.45 + i * 0.1), m(0x7ae8ff, 0x1a98c8), Math.cos(a) * 0.7, 0.9, Math.sin(a) * 0.7);
+        crystal.userData.spin = 0.8 + i * 0.3;
+        crystal.userData.bob = 0.9;
+        animated.push(crystal);
+        g.add(crystal);
+      }
+      break;
+    }
     case 'portal': {
       g.add(mesh(new THREE.CylinderGeometry(1.4, 1.6, 0.25, 16), m(0x3a2a5a), 0, 0.13, 0));
       const ring = new THREE.Mesh(new THREE.TorusGeometry(1, 0.1, 8, 32), new THREE.MeshBasicMaterial({ color: 0xc9a0ff, transparent: true, opacity: 0.85 }));

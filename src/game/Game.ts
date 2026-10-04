@@ -20,7 +20,7 @@ import { fxText, passiveOf } from '../data/passives';
 import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
-import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, citySaleValue, eliminate, recruitCost, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll } from '../systems/CitySystem';
+import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll } from '../systems/CitySystem';
 import { generalSaleValue, BREAK_FAIL_HP, attack, attemptBreak, battleExp, boltCount, boltDamage, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { itemChoices } from '../ui/ItemUI';
@@ -373,6 +373,7 @@ export class Game {
       prev = here;
       lord.lastTile = here;
       lord.position = next;
+      this.passVein(lord, next);
       this.refresh();
       if (!lord.alive) return;
     }
@@ -381,6 +382,18 @@ export class Game {
       this.ui.log(`${LORDS[lord.id].name}停在「${this.state.tiles[lord.position].name}」。`, 'ai');
     }
     await this.land(lord, lord.position);
+  }
+
+  /** 路過靈脈：不用停下，依主公本人的境界獲得靈石，每輪每位主公只領一次 */
+  private passVein(lord: Lord, tile: number) {
+    if (this.state.tiles[tile].kind !== 'vein' || lord.veinsTapped.includes(tile)) return;
+    lord.veinsTapped.push(tile);
+    const lordGen = generalsOf(this.state, lord.id).find((g) => g.isLord);
+    const n = veinStones(lordGen?.realm ?? 0);
+    lord.stones += n;
+    this.ui.log(`${LORDS[lord.id].name}路過靈脈，汲取靈氣化為 ${fmtStones(n)}（主公境界：${REALMS[lordGen?.realm ?? 0]}）。`, this.human(lord) ? 'good' : 'ai');
+    if (this.human(lord)) this.ui.toast(`💎 路過靈脈：+${fmtStones(n)}`);
+    this.world.beamEffect(this.sprites.get(lord.id)!.group.position, 0x7ae8ff);
   }
 
   /** 岔路口：隨機走其中一條路 */
@@ -427,6 +440,8 @@ export class Game {
         return this.landCity(lord, this.state.cities[t.cityId!]);
       case 'realm':
         return this.landRealm(lord, t.name);
+      case 'vein':
+        return;
       case 'portal':
         return this.landPortal(lord);
       case 'road':

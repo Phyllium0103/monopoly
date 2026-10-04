@@ -63,6 +63,7 @@ export function startTurn(state: GameState, lord: Lord): TurnReport {
   lord.doubleDice = false;
   lord.fixedDice = null;
   lord.bonusSteps = 0;
+  lord.veinsTapped = [];
   return report;
 }
 

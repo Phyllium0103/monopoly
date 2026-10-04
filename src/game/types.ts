@@ -134,6 +134,8 @@ export interface Lord {
   position: number;
   /** 上一格：移動方向固定，不走回頭路；傳送後歸零，由下一步隨機決定方向 */
   lastTile: number | null;
+  /** 本回合已領過的靈脈（每輪每位主公只領一次） */
+  veinsTapped: number[];
   /** 迷魂陣：剩餘停留回合 */
   stunned: number;
   tollFree: boolean;
@@ -165,7 +167,7 @@ export interface City {
   shieldTurns: number;
 }
 
-export type TileKind = 'city' | 'realm' | 'treasure' | 'herb' | 'forge' | 'library' | 'beast' | 'tavern' | 'road' | 'portal';
+export type TileKind = 'city' | 'realm' | 'treasure' | 'herb' | 'forge' | 'library' | 'beast' | 'tavern' | 'road' | 'portal' | 'vein';
 
 export interface Tile {
   index: number;

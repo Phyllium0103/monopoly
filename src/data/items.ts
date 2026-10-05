@@ -202,20 +202,26 @@ export const ELEMENT_BIAS: Record<Element, { atk: number; def: number; skill: nu
 
 export const ELEMENT_LIST: Element[] = ['metal', 'wood', 'water', 'fire', 'earth'];
 
-/** 某品階某屬性的功法（每個品階共五種，屬性各不相同）；difficulty 隨機 */
+/** 完整度倍率：1 星 ×0.8、3 星 ×1.0、5 星 ×1.2 */
+export function completenessMult(c: number): number {
+  return 0.7 + 0.1 * c;
+}
+
+/** 某品階某屬性的功法（每個品階共五種，屬性各不相同）；完整度隨機（1～5 星） */
 export function makeTechnique(uid: string, tier: Tier, element?: Element): Technique {
   const el = element ?? pick(ELEMENT_LIST);
+  const completeness = 1 + Math.floor(Math.random() * 5);
   const t = TECHNIQUES[el][tier % 5];
   return {
     uid,
     name: `${tierName(tier, '階')}・【${ELEMENT_NAMES[el]}】${t.name}`,
     tier,
     element: el,
-    difficulty: 1 + Math.floor(Math.random() * 5),
-    power: Math.round((0.05 + tier * 0.03) * 100) / 100,
+    completeness,
+    power: Math.round((0.05 + tier * 0.03) * completenessMult(completeness) * 100) / 100,
     skillName: t.skill,
-    skillPower: Math.round((1.6 + tier * 0.15) * ELEMENT_BIAS[el].skill * 100) / 100,
-    price: tierPrice(tier, 600),
+    skillPower: Math.round((1.6 + tier * 0.15) * ELEMENT_BIAS[el].skill * completenessMult(completeness) * 100) / 100,
+    price: Math.round((tierPrice(tier, 600) * completenessMult(completeness)) / 10) * 10,
   };
 }
 
@@ -228,13 +234,13 @@ export function elementRelation(e: Element): { beats: Element; beatenBy: Element
 /** 功法說明（可含 HTML）：屬性、相剋、能力加成、每回合修為、技能 */
 export function techniqueDesc(t: Technique): string {
   const r = elementRelation(t.element);
-  return `<b style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】屬性</b>（剋${ELEMENT_NAMES[r.beats]}、被${ELEMENT_NAMES[r.beatenBy]}剋）｜武力 +${Math.round(t.power * ELEMENT_BIAS[t.element].atk * 100)}%、防禦 +${Math.round(t.power * 0.5 * ELEMENT_BIAS[t.element].def * 100)}%｜難度 ${'★'.repeat(t.difficulty)}｜每回合修為 +${techniqueExp(t)}｜技能「${t.skillName}」造成 ×${t.skillPower} 傷害（能量滿 100 施放）`;
+  return `<b style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】屬性</b>（剋${ELEMENT_NAMES[r.beats]}、被${ELEMENT_NAMES[r.beatenBy]}剋）｜武力 +${Math.round(t.power * ELEMENT_BIAS[t.element].atk * 100)}%、防禦 +${Math.round(t.power * 0.5 * ELEMENT_BIAS[t.element].def * 100)}%｜完整度 ${'★'.repeat(t.completeness)}${'☆'.repeat(5 - t.completeness)}｜每回合修為 +${techniqueExp(t)}｜技能「${t.skillName}」造成 ×${t.skillPower} 傷害（能量滿 100 施放）`;
 }
 
 /** 功法帶來的每回合修為：黃階 +20、玄階 +40、地階 +70、天階 +100，同階上中下品再遞增 */
 export function techniqueExp(t: Technique | null): number {
   if (!t) return 0;
-  return [20, 40, 70, 100][Math.floor(t.tier / 3)] + (t.tier % 3) * 5;
+  return Math.round(([20, 40, 70, 100][Math.floor(t.tier / 3)] + (t.tier % 3) * 5) * completenessMult(t.completeness ?? 3));
 }
 
 // ───────────────────────── 靈獸 ─────────────────────────

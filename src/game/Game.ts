@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { City, CraftStat, General, GameState, Lord, LordId } from './types';
+import type { ContestKind } from './types';
 import { DEFAULT_ROUNDS, GARRISON_LIMIT, abandonIfEmpty, deployable, PARTY_LIMIT, citiesOf, garrisonOf, createGameState, currentLord, freeGenerals, generalsOf, joinLord, killGeneral, nextUid, sectGenerals } from './GameState';
 import { advance, aliveLords, startTurn } from './TurnManager';
 import { fmtProsperity, fmtStones } from './Currency';
@@ -14,6 +15,7 @@ import { BattleView } from '../ui/BattleView';
 import { openShop } from '../ui/ShopView';
 import { HelpView } from '../ui/HelpView';
 import { RankView } from '../ui/RankView';
+import { LordView } from '../ui/LordView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { REALMS } from '../data/generals';
 import { fxText, passiveOf } from '../data/passives';
@@ -21,12 +23,12 @@ import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechniqu
 import { TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
 import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll } from '../systems/CitySystem';
-import { generalSaleValue, BREAK_FAIL_HP, attack, attemptBreak, battleExp, boltCount, boltDamage, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
-import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
+import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
+import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type SiegeResult, type Side } from '../systems/BattleSystem';
 import { itemChoices } from '../ui/ItemUI';
 import { canUse, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
 import { buy, makeStock, type Offer, type ShopKind } from '../systems/ShopSystem';
-import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch } from '../systems/RealmSystem';
+import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, partyRealm, realmRolls, realmTurns } from '../systems/RealmSystem';
 import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
 import { rollRoadEvent } from '../systems/RoadEvents';
 import { EVENT_INTERVAL, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, syncWorldMods, tickWorldEvents } from '../systems/EventSystem';
@@ -48,6 +50,7 @@ export class Game {
   private battleView: BattleView;
   private help: HelpView;
   private rankView: RankView;
+  private lordView: LordView;
   private state!: GameState;
   private sprites = new Map<LordId, CharacterSprite>();
   private phase: Phase = 'idle';
@@ -73,6 +76,9 @@ export class Game {
     this.battleView = new BattleView(uiRoot);
     this.help = new HelpView(uiRoot);
     this.rankView = new RankView(uiRoot);
+    this.lordView = new LordView(uiRoot);
+    this.lordView.facingText = (id) => this.facingText(this.state.lords[id]);
+    this.ui.onLord = (id) => this.lordView.open(this.state, id);
     this.ui.onHelp = () => this.help.open();
     this.ui.onRank = () => this.rankView.open(this.state);
     this.ui.onAuto = () => this.toggleAuto();
@@ -384,6 +390,30 @@ export class Game {
     await this.land(lord, lord.position);
   }
 
+  /** 主公面向的描述：一路往前，遇到岔路才隨機轉向 */
+  private facingText(lord: Lord): string {
+    const t = this.state.tiles[lord.position];
+    if (lord.lastTile === null) return '尚未出發（方向隨機）';
+    const ahead = t.links.filter((n) => n !== lord.lastTile);
+    if (!ahead.length) return `回頭往${this.state.tiles[lord.lastTile].name}`;
+    if (ahead.length === 1) return `朝向${this.state.tiles[ahead[0]].name}`;
+    return `前方岔路（${ahead.map((n) => this.state.tiles[n].name).join('、')}，隨機轉向）`;
+  }
+
+  /** 更新地圖上各主公面向的箭頭 */
+  private updateFacing() {
+    LORD_IDS.forEach((id, i) => {
+      const l = this.state.lords[id];
+      if (!l.alive || l.lastTile === null) {
+        this.world.setFacing(id, LORDS[id].color, l.position, null, i);
+        return;
+      }
+      const from = this.state.tiles[l.lastTile].pos;
+      const to = this.state.tiles[l.position].pos;
+      this.world.setFacing(id, LORDS[id].color, l.position, { x: to.x - from.x, z: to.z - from.z }, i);
+    });
+  }
+
   /** 路過靈脈：不用停下，依主公本人的境界獲得靈石，每輪每位主公只領一次 */
   private passVein(lord: Lord, tile: number) {
     if (this.state.tiles[tile].kind !== 'vein' || lord.veinsTapped.includes(tile)) return;
@@ -492,6 +522,11 @@ export class Game {
       const win = await this.fight(lord, city, kind, choice.generals);
       // 中途取消：回到選擇介面，不會自動付錢
       if (win === null) continue;
+      if (win === 'draw') {
+        this.ui.log(`${name}與${LORDS[owner.id].name}的守將戰成平手，免繳${city.name}過路費。`, this.human(lord) ? 'good' : 'ai');
+        if (this.human(lord)) this.ui.toast('平手！免繳過路費');
+        return;
+      }
       if (this.human(lord)) this.ui.log(`${name}向${LORDS[owner.id].name}的${city.name}發起【${BATTLE_NAMES[kind]}】！`, 'info');
       if (!lord.alive) return;
       if (win) {
@@ -589,6 +624,23 @@ export class Game {
     this.refresh();
   }
 
+  /** 佔領或重新佔領後，玩家為這座城指定一種鬥法：之後來挑戰的人只能用這種方式 */
+  private async chooseContest(city: City) {
+    const kinds: { value: ContestKind; label: string; sub: string }[] = [
+      { value: 'duel', label: '⚔️ 擂台戰', sub: '武將單挑，同時出手，可能平手；適合武力強的駐將' },
+      ...(['alchemy', 'forging', 'talisman', 'formation'] as const).map((k) => ({ value: k as ContestKind, label: `🔥 ${STAT_NAMES[k]}比試`, sub: `比拼${STAT_NAMES[k]}能力值；適合${STAT_NAMES[k]}高的駐將` })),
+    ];
+    const gens = garrisonOf(this.state, city);
+    const picked = await this.dialog.choose(
+      `🏯 ${city.name}・指定鬥法`,
+      `選擇一種鬥法：之後有人踏入${city.name}想挑戰時，只能用這種方式（攻城戰與繳費不受限制）。\n駐將：${gens.map((g) => `${g.name}（武力 ${attack(g)}・煉丹 ${craft(g, 'alchemy')}・煉器 ${craft(g, 'forging')}・畫符 ${craft(g, 'talisman')}・佈陣 ${craft(g, 'formation')}）`).join('、') || '無'}`,
+      kinds.map((k) => ({ label: k.label + (city.contest === k.value ? '（目前）' : ''), sub: k.sub, value: k.value })),
+      null,
+      '🏯',
+    );
+    if (picked) city.contest = picked;
+  }
+
   private async playerOccupy(lord: Lord, city: City) {
     const inc = cityIncome(city);
     const free = deployable(this.state, lord.id);
@@ -604,7 +656,7 @@ export class Game {
     if (!gids) return;
     const soldiers = await this.dialog.slider(
       `派多少士兵駐守${city.name}？`,
-      `目前隨行士兵 ${lord.soldiers}。一名守軍約等於十名隨行士兵，守軍越多越難攻破；留在身邊的士兵可用於攻城。`,
+      `目前隨行士兵 ${lord.soldiers}。一名守軍約等於十五名隨行士兵，守軍越多越難攻破；留在身邊的士兵可用於攻城。`,
       {
         min: MIN_GARRISON,
         max: lord.soldiers,
@@ -622,6 +674,7 @@ export class Game {
     this.world.captureEffect(city.tile, LORDS[lord.id].color);
     this.ui.log(`支付 ${fmtStones(occupyCost(city))}，派${gids.map((id) => this.state.generals[id].name).join('、')}率 ${soldiers} 兵佔領${city.name}！`, 'good');
     this.ui.toast(`佔領${city.name}！`);
+    await this.chooseContest(city);
     this.refresh();
   }
 
@@ -634,13 +687,13 @@ export class Game {
     const noDuel = `沒有血量達 ${Math.round(SURRENDER_HP * 100)}% 以上的隨行武將`;
     const choices: Choice<BattleKind | 'pay'>[] = [
       { label: '💰 繳納過路費', sub: `支付 ${fmtStones(fee)} 後離開`, value: 'pay' },
-      { label: '⚔️ 擂台戰', sub: `雙方各派一將單挑，能量滿可施放功法。血量低於 ${Math.round(WOUNDED_HP * 100)}% 減傷三成，低於 ${Math.round(SURRENDER_HP * 100)}% 認輸；被一擊打到歸零則戰死`, value: 'duel', disabled: !fighters.length, reason: free.length ? noDuel : noGen },
+      { label: city.contest === 'duel' ? '⚔️ 擂台戰（本城指定）' : '⚔️ 擂台戰', sub: `雙方各派一將單挑，能量滿可施放功法。血量低於 ${Math.round(WOUNDED_HP * 100)}% 減傷三成，低於 ${Math.round(SURRENDER_HP * 100)}% 認輸；被一擊打到歸零則戰死`, value: 'duel', disabled: city.contest !== 'duel' || !fighters.length, reason: city.contest !== 'duel' ? `本城指定鬥法為【${STAT_NAMES[city.contest]}比試】` : free.length ? noDuel : noGen },
       ...CRAFTS.map((s) => ({
-        label: `🔥 ${STAT_NAMES[s]}比試`,
+        label: `🔥 ${STAT_NAMES[s]}比試${city.contest === s ? '（本城指定）' : ''}`,
         sub: `比拼${STAT_NAMES[s]}，我方最高 ${Math.max(0, ...free.map((g) => craft(g, s)))}｜雙方各出 ${CONTEST_SOLDIERS} 兵，敗方全滅`,
         value: s as BattleKind,
-        disabled: !free.length || lord.soldiers < CONTEST_SOLDIERS,
-        reason: !free.length ? noGen : `需 ${CONTEST_SOLDIERS} 兵維持秩序`,
+        disabled: city.contest !== s || !free.length || lord.soldiers < CONTEST_SOLDIERS,
+        reason: city.contest !== s ? `本城指定鬥法為【${city.contest === 'duel' ? '擂台戰' : `${STAT_NAMES[city.contest]}比試`}】` : !free.length ? noGen : `需 ${CONTEST_SOLDIERS} 兵維持秩序`,
       })),
       {
         label: '🏯 攻城戰',
@@ -663,7 +716,7 @@ export class Game {
   // ───────────────────────── 戰鬥 ─────────────────────────
 
   /** 回傳攻方是否獲勝；玩家中途取消（還沒開打）回傳 null，由呼叫端回到選擇介面 */
-  private async fight(attacker: Lord, city: City, kind: BattleKind, preset: General[]): Promise<boolean | null> {
+  private async fight(attacker: Lord, city: City, kind: BattleKind, preset: General[]): Promise<boolean | null | 'draw'> {
     const defender = this.state.lords[city.owner as LordId];
     const involved = this.human(attacker) || this.human(defender);
     if (kind === 'siege') return this.runSiege(attacker, city, preset);
@@ -693,12 +746,19 @@ export class Game {
 
     if (kind === 'duel') {
       const duel = new Duel(attacker, atkGen, defender, defGen);
-      let winner: Side;
+      let winner: Side | 'draw';
       if (involved) {
         const playerSide: Side = this.human(attacker) ? 'a' : 'b';
         const playerLord = this.human(attacker) ? attacker : defender;
         winner = await this.battleView.runDuel(duel, playerSide, () => this.speed, (side) => this.useItemInDuel(duel, side, playerLord));
       } else winner = duel.autoResolve();
+      if (winner === 'draw') {
+        // 平手：雙方都獲得歷練，過路費一筆勾銷
+        const g1 = battleExp(atkGen, null);
+        const g2 = battleExp(defGen, null);
+        this.ui.log(`擂台戰：${atkGen.name} vs ${defGen.name}，戰成平手！雙方各得歷練（修為 +${g1} / +${g2}），免繳過路費。`, involved ? 'info' : 'ai');
+        return 'draw';
+      }
       const w = winner === 'a' ? atkGen : defGen;
       const l = winner === 'a' ? defGen : atkGen;
       const dead = duel.slainGeneral();
@@ -746,7 +806,7 @@ export class Game {
       const pool = freeGenerals(this.state, attacker.id);
       const picked = await this.dialog.pickMany(
         `攻打${city.name}・選擇出征武將`,
-        `最多派遣三名武將；選好武將後，可自行決定出兵數量。\n戰敗則出征的士兵全滅；勝方也會折損，雙方越接近折損越多。\n一名守軍約等於十名隨行士兵；武將武力越高，統率加成越大。守方約 ${garrisonPower(this.state, city)}。`,
+        `最多派遣三名武將；選好武將後，可自行決定出兵數量。\n戰敗則出征的士兵全滅；勝方也會折損，雙方越接近折損越多。\n一名守軍約等於十五名隨行士兵；武將武力越高，統率加成越大。守方約 ${garrisonPower(this.state, city)}。`,
         pool.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・武力 ${attack(g)}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}${pv(g)}`, value: g })),
         1,
         3,
@@ -775,15 +835,39 @@ export class Game {
       sentSoldiers = sent;
     }
     const oldGenerals = garrisonOf(this.state, city);
-    const r = siege(this.state, attacker, team, city, sentSoldiers);
     const involved = this.human(attacker) || this.human(defender);
-    if (involved) await this.battleView.showSiege(r, team, attacker.id, city, oldGenerals, this.human(attacker));
-    this.ui.log(`攻城戰：${LORDS[attacker.id].name} ${r.attack} vs ${city.name} ${r.defense}，${r.win ? '城破！' : '攻城失敗。'}`, involved ? 'info' : 'ai');
+
+    // 守城一方可以臨陣脫逃：棄城而走，四分之一的守軍倒戈加入攻方，其餘隨守方撤離
+    const myAtk = siegeAttack(attacker, team, sentSoldiers);
+    const theirDef = garrisonPower(this.state, city);
+    let fled = false;
+    if (this.human(defender)) {
+      fled = !(await this.dialog.confirm(
+        `🏯 ${LORDS[attacker.id].name}來攻${city.name}！`,
+        `敵軍約 <b>${myAtk}</b> vs 我方守城約 <b>${theirDef}</b>（${myAtk > theirDef * 1.15 ? '敵強我弱' : myAtk > theirDef * 0.85 ? '勢均力敵' : '我方佔優'}）。\n<b>迎戰</b>：正面決戰，敗者士兵全滅。\n<b>臨陣脫逃</b>：放棄${city.name}，守軍的四分之一（${Math.floor(city.garrisonSoldiers / 4)} 人）倒戈加入敵方，其餘隨你撤離。`,
+        '迎戰',
+        '臨陣脫逃',
+        '🏯',
+      ));
+    } else if (!this.human(defender) && myAtk > theirDef * 1.8 && Math.random() < 0.5) fled = true;
+    let r: SiegeResult;
+    if (fled) {
+      const joined = Math.floor(city.garrisonSoldiers / 4);
+      attacker.soldiers += joined;
+      defender.soldiers += city.garrisonSoldiers - joined;
+      city.garrisonSoldiers = 0;
+      r = { win: true, attack: myAtk, defense: theirDef, attackerLoss: 0, defenderLoss: 0 };
+      this.ui.log(`${LORDS[defender.id].name}自知不敵，從${city.name}臨陣脫逃！${joined} 名守軍倒戈加入${LORDS[attacker.id].name}。`, this.human(defender) ? 'bad' : this.human(attacker) ? 'good' : 'ai');
+    } else {
+      r = siege(this.state, attacker, team, city, sentSoldiers);
+      if (involved) await this.battleView.showSiege(r, team, attacker.id, city, oldGenerals, this.human(attacker));
+    }
+    this.ui.log(`攻城戰：${LORDS[attacker.id].name} ${r.attack} vs ${city.name} ${r.defense}，${fled ? '守方棄城！' : r.win ? '城破！' : '攻城失敗。'}`, involved ? 'info' : 'ai');
     if (!r.win) {
       for (const og of oldGenerals) this.ui.log(`${og.name}守城有功，修為 +${battleExp(og, team[0])}。`, involved ? 'info' : 'ai');
       return false;
     }
-    for (const g of team) battleExp(g, oldGenerals[0] ?? null);
+    if (!fled) for (const g of team) battleExp(g, oldGenerals[0] ?? null);
 
     // 奪城：原駐將退回主公身邊（閉關中則走火入魔），攻方派將駐守
     for (const og of oldGenerals) {
@@ -831,6 +915,7 @@ export class Game {
     }
     this.world.syncCities(this.state);
     this.world.captureEffect(city.tile, LORDS[attacker.id].color);
+    if (this.human(attacker)) await this.chooseContest(city);
     this.ui.log(`${LORDS[attacker.id].name}奪下${city.name}，由${gids.length ? gids.map((id) => this.state.generals[id].name).join('、') : '（無駐將）'}駐守。`, this.human(attacker) ? 'good' : this.human(defender) ? 'bad' : 'ai');
     this.refresh();
     return true;
@@ -883,33 +968,51 @@ export class Game {
       if (this.human(lord)) this.ui.toast(`探索${realmName}需要至少一名隨行武將`);
       return;
     }
-    let team: General[] | null;
+    let team: General[] | null = null;
     let level = 0;
     if (this.human(lord)) {
-      const best = [...free].sort((x, y) => power(y) - power(x)).slice(0, 3);
-      const picked = await this.dialog.choose(
-        `🌀 ${realmName}・選擇難度`,
-        `難度以境界命名：越高階歷時越久、隕落率越高，寶物品階與修為也越多。
-接著選擇派遣人數（${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人）：人越多越安全，四人以上多得一份寶物。`,
-        REALM_LEVELS.map((l, i) => ({
-          label: `${l.icon} ${l.name}秘境`,
-          sub: `歷時 ${l.turns} 回合・隕落率 ×${l.risk}・寶物品階 ${l.tier >= 0 ? '+' : ''}${l.tier}・修為 ×${l.exp}・寶物 ${l.rolls} 份（四人以上 +1）｜以你最強三人估計，平均隕落率約 ${Math.round((best.reduce((sum, g) => sum + deathChance(g, best, i), 0) / best.length) * 100)}%`,
-          value: i,
-        })),
-        '取消',
-        '🌀',
-      );
-      if (picked === null) return;
-      level = picked;
-      const L = REALM_LEVELS[level];
-      team = await this.dialog.pickMany(
-        `🌀 ${realmName}（${L.name}秘境）・選擇武將`,
-        `歷時 ${L.turns} 回合，期間武將無法出戰。選 ${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人；人越多個別隕落率越低，四人以上多得一份寶物。`,
-        free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}・單獨隕落率約 ${Math.round(deathChance(g, [g, g, g], level) * 100)}%${pv(g)}`, value: g })),
-        REALM_MIN_PARTY,
-        REALM_MAX_PARTY,
-        '派遣',
-      );
+      // 選難度 → 選人 → 確認；任何一步按取消都回到上一步重新選擇
+      const best = [...free].sort((x, y) => y.realm - x.realm || power(y) - power(x)).slice(0, 3);
+      for (;;) {
+        const picked = await this.dialog.choose(
+          `🌀 ${realmName}・選擇難度`,
+          `難度以境界命名，看的是境界而不是戰力：秘境境界比隊伍高，歷時越久（最長 9 回合）、越兇險；比隊伍低就越快（最短 1 回合）、越安全；境界相同為 3 回合。獎勵 2～5 份。\n以下依你境界最高的三人估計。接著選擇派遣人數（${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人）。`,
+          REALM_LEVELS.map((l, i) => ({
+            label: `${l.icon} ${l.name}秘境`,
+            sub: `歷時約 ${realmTurns(i, best)} 回合・平均隕落率約 ${Math.round((best.reduce((sum, g) => sum + deathChance(g, best, i), 0) / best.length) * 100)}%・寶物品階 ${l.tier >= 0 ? '+' : ''}${l.tier}・修為 ×${l.exp}・寶物 ${realmRolls(i, 3)}～${realmRolls(i, 4)} 份`,
+            value: i,
+          })),
+          '取消',
+          '🌀',
+        );
+        if (picked === null) return;
+        level = picked;
+        const L = REALM_LEVELS[level];
+        let chosen: General[] | null = null;
+        for (;;) {
+          chosen = await this.dialog.pickMany(
+            `🌀 ${realmName}（${L.name}秘境）・選擇武將`,
+            `選 ${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人；歷時依隊伍平均境界而定，人越多個別隕落率越低，四人以上多得一份寶物。按取消可回到難度選擇。`,
+            free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・單獨隕落率約 ${Math.round(deathChance(g, [g], level) * 100)}%${pv(g)}`, value: g })),
+            REALM_MIN_PARTY,
+            REALM_MAX_PARTY,
+            '下一步',
+          );
+          if (!chosen) break;
+          const ok = await this.dialog.confirm(
+            `🌀 確認進入${realmName}（${L.name}秘境）`,
+            `隊伍：${chosen.map((g) => `${g.name}（${REALMS[g.realm]}，隕落率約 ${Math.round(deathChance(g, chosen!, level) * 100)}%）`).join('、')}\n歷時 <b>${realmTurns(level, chosen)}</b> 回合（隊伍平均境界：${REALMS[partyRealm(chosen)]}）・寶物 <b>${realmRolls(level, chosen.length)}</b> 份。`,
+            '出發',
+            '重新選人',
+            '🌀',
+          );
+          if (ok) break;
+        }
+        if (chosen) {
+          team = chosen;
+          break;
+        }
+      }
     } else {
       const plan = aiRealm(this.state, lord);
       team = plan?.team ?? null;
@@ -917,7 +1020,7 @@ export class Game {
     }
     if (!team) return;
     dispatch(lord, team, realmName, level);
-    this.ui.log(`${LORDS[lord.id].name}派遣${team.map((g) => g.name).join('、')}進入${realmName}（${REALM_LEVELS[level].name}秘境）。`, this.human(lord) ? 'good' : 'ai');
+    this.ui.log(`${LORDS[lord.id].name}派遣${team.map((g) => g.name).join('、')}進入${realmName}（${REALM_LEVELS[level].name}秘境，${realmTurns(level, team)} 回合）。`, this.human(lord) ? 'good' : 'ai');
     this.refresh();
   }
 
@@ -1337,11 +1440,10 @@ export class Game {
       this.refresh();
       return;
     }
-    const n = boltCount(g);
-    const per = Math.round(boltDamage(g));
+    const rg = boltRange(g);
     const ok = await this.dialog.confirm(
       `${g.name}・渡劫晉入${REALMS[g.realm + 1]}`,
-      `天降 <b>${n}</b> 道天雷，每道約 <b>${per}</b> 傷害（共約 ${per * n}）。\n目前血量 ${g.hp} / ${maxHp(g)}${g.ward ? `・護法陣減傷 ${Math.round(g.ward * 100)}%` : ''}${g.demon ? '\n⚠️ 心魔纏身，雷劫威力倍增' : ''}\n\n血量歸零則一半機率身死道消、一半機率兵解重修（跌回凡人）。\n可先用回血丹補滿，或用避雷陣、五行防禦陣護法。`,
+      `天降 <b>${rg.count}</b> 道天雷：\n每道傷害範圍 <b>${rg.min} ～ ${rg.max}</b>（平均 ${rg.avg}）\n全部共 <b>${rg.totalMin} ～ ${rg.totalMax}</b>，平均 <b>${rg.totalAvg}</b>\n目前血量 ${g.hp} / ${maxHp(g)}${g.ward ? `・護法陣減傷 ${Math.round(g.ward * 100)}%` : ''}${g.demon ? '\n⚠️ 心魔纏身，雷劫威力倍增' : ''}\n\n血量歸零則一半機率身死道消、一半機率兵解重修（跌回凡人）。\n可先用回血丹補滿，或用避雷陣、五行防禦陣護法。`,
       '渡劫',
       '再準備',
       '⚡',
@@ -1413,7 +1515,7 @@ export class Game {
   private tileInfoHtml(index: number): string {
     const t = this.state.tiles[index];
     const here = LORD_IDS.filter((id) => this.state.lords[id].alive && this.state.lords[id].position === index);
-    const people = here.length ? `<div class="ip-row">此地：${here.map((id) => `<span style="color:${LORDS[id].css}">${LORDS[id].name}</span>`).join('、')}</div>` : '';
+    const people = here.length ? `<div class="ip-row">此地：${here.map((id) => `<span style="color:${LORDS[id].css}">${LORDS[id].name}</span><small>（${this.facingText(this.state.lords[id])}）</small>`).join('、')}</div>` : '';
     const links = `<div class="ip-row">通往：${t.links.map((n) => `${TILE_INFO[this.state.tiles[n].kind].icon}${this.state.tiles[n].name}`).join('、')}${t.links.length >= 3 ? '（岔路口）' : ''}</div>`;
     if (t.kind !== 'city') return `<div class="ip-head"><b>${TILE_INFO[t.kind].icon} ${t.name}</b></div><div class="ip-row">${TILE_INFO[t.kind].desc}</div>${links}${people}`;
     const c = this.state.cities[t.cityId!];
@@ -1436,6 +1538,7 @@ export class Game {
   private refresh() {
     if (!this.state) return;
     this.ui.renderTop(this.state);
+    this.updateFacing();
     const player = this.state.lords[this.state.player];
     const current = currentLord(this.state);
     const myTurn = current.id === player.id && player.alive;

@@ -50,29 +50,35 @@ export interface DuelEvent {
 export const CRIT_BASE = 0.03;
 export const CRIT_MULT = 1.5;
 
-const MAX_ACTIONS = 60;
+const MAX_ROUNDS = 40;
 /** 血量低於一成就會認輸（保住性命） */
 export const SURRENDER_HP = 0.1;
-/** 血量低於兩成進入瀕危，受到的傷害減少三成 */
-export const WOUNDED_HP = 0.2;
-export const WOUNDED_REDUCE = 0.3;
+/** 血量低於 25% 進入瀕危，受到的傷害減少 25% */
+export const WOUNDED_HP = 0.25;
+export const WOUNDED_REDUCE = 0.25;
 
 /** 血量足以上擂台：開打前就低於一成的武將會直接認輸 */
 export function canDuel(g: General): boolean {
   return g.hp >= maxHp(g) * SURRENDER_HP;
 }
 
-/** 擂台戰：回合制單挑，能量滿可施放功法技能 */
+export type DuelAct = 'attack' | 'skill' | 'none';
+
+/** 擂台戰：每回合雙方同時出手（有先手的一方先出手），能量滿可施放功法技能；可能兩敗俱傷、戰成平手 */
 export class Duel {
   a: Fighter;
   b: Fighter;
-  turn: Side = 'a';
-  actions = 0;
+  /** 已進行的回合數 */
+  rounds = 0;
   winner: Side | null = null;
+  /** 平手：雙方同時倒下、同時認輸，或久戰不分勝負 */
+  draw = false;
   /** 認輸的一方：血量低於一成，保住性命 */
   surrendered: Side | null = null;
   /** 戰死的一方：血量被一擊打到歸零 */
   slain: Side | null = null;
+  /** 先手：只有一方擁有先手時，那一方每回合先出手 */
+  first: Side | null = null;
   private announced = false;
 
   constructor(aLord: Lord, aGen: General, bLord: Lord, bGen: General) {
@@ -81,26 +87,53 @@ export class Duel {
     // 震懾：壓低對手武力
     this.a.atk = Math.round(this.a.atk * (1 - (fx(bGen).intimidate ?? 0)));
     this.b.atk = Math.round(this.b.atk * (1 - (fx(aGen).intimidate ?? 0)));
-    // 先手：只有守方擁有時才改由守方先攻
-    if (fx(bGen).firstStrike && !fx(aGen).firstStrike) this.turn = 'b';
+    const fa = !!fx(aGen).firstStrike;
+    const fb = !!fx(bGen).firstStrike;
+    if (fa !== fb) this.first = fa ? 'a' : 'b';
     // 上場前血量就低於一成：不戰而降（雙方皆是則攻方先認輸）
-    if (this.a.hp < this.a.maxHp * SURRENDER_HP) this.checkDown(this.a);
-    else if (this.b.hp < this.b.maxHp * SURRENDER_HP) this.checkDown(this.b);
+    if (this.a.hp < this.a.maxHp * SURRENDER_HP) this.surrender(this.a);
+    else if (this.b.hp < this.b.maxHp * SURRENDER_HP) this.surrender(this.b);
   }
 
-  /** 血量歸零即戰死；留有一口氣但低於一成則認輸 */
-  private checkDown(target: Fighter) {
-    if (this.winner) return;
-    if (target.hp <= 0) this.slain = target.side;
-    else if (target.hp < target.maxHp * SURRENDER_HP) this.surrendered = target.side;
-    else return;
-    this.winner = target.side === 'a' ? 'b' : 'a';
+  /** 勝負已分或平手 */
+  get over(): boolean {
+    return !!this.winner || this.draw;
   }
 
-  /** 結局公告：認輸或戰死 */
+  private surrender(f: Fighter) {
+    this.surrendered = f.side;
+    this.winner = f.side === 'a' ? 'b' : 'a';
+  }
+
+  /** 判定勝負：歸零即戰死，低於一成認輸；雙方同時倒下則平手（一死一降，活著的一方獲勝） */
+  private judge() {
+    if (this.over) return;
+    const state = (f: Fighter) => (f.hp <= 0 ? 'dead' : f.hp < f.maxHp * SURRENDER_HP ? 'down' : 'ok');
+    const sa = state(this.a);
+    const sb = state(this.b);
+    if (sa === 'ok' && sb === 'ok') return;
+    if (sa !== 'ok' && sb !== 'ok') {
+      if (sa === 'dead' && sb === 'dead') this.draw = true;
+      else if (sa === 'dead') {
+        this.slain = 'a';
+        this.winner = 'b';
+      } else if (sb === 'dead') {
+        this.slain = 'b';
+        this.winner = 'a';
+      } else this.draw = true;
+      return;
+    }
+    const loser = sa !== 'ok' ? this.a : this.b;
+    if (state(loser) === 'dead') this.slain = loser.side;
+    else this.surrendered = loser.side;
+    this.winner = loser.side === 'a' ? 'b' : 'a';
+  }
+
+  /** 結局公告：平手、認輸或戰死 */
   verdict(): DuelEvent[] {
-    if (!this.winner || this.announced) return [];
+    if (!this.over || this.announced) return [];
     this.announced = true;
+    if (this.draw) return [{ text: '兩人勢均力敵，戰成平手！雙方各得歷練，過路費一筆勾銷。', kind: 'info' }];
     if (this.slain) {
       const g = this.fighter(this.slain).general;
       return [{ text: `${g.name}被當場擊殺，戰死擂台！`, kind: 'info' }];
@@ -151,22 +184,23 @@ export class Duel {
     return !!f.general.technique && f.energy >= 100;
   }
 
-  /** 對目標造成傷害（先扣護盾） */
-  damage(target: Fighter, amount: number): number {
+  /** 對目標造成傷害（先扣護盾）；瀕危判定可由呼叫端傳入（同時出手時以回合開始的血量為準） */
+  damage(target: Fighter, amount: number, wounded = target.hp < target.maxHp * WOUNDED_HP, defer = false): number {
     let dmg = Math.max(1, Math.round(amount));
-    // 瀕危：血量低於兩成時減傷三成
-    if (target.hp < target.maxHp * WOUNDED_HP) dmg = Math.max(1, Math.round(dmg * (1 - WOUNDED_REDUCE)));
+    // 瀕危：血量低於 25% 時減傷 25%
+    if (wounded) dmg = Math.max(1, Math.round(dmg * (1 - WOUNDED_REDUCE)));
     if (target.shield > 0) {
       const absorbed = Math.min(target.shield, dmg);
       target.shield -= absorbed;
       dmg -= absorbed;
     }
     target.hp = Math.max(0, target.hp - dmg);
-    this.checkDown(target);
+    if (!defer) this.judge();
     return dmg;
   }
 
-  private strike(side: Side, mult: number, skill = false): { dmg: number; elem: string; heal: number; crit: boolean } {
+  /** 計算一次出手並套用傷害 */
+  private strike(side: Side, mult: number, skill: boolean, wounded: boolean): { dmg: number; elem: string; heal: number; crit: boolean } {
     const me = this.fighter(side);
     const foe = this.other(side);
     const mine = fx(me.general);
@@ -181,53 +215,100 @@ export class Duel {
       (1 - (fx(foe.general).duelTaken ?? 0));
     const crit = Math.random() < CRIT_BASE + (mine.crit ?? 0);
     const raw = me.atk * (0.9 + Math.random() * 0.2) * 1.6 * (100 / (100 + foe.def)) * em.mult * mult * tide * passive * (crit ? CRIT_MULT : 1);
-    const dmg = this.damage(foe, raw);
+    const dmg = this.damage(foe, raw, wounded, true);
     const heal = Math.min(me.maxHp - me.hp, Math.round(dmg * (mine.lifesteal ?? 0)));
     me.hp += heal;
     return { dmg, elem: em.text, heal, crit };
   }
 
-  /** 執行一個行動，回傳事件供畫面顯示 */
-  act(side: Side, action: 'attack' | 'skill'): DuelEvent[] {
+  /** 一方出手：普通攻擊或功法技能，回傳事件 */
+  private act(side: Side, act: DuelAct, wounded: boolean): DuelEvent[] {
     const me = this.fighter(side);
     const foe = this.other(side);
     const events: DuelEvent[] = [];
-    if (action === 'skill' && this.canSkill(side)) {
+    if (act === 'none') return events;
+    if (act === 'skill' && this.canSkill(side)) {
       me.energy = 0;
       const t = me.general.technique!;
-      const r = this.strike(side, t.skillPower, true);
+      const r = this.strike(side, t.skillPower, true, wounded);
       events.push({ text: `${me.general.name}施展【${t.skillName}】！${r.crit ? '【暴擊】' : ''}造成 ${r.dmg} 傷害${r.elem ? `（${r.elem}）` : ''}`, target: foe.side, damage: r.dmg, kind: 'skill', crit: r.crit });
       if (r.heal) events.push({ text: `${me.general.name}吸取 ${r.heal} 血量`, target: side, heal: r.heal, kind: 'info' });
     } else {
       const mine = fx(me.general);
-      const r = this.strike(side, 1);
+      const r = this.strike(side, 1, false, wounded);
       me.energy = Math.min(100, me.energy + 25 + (mine.energyGain ?? 0));
       events.push({ text: `${me.general.name}攻擊，${r.crit ? '【暴擊】' : ''}造成 ${r.dmg} 傷害${r.elem ? `（${r.elem}）` : ''}`, target: foe.side, damage: r.dmg, kind: 'hit', crit: r.crit });
       if (r.heal) events.push({ text: `${me.general.name}吸取 ${r.heal} 血量`, target: side, heal: r.heal, kind: 'info' });
       // 連擊：有機率多砍一刀
-      if (!this.winner && mine.doubleStrike && Math.random() < mine.doubleStrike) {
-        const r2 = this.strike(side, 1);
+      if (mine.doubleStrike && Math.random() < mine.doubleStrike) {
+        const r2 = this.strike(side, 1, false, wounded);
         events.push({ text: `${me.general.name}【${passiveName(me.general)}】連擊！再造成 ${r2.dmg} 傷害`, target: foe.side, damage: r2.dmg, kind: 'hit' });
       }
     }
     foe.energy = Math.min(100, foe.energy + 15);
-    return events.concat(this.endAction(side));
+    return events;
   }
 
-  /** 使用物品也算一次行動 */
-  itemAction(side: Side, events: DuelEvent[]): DuelEvent[] {
-    return events.concat(this.endAction(side));
+  /**
+   * 進行一個回合：雙方同時出手（以回合開始時的血量判定瀕危）。
+   * 有先手的一方先出手，若已分出勝負，對方就來不及還手；其餘情況兩人同時倒下就是平手。
+   */
+  round(acts: Record<Side, DuelAct>): DuelEvent[] {
+    const events: DuelEvent[] = [];
+    if (this.over) return events;
+    const wounded = { a: this.a.hp < this.a.maxHp * WOUNDED_HP, b: this.b.hp < this.b.maxHp * WOUNDED_HP };
+    const todo: Side[] = this.first ? [this.first, this.first === 'a' ? 'b' : 'a'] : ['a', 'b'];
+    const real: Record<Side, DuelAct> = { ...acts };
+    // 定身：這一回合無法出手
+    for (const side of todo) {
+      const f = this.fighter(side);
+      if (f.frozen > 0) {
+        f.frozen--;
+        real[side] = 'none';
+        events.push({ text: `${f.general.name}被定身，無法行動！`, kind: 'info' });
+      }
+    }
+    if (this.first) {
+      // 先手：先出手，勝負已分則對方不能還手
+      for (const side of todo) {
+        events.push(...this.act(side, real[side], wounded[side === 'a' ? 'b' : 'a']));
+        this.judge();
+        if (this.over) break;
+      }
+    } else {
+      // 同時出手：兩邊的傷害都先算完，再一起判定
+      for (const side of todo) events.push(...this.act(side, real[side], wounded[side === 'a' ? 'b' : 'a']));
+      this.judge();
+    }
+    // 回合結束：靈獸出手、毒發
+    if (!this.over) {
+      for (const side of ['a', 'b'] as const) events.push(...this.endRound(side));
+      this.judge();
+    }
+    this.rounds++;
+    if (!this.over && this.rounds >= MAX_ROUNDS) {
+      this.draw = true;
+      events.push({ text: '久戰不下，雙方鬥得難分難解。', kind: 'info' });
+    }
+    events.push(...this.verdict());
+    return events;
   }
 
-  /** 行動結束：靈獸出手、毒發、換對手 */
-  private endAction(side: Side): DuelEvent[] {
+  /** 使用物品的事件也要結算（物品造成的傷害可能分出勝負） */
+  afterItem(events: DuelEvent[]): DuelEvent[] {
+    this.judge();
+    return events.concat(this.verdict());
+  }
+
+  /** 回合結束：靈獸、毒 */
+  private endRound(side: Side): DuelEvent[] {
     const me = this.fighter(side);
     const foe = this.other(side);
     const events: DuelEvent[] = [];
-    if (!this.winner && me.beast) {
+    if (me.beast) {
       const p = beastPower(me.beast);
       if (me.beast.skill === 'attack') {
-        const dmg = this.damage(foe, p.attack);
+        const dmg = this.damage(foe, p.attack, foe.hp < foe.maxHp * WOUNDED_HP, true);
         events.push({ text: `靈獸${me.beast.name.split('・')[1]}追擊，造成 ${dmg} 傷害`, target: foe.side, damage: dmg, kind: 'beast' });
       } else if (me.beast.skill === 'heal' && me.hp < me.maxHp) {
         const h = Math.min(me.maxHp - me.hp, Math.round(me.maxHp * p.heal));
@@ -235,35 +316,19 @@ export class Duel {
         events.push({ text: `靈獸${me.beast.name.split('・')[1]}為${me.general.name}療傷 +${h}`, target: me.side, heal: h, kind: 'beast' });
       }
     }
-    if (!this.winner && me.poison) {
+    if (me.poison) {
       // 毒只會把人逼到認輸，不會直接毒死
-      const dmg = Math.min(me.hp - 1, Math.round(me.maxHp * me.poison.dmg));
+      const dmg = Math.max(0, Math.min(me.hp - 1, Math.round(me.maxHp * me.poison.dmg)));
       me.hp -= dmg;
       me.poison.turns--;
       if (me.poison.turns <= 0) me.poison = null;
-      events.push({ text: `${me.general.name}毒發，損失 ${dmg} 血量`, target: me.side, damage: dmg, kind: 'info' });
-      this.checkDown(me);
-    }
-    this.actions++;
-    if (!this.winner && this.actions >= MAX_ACTIONS) {
-      this.winner = 'b';
-      events.push({ text: '久戰不下，守方守住擂台。', kind: 'info' });
-    }
-    events.push(...this.verdict());
-    if (!this.winner) {
-      this.turn = foe.side;
-      if (foe.frozen > 0) {
-        foe.frozen--;
-        events.push({ text: `${foe.general.name}被定身，無法行動！`, kind: 'info' });
-        this.actions++;
-        this.turn = me.side;
-      }
+      if (dmg) events.push({ text: `${me.general.name}毒發，損失 ${dmg} 血量`, target: me.side, damage: dmg, kind: 'info' });
     }
     return events;
   }
 
   /** 電腦的單挑行動 */
-  aiAction(side: Side): 'attack' | 'skill' {
+  aiAction(side: Side): DuelAct {
     return this.canSkill(side) ? 'skill' : 'attack';
   }
 
@@ -272,11 +337,11 @@ export class Duel {
     for (const f of [this.a, this.b]) f.general.hp = f.side === this.slain ? 0 : Math.max(1, f.hp);
   }
 
-  /** 不需操作的快速模擬（電腦對電腦） */
-  autoResolve(): Side {
-    while (!this.winner) this.act(this.turn, this.aiAction(this.turn));
+  /** 不需操作的快速模擬（電腦對電腦）：回傳勝方，平手回傳 'draw' */
+  autoResolve(): Side | 'draw' {
+    while (!this.over) this.round({ a: this.aiAction('a'), b: this.aiAction('b') });
     this.finish();
-    return this.winner!;
+    return this.winner ?? 'draw';
   }
 }
 
@@ -332,7 +397,7 @@ export function siegeAttack(attacker: Lord, generals: General[], soldiers = atta
   return Math.round(base * attacker.siegeBoost * (1 + (traitOf(attacker.id).siege ?? 0)));
 }
 
-/** 攻城戰：最多三名武將 + 自己決定派出的士兵 vs 駐將 + 城池守軍（一名守軍約等於十名隨行士兵） */
+/** 攻城戰：最多三名武將 + 自己決定派出的士兵 vs 駐將 + 城池守軍（一名守軍約等於十五名隨行士兵） */
 export function siege(state: GameState, attacker: Lord, generals: General[], city: City, soldiers = attacker.soldiers): SiegeResult {
   const atk = Math.round(siegeAttack(attacker, generals, soldiers) * (0.85 + Math.random() * 0.3));
   const def = Math.round(garrisonPower(state, city) * (0.9 + Math.random() * 0.2));

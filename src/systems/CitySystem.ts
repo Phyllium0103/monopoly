@@ -1,6 +1,6 @@
-import type { City, GameState, General, Lord, LordId } from '../game/types';
+import type { City, ContestKind, GameState, General, Lord, LordId } from '../game/types';
 import { GARRISON_LIMIT, citiesOf, deployable, garrisonOf, generalsOf, joinLord } from '../game/GameState';
-import { defense, generalSaleValue, generalValue, power, unequip } from './GeneralSystem';
+import { attack, craft, defense, generalSaleValue, generalValue, power, unequip } from './GeneralSystem';
 import { beastPower } from '../data/items';
 import { fmtProsperity, fmtStones } from '../game/Currency';
 import { WORLD } from './WorldMods';
@@ -21,8 +21,8 @@ export function recruitCost(lord: LordId, n: number): number {
   return Math.round(n * SOLDIER_PRICE * (1 + (traitOf(lord).soldierPrice ?? 0)));
 }
 export const MIN_GARRISON = 300;
-/** 一名城池守軍約等於十名隨行士兵 */
-export const GARRISON_STRENGTH = 10;
+/** 一名城池守軍約等於十五名隨行士兵 */
+export const GARRISON_STRENGTH = 15;
 
 /** 過路費：隨繁榮度加速成長（前期便宜、後期昂貴），同一主公城池越多也越貴 */
 export function toll(city: City, ownerCities = 1): number {
@@ -63,6 +63,14 @@ export function garrisonPower(state: GameState, city: City): number {
   return Math.round(base * (1 + terrainOf(city).defense) * (1 + f.garrisonDef) * (1 + (traitOf(city.owner).garrisonDef ?? 0)) * (city.shieldTurns > 0 ? 1.5 : 1));
 }
 
+/** 依駐將的專長挑一種對自己最有利的鬥法（電腦佔領時使用） */
+export function bestContest(state: GameState, city: City): ContestKind {
+  const gens = garrisonOf(state, city);
+  if (!gens.length) return 'duel';
+  const score = (k: ContestKind) => Math.max(...gens.map((g) => (k === 'duel' ? attack(g) * 0.9 : craft(g, k))));
+  return (['duel', 'alchemy', 'forging', 'talisman', 'formation'] as ContestKind[]).sort((a, b) => score(b) - score(a))[0];
+}
+
 /** 佔領無主城池需支付的安撫費 */
 export function occupyCost(city: City): number {
   return Math.round(city.prosperity * 60);
@@ -86,6 +94,8 @@ export function occupy(state: GameState, lord: Lord, city: City, generalIds: str
   city.owner = lord.id;
   city.garrisonGenerals = ids;
   city.garrisonSoldiers = soldiers;
+  // 預設選最有利的鬥法；玩家佔領後可自己改選
+  city.contest = bestContest(state, city);
 }
 
 /** 城池回歸無主：駐將回到主公身邊（或宗門），守軍解散 */

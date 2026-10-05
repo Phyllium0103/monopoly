@@ -32,6 +32,7 @@ export class World {
   private hover: THREE.Mesh;
   private time = 0;
   private eventMarkers: THREE.Group[] = [];
+  private facing = new Map<string, THREE.Group>();
 
   constructor(
     scene: THREE.Scene,
@@ -248,6 +249,32 @@ export class World {
         (beam.material as THREE.MeshBasicMaterial).opacity = 0.8 * (1 - t);
       })
       .then(() => this.root.remove(beam));
+  }
+
+  /** 主公面向的箭頭：dir 為 null 時（尚未出發）不顯示 */
+  setFacing(id: string, color: number, tile: number, dir: Vec2 | null, slot: number) {
+    let g = this.facing.get(id);
+    if (!g) {
+      g = new THREE.Group();
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.5, 14).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, depthTest: false }));
+      cone.renderOrder = 5;
+      g.add(cone);
+      this.root.add(g);
+      this.facing.set(id, g);
+    }
+    if (!dir) {
+      g.visible = false;
+      return;
+    }
+    const p = this.tilePosition(tile);
+    const len = Math.hypot(dir.x, dir.z) || 1;
+    const dx = dir.x / len;
+    const dz = dir.z / len;
+    // 各主公的箭頭略微錯開，避免重疊
+    const side = (slot - 1.5) * 0.7;
+    g.position.set(p.x + dx * 2.6 - dz * side, p.y + 0.9, p.z + dz * 2.6 + dx * side);
+    g.rotation.y = Math.atan2(dx, dz);
+    g.visible = true;
   }
 
   /** 九州風雲的地圖標記：旅行商人、黃巾賊窩 */

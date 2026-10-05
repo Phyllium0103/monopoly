@@ -1,4 +1,4 @@
-import type { GameState } from '../game/types';
+import type { GameState, LordId } from '../game/types';
 import { LORDS } from '../faction/Faction';
 import { citiesOf, generalsOf } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
@@ -39,6 +39,7 @@ export class GameUI {
   onRank: (() => void) | null = null;
   onAuto: (() => void) | null = null;
   onCheat: (() => void) | null = null;
+  onLord: ((id: LordId) => void) | null = null;
   /** 電腦託管中 */
   auto = false;
 
@@ -101,7 +102,7 @@ export class GameUI {
         const realm = l.expeditions.length ? `<span class="tag realm">🌀${l.expeditions.length}</span>` : '';
         const ready = l.alive && l.isPlayer ? generalsOf(state, id).filter((g) => canAttemptBreak(g, state.round).ok).length : 0;
         const breakTag = ready ? `<span class="tag ready" title="有武將修為圓滿，可到武將名冊突破">✨可突破 ${ready}</span>` : '';
-        return `<div class="lord-card ${id === current ? 'current' : ''} ${l.alive ? '' : 'out'} ${l.isPlayer ? 'me' : ''}" style="--fc:${d.css}">
+        return `<div class="lord-card clickable ${id === current ? 'current' : ''} ${l.alive ? '' : 'out'} ${l.isPlayer ? 'me' : ''}" data-lord="${id}" title="點擊查看詳細資料" style="--fc:${d.css}">
           <div class="lc-head"><b>${d.name}</b><small>${d.kingdom}${l.isPlayer ? '・你' : ''}</small>${status}${realm}${breakTag}</div>
           <div class="lc-row">💎 ${fmtStones(l.stones, true)}</div>
           <div class="lc-row">⚔️ ${l.soldiers} · 🏯 ${citiesOf(state, id).length} · 👥 ${generalsOf(state, id).length}</div>
@@ -118,6 +119,9 @@ export class GameUI {
       <div class="lords">${lords}</div>
       <div class="speed"><button class="btn mini log-btn ${this.logOpen ? 'on' : ''}" title="開關天下紀事">📜 紀事</button><button class="btn mini cheat-btn" title="測試用：獲得大量靈石與所有物品">🧪 測試</button><button class="btn mini auto-btn ${this.auto ? 'on' : ''}" title="由電腦代打你的回合">${this.auto ? '🤖 託管中' : '🤖 託管'}</button><button class="btn mini rank-btn">🏆 城池榜</button><button class="btn mini help-btn">📖 說明</button>${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
     (this.top.querySelector('.help-btn') as HTMLButtonElement).onclick = () => this.onHelp?.();
+    this.top.querySelectorAll<HTMLElement>('.lord-card[data-lord]').forEach((c) => {
+      c.onclick = () => this.onLord?.(c.dataset.lord as LordId);
+    });
     (this.top.querySelector('.rank-btn') as HTMLButtonElement).onclick = () => this.onRank?.();
     (this.top.querySelector('.auto-btn') as HTMLButtonElement).onclick = () => this.onAuto?.();
     (this.top.querySelector('.cheat-btn') as HTMLButtonElement).onclick = () => this.onCheat?.();

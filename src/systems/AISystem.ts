@@ -191,7 +191,6 @@ export interface AiBattleChoice {
   generals: General[];
 }
 
-const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
 
 /** 踏入敵城：繳費或選擇最有把握的戰鬥 */
 export function aiEnemyCity(state: GameState, lord: Lord, city: City): AiBattleChoice {
@@ -205,13 +204,14 @@ export function aiEnemyCity(state: GameState, lord: Lord, city: City): AiBattleC
   const team = [...free].sort((a, b) => attack(b) - attack(a)).slice(0, 3);
   if (siegeAllowed(state.round) && siegeAttack(lord, team) > garrisonPower(state, city) * 1.3 && free.length >= 2) return { kind: 'siege', generals: team };
 
-  // 單挑
+  // 單挑（只有指定鬥法為擂台的城池才能打）
+  const only = city.contest;
   const best = [...free].sort((a, b) => duelScore(b) - duelScore(a))[0];
   const bestDef = [...defenders].filter(canDuel).sort((a, b) => duelScore(b) - duelScore(a))[0];
-  if (bestDef && duelScore(best) > duelScore(bestDef) * 1.15) return { kind: 'duel', generals: [best] };
+  if (only === 'duel' && bestDef && duelScore(best) > duelScore(bestDef) * 1.15) return { kind: 'duel', generals: [best] };
 
   // 技藝比試（雙方各需 500 兵維持秩序）
-  for (const stat of lord.soldiers >= CONTEST_SOLDIERS ? CRAFTS : []) {
+  for (const stat of lord.soldiers >= CONTEST_SOLDIERS && only !== 'duel' ? [only] : []) {
     const me = [...free].sort((a, b) => craft(b, stat) - craft(a, stat))[0];
     const them = [...defenders].sort((a, b) => craft(b, stat) - craft(a, stat))[0];
     if (them && craft(me, stat) > craft(them, stat) * 1.25) return { kind: stat, generals: [me] };
@@ -263,12 +263,12 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
 
 /** 秘境：有空閒武將時，挑風險可接受的最高難度派遣 */
 export function aiRealm(state: GameState, lord: Lord): { team: General[]; level: number } | null {
-  const free = deployable(state, lord.id).sort((a, b) => power(b) - power(a));
+  const free = deployable(state, lord.id).sort((a, b) => b.realm - a.realm || power(b) - power(a));
   if (!free.length || Math.random() > 0.7) return null;
-  const team = free.length >= 4 ? free.slice(1, 4) : free.slice(0, 3);
+  const team = free.slice(0, Math.min(4, free.length));
   for (let level = REALM_LEVELS.length - 1; level >= 0; level--) {
     const risk = team.reduce((s, g) => s + deathChance(g, team, level), 0) / team.length;
-    if (risk < 0.2) return { team, level };
+    if (risk < 0.15) return { team, level };
   }
   return null;
 }

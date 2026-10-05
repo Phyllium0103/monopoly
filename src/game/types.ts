@@ -44,7 +44,8 @@ export interface Technique {
   tier: Tier;
   element: Element;
   /** 修煉難度 1–5 */
-  difficulty: number;
+  /** 完整度 1–5：越完整，能力加成、技能威力與每回合修為越高 */
+  completeness: number;
   /** 能力加成比例 */
   power: number;
   skillName: string;
@@ -98,6 +99,8 @@ export interface General {
   ward: number;
   /** 破境丹：下次低階突破成功率加成，或雷劫傷害減免 */
   breakBoost: number;
+  /** 死亡前所屬的主公（百草堂復活時分「自己的亡將」與「其他主公的亡將」） */
+  lastOwner: LordId | null;
   /** 主公本人：可出戰，但不能駐守城池、不會戰死、不能被變賣 */
   isLord: boolean;
   /** 駐守城池時閉關修煉 */
@@ -153,6 +156,9 @@ export interface Lord {
   rank: number;
 }
 
+/** 城池指定的鬥法：來挑戰的人只能選這一種（外加攻城戰與繳費） */
+export type ContestKind = 'duel' | CraftStat;
+
 export interface City {
   id: string;
   name: string;
@@ -163,6 +169,8 @@ export interface City {
   /** 駐守的武將（最多 3 人） */
   garrisonGenerals: string[];
   garrisonSoldiers: number;
+  /** 指定的鬥法（佔領或重新佔領時由主公選擇） */
+  contest: ContestKind;
   /** 護城大陣剩餘回合 */
   shieldTurns: number;
 }

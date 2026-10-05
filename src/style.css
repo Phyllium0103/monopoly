@@ -1886,3 +1886,32 @@ body {
 .fc-trait .con {
   color: #f08a70;
 }
+
+.shop-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 8px;
+}
+.shop-tab {
+  font-family: inherit;
+  font-size: 15px;
+  padding: 4px 12px;
+  border-radius: 14px;
+  border: 1px solid #c8b080;
+  background: #fbf6ea;
+  color: var(--ink);
+  cursor: pointer;
+}
+.shop-tab.on {
+  background: #f1d27a;
+  border-color: #8a6a1a;
+  font-weight: 700;
+}
+
+.lord-card.clickable {
+  cursor: pointer;
+}
+.lord-card.clickable:hover {
+  background: rgba(241, 210, 122, 0.18);
+}

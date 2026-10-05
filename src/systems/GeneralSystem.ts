@@ -82,8 +82,6 @@ export function needsTribulation(g: General): boolean {
 export function breakChance(g: General): number {
   const base = [0.9, 0.75][g.realm] ?? 0.5;
   let c = base + (g.aptitude === 'heaven' ? 0.15 : g.aptitude === 'pseudo' ? -0.1 : 0);
-  // 只有修習高難度功法才會拖累突破
-  if (g.technique) c -= (g.technique.difficulty - 1) * 0.03;
   if (g.hp < maxHp(g) * 0.5) c -= 0.15;
   if (g.foundation && g.realm === 1) c = Math.max(c, 0.95);
   c -= g.demon * 0.3;
@@ -136,11 +134,29 @@ export function boltCount(g: General): number {
 }
 
 /** 單道天雷的預估傷害（防禦、寶衣、護法陣、體質、心魔都會影響） */
+/** 渡劫難度的基準血量：關羽、張飛這類 720 以上的猛將吃全額天雷，血量較低的角色等比例降低 */
+export const BOLT_REF_HP = 720;
+
 export function boltDamage(g: General): number {
   const def = defense(g);
   const reduce = def / (def + 300);
   const thunder = 1 - (fx(g).tribulation ?? 0);
-  return TRIBULATION_BASE[g.realm - 2] * (1 - reduce) * (1 - g.ward) * thunder * (1 + g.demon * 0.5) * WORLD.boltMult * (1 - g.breakBoost);
+  return TRIBULATION_BASE[g.realm - 2] * (1 - reduce) * (1 - g.ward) * thunder * (1 + g.demon * 0.5) * WORLD.boltMult * (1 - g.breakBoost) * Math.min(1, g.base.hp / BOLT_REF_HP);
+}
+
+/** 天雷傷害的實際範圍與平均（單道與全部） */
+export function boltRange(g: General) {
+  const per = boltDamage(g);
+  const n = boltCount(g);
+  return {
+    count: n,
+    min: Math.round(per * (1 - BOLT_SPREAD)),
+    max: Math.round(per * (1 + BOLT_SPREAD)),
+    avg: Math.round(per),
+    totalMin: Math.round(per * (1 - BOLT_SPREAD) * n),
+    totalMax: Math.round(per * (1 + BOLT_SPREAD) * n),
+    totalAvg: Math.round(per * n),
+  };
 }
 
 export interface TribulationResult {
@@ -173,6 +189,7 @@ export function tribulation(g: General): TribulationResult {
   }
   if (Math.random() < 0.5) {
     g.status = 'dead';
+    g.lastOwner = g.owner;
     g.owner = null;
     g.cityId = null;
     g.hp = 0;

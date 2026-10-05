@@ -44,9 +44,14 @@ export function usableIn(item: Item, context: 'preroll' | 'battle'): boolean {
   return t === 'both' || t === context;
 }
 
-function consume(lord: Lord, item: Item, user: General) {
-  user.stamina -= requirement(item, user).stamina;
+/** 使用物品每消耗 1 點體力，使用者修為 +3 */
+export const ITEM_USE_EXP = 3;
+
+function consume(lord: Lord, item: Item, user: General): number {
+  const cost = requirement(item, user).stamina;
+  user.stamina -= cost;
   lord.items = lord.items.filter((i) => i.uid !== item.uid);
+  return addExp(user, cost * ITEM_USE_EXP);
 }
 
 export interface PrerollTarget {
@@ -59,7 +64,12 @@ export interface PrerollTarget {
 
 /** 擲骰前使用：回傳結果文字（傳送陣的移動由遊戲流程處理） */
 export function usePreroll(state: GameState, lord: Lord, item: Item, user: General, target: PrerollTarget): string {
-  consume(lord, item, user);
+  const gain = consume(lord, item, user);
+  const msg = applyPreroll(state, lord, item, user, target);
+  return gain ? `${msg}（${user.name}修為 +${gain}）` : msg;
+}
+
+function applyPreroll(state: GameState, lord: Lord, item: Item, user: General, target: PrerollTarget): string {
   const t = item.tier;
   const name = nameOf(item);
   const g = target.general;
@@ -191,7 +201,13 @@ export function usePreroll(state: GameState, lord: Lord, item: Item, user: Gener
 
 /** 戰鬥中使用 */
 export function useInDuel(duel: Duel, side: Side, lord: Lord, item: Item, user: General): DuelEvent[] {
-  consume(lord, item, user);
+  const gain = consume(lord, item, user);
+  const events = applyInDuel(duel, side, item, user);
+  if (gain) events.push({ text: `${user.name}修為 +${gain}`, kind: 'info' });
+  return events;
+}
+
+function applyInDuel(duel: Duel, side: Side, item: Item, user: General): DuelEvent[] {
   const me = duel.fighter(side);
   const foe = duel.other(side);
   const t = item.tier;

@@ -28,6 +28,7 @@ export function newGeneral(
     origin,
     owner,
     isLord,
+    lastOwner: null,
     base: { force: seed.s[0], defense: seed.s[1], hp: seed.s[2], alchemy: seed.s[3], forging: seed.s[4], talisman: seed.s[5], formation: seed.s[6] },
     realm: seed.realm,
     exp: 0,
@@ -65,6 +66,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       garrisonGenerals: [],
       garrisonSoldiers: s.owner ? 1000 : 0,
       shieldTurns: 0,
+      contest: 'duel',
     };
   }
 
@@ -208,6 +210,7 @@ export function killGeneral(state: GameState, g: General): string | null {
     }
   }
   g.status = 'dead';
+  g.lastOwner = g.owner;
   g.owner = null;
   g.cityId = null;
   g.secluded = false;

@@ -66,25 +66,20 @@ export class BattleView {
     }, 900);
   }
 
-  /** 擂台戰；playerSide 為玩家操作的一方 */
-  runDuel(duel: Duel, playerSide: Side, speed: () => number, useItem: (side: Side) => Promise<DuelEvent[] | null>): Promise<Side> {
+  /** 擂台戰；playerSide 為玩家操作的一方。每回合雙方同時出手，回傳勝方或 'draw'（平手） */
+  runDuel(duel: Duel, playerSide: Side, speed: () => number, useItem: (side: Side) => Promise<DuelEvent[] | null>): Promise<Side | 'draw'> {
     return new Promise((resolve) => {
       const body = this.open('⚔️ 擂台戰');
       const logLines: string[] = [];
       let waiting: ((a: 'attack' | 'skill' | 'item') => void) | null = null;
 
       const render = () => {
-        const myTurn = duel.turn === playerSide && !duel.winner;
         body.innerHTML = `
-          <div class="arena">${this.fighterHtml(duel.a, duel.turn === 'a')}<div class="vs">VS</div>${this.fighterHtml(duel.b, duel.turn === 'b')}</div>
-          <div class="battle-log">${logLines.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div>
+          <div class="arena">${this.fighterHtml(duel.a, false)}<div class="vs">VS</div>${this.fighterHtml(duel.b, false)}</div>
+          <div class="battle-log">${logLines.slice(-7).map((l) => `<div>${l}</div>`).join('')}</div>
           <div class="battle-actions"></div>`;
         const actions = body.querySelector('.battle-actions')!;
-        if (duel.winner) return;
-        if (!myTurn) {
-          actions.innerHTML = `<span class="muted">${duel.fighter(duel.turn).general.name}行動中……</span>`;
-          return;
-        }
+        if (duel.over) return;
         const add = (label: string, a: 'attack' | 'skill' | 'item', cls: string, disabled = false) => {
           const b = document.createElement('button');
           b.className = `btn ${cls}`;
@@ -94,6 +89,11 @@ export class BattleView {
           actions.appendChild(b);
         };
         const me = duel.fighter(playerSide);
+        const note = duel.first ? (duel.first === playerSide ? '你有先手，每回合先出手' : '對方有先手，每回合先出手') : '雙方同時出手';
+        const hint = document.createElement('div');
+        hint.className = 'muted duel-hint';
+        hint.textContent = `第 ${duel.rounds + 1} 回合・${note}`;
+        actions.appendChild(hint);
         add('🗡️ 攻擊', 'attack', 'primary');
         add(me.general.technique ? `✨ ${me.general.technique.skillName}` : '✨ 功法（未修習）', 'skill', 'danger', !duel.canSkill(playerSide));
         add('🎒 使用物品', 'item', 'free');
@@ -111,39 +111,38 @@ export class BattleView {
 
       const loop = async () => {
         render();
-        while (!duel.winner) {
-          let events: DuelEvent[];
-          if (duel.turn === playerSide) {
-            const action = await new Promise<'attack' | 'skill' | 'item'>((r) => (waiting = r));
-            waiting = null;
-            if (action === 'item') {
-              const ev = await useItem(playerSide);
-              if (!ev) {
-                render();
-                continue;
-              }
-              events = duel.itemAction(playerSide, ev);
-            } else events = duel.act(playerSide, action);
-          } else {
-            await sleep(650 / speed());
-            events = duel.act(duel.turn, duel.aiAction(duel.turn));
+        while (!duel.over) {
+          const action = await new Promise<'attack' | 'skill' | 'item'>((r) => (waiting = r));
+          waiting = null;
+          let events: DuelEvent[] = [];
+          if (action === 'item') {
+            const ev = await useItem(playerSide);
+            if (!ev) {
+              render();
+              continue;
+            }
+            events = duel.afterItem(ev);
+          }
+          if (!duel.over) {
+            const foe: Side = playerSide === 'a' ? 'b' : 'a';
+            const acts = { [playerSide]: action === 'item' ? 'none' : action, [foe]: duel.aiAction(foe) } as Record<Side, 'attack' | 'skill' | 'none'>;
+            events = events.concat(duel.round(acts));
           }
           await show(events);
         }
         await show(duel.verdict());
         duel.finish();
-        const win = duel.winner!;
-        const w = duel.fighter(win);
-        logLines.push(`<b>${w.general.name}勝出！</b>`);
+        const win = duel.winner;
+        logLines.push(duel.draw ? '<b>平手！</b>' : `<b>${duel.fighter(win!).general.name}勝出！</b>`);
         render();
         const actions = body.querySelector('.battle-actions')!;
-        actions.innerHTML = `<div class="result ${win === playerSide ? 'win' : 'lose'}">${win === playerSide ? '勝利！' : '落敗……'}</div>`;
+        actions.innerHTML = `<div class="result ${duel.draw ? '' : win === playerSide ? 'win' : 'lose'}">${duel.draw ? '平手！' : win === playerSide ? '勝利！' : '落敗……'}</div>`;
         const ok = document.createElement('button');
         ok.className = 'btn primary';
         ok.textContent = '確定';
         ok.onclick = () => {
           this.close();
-          resolve(win);
+          resolve(duel.draw ? 'draw' : win!);
         };
         actions.appendChild(ok);
       };

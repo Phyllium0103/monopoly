@@ -25,8 +25,8 @@ export function startTurn(state: GameState, lord: Lord): TurnReport {
     const inc = cityIncomeOf(state, city);
     stones += inc.stones;
     soldiers += inc.soldiers;
-    // 每回合成長：+0.25（平原、盆地、水鄉）、+0.2、+0.15
-    city.prosperity = Math.min(200, Math.round((city.prosperity + Math.max(0, 0.2 + terrainOf(city).growth * 0.05 + (traitOf(lord.id).growth ?? 0))) * 100) / 100);
+    // 每回合成長：+0.5（平原、盆地、水鄉）、+0.4、+0.3
+    city.prosperity = Math.min(200, Math.round((city.prosperity + Math.max(0, 0.4 + terrainOf(city).growth * 0.1 + (traitOf(lord.id).growth ?? 0))) * 100) / 100);
     if (city.shieldTurns > 0) city.shieldTurns--;
   }
   lord.stones += stones;

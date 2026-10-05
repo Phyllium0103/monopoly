@@ -11,49 +11,62 @@ import type { Expedition } from '../game/types';
 export interface RealmLevel {
   name: string;
   icon: string;
-  turns: number;
-  /** 隕落機率倍率 */
-  risk: number;
   /** 寶物品階加成 */
   tier: number;
   /** 修為倍率 */
   exp: number;
-  /** 基本寶物份數 */
-  rolls: number;
 }
 
-/** 秘境難度：以境界命名，由玩家選擇。越高階歷時越久、越兇險，獎勵也越稀有 */
+/** 秘境難度以境界命名（煉氣到渡劫），由玩家選擇；難度看的是境界，不是戰力 */
 export const REALM_LEVELS: RealmLevel[] = [
-  { name: '煉氣', icon: '🌱', turns: 3, risk: 0.4, tier: -1, exp: 0.7, rolls: 1 },
-  { name: '築基', icon: '🌿', turns: 3, risk: 0.65, tier: 0, exp: 1, rolls: 1 },
-  { name: '金丹', icon: '🍃', turns: 3, risk: 0.95, tier: 1, exp: 1.3, rolls: 1 },
-  { name: '元嬰', icon: '🔥', turns: 3, risk: 1.4, tier: 2, exp: 1.7, rolls: 1 },
-  { name: '化神', icon: '⚡', turns: 3, risk: 1.9, tier: 3, exp: 2.2, rolls: 2 },
-  { name: '煉虛', icon: '🌪️', turns: 3, risk: 2.5, tier: 4, exp: 2.8, rolls: 2 },
-  { name: '合體', icon: '🌋', turns: 3, risk: 3.2, tier: 5, exp: 3.5, rolls: 2 },
-  { name: '大乘', icon: '☄️', turns: 3, risk: 4, tier: 6, exp: 4.3, rolls: 3 },
-  { name: '渡劫', icon: '💀', turns: 3, risk: 5, tier: 7, exp: 5.5, rolls: 3 },
+  { name: '煉氣', icon: '🌱', tier: -1, exp: 0.7 },
+  { name: '築基', icon: '🌿', tier: 0, exp: 1 },
+  { name: '金丹', icon: '🍃', tier: 1, exp: 1.3 },
+  { name: '元嬰', icon: '🔥', tier: 2, exp: 1.7 },
+  { name: '化神', icon: '⚡', tier: 3, exp: 2.2 },
+  { name: '煉虛', icon: '🌪️', tier: 4, exp: 2.8 },
+  { name: '合體', icon: '🌋', tier: 5, exp: 3.5 },
+  { name: '大乘', icon: '☄️', tier: 6, exp: 4.3 },
+  { name: '渡劫', icon: '💀', tier: 7, exp: 5.5 },
 ];
 
 export const REALM_MIN_PARTY = 1;
 export const REALM_MAX_PARTY = 5;
+/** 境界相同的秘境歷時 3 回合；最短 1、最長 9 回合 */
+export const REALM_BASE_TURNS = 3;
 
-/** 人多寶物多：四人以上多得一份 */
-export function realmRolls(level: number, partySize: number): number {
-  return REALM_LEVELS[level].rolls + (partySize >= 4 ? 1 : 0);
+/** 難度對應的境界編號（煉氣 = 1） */
+export function levelRealm(level: number): number {
+  return level + 1;
 }
 
-/** 個別死亡機率：自身越強越低，隊伍越強也越低 */
+/** 隊伍的平均境界（四捨五入） */
+export function partyRealm(team: General[]): number {
+  return Math.round(team.reduce((s, g) => s + g.realm, 0) / Math.max(1, team.length));
+}
+
+/** 歷時：難度比隊伍境界高 n 級就多 2n 回合（至多 9），低 n 級就少 n 回合（至少 1）；境界相同為 3 回合 */
+export function realmTurns(level: number, team: General[]): number {
+  const gap = levelRealm(level) - partyRealm(team);
+  return gap > 0 ? Math.min(9, REALM_BASE_TURNS + gap * 2) : Math.max(1, REALM_BASE_TURNS + gap);
+}
+
+/** 獎勵份數 2～5：難度越高越多，四人以上再多一份 */
+export function realmRolls(level: number, partySize: number): number {
+  return Math.min(5, 2 + Math.floor(level / 3) + (partySize >= 4 ? 1 : 0));
+}
+
+/** 個別死亡機率：看個人境界與秘境難度的差距，不看戰力；人越多越安全 */
 export function deathChance(g: General, team: General[], level = 1): number {
-  const teamPower = team.reduce((s, x) => s + power(x), 0);
-  const own = Math.max(0.03, 0.4 - power(g) / 2500);
-  const teamFactor = Math.max(0.6, Math.min(1.2, 1.3 - teamPower / 4000));
-  return Math.max(0.02, Math.min(0.9, own * teamFactor * REALM_LEVELS[level].risk * (1 - (fx(g).realmSafety ?? 0) - (traitOf(g.owner).realmSafety ?? 0))));
+  const gap = levelRealm(level) - g.realm;
+  const base = { '-3': 0.02, '-2': 0.03, '-1': 0.05, '0': 0.1, '1': 0.22, '2': 0.38, '3': 0.55, '4': 0.75 }[String(Math.max(-3, Math.min(4, gap))) as '0'];
+  const sizeFactor = 1.25 - 0.1 * team.length;
+  return Math.max(0.01, Math.min(0.9, base * sizeFactor * (1 - (fx(g).realmSafety ?? 0) - (traitOf(g.owner).realmSafety ?? 0))));
 }
 
 export function dispatch(lord: Lord, team: General[], realmName: string, level = 1) {
   for (const g of team) g.status = 'realm';
-  lord.expeditions.push({ generalIds: team.map((g) => g.id), turnsLeft: REALM_LEVELS[level].turns, realmName, level, blessed: WORLD.realmBlessed });
+  lord.expeditions.push({ generalIds: team.map((g) => g.id), turnsLeft: realmTurns(level, team), realmName, level, blessed: WORLD.realmBlessed });
 }
 
 export interface RealmOutcome {

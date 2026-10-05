@@ -154,7 +154,7 @@ export class GeneralsView {
       <div class="equip">
         <div title="${g.weapon ? equipDesc(g.weapon) : ''}">神器：${g.weapon ? `${g.weapon.name}（${equipStats(g.weapon)}）` : '<span class="muted">無</span>'}</div>
         <div title="${g.armor ? equipDesc(g.armor) : ''}">寶衣：${g.armor ? `${g.armor.name}（${equipStats(g.armor)}）` : '<span class="muted">無</span>'}</div>
-        <div>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name}</span> 難度${'★'.repeat(t.difficulty)}・+${techniqueExp(t)}/回合` : '<span class="muted">未修習</span>'}</div>
+        <div>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name}</span> 完整度${'★'.repeat(t.completeness)}・+${techniqueExp(t)}/回合` : '<span class="muted">未修習</span>'}</div>
       </div>
       <div class="gc-actions"></div>`;
 

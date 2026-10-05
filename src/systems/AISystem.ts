@@ -1,3 +1,4 @@
+import { immortalWinner } from './VictorySystem';
 import type { City, CraftStat, GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, abandonIfEmpty, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
@@ -92,6 +93,7 @@ export function aiPreroll(state: GameState, lord: Lord): string[] {
   const best = citiesOf(state, lord.id).sort((a, b) => b.prosperity - a.prosperity)[0];
   if (best && best.prosperity < 190) useGroup('vein', { city: best });
   logs.push(...aiBreakthroughs(state, lord));
+  if (immortalWinner(state)) return logs;
   // 守軍充足的城池讓駐將閉關
   for (const g of gens.filter((x) => x.status === 'garrison')) g.secluded = state.cities[g.cityId!].garrisonSoldiers >= 2500;
   // 心魔干擾：對敵方瓶頸中的最強將領出手
@@ -154,7 +156,8 @@ export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
       return logs;
     }
     if (r.success) logs.push(`⚡ ${g.name}渡過 ${r.bolts.length} 道天雷，突破至【${REALMS[g.realm]}】！`);
-    else logs.push(r.fate === 'death' ? `⚡ ${g.name}渡劫失敗，身死道消……` : `⚡ ${g.name}渡劫失敗，兵解重修，跌回凡人。`);
+    if (r.success && g.isLord && immortalWinner(state)) return logs;
+    else if (!r.success) logs.push(r.fate === 'death' ? `⚡ ${g.name}渡劫失敗，身死道消……` : `⚡ ${g.name}渡劫失敗，兵解重修，跌回凡人。`);
   }
   return logs;
 }

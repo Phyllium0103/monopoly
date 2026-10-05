@@ -24,6 +24,8 @@ export class BattleView {
     return this.el.querySelector('.battle-body') as HTMLDivElement;
   }
 
+  get isOpen() { return !this.el.classList.contains('hidden'); }
+
   private close() {
     this.el.classList.add('hidden');
     this.el.innerHTML = '';

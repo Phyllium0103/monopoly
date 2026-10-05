@@ -1,3 +1,5 @@
+import { garrisonDispatch } from '../systems/GarrisonSystem';
+import { immortalWinner } from '../systems/VictorySystem';
 import * as THREE from 'three';
 import type { City, CraftStat, General, GameState, Lord, LordId } from './types';
 import type { ContestKind } from './types';
@@ -54,6 +56,7 @@ export class Game {
   private lordView: LordView;
   private state!: GameState;
   private sprites = new Map<LordId, CharacterSprite>();
+  private garrisonTask: Promise<void> | null = null;
   private phase: Phase = 'idle';
   private token = 0;
   private hoverTile: number | null = null;
@@ -81,6 +84,7 @@ export class Game {
     this.lordView.facingText = (id) => this.facingText(this.state.lords[id]);
     this.ui.onLord = (id) => this.lordView.open(this.state, id);
     this.ui.onHelp = () => this.help.open();
+    this.ui.onGarrison = () => void this.openGarrison();
     this.ui.onRank = () => this.rankView.open(this.state);
     this.ui.onAuto = () => this.toggleAuto();
     this.ui.onCheat = () => this.cheat();
@@ -102,7 +106,7 @@ export class Game {
       this.handleHover(o);
     };
     this.sm.renderer.domElement.addEventListener('contextmenu', () => this.tileResolver?.(null));
-    this.ui.onSpeed = (s) => (this.sm.timeScale = s);
+    this.ui.onSpeed = (s) => (this.sm.timeScale = this.garrisonTask ? 0 : s);
 
     window.addEventListener('keydown', (e) => {
       if (!this.state || this.state.over || this.dialog.isOpen) return;
@@ -157,14 +161,42 @@ export class Game {
       }
     }
     this.refresh();
+    if (immortalWinner(this.state)) void this.checkEnd();
   }
 
   private get speed() {
     return this.ui.speed;
   }
 
-  private wait(ms: number) {
-    return sleep(ms / this.speed);
+  private async waitForDispatch() {
+    if (this.garrisonTask) await this.garrisonTask;
+  }
+
+  private async wait(ms: number) {
+    await sleep(ms / this.speed);
+    await this.waitForDispatch();
+  }
+
+  private async openGarrison() {
+    if (!this.state || this.state.over || this.garrisonTask) return;
+    const lord = this.state.lords[this.state.player];
+    if (!lord.alive || !citiesOf(this.state, lord.id).length) {
+      this.ui.toast('沒有可調度的城池');
+      return;
+    }
+    if (this.dialog.isOpen || this.battleView.isOpen) {
+      this.ui.toast('請先完成目前的視窗，再調兵');
+      return;
+    }
+    this.sm.timeScale = 0;
+    const task = this.manageGarrison(lord);
+    this.garrisonTask = task;
+    try { await task; }
+    finally {
+      this.garrisonTask = null;
+      this.sm.timeScale = this.speed;
+      this.refresh();
+    }
   }
 
   showStart() {
@@ -194,7 +226,7 @@ export class Game {
     this.sm.setPickables([...this.world.pickables, ...[...this.sprites.values()].map((s) => s.group)]);
     this.ui.reset();
     this.ui.show();
-    this.ui.log(`天地靈氣復甦，${LORDS[player].name}起兵逐鹿天下！${maxRounds === null ? '（無盡模式：直到只剩一位主公沒破產）' : `（${maxRounds} 輪後比總資產）`}`, 'turn');
+    this.ui.log(`天地靈氣復甦，${LORDS[player].name}起兵逐鹿天下！${maxRounds === null ? '（無盡模式：主公真仙或最後存活者獲勝）' : `（${maxRounds} 輪後比總資產）`}`, 'turn');
     this.ui.log('擲骰沿道路前進，岔路依箭頭走並換方向；逆向停在岔路，下回合返回，途經岔路則隨機轉向：停在無主城池才能派將佔領，踏入他人城池須繳過路費或開戰。', 'info');
     void this.loop(this.token);
   }
@@ -209,12 +241,15 @@ export class Game {
 
   private async loop(token: number) {
     while (token === this.token && !this.state.over) {
+      await this.waitForDispatch();
+      if (token !== this.token || this.state.over) return;
       const lord = currentLord(this.state);
       if (lord.alive) {
         if (!this.human(lord)) this.ui.beginReport();
         await this.takeTurn(lord);
-        if (!this.human(lord)) await this.showTurnReport(lord, token);
+        if (!this.state.over && !this.human(lord)) await this.showTurnReport(lord, token);
       }
+      await this.waitForDispatch();
       if (token !== this.token || this.state.over) return;
       if (await this.checkEnd()) return;
       const newRound = advance(this.state);
@@ -239,6 +274,13 @@ export class Game {
   }
 
   private async checkEnd(): Promise<boolean> {
+    if (this.state.over) return true;
+    const winner = immortalWinner(this.state);
+    if (winner) {
+      this.state.winner = winner;
+      await this.endGame(`${LORDS[winner].name}晉入真仙，立即贏得遊戲！`);
+      return true;
+    }
     const alive = aliveLords(this.state);
     if (alive.length <= 1) {
       await this.endGame(alive.length ? `${LORDS[alive[0].id].name}令群雄破產，一統天下！` : '群雄盡皆破產。');
@@ -248,8 +290,12 @@ export class Game {
   }
 
   private async endGame(reason: string) {
+    await this.waitForDispatch();
+    if (this.state.over) return;
+    this.generalsView.close();
     this.state.over = true;
     this.phase = 'idle';
+    this.rollResolver?.({ type: 'roll' });
     this.refresh();
     await this.dialog.message('天下大勢已定', reason, '📜', '查看結算');
     showEndScreen(this.uiRoot, this.state, reason, () => this.restart());
@@ -293,8 +339,11 @@ export class Game {
     this.refresh();
     this.ui.toast(`第 ${this.state.round} 輪・你的回合`);
     await this.announceBreakthroughs(lord);
+    if (this.state.over) return;
     const choice = await new Promise<RollChoice>((r) => (this.rollResolver = r));
     this.rollResolver = null;
+    await this.waitForDispatch();
+    if (this.state.over || await this.checkEnd()) return;
     this.phase = 'busy';
     this.refresh();
     if (choice.type === 'teleport') await this.teleport(lord, choice.tile);
@@ -336,6 +385,7 @@ export class Game {
       this.refresh();
       return;
     }
+    if (await this.checkEnd()) return;
     await this.moveLord(lord, await this.rollDice(lord));
     if (lord.alive && this.canSwapSect(lord)) for (const msg of aiManageSect(this.state, lord)) this.ui.log(`${LORDS[lord.id].name}：${msg}`, 'ai');
     await this.wait(300);
@@ -344,6 +394,7 @@ export class Game {
   private async rollDice(lord: Lord): Promise<number> {
     const values = lord.fixedDice ? [lord.fixedDice] : Array.from({ length: lord.doubleDice ? 2 : 1 }, () => 1 + Math.floor(Math.random() * 6));
     await this.ui.rollDice(values, lord.bonusSteps);
+    await this.waitForDispatch();
     const dice = values.reduce((a, b) => a + b, 0);
     const sum = dice + lord.bonusSteps;
     this.ui.log(`${LORDS[lord.id].name}擲出 ${dice} 點${lord.bonusSteps ? `，遁地梭加成 +${lord.bonusSteps}，共走 ${sum} 步` : ''}。`, this.human(lord) ? 'info' : 'ai');
@@ -367,10 +418,14 @@ export class Game {
   private async moveLord(lord: Lord, steps: number) {
     const sprite = this.sprites.get(lord.id)!;
     for (let i = 1; i <= steps; i++) {
+      await this.waitForDispatch();
+      if (this.state.over) return;
       const here = lord.position;
       const next = nextMovementTile(this.state, lord);
       this.world.syncForkArrows(this.state);
       await sprite.moveAlong([sprite.group.position.clone(), this.slotPosition(lord.id, next)], this.sm.animator, (p) => this.sm.cameraController.follow(p));
+      await this.waitForDispatch();
+      if (this.state.over) return;
       lord.lastTile = here;
       lord.position = next;
       lord.forkExit = null;
@@ -457,6 +512,8 @@ export class Game {
   }
 
   private async land(lord: Lord, tile: number) {
+    await this.waitForDispatch();
+    if (this.state.over) return;
     const t = this.state.tiles[tile];
     this.refresh();
     if (tile === this.state.merchantTile) {
@@ -1220,61 +1277,70 @@ export class Game {
     }
     const city = await this.dialog.choose(
       '🏯 調度駐軍',
-      '選擇要調度的城池。',
-      cities.map((c) => ({ label: c.name, sub: `駐將 ${c.garrisonGenerals.length ? garrisonOf(this.state, c).map((g) => g.name).join('、') : '無'}（${c.garrisonGenerals.length}/${GARRISON_LIMIT}）・守軍 ${c.garrisonSoldiers}・繁榮 ${fmtProsperity(c.prosperity)}`, value: c })),
+      '依道路最短距離收費：10 下品～10 中品。付費後可不限次調整該城，直到關閉；操作期間遊戲暫停。',
+      cities.map((c) => ({ label: c.name, disabled: lord.stones < garrisonDispatch(this.state, lord, c).fee, reason: '靈石不足', sub: `距離 ${garrisonDispatch(this.state, lord, c).distance} 格・調遣費 ${fmtStones(garrisonDispatch(this.state, lord, c).fee)}・駐將 ${c.garrisonGenerals.length ? garrisonOf(this.state, c).map((g) => g.name).join('、') : '無'}（${c.garrisonGenerals.length}/${GARRISON_LIMIT}）・守軍 ${c.garrisonSoldiers}・繁榮 ${fmtProsperity(c.prosperity)}`, value: c })),
     );
     if (!city) return;
-    const free = deployable(this.state, lord.id);
-    const action = await this.dialog.choose(`調度${city.name}`, '', [
-      { label: '增派士兵', sub: `從隨行士兵調入（目前 ${lord.soldiers}）`, value: 'add', disabled: lord.soldiers < 100, reason: '士兵不足' },
-      { label: '撤回士兵', sub: `至少保留 ${MIN_GARRISON} 守軍`, value: 'remove', disabled: city.garrisonSoldiers - MIN_GARRISON < 100, reason: '守軍已達下限' },
-      { label: '調整駐將', sub: `最多 ${GARRISON_LIMIT} 人：從隨行武將派駐，或撤回駐將`, value: 'swap', disabled: !free.length && !city.garrisonGenerals.length, reason: '沒有隨行武將，也沒有駐將' },
-    ]);
-    if (action === 'add' || action === 'remove') {
-      const max = action === 'add' ? lord.soldiers : city.garrisonSoldiers - MIN_GARRISON;
-      const n = await this.dialog.slider(
-        action === 'add' ? `增派多少士兵駐守${city.name}？` : `從${city.name}撤回多少士兵？`,
-        `守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`,
-        {
-          min: Math.min(100, max),
-          max,
-          step: 100,
-          unit: ' 名',
-          confirm: action === 'add' ? '增派' : '撤回',
-          preview: (v) => (action === 'add' ? `守軍將達 ${city.garrisonSoldiers + v}` : `守軍將剩 ${city.garrisonSoldiers - v}`),
-        },
-        '🏯',
-      );
-      if (!n) return;
-      const sign = action === 'add' ? 1 : -1;
-      city.garrisonSoldiers += n * sign;
-      lord.soldiers -= n * sign;
-    } else if (action === 'swap') {
-      for (;;) {
-        const on = garrisonOf(this.state, city);
-        const party = deployable(this.state, lord.id);
-        const g = await this.dialog.choose(
-          `🏯 ${city.name}・調整駐將（${on.length}/${GARRISON_LIMIT}）`,
-          '點選駐將可撤回，點選隨行武將可派駐。',
-          [
-            ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, sub: `駐守中｜${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, color: '#c99a2e', disabled: on.length <= 1, reason: '城池至少要有一名駐將' })),
-            ...party.map((x) => ({ label: `▲ 派駐 ${x.name}`, sub: `隨行｜${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, disabled: on.length >= GARRISON_LIMIT, reason: `已滿 ${GARRISON_LIMIT} 人`, color: '#5aa8ec' })),
-          ],
-          '完成',
+    const { fee } = garrisonDispatch(this.state, lord, city);
+    if (!await this.dialog.confirm(`開啟${city.name}調度`, `支付 ${fmtStones(fee)}，即可不限次調整此城，直到關閉。關閉後重新開啟會再收費。`, '付費調度', '取消', '🏯')) return;
+    if (city.owner !== lord.id || lord.stones < fee) return;
+    lord.stones -= fee;
+    this.ui.log(`🏯 ${city.name}調遣費：${fmtStones(fee)}；本次視窗不限次調整。`, 'info');
+    this.refresh();
+    for (;;) {
+      const free = deployable(this.state, lord.id);
+      const action = await this.dialog.choose(`調度${city.name}`, `已付費 ${fmtStones(fee)}・本次操作不再收費。守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`, [
+        { label: '增派士兵', sub: `從隨行士兵調入（目前 ${lord.soldiers}）`, value: 'add', disabled: lord.soldiers < 100, reason: '士兵不足' },
+        { label: '撤回士兵', sub: `至少保留 ${MIN_GARRISON} 守軍`, value: 'remove', disabled: city.garrisonSoldiers - MIN_GARRISON < 100, reason: '守軍已達下限' },
+        { label: '調整駐將', sub: `最多 ${GARRISON_LIMIT} 人：從隨行武將派駐，或撤回駐將`, value: 'swap', disabled: !free.length && !city.garrisonGenerals.length, reason: '沒有隨行武將，也沒有駐將' },
+      ], '關閉調度');
+      if (!action) break;
+      if (action === 'add' || action === 'remove') {
+        const max = action === 'add' ? lord.soldiers : city.garrisonSoldiers - MIN_GARRISON;
+        const n = await this.dialog.slider(
+          action === 'add' ? `增派多少士兵駐守${city.name}？` : `從${city.name}撤回多少士兵？`,
+          `守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`,
+          {
+            min: Math.min(100, max),
+            max,
+            step: 100,
+            unit: ' 名',
+            confirm: action === 'add' ? '增派' : '撤回',
+            preview: (v) => (action === 'add' ? `守軍將達 ${city.garrisonSoldiers + v}` : `守軍將剩 ${city.garrisonSoldiers - v}`),
+          },
+          '🏯',
         );
-        if (!g) break;
-        if (g.status === 'garrison') {
-          city.garrisonGenerals = city.garrisonGenerals.filter((id) => id !== g.id);
-          joinLord(this.state, lord.id, g);
-        } else {
-          g.status = 'garrison';
-          g.cityId = city.id;
-          city.garrisonGenerals.push(g.id);
+        if (!n) continue;
+        const sign = action === 'add' ? 1 : -1;
+        city.garrisonSoldiers += n * sign;
+        lord.soldiers -= n * sign;
+      } else if (action === 'swap') {
+        for (;;) {
+          const on = garrisonOf(this.state, city);
+          const party = deployable(this.state, lord.id);
+          const g = await this.dialog.choose(
+            `🏯 ${city.name}・調整駐將（${on.length}/${GARRISON_LIMIT}）`,
+            '點選駐將可撤回，點選隨行武將可派駐。',
+            [
+              ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, sub: `駐守中｜${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, color: '#c99a2e', disabled: on.length <= 1, reason: '城池至少要有一名駐將' })),
+              ...party.map((x) => ({ label: `▲ 派駐 ${x.name}`, sub: `隨行｜${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, disabled: on.length >= GARRISON_LIMIT, reason: `已滿 ${GARRISON_LIMIT} 人`, color: '#5aa8ec' })),
+            ],
+            '完成',
+          );
+          if (!g) break;
+          if (g.status === 'garrison') {
+            city.garrisonGenerals = city.garrisonGenerals.filter((id) => id !== g.id);
+            joinLord(this.state, lord.id, g);
+          } else {
+            g.status = 'garrison';
+            g.cityId = city.id;
+            city.garrisonGenerals.push(g.id);
+          }
         }
       }
+      this.world.syncCities(this.state);
+      this.refresh();
     }
-    this.world.syncCities(this.state);
-    this.refresh();
   }
 
   // ───────────────────────── 九州風雲 ─────────────────────────
@@ -1392,7 +1458,7 @@ export class Game {
 
   // ───────────────────────── 宗門與突破 ─────────────────────────
 
-  /** 要走到自己的城池，才能調度隨行武將與駐軍 */
+  /** 要走到自己的城池，才能調度宗門隨行武將 */
   private canSwapSect(lord: Lord): boolean {
     const t = this.state.tiles[lord.position];
     return t.kind === 'city' && this.state.cities[t.cityId!].owner === lord.id;
@@ -1401,7 +1467,7 @@ export class Game {
   /** 玩家回合內才能突破、閉關 */
   private canManage(): boolean {
     const cur = currentLord(this.state);
-    return cur.isPlayer && this.phase === 'preroll';
+    return !this.state.over && !this.garrisonTask && cur.isPlayer && this.phase === 'preroll';
   }
 
   private async manageSect(lord: Lord) {
@@ -1481,6 +1547,7 @@ export class Game {
     this.ui.log(msg, r.success ? 'good' : 'bad');
     this.world.syncCities(this.state);
     this.refresh();
+    if (r.success && g.isLord && await this.checkEnd()) return;
     if (r.fate === 'death' && g.isLord) await this.onBankrupt(this.state.lords[this.state.player], `${g.name}渡劫失敗身死道消，主公陣亡`);
   }
 
@@ -1584,7 +1651,7 @@ export class Game {
       buttons.push(
         { label: '🎒 使用物品', sub: `${player.items.length} 件`, onClick: () => void this.useItemPreroll(player) },
         { label: '⚔️ 徵兵', sub: `${(recruitCost(player.id, 100) / 100).toFixed(2).replace(/\.?0+$/, '')}/名`, onClick: () => void this.recruitSoldiers(player) },
-        { label: '🏯 調度駐軍', sub: this.canSwapSect(player) ? undefined : '需在自己的城池', disabled: !this.canSwapSect(player), onClick: () => void this.manageGarrison(player) },
+        { label: '🏯 調度駐軍', sub: '依距離收費・一次付費可操作到關閉', disabled: !citiesOf(this.state, player.id).length, onClick: () => void this.openGarrison() },
         { label: '🏛️ 宗門', sub: this.canSwapSect(player) ? `隨行 ${freeGenerals(this.state, player.id).length}/${PARTY_LIMIT}` : '需在自己的城池', disabled: !this.canSwapSect(player), onClick: () => void this.manageSect(player) },
         roster,
       );

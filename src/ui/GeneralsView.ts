@@ -57,7 +57,7 @@ export class GeneralsView {
     });
   }
 
-  private close() {
+  close() {
     this.el.classList.add('hidden');
     this.resolve?.();
     this.resolve = null;
@@ -173,7 +173,8 @@ export class GeneralsView {
       const can = canAttemptBreak(g, state.round);
       btn(needsTribulation(g) ? '⚡ 渡劫' : '🧘 突破', !manage || !can.ok, async () => {
         await this.onBreak(g);
-        this.render(state, lord);
+        if (state.over) this.close();
+        else this.render(state, lord);
       }, 'danger');
     }
     if (g.status === 'garrison') {

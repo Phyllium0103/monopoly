@@ -1,3 +1,4 @@
+import { totalAssets } from '../systems/CitySystem';
 import { music } from './Music';
 import type { GameState, LordId } from '../game/types';
 import { LORDS } from '../faction/Faction';
@@ -37,6 +38,7 @@ export class GameUI {
   speed = 1;
   onSpeed: ((s: number) => void) | null = null;
   onHelp: (() => void) | null = null;
+  onGarrison: (() => void) | null = null;
   onRank: (() => void) | null = null;
   onAuto: (() => void) | null = null;
   onCheat: (() => void) | null = null;
@@ -105,7 +107,8 @@ export class GameUI {
         const breakTag = ready ? `<span class="tag ready" title="有武將修為圓滿，可到武將名冊突破">✨可突破 ${ready}</span>` : '';
         return `<div class="lord-card clickable ${id === current ? 'current' : ''} ${l.alive ? '' : 'out'} ${l.isPlayer ? 'me' : ''}" data-lord="${id}" title="點擊查看詳細資料" style="--fc:${d.css}">
           <div class="lc-head"><b>${d.name}</b><small>${d.kingdom}${l.isPlayer ? '・你' : ''}</small>${status}${realm}${breakTag}</div>
-          <div class="lc-row">💎 ${fmtStones(l.stones, true)}</div>
+          <div class="lc-row">💎 靈石 ${fmtStones(l.stones, true)}</div>
+          <div class="lc-row">總資產 ${fmtStones(totalAssets(state, id).total, true)}</div>
           <div class="lc-row">⚔️ ${l.soldiers} · 🏯 ${citiesOf(state, id).length} · 👥 ${generalsOf(state, id).length}</div>
         </div>`;
       })
@@ -118,8 +121,9 @@ export class GameUI {
         }</div>
       </div>
       <div class="lords">${lords}</div>
-      <div class="speed"><button class="btn mini log-btn ${this.logOpen ? 'on' : ''}" title="開關天下紀事">📜 紀事</button><button class="btn mini cheat-btn" title="測試用：獲得大量靈石與所有物品">🧪 測試</button><button class="btn mini auto-btn ${this.auto ? 'on' : ''}" title="由電腦代打你的回合">${this.auto ? '🤖 託管中' : '🤖 託管'}</button><button class="btn mini rank-btn">🏆 城池榜</button><button class="btn mini help-btn">📖 說明</button><label class="music" title="背景音樂音量">🎵<input type="range" class="music-vol" min="0" max="100" step="5" value="${Math.round(music.volume * 100)}"><span class="music-pct">${Math.round(music.volume * 100)}%</span></label>${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
+      <div class="speed"><button class="btn mini log-btn ${this.logOpen ? 'on' : ''}" title="開關天下紀事">📜 紀事</button><button class="btn mini cheat-btn" title="測試用：獲得大量靈石與所有物品">🧪 測試</button><button class="btn mini auto-btn ${this.auto ? 'on' : ''}" title="由電腦代打你的回合">${this.auto ? '🤖 託管中' : '🤖 託管'}</button><button class="btn mini garrison-btn" ${state.over || !state.lords[state.player].alive ? 'disabled' : ''} title="隨時調兵；依道路距離收費，一次付費可操作到關閉">🏯 調兵</button><button class="btn mini rank-btn">🏆 城池榜</button><button class="btn mini help-btn">📖 說明</button><label class="music" title="背景音樂音量">🎵<input type="range" class="music-vol" min="0" max="100" step="5" value="${Math.round(music.volume * 100)}"><span class="music-pct">${Math.round(music.volume * 100)}%</span></label>${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
     (this.top.querySelector('.help-btn') as HTMLButtonElement).onclick = () => this.onHelp?.();
+    (this.top.querySelector('.garrison-btn') as HTMLButtonElement).onclick = () => this.onGarrison?.();
     const vol = this.top.querySelector('.music-vol') as HTMLInputElement;
     vol.oninput = () => {
       music.setVolume(Number(vol.value) / 100);

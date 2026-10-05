@@ -1,7 +1,11 @@
 import type { GameState, LordId } from '../game/types';
 import { LORDS, LORD_IDS, TRAITS } from '../faction/Faction';
 import { GENERAL_SEEDS } from '../data/generals';
-import { totalAssets } from '../systems/CitySystem';
+import { citiesOf, generalsOf } from '../game/GameState';
+import { nameOf } from '../systems/ItemSystem';
+import { generalValue } from '../systems/GeneralSystem';
+import { REALMS } from '../data/generals';
+import { SOLDIER_PRICE, totalAssets } from '../systems/CitySystem';
 import { fmtStones } from '../game/Currency';
 import { DEFAULT_ROUNDS, ROUND_OPTIONS } from '../game/GameState';
 
@@ -37,7 +41,7 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
     };
     for (const r of ROUND_OPTIONS) add(`${r} 輪`, r);
     add('♾️ 無盡模式', null);
-    hint.textContent = rounds === null ? '無盡模式：沒有回合上限，直到只剩一位主公沒破產為止 · 擲骰環遊天下，佔城收過路費' : `擲骰環遊天下，佔城收過路費 · 對手破產出局 · ${rounds} 輪後比總資產`;
+    hint.textContent = rounds === null ? '無盡模式：沒有回合上限，主公到達真仙或最後存活者獲勝 · 擲骰環遊天下，佔城收過路費' : `擲骰環遊天下，佔城收過路費 · 主公到達真仙立即獲勝 · 對手破產出局 · ${rounds} 輪後比總資產`;
   };
   renderMode();
   const cards = el.querySelector('.faction-cards')!;
@@ -69,10 +73,13 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
   root.appendChild(el);
 }
 
-/** 結算：先依出局順序，存活者依總資產排名 */
+/** 結算：真仙主公優先，其餘依存活、出局順序與總資產排名。 */
 export function showEndScreen(root: HTMLElement, state: GameState, reason: string, onRestart: () => void) {
   const rows = LORD_IDS.map((id) => ({ id, a: totalAssets(state, id), l: state.lords[id] }));
   rows.sort((x, y) => {
+    if (x.id === y.id) return 0;
+    if (x.id === state.winner) return -1;
+    if (y.id === state.winner) return 1;
     if (x.l.alive !== y.l.alive) return x.l.alive ? -1 : 1;
     if (!x.l.alive) return x.l.rank - y.l.rank;
     return y.a.total - x.a.total;
@@ -107,6 +114,9 @@ export function showEndScreen(root: HTMLElement, state: GameState, reason: strin
           )
           .join('')}
       </ol>
+      <h3>全部資產明細</h3>
+      <p class="muted">估值以此表計入總資產：士兵每名 ${SOLDIER_PRICE} 下品、城池繁榮每點 100 下品、物品市價五折；已裝備的神器、寶衣及功法包含在武將估值內。</p>
+      ${rows.map(r => assetDetails(state, r.id)).join('')}
       <button class="btn primary big">重新開始</button>
     </div>`;
   el.querySelector('button')!.onclick = () => {
@@ -114,4 +124,32 @@ export function showEndScreen(root: HTMLElement, state: GameState, reason: strin
     onRestart();
   };
   root.appendChild(el);
+}
+
+/** 各家現有資產逐項展開，裝備不重複計入行囊。 */
+function assetDetails(state: GameState, id: LordId): string {
+  const lord = state.lords[id];
+  const a = totalAssets(state, id);
+  const cities = citiesOf(state, id);
+  const gens = generalsOf(state, id);
+  const row = (label: string, value: number) => `<tr><td>${label}</td><td>${fmtStones(value)}</td></tr>`;
+  const list = (title: string, entries: string[]) => `<h4>${title}</h4><table class="result-table">${entries.length ? entries.join('') : '<tr><td colspan="2">無</td></tr>'}</table>`;
+  const statuses = { free: '隨行', sect: '宗門', garrison: '駐城', realm: '秘境', dead: '陣亡' };
+  return `<details class="asset-details" ${id === state.player ? 'open' : ''}>
+    <summary style="color:${LORDS[id].css}">${LORDS[id].name}・總資產 ${fmtStones(a.total, true)}${id === state.winner ? '・真仙勝利' : ''}</summary>
+    <table class="result-table">
+      ${row('持有靈石', a.stones)}
+      ${row(`隨行士兵 ${lord.soldiers} 名`, lord.soldiers * SOLDIER_PRICE)}
+      ${row('城池及守軍小計', a.cityValue)}
+      ${row('武將及已裝備物品小計', a.generalValue)}
+      ${row('行囊與靈獸小計（市價五折）', a.itemValue * .5)}
+      ${row('總資產', a.total)}
+    </table>
+    ${list('城池與守軍', cities.map(c => row(`${c.name}・繁榮 ${c.prosperity}・守軍 ${c.garrisonSoldiers} 名・駐將 ${c.garrisonGenerals.map(g => state.generals[g].name).join('、') || '無'}`, c.prosperity * 100 + c.garrisonSoldiers * SOLDIER_PRICE)))}
+    ${list('武將（含裝備與功法）', gens.map(g => row(`${g.name}・${REALMS[g.realm]}・${statuses[g.status]}${g.cityId ? '／' + state.cities[g.cityId].name : ''}<br><small>神器：${g.weapon?.name ?? '無'}／寶衣：${g.armor?.name ?? '無'}／功法：${g.technique?.name ?? '無'}</small>`, generalValue(g))))}
+    ${list('丹藥、陣法、符籙與法器', lord.items.map(i => row(`${nameOf(i)}`, i.price * .5)))}
+    ${list('行囊神器與寶衣', lord.gear.map(i => row(i.name, i.price * .5)))}
+    ${list('功法秘笈', lord.scrolls.map(i => row(i.name, i.price * .5)))}
+    ${list('靈獸', lord.beast ? [row(lord.beast.name, lord.beast.price * .5)] : [])}
+  </details>`;
 }

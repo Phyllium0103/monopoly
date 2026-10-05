@@ -203,6 +203,8 @@ export interface GameState {
   /** 每座岔路的箭頭所指的相鄰格 */
   forkDirections: Record<number, number>;
   over: boolean;
+  /** 真仙勝利優先於資產排名。 */
+  winner: LordId | null;
   uid: number;
   /** 進行中的九州風雲 */
   events: ActiveEvent[];

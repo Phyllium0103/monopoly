@@ -15,7 +15,12 @@ export const START_SOLDIERS = 20000;
 /** 主公身邊最多隨行武將數，其餘留在宗門 */
 export const PARTY_LIMIT = 10;
 
-/** 由種子資料建立武將 */
+/** 每位人物建立時獨立骰靈根，三種靈根機率相同。 */
+export function rollAptitude(): General['aptitude'] {
+  return (['heaven', 'earth', 'pseudo'] as const)[Math.floor(Math.random() * 3)];
+}
+
+/** 由種子資料建立武將（含聽風樓與後續現身的隱藏人物） */
 export function newGeneral(
   seed: { id: string; name: string; s: GeneralSeed['s']; realm: number; aptitude: General['aptitude'] },
   origin: General['origin'],
@@ -34,7 +39,7 @@ export function newGeneral(
     base: { force: seed.s[0], defense: seed.s[1], hp: seed.s[2], alchemy: seed.s[3], forging: seed.s[4], talisman: seed.s[5], formation: seed.s[6] },
     realm: seed.realm,
     exp: 0,
-    aptitude: seed.aptitude,
+    aptitude: rollAptitude(),
     failedRound: 0,
     foundation: false,
     demon: 0,
@@ -131,6 +136,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     tiles: BOARD.tiles,
     forkDirections: createForkDirections(BOARD.tiles),
     over: false,
+    winner: null,
     uid: 1,
     events: [],
     usedEvents: [],

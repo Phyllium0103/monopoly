@@ -1947,3 +1947,16 @@ body {
 }
 .music-vol { width: 70px; accent-color: var(--gold); }
 .music-pct { min-width: 2.8em; font-size: 13px; }
+
+.asset-details { margin: 14px 0; padding: 10px 14px; border: 1px solid #746344; border-radius: 8px; text-align: left; }
+.asset-details summary { cursor: pointer; font-weight: bold; }
+.asset-details h4 { margin: 20px 0 8px; }
+.asset-details .result-table td:first-child { white-space: normal; overflow-wrap: anywhere; }
+.asset-details .result-table small { color: #6a5030; font-weight: normal; }
+.end-screen .result-card { width: min(760px, 94vw); max-height: 90vh; overflow-y: auto; }
+.asset-details .result-table { width: 100%; font-size: 15px; }
+.asset-details .result-table td:first-child { text-align: left; }
+.asset-details .result-table td:last-child { text-align: right; white-space: nowrap; }
+.asset-details .result-table td { padding: 5px 6px; }
+.log-panel { top: 110px; }
+.speed { max-width: 440px; flex-wrap: wrap; justify-content: flex-end; }

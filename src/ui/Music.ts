@@ -1,5 +1,7 @@
 const KEY = 'bgm-volume';
 const DEFAULT_VOLUME = 0.3;
+/** 原始音量太大，實際播放時先乘 50%，滑桿的 100% 就是原始音量的一半 */
+const BASE_GAIN = 0.5;
 
 /** 背景音樂：循環播放，音量存在瀏覽器；瀏覽器要求先有操作才能出聲，所以第一次點擊或按鍵時才開始 */
 const audio = new Audio(`${import.meta.env.BASE_URL}audio/bgm.mp3`);
@@ -15,16 +17,18 @@ function load(): number {
   return DEFAULT_VOLUME;
 }
 
-audio.volume = load();
+let level = load();
+audio.volume = level * BASE_GAIN;
 
 export const music = {
   get volume() {
-    return audio.volume;
+    return level;
   },
   setVolume(v: number) {
-    audio.volume = Math.max(0, Math.min(1, v));
+    level = Math.max(0, Math.min(1, v));
+    audio.volume = level * BASE_GAIN;
     try {
-      localStorage.setItem(KEY, String(audio.volume));
+      localStorage.setItem(KEY, String(level));
     } catch {
       /* 忽略 */
     }

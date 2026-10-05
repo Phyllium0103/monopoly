@@ -1,3 +1,4 @@
+import { music } from './Music';
 import type { GameState, LordId } from '../game/types';
 import { LORDS } from '../faction/Faction';
 import { citiesOf, generalsOf } from '../game/GameState';
@@ -117,8 +118,13 @@ export class GameUI {
         }</div>
       </div>
       <div class="lords">${lords}</div>
-      <div class="speed"><button class="btn mini log-btn ${this.logOpen ? 'on' : ''}" title="開關天下紀事">📜 紀事</button><button class="btn mini cheat-btn" title="測試用：獲得大量靈石與所有物品">🧪 測試</button><button class="btn mini auto-btn ${this.auto ? 'on' : ''}" title="由電腦代打你的回合">${this.auto ? '🤖 託管中' : '🤖 託管'}</button><button class="btn mini rank-btn">🏆 城池榜</button><button class="btn mini help-btn">📖 說明</button>${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
+      <div class="speed"><button class="btn mini log-btn ${this.logOpen ? 'on' : ''}" title="開關天下紀事">📜 紀事</button><button class="btn mini cheat-btn" title="測試用：獲得大量靈石與所有物品">🧪 測試</button><button class="btn mini auto-btn ${this.auto ? 'on' : ''}" title="由電腦代打你的回合">${this.auto ? '🤖 託管中' : '🤖 託管'}</button><button class="btn mini rank-btn">🏆 城池榜</button><button class="btn mini help-btn">📖 說明</button><label class="music" title="背景音樂音量">🎵<input type="range" class="music-vol" min="0" max="100" step="5" value="${Math.round(music.volume * 100)}"><span class="music-pct">${Math.round(music.volume * 100)}%</span></label>${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
     (this.top.querySelector('.help-btn') as HTMLButtonElement).onclick = () => this.onHelp?.();
+    const vol = this.top.querySelector('.music-vol') as HTMLInputElement;
+    vol.oninput = () => {
+      music.setVolume(Number(vol.value) / 100);
+      (this.top.querySelector('.music-pct') as HTMLElement).textContent = `${vol.value}%`;
+    };
     this.top.querySelectorAll<HTMLElement>('.lord-card[data-lord]').forEach((c) => {
       c.onclick = () => this.onLord?.(c.dataset.lord as LordId);
     });

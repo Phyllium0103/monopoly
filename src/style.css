@@ -1937,3 +1937,13 @@ body {
 .fact .fv { flex: 1; }
 .fact.warn { background: #f8dcd4; color: #b33a2a; }
 .fact.warn .fk { color: #b33a2a; }
+
+.music {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 4px;
+  font-size: 14.5px;
+}
+.music-vol { width: 70px; accent-color: var(--gold); }
+.music-pct { min-width: 2.8em; font-size: 13px; }

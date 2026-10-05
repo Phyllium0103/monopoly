@@ -135,8 +135,10 @@ export interface Lord {
   stones: number;
   soldiers: number;
   position: number;
-  /** 上一格：移動方向固定，不走回頭路；傳送後歸零，由下一步隨機決定方向 */
+  /** 上一格：辨識進入岔路的方向；傳送後歸零 */
   lastTile: number | null;
+  /** 本次經過岔路決定的出口；停下時保留到下回合 */
+  forkExit: number | null;
   /** 本回合已領過的靈脈（每輪每位主公只領一次） */
   veinsTapped: number[];
   /** 迷魂陣：剩餘停留回合 */
@@ -156,8 +158,8 @@ export interface Lord {
   rank: number;
 }
 
-/** 城池指定的鬥法：來挑戰的人只能選這一種（外加攻城戰與繳費） */
-export type ContestKind = 'duel' | CraftStat;
+/** 城池指定的技藝比試；每座城固定開放擂台戰 */
+export type ContestKind = CraftStat;
 
 export interface City {
   id: string;
@@ -169,7 +171,7 @@ export interface City {
   /** 駐守的武將（最多 3 人） */
   garrisonGenerals: string[];
   garrisonSoldiers: number;
-  /** 指定的鬥法（佔領或重新佔領時由主公選擇） */
+  /** 四項技藝中指定一種比試（佔領時由主公選擇） */
   contest: ContestKind;
   /** 護城大陣剩餘回合 */
   shieldTurns: number;
@@ -183,7 +185,7 @@ export interface Tile {
   name: string;
   pos: Vec2;
   cityId: string | null;
-  /** 相鄰的格子（道路雙向相通，遇到岔路可選方向） */
+  /** 相鄰的格子（道路雙向相通，岔路依箭頭決定出口） */
   links: number[];
 }
 
@@ -198,6 +200,8 @@ export interface GameState {
   generals: Record<string, General>;
   cities: Record<string, City>;
   tiles: Tile[];
+  /** 每座岔路的箭頭所指的相鄰格 */
+  forkDirections: Record<number, number>;
   over: boolean;
   uid: number;
   /** 進行中的九州風雲 */

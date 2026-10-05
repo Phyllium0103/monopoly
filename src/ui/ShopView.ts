@@ -1,6 +1,6 @@
 import type { GameState, Lord } from '../game/types';
 import { fmtStones } from '../game/Currency';
-import { SHOP_NAMES, buy, type Offer, type ShopKind } from '../systems/ShopSystem';
+import { SHOP_NAMES, buy, makeSellStock, sell, type SaleOffer, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { TILE_INFO } from '../data/board';
 import type { Dialog } from './Dialog';
 import { itemInfoHtml, itemLabel } from './ItemUI';
@@ -15,9 +15,10 @@ const SHOP_DESC: Record<ShopKind, string> = {
   merchant: '西域商隊帶來的地階、天階稀有貨品，一律 7 折。',
 };
 
-/** 商店介面；玩家可連續購買，按離開結束 */
+/** 商店介面；可連續購買、出售，按離開結束。 */
 export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: ShopKind, offers: Offer[], onBuy: (msg: string) => void): Promise<void> {
   const sold = new Set<number>();
+  let mode: 'buy' | 'sell' = 'buy';
   let recruited = false;
   let confirmBeast = -1;
   // 分類商店（天寶商行、天工坊、百草堂）用分頁顯示
@@ -29,7 +30,25 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
     (body, done) => {
       const render = () => {
         body.innerHTML = `<p class="dialog-text">${SHOP_DESC[kind]}</p><div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;
-        if (groups.length > 1) {
+        if (kind !== 'tavern') {
+          const modes = document.createElement('div');
+          modes.className = 'shop-tabs';
+          for (const value of ['buy', 'sell'] as const) {
+            const button = document.createElement('button');
+            button.className = `shop-tab ${mode === value ? 'on' : ''}`;
+            button.textContent = value === 'buy' ? '購買' : '出售（原價五成）';
+            button.onclick = () => { mode = value; confirmBeast = -1; render(); };
+            modes.appendChild(button);
+          }
+          body.appendChild(modes);
+        }
+        if (mode === 'sell') {
+          const note = document.createElement('p');
+          note.className = 'muted';
+          note.textContent = '僅收購本店對應物品；已裝備的神器、寶衣請先卸下。靈獸出售後會離隊。';
+          body.appendChild(note);
+        }
+        if (mode === 'buy' && groups.length > 1) {
           const tabs = document.createElement('div');
           tabs.className = 'shop-tabs';
           for (const g of groups) {
@@ -46,12 +65,13 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
         }
         const list = document.createElement('div');
         list.className = 'shop-list';
-        offers.forEach((o, i) => {
-          if (groups.length > 1 && o.group !== tab) return;
+        const visibleOffers: Offer[] = mode === 'sell' ? makeSellStock(lord, kind) : offers;
+        visibleOffers.forEach((o, i) => {
+          if (mode === 'buy' && groups.length > 1 && o.group !== tab) return;
           const row = document.createElement('div');
-          row.className = `shop-row ${sold.has(i) ? 'sold' : ''}`;
+          row.className = `shop-row ${mode === 'buy' && sold.has(i) ? 'sold' : ''}`;
           const main = o.kind === 'item' ? `<div class="sr-main item-row"><div class="item-title">${itemLabel(o.item.defId, o.item.tier)}</div><small>${itemInfoHtml(o.item.defId, o.item.tier)}</small></div>` : `<div class="sr-main"><b>${o.label}</b><small>${o.sub}</small></div>`;
-          row.innerHTML = `${main}<div class="sr-price">${fmtStones(o.price)}</div>`;
+          row.innerHTML = `${main}<div class="sr-price">${mode === 'sell' ? '+' : ''}${fmtStones(o.price)}</div>`;
           const b = document.createElement('button');
           b.className = 'btn primary mini';
           const otherRevive = o.kind === 'revive' && !o.own;
@@ -60,7 +80,17 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
           b.disabled = blocked || lord.stones < o.price;
           if (confirmBeast === i) b.textContent = '放生舊靈獸並購買？';
           if (otherRevive && revivedOther && !sold.has(i)) b.textContent = '一次一人';
+          if (mode === 'sell') {
+            b.textContent = '出售';
+            b.disabled = false;
+          }
           b.onclick = () => {
+            if (mode === 'sell') {
+              const r = sell(lord, kind, o as SaleOffer);
+              if (r.ok) onBuy(r.message);
+              render();
+              return;
+            }
             // 已有靈獸時需要再按一次確認
             if (o.kind === 'beast' && lord.beast && confirmBeast !== i) {
               confirmBeast = i;
@@ -80,7 +110,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
           row.appendChild(b);
           list.appendChild(row);
         });
-        if (!offers.length) list.innerHTML = '<p class="muted">目前沒有可購買的項目。</p>';
+        if (!visibleOffers.length) list.innerHTML = `<p class="muted">${mode === 'sell' ? '行囊中沒有本店可收購的物品。' : '目前沒有可購買的項目。'}</p>`;
         body.appendChild(list);
         const row = document.createElement('div');
         row.className = 'dialog-buttons';

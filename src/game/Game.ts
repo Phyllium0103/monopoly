@@ -30,6 +30,7 @@ import { canUse, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarge
 import { buy, makeStock, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, partyRealm, realmRolls, realmTurns } from '../systems/RealmSystem';
 import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
+import { enterFork, nextMovementTile } from '../systems/MovementSystem';
 import { rollRoadEvent } from '../systems/RoadEvents';
 import { EVENT_INTERVAL, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, syncWorldMods, tickWorldEvents } from '../systems/EventSystem';
 
@@ -194,7 +195,7 @@ export class Game {
     this.ui.reset();
     this.ui.show();
     this.ui.log(`天地靈氣復甦，${LORDS[player].name}起兵逐鹿天下！${maxRounds === null ? '（無盡模式：直到只剩一位主公沒破產）' : `（${maxRounds} 輪後比總資產）`}`, 'turn');
-    this.ui.log('擲骰沿道路前進，遇到岔路隨機轉向：停在無主城池才能派將佔領，踏入他人城池須繳過路費或開戰。', 'info');
+    this.ui.log('擲骰沿道路前進，岔路依箭頭走並換方向；逆向停在岔路，下回合返回，途經岔路則隨機轉向：停在無主城池才能派將佔領，踏入他人城池須繳過路費或開戰。', 'info');
     void this.loop(this.token);
   }
 
@@ -365,20 +366,25 @@ export class Game {
 
   private async moveLord(lord: Lord, steps: number) {
     const sprite = this.sprites.get(lord.id)!;
-    // 移動方向固定：不走回頭路（連回合之間也是），只有開局與傳送後的方向是隨機的
-    let prev: number | null = lord.lastTile;
     for (let i = 1; i <= steps; i++) {
       const here = lord.position;
-      const links = this.state.tiles[here].links;
-      let options = links.filter((n) => n !== prev);
-      if (!options.length) options = [...links];
-      const next = this.randomDirection(options);
-      const from = sprite.group.position.clone();
-      const to = this.slotPosition(lord.id, next);
-      await sprite.moveAlong([from, to], this.sm.animator, (p) => this.sm.cameraController.follow(p));
-      prev = here;
+      const next = nextMovementTile(this.state, lord);
+      this.world.syncForkArrows(this.state);
+      await sprite.moveAlong([sprite.group.position.clone(), this.slotPosition(lord.id, next)], this.sm.animator, (p) => this.sm.cameraController.follow(p));
       lord.lastTile = here;
       lord.position = next;
+      lord.forkExit = null;
+      const route = enterFork(this.state, lord, steps - i);
+      if (route) {
+        const tileName = this.state.tiles[next].name;
+        const destination = this.state.tiles[route.exit].name;
+        const message = route.returning
+          ? `逆向停在「${tileName}」，下回合返回「${destination}」。`
+          : route.opposite
+            ? `逆向經過「${tileName}」，隨機轉向「${destination}」。`
+            : `抵達「${tileName}」，依箭頭往「${destination}」；岔路箭頭已換方向。`;
+        this.ui.log(`${LORDS[lord.id].name}：${message}`, this.human(lord) ? 'info' : 'ai');
+      }
       this.passVein(lord, next);
       this.refresh();
       if (!lord.alive) return;
@@ -390,14 +396,14 @@ export class Game {
     await this.land(lord, lord.position);
   }
 
-  /** 主公面向的描述：一路往前，遇到岔路才隨機轉向 */
   private facingText(lord: Lord): string {
     const t = this.state.tiles[lord.position];
+    if (lord.forkExit !== null) return `${lord.forkExit === lord.lastTile ? '下回合返回' : '下次前進往'}${this.state.tiles[lord.forkExit].name}`;
+    if (t.links.length >= 3) return `依岔路箭頭往${this.state.tiles[this.state.forkDirections[t.index]].name}`;
     if (lord.lastTile === null) return '尚未出發（方向隨機）';
     const ahead = t.links.filter((n) => n !== lord.lastTile);
     if (!ahead.length) return `回頭往${this.state.tiles[lord.lastTile].name}`;
-    if (ahead.length === 1) return `朝向${this.state.tiles[ahead[0]].name}`;
-    return `前方岔路（${ahead.map((n) => this.state.tiles[n].name).join('、')}，隨機轉向）`;
+    return `朝向${this.state.tiles[ahead[0]].name}`;
   }
 
   /** 更新地圖上各主公面向的箭頭 */
@@ -408,8 +414,8 @@ export class Game {
         this.world.setFacing(id, LORDS[id].color, l.position, null, i);
         return;
       }
-      const from = this.state.tiles[l.lastTile].pos;
-      const to = this.state.tiles[l.position].pos;
+      const from = this.state.tiles[l.forkExit !== null ? l.position : l.lastTile].pos;
+      const to = this.state.tiles[l.forkExit ?? l.position].pos;
       this.world.setFacing(id, LORDS[id].color, l.position, { x: to.x - from.x, z: to.z - from.z }, i);
     });
   }
@@ -426,17 +432,13 @@ export class Game {
     this.world.beamEffect(this.sprites.get(lord.id)!.group.position, 0x7ae8ff);
   }
 
-  /** 岔路口：隨機走其中一條路 */
-  private randomDirection(options: number[]): number {
-    return options[Math.floor(Math.random() * options.length)];
-  }
-
   private async teleport(lord: Lord, tile: number) {
     const sprite = this.sprites.get(lord.id)!;
     this.world.beamEffect(sprite.group.position, 0xc9a0ff);
     await this.wait(500);
     lord.position = tile;
     lord.lastTile = null;
+    lord.forkExit = null;
     sprite.setGroundPosition(this.slotPosition(lord.id, tile));
     this.world.beamEffect(sprite.group.position, 0xc9a0ff);
     this.sm.cameraController.focus(sprite.group.position);
@@ -624,16 +626,15 @@ export class Game {
     this.refresh();
   }
 
-  /** 佔領或重新佔領後，玩家為這座城指定一種鬥法：之後來挑戰的人只能用這種方式 */
+  /** 佔領後從四項技藝中指定一種比試；每座城固定開放擂台戰 */
   private async chooseContest(city: City) {
     const kinds: { value: ContestKind; label: string; sub: string }[] = [
-      { value: 'duel', label: '⚔️ 擂台戰', sub: '武將單挑，同時出手，可能平手；適合武力強的駐將' },
       ...(['alchemy', 'forging', 'talisman', 'formation'] as const).map((k) => ({ value: k as ContestKind, label: `🔥 ${STAT_NAMES[k]}比試`, sub: `比拼${STAT_NAMES[k]}能力值；適合${STAT_NAMES[k]}高的駐將` })),
     ];
     const gens = garrisonOf(this.state, city);
     const picked = await this.dialog.choose(
-      `🏯 ${city.name}・指定鬥法`,
-      `選擇一種鬥法：之後有人踏入${city.name}想挑戰時，只能用這種方式（攻城戰與繳費不受限制）。` +
+      `🏯 ${city.name}・指定技藝比試`,
+      `擂台戰固定開放。請從煉丹、煉器、畫符、佈陣中指定一種比試，供之後的挑戰者選擇。` +
         facts(gens.length ? gens.map((g) => [g.name, `武力 ${attack(g)}｜煉丹 ${craft(g, 'alchemy')}｜煉器 ${craft(g, 'forging')}｜畫符 ${craft(g, 'talisman')}｜佈陣 ${craft(g, 'formation')}`] as [string, string]) : [['駐將', '無']]),
       kinds.map((k) => ({ label: k.label + (city.contest === k.value ? '（目前）' : ''), sub: k.sub, value: k.value })),
       null,
@@ -694,13 +695,13 @@ export class Game {
     const noDuel = `沒有血量達 ${Math.round(SURRENDER_HP * 100)}% 以上的隨行武將`;
     const choices: Choice<BattleKind | 'pay'>[] = [
       { label: '💰 繳納過路費', sub: `支付 ${fmtStones(fee)} 後離開`, value: 'pay' },
-      { label: city.contest === 'duel' ? '⚔️ 擂台戰（本城指定）' : '⚔️ 擂台戰', sub: `雙方各派一將單挑，能量滿可施放功法。血量低於 ${Math.round(WOUNDED_HP * 100)}% 減傷三成，低於 ${Math.round(SURRENDER_HP * 100)}% 認輸；被一擊打到歸零則戰死`, value: 'duel', disabled: city.contest !== 'duel' || !fighters.length, reason: city.contest !== 'duel' ? `本城指定鬥法為【${STAT_NAMES[city.contest]}比試】` : free.length ? noDuel : noGen },
+      { label: '⚔️ 擂台戰（固定開放）', sub: `雙方各派一將單挑，能量滿可施放功法。血量低於 ${Math.round(WOUNDED_HP * 100)}% 減傷三成，低於 ${Math.round(SURRENDER_HP * 100)}% 認輸；被一擊打到歸零則戰死`, value: 'duel', disabled: !fighters.length, reason: free.length ? noDuel : noGen },
       ...CRAFTS.map((s) => ({
         label: `🔥 ${STAT_NAMES[s]}比試${city.contest === s ? '（本城指定）' : ''}`,
         sub: `比拼${STAT_NAMES[s]}，我方最高 ${Math.max(0, ...free.map((g) => craft(g, s)))}｜雙方各出 ${CONTEST_SOLDIERS} 兵，敗方全滅`,
         value: s as BattleKind,
         disabled: city.contest !== s || !free.length || lord.soldiers < CONTEST_SOLDIERS,
-        reason: city.contest !== s ? `本城指定鬥法為【${city.contest === 'duel' ? '擂台戰' : `${STAT_NAMES[city.contest]}比試`}】` : !free.length ? noGen : `需 ${CONTEST_SOLDIERS} 兵維持秩序`,
+        reason: city.contest !== s ? `本城指定比試為【${STAT_NAMES[city.contest]}】` : !free.length ? noGen : `需 ${CONTEST_SOLDIERS} 兵維持秩序`,
       })),
       {
         label: '🏯 攻城戰',
@@ -1518,6 +1519,7 @@ export class Game {
       const c = this.state.cities[t.cityId!];
       text += `（${ownerName(c.owner)}）<br>${terrainOf(c).icon} ${terrainOf(c).name}・${terrainEffects(terrainOf(c))}<br>繁榮 ${fmtProsperity(c.prosperity)}（第 ${cityRanks(this.state, c.id).prosperity} 名）${c.owner === 'neutral' ? '' : `・過路費 ${fmtStones(cityToll(this.state, c))}`}`;
     } else text += `<br>${TILE_INFO[t.kind].desc}`;
+    if (t.links.length >= 3) text += `<br>➜ 岔路箭頭：往${this.state.tiles[this.state.forkDirections[tile]].name}`;
     text += `<br><span class="tt-links">通往：${t.links.map((n) => this.state.tiles[n].name).join('、')}</span>`;
     if (this.phase === 'pickTile') text += '<br><span class="tt-move">▶ 點擊傳送至此</span>';
     this.ui.showTooltip(text, this.mouse.x, this.mouse.y);
@@ -1528,9 +1530,10 @@ export class Game {
   private tileInfoHtml(index: number): string {
     const t = this.state.tiles[index];
     const here = LORD_IDS.filter((id) => this.state.lords[id].alive && this.state.lords[id].position === index);
+    const fork = t.links.length >= 3 ? `<div class="ip-row">➜ 岔路箭頭：往${this.state.tiles[this.state.forkDirections[index]].name}</div>` : '';
     const people = here.length ? `<div class="ip-row">此地：${here.map((id) => `<span style="color:${LORDS[id].css}">${LORDS[id].name}</span><small>（${this.facingText(this.state.lords[id])}）</small>`).join('、')}</div>` : '';
     const links = `<div class="ip-row">通往：${t.links.map((n) => `${TILE_INFO[this.state.tiles[n].kind].icon}${this.state.tiles[n].name}`).join('、')}${t.links.length >= 3 ? '（岔路口）' : ''}</div>`;
-    if (t.kind !== 'city') return `<div class="ip-head"><b>${TILE_INFO[t.kind].icon} ${t.name}</b></div><div class="ip-row">${TILE_INFO[t.kind].desc}</div>${links}${people}`;
+    if (t.kind !== 'city') return `<div class="ip-head"><b>${TILE_INFO[t.kind].icon} ${t.name}</b></div><div class="ip-row">${TILE_INFO[t.kind].desc}</div>${links}${fork}${people}`;
     const c = this.state.cities[t.cityId!];
     const gens = garrisonOf(this.state, c);
     const inc = cityIncomeOf(this.state, c);
@@ -1543,14 +1546,16 @@ export class Game {
         <tr><td>過路費</td><td>${c.owner === 'neutral' ? `佔領後約 ${fmtStones(toll(c))}` : fmtStones(cityToll(this.state, c))}</td></tr>
         <tr><td>每回合</td><td>${fmtStones(inc.stones)}・兵 +${inc.soldiers}<small class="terrain-fx">${RANK_METRICS.filter((m) => m.id === 'stones' || m.id === 'soldiers').map((m) => `${m.name}第 ${ranks[m.id]}`).join('・')}</small></td></tr>
         <tr><td>駐將</td><td>${gens.length ? gens.map((g) => `${g.name}（${REALMS[g.realm]}・戰力 ${power(g)}）`).join('<br>') : '無'}</td></tr>
+        <tr><td>比試</td><td>擂台戰（固定）＋${STAT_NAMES[c.contest]}比試</td></tr>
         <tr><td>守軍</td><td>${c.garrisonSoldiers}${c.shieldTurns ? `・護城大陣 ${c.shieldTurns}` : ''}</td></tr>
         ${c.owner !== 'neutral' ? `<tr><td>守城戰力</td><td>${garrisonPower(this.state, c)}<small class="terrain-fx">第 ${ranks.defense} 名</small></td></tr>` : ''}
-      </table>${links}${people}`;
+      </table>${links}${fork}${people}`;
   }
 
   private refresh() {
     if (!this.state) return;
     this.ui.renderTop(this.state);
+    this.world.syncForkArrows(this.state);
     this.updateFacing();
     const player = this.state.lords[this.state.player];
     const current = currentLord(this.state);

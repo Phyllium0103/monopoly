@@ -204,14 +204,14 @@ export function aiEnemyCity(state: GameState, lord: Lord, city: City): AiBattleC
   const team = [...free].sort((a, b) => attack(b) - attack(a)).slice(0, 3);
   if (siegeAllowed(state.round) && siegeAttack(lord, team) > garrisonPower(state, city) * 1.3 && free.length >= 2) return { kind: 'siege', generals: team };
 
-  // 單挑（只有指定鬥法為擂台的城池才能打）
+  // 每座城固定開放單挑
   const only = city.contest;
-  const best = [...free].sort((a, b) => duelScore(b) - duelScore(a))[0];
+  const best = [...free].filter(canDuel).sort((a, b) => duelScore(b) - duelScore(a))[0];
   const bestDef = [...defenders].filter(canDuel).sort((a, b) => duelScore(b) - duelScore(a))[0];
-  if (only === 'duel' && bestDef && duelScore(best) > duelScore(bestDef) * 1.15) return { kind: 'duel', generals: [best] };
+  if (best && (!bestDef || duelScore(best) > duelScore(bestDef) * 1.15)) return { kind: 'duel', generals: [best] };
 
   // 技藝比試（雙方各需 500 兵維持秩序）
-  for (const stat of lord.soldiers >= CONTEST_SOLDIERS && only !== 'duel' ? [only] : []) {
+  for (const stat of lord.soldiers >= CONTEST_SOLDIERS ? [only] : []) {
     const me = [...free].sort((a, b) => craft(b, stat) - craft(a, stat))[0];
     const them = [...defenders].sort((a, b) => craft(b, stat) - craft(a, stat))[0];
     if (them && craft(me, stat) > craft(them, stat) * 1.25) return { kind: stat, generals: [me] };

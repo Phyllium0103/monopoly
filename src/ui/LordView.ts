@@ -57,7 +57,7 @@ export class LordView {
       .map((c) => {
         const inc = cityIncomeOf(state, c);
         const guards = garrisonOf(state, c);
-        return `<tr><td><b>${c.capital ? '★ ' : ''}${c.name}</b></td><td>${fmtProsperity(c.prosperity)}</td><td>${fmtStones(inc.stones, true)}・兵 +${inc.soldiers}</td><td>${c.garrisonSoldiers}</td><td>${guards.map((g) => g.name).join('、') || '—'}</td><td>${garrisonPower(state, c)}</td><td>${fmtStones(cityToll(state, c), true)}</td><td>${c.contest === 'duel' ? '擂台戰' : `${STAT_NAMES[c.contest]}比試`}</td></tr>`;
+        return `<tr><td><b>${c.capital ? '★ ' : ''}${c.name}</b></td><td>${fmtProsperity(c.prosperity)}</td><td>${fmtStones(inc.stones, true)}・兵 +${inc.soldiers}</td><td>${c.garrisonSoldiers}</td><td>${guards.map((g) => g.name).join('、') || '—'}</td><td>${garrisonPower(state, c)}</td><td>${fmtStones(cityToll(state, c), true)}</td><td>擂台戰＋${STAT_NAMES[c.contest]}比試</td></tr>`;
       })
       .join('');
 
@@ -85,7 +85,7 @@ export class LordView {
               <tr><td>${fmtStones(lord.stones)}</td><td>${lord.soldiers}</td><td>${assets.cities} 座</td><td>${assets.generals} 名</td><td>${fmtStones(assets.total, true)}</td><td>${here.name}</td><td>${this.facingText?.(id) ?? '—'}</td></tr></table>
             <p>行囊：${bag}｜神器寶衣 ${lord.gear.length} 件｜功法 ${lord.scrolls.length} 本｜靈獸：${lord.beast ? lord.beast.name : '無'}${lord.expeditions.length ? `｜秘境探索中 ${lord.expeditions.length} 隊` : ''}</p>
             <h4>城池（${assets.cities}）</h4>
-            <table class="terrain-table rank-detail"><tr><th>城池</th><th>繁榮</th><th>每回合收入</th><th>守軍</th><th>駐將</th><th>守城戰力</th><th>過路費</th><th>指定鬥法</th></tr>${cities || '<tr><td colspan="8">沒有城池</td></tr>'}</table>
+            <table class="terrain-table rank-detail"><tr><th>城池</th><th>繁榮</th><th>每回合收入</th><th>守軍</th><th>駐將</th><th>守城戰力</th><th>過路費</th><th>擂台與比試</th></tr>${cities || '<tr><td colspan="8">沒有城池</td></tr>'}</table>
             <h4>武將（${assets.generals}）</h4>
             <table class="terrain-table rank-detail"><tr><th>武將</th><th>境界</th><th>戰力</th><th>武/防/血・上限</th><th>狀態</th><th>被動</th></tr>${gens || '<tr><td colspan="6">沒有武將</td></tr>'}</table>
           </article>

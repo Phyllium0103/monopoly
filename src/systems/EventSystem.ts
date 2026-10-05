@@ -203,6 +203,7 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
       alive.forEach((l, i) => {
         l.position = positions[i];
         l.lastTile = null;
+        l.forkExit = null;
       });
       lines.push(alive.map((l) => `${LORDS[l.id].name} → ${state.tiles[l.position].name}`).join('、'));
       break;

@@ -3,6 +3,8 @@ import { BOARD } from '../data/board';
 import { GENERAL_SEEDS, type GeneralSeed } from '../data/generals';
 import { LORDS, LORD_IDS, TRAITS } from '../faction/Faction';
 import { maxHp } from '../systems/GeneralSystem';
+import { bestContest } from '../systems/CitySystem';
+import { createForkDirections } from '../systems/MovementSystem';
 
 /** 開局可選的最大回合數；無盡模式為 null */
 export const ROUND_OPTIONS = [20, 30, 40, 60, 80, 100];
@@ -66,7 +68,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       garrisonGenerals: [],
       garrisonSoldiers: s.owner ? 1000 : 0,
       shieldTurns: 0,
-      contest: 'duel',
+      contest: 'alchemy',
     };
   }
 
@@ -100,6 +102,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       soldiers: Math.round(START_SOLDIERS * (1 + (TRAITS[id].startSoldiers ?? 0))),
       position: cities[LORDS[id].capital].tile,
       lastTile: null,
+      forkExit: null,
       veinsTapped: [],
       stunned: 0,
       tollFree: false,
@@ -116,7 +119,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     };
   }
 
-  return {
+  const state: GameState = {
     round: 1,
     maxRounds,
     order,
@@ -126,6 +129,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     generals,
     cities,
     tiles: BOARD.tiles,
+    forkDirections: createForkDirections(BOARD.tiles),
     over: false,
     uid: 1,
     events: [],
@@ -134,6 +138,8 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     banditTiles: [],
     favoredElement: null,
   };
+  for (const city of Object.values(cities)) city.contest = bestContest(state, city);
+  return state;
 }
 
 export function nextUid(state: GameState, prefix: string): string {

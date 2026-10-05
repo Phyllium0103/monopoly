@@ -1,5 +1,8 @@
 import type { LordId, Tile, TileKind, Vec2 } from '../game/types';
 
+/** 放大地點間距，建築與人物維持原尺寸。 */
+export const MAP_SCALE = 1.8;
+
 type SpecialKind = Exclude<TileKind, 'city'>;
 
 interface NodeDef {
@@ -141,7 +144,7 @@ function buildBoard() {
   const indexOf = new Map<string, number>();
 
   const addTile = (kind: TileKind, name: string, pos: Vec2, cityId: string | null) => {
-    tiles.push({ index: tiles.length, kind, name, pos, cityId, links: [] });
+    tiles.push({ index: tiles.length, kind, name, pos: { x: pos.x * MAP_SCALE, z: pos.z * MAP_SCALE }, cityId, links: [] });
     return tiles.length - 1;
   };
   const link = (a: number, b: number) => {
@@ -157,7 +160,7 @@ function buildBoard() {
     cities.push({ id: c.id, name: c.name, prosperity: c.prosperity!, owner: c.owner, tile: idx });
   }
 
-  const posOf = (id: string) => tiles[indexOf.get(id)!].pos;
+  const posOf = (id: string) => CITIES.find((c) => c.id === id)!.pos;
   for (const path of PATHS) {
     // 定點之間的驛站平均分布在直線上
     let prev = -1;
@@ -203,7 +206,7 @@ export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
   tavern: { icon: '🏮', desc: '聽風樓：招募各國尚未出仕的將領' },
   portal: { icon: '🌌', desc: '傳送陣：位於四個角落的路上，踩到會被隨機傳送到地圖上的另一格' },
   vein: { icon: '💎', desc: '靈脈：路過就能獲得靈石（不用停下），依主公本人的境界計算，每輪每位主公只領一次' },
-  road: { icon: '🛤️', desc: '驛道：可能遇到奇遇。遇到岔路口時會隨機轉向' },
+  road: { icon: '🛤️', desc: '驛道：可能遇到奇遇。岔路依箭頭行走，每次經過後箭頭換方向；逆向停在岔路，下回合返回，途經岔路則隨機選出口' },
 };
 
 /** 長江 */

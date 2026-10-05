@@ -173,3 +173,51 @@ export function offerValue(offer: Offer): number {
   return offer.kind === 'general' || offer.kind === 'revive' ? generalValue(offer.general) : offer.price;
 }
 
+
+/** 回收原價五成；只列出行囊中的物品與目前的靈獸。 */
+export const SHOP_SELL_RATIO = 0.5;
+export type SaleOffer = Extract<Offer, { kind: 'item' | 'equipment' | 'technique' | 'beast' }>;
+
+export function makeSellStock(lord: Lord, kind: ShopKind): SaleOffer[] {
+  const price = (n: number) => Math.max(0, Math.floor(n * SHOP_SELL_RATIO));
+  const all = kind === 'merchant';
+  const stock: SaleOffer[] = [];
+  for (const item of lord.items) {
+    const d = ITEM_DEFS[item.defId];
+    if (!all && !(kind === 'herb' && d.category === '丹藥') && !(kind === 'treasure' && ['法器', '陣法', '符籙'].includes(d.category))) continue;
+    stock.push({ kind: 'item', item, label: itemName(item.defId, item.tier), sub: d.desc(item.tier), price: price(item.price) });
+  }
+  if (all || kind === 'forge') for (const equipment of lord.gear)
+    stock.push({ kind: 'equipment', equipment, label: equipment.name, sub: equipDesc(equipment), price: price(equipment.price) });
+  if (all || kind === 'library') for (const technique of lord.scrolls)
+    stock.push({ kind: 'technique', technique, label: technique.name, sub: techniqueDesc(technique), price: price(technique.price) });
+  if ((all || kind === 'beast') && lord.beast) {
+    const beast = lord.beast;
+    stock.push({ kind: 'beast', beast, label: beast.name, sub: beast.desc, price: price(beast.price) });
+  }
+  return stock;
+}
+
+function saleUid(offer: SaleOffer): string {
+  switch (offer.kind) {
+    case 'item': return offer.item.uid;
+    case 'equipment': return offer.equipment.uid;
+    case 'technique': return offer.technique.uid;
+    case 'beast': return offer.beast.uid;
+  }
+}
+
+/** 再次確認物品和價錢，避免重複出售或跨店出售。 */
+export function sell(lord: Lord, kind: ShopKind, offer: SaleOffer): { ok: boolean; message: string } {
+  const uid = saleUid(offer);
+  const owned = makeSellStock(lord, kind).find((o) => o.kind === offer.kind && saleUid(o) === uid);
+  if (!owned) return { ok: false, message: '此物品不在行囊中，或店家不收購。' };
+  switch (owned.kind) {
+    case 'item': lord.items = lord.items.filter((i) => i.uid !== uid); break;
+    case 'equipment': lord.gear = lord.gear.filter((i) => i.uid !== uid); break;
+    case 'technique': lord.scrolls = lord.scrolls.filter((i) => i.uid !== uid); break;
+    case 'beast': lord.beast = null; break;
+  }
+  lord.stones += owned.price;
+  return { ok: true, message: `出售「${owned.label}」，獲得 ${fmtStones(owned.price)}。` };
+}

@@ -1,6 +1,6 @@
 import type { City, ContestKind, GameState, General, Lord, LordId } from '../game/types';
 import { GARRISON_LIMIT, citiesOf, deployable, garrisonOf, generalsOf, joinLord } from '../game/GameState';
-import { attack, craft, defense, generalSaleValue, generalValue, power, unequip } from './GeneralSystem';
+import { craft, defense, generalSaleValue, generalValue, power, unequip } from './GeneralSystem';
 import { beastPower } from '../data/items';
 import { fmtProsperity, fmtStones } from '../game/Currency';
 import { WORLD } from './WorldMods';
@@ -66,9 +66,9 @@ export function garrisonPower(state: GameState, city: City): number {
 /** 依駐將的專長挑一種對自己最有利的鬥法（電腦佔領時使用） */
 export function bestContest(state: GameState, city: City): ContestKind {
   const gens = garrisonOf(state, city);
-  if (!gens.length) return 'duel';
-  const score = (k: ContestKind) => Math.max(...gens.map((g) => (k === 'duel' ? attack(g) * 0.9 : craft(g, k))));
-  return (['duel', 'alchemy', 'forging', 'talisman', 'formation'] as ContestKind[]).sort((a, b) => score(b) - score(a))[0];
+  if (!gens.length) return 'alchemy';
+  const score = (k: ContestKind) => Math.max(...gens.map((g) => craft(g, k)));
+  return (['alchemy', 'forging', 'talisman', 'formation'] as ContestKind[]).sort((a, b) => score(b) - score(a))[0];
 }
 
 /** 佔領無主城池需支付的安撫費：永遠高於該城當前過路費，繁榮度越高倍率越大（繁榮 50 約 2.5 倍、100 約 3.5 倍） */

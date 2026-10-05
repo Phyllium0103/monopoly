@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { MAP_SCALE } from '../data/board';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 /**
@@ -16,11 +17,11 @@ export class CameraController {
   ) {
     camera.position.set(0, 48, 52);
     this.controls = new OrbitControls(camera, dom);
-    this.controls.target.set(0, 0, 4);
+    this.controls.target.set(0, 0, 4 * MAP_SCALE);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.08;
     this.controls.minDistance = 14;
-    this.controls.maxDistance = 110;
+    this.controls.maxDistance = 160 * MAP_SCALE;
     this.controls.minPolarAngle = 0.25;
     this.controls.maxPolarAngle = 1.25;
     this.controls.screenSpacePanning = false;
@@ -82,8 +83,8 @@ export class CameraController {
 
     // 限制在地圖範圍
     const t = this.controls.target;
-    const cx = THREE.MathUtils.clamp(t.x, -55, 55) - t.x;
-    const cz = THREE.MathUtils.clamp(t.z, -45, 50) - t.z;
+    const cx = THREE.MathUtils.clamp(t.x, -55 * MAP_SCALE, 55 * MAP_SCALE) - t.x;
+    const cz = THREE.MathUtils.clamp(t.z, -45 * MAP_SCALE, 50 * MAP_SCALE) - t.z;
     if (cx || cz) {
       t.x += cx;
       t.z += cz;

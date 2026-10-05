@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { Vec2 } from '../game/types';
-import { MOUNTAIN_RANGES, YANGTZE, YELLOW_RIVER } from '../data/board';
+import { MAP_SCALE, MOUNTAIN_RANGES, YANGTZE, YELLOW_RIVER } from '../data/board';
 
 const W = 160;
 const D = 130;
@@ -62,8 +62,10 @@ export class Terrain {
   private water: THREE.MeshStandardMaterial[] = [];
 
   constructor(points: Vec2[], segments: [Vec2, Vec2][]) {
-    this.nodePoints = points;
-    this.edgeSegs = segments;
+    const unscale = (p: Vec2): Vec2 => ({ x: p.x / MAP_SCALE, z: p.z / MAP_SCALE });
+    this.nodePoints = points.map(unscale);
+    this.edgeSegs = segments.map(([a, b]) => [unscale(a), unscale(b)]);
+    this.group.scale.set(MAP_SCALE, 1, MAP_SCALE);
     this.buildGround();
     this.buildSea();
     this.buildRivers();

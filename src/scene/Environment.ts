@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { MAP_SCALE } from '../data/board';
 
 /** 天空、光照、霧、雲 */
 export class Environment {
@@ -6,22 +7,22 @@ export class Environment {
 
   constructor(private scene: THREE.Scene) {
     scene.background = new THREE.Color(0xc9dde8);
-    scene.fog = new THREE.Fog(0xc9dde8, 90, 190);
+    scene.fog = new THREE.Fog(0xc9dde8, 140 * MAP_SCALE, 280 * MAP_SCALE);
 
     const hemi = new THREE.HemisphereLight(0xeaf4ff, 0x6b5a3a, 1.3);
     scene.add(hemi);
 
     const sun = new THREE.DirectionalLight(0xfff1d6, 2.4);
-    sun.position.set(-40, 70, 30);
+    sun.position.set(-40 * MAP_SCALE, 70 * MAP_SCALE, 30 * MAP_SCALE);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
     const s = sun.shadow.camera;
-    s.left = -75;
-    s.right = 75;
-    s.top = 65;
-    s.bottom = -65;
+    s.left = -85 * MAP_SCALE;
+    s.right = 85 * MAP_SCALE;
+    s.top = 75 * MAP_SCALE;
+    s.bottom = -75 * MAP_SCALE;
     s.near = 10;
-    s.far = 200;
+    s.far = 260 * MAP_SCALE;
     sun.shadow.bias = -0.0008;
     scene.add(sun);
 

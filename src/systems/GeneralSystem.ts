@@ -125,7 +125,8 @@ export function attemptBreak(g: General, round: number): boolean {
 }
 
 export const TRIBULATION_BOLTS = [3, 4, 5, 6, 7, 8, 9, 10];
-const TRIBULATION_BASE = [420, 540, 700, 950, 1250, 1650, 2150, 2800];
+/** 未裝備、無護法時，完整雷劫平均消耗基礎境界血量的比例。 */
+export const TRIBULATION_HP_RATIO = [0.52, 0.60, 0.68, 0.76, 0.84, 0.92, 1.02, 1.12];
 /** 單道天雷傷害的浮動範圍：預估值的 ±35% */
 export const BOLT_SPREAD = 0.35;
 
@@ -134,14 +135,15 @@ export function boltCount(g: General): number {
 }
 
 /** 單道天雷的預估傷害（防禦、寶衣、護法陣、體質、心魔都會影響） */
-/** 渡劫難度的基準血量：關羽、張飛這類 720 以上的猛將吃全額天雷，血量較低的角色等比例降低 */
-export const BOLT_REF_HP = 720;
-
 export function boltDamage(g: General): number {
-  const def = defense(g);
-  const reduce = def / (def + 300);
-  const thunder = 1 - (fx(g).tribulation ?? 0);
-  return TRIBULATION_BASE[g.realm - 2] * (1 - reduce) * (1 - g.ward) * thunder * (1 + g.demon * 0.5) * WORLD.boltMult * (1 - g.breakBoost) * Math.min(1, g.base.hp / BOLT_REF_HP);
+  const stage = Math.max(0, Math.min(TRIBULATION_HP_RATIO.length - 1, g.realm - 2));
+  const baselineHp = g.base.hp * REALM_MULT[g.realm];
+  const baselineDefense = g.base.defense;
+  // 境界成長同步提高天雷；額外防禦、血量裝備和被動仍有實際幫助。
+  const defenseFactor = (baselineDefense + 200) / (defense(g) / REALM_MULT[g.realm] + 200);
+  const thunder = Math.max(0, 1 - (fx(g).tribulation ?? 0));
+  return baselineHp * TRIBULATION_HP_RATIO[stage] / boltCount(g) * defenseFactor
+    * Math.max(0, 1 - g.ward) * thunder * (1 + g.demon * 0.5) * WORLD.boltMult * Math.max(0, 1 - g.breakBoost);
 }
 
 /** 天雷傷害的實際範圍與平均（單道與全部） */

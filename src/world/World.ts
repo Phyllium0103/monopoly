@@ -5,7 +5,7 @@ import { Terrain } from './Terrain';
 import { animateCity, buildCityMesh, type CityVisual } from './CityMesh';
 import { animateBuilding, buildSpecial, type BuildingVisual } from './Buildings';
 import { ownerColor, ownerCss, ownerName } from '../faction/Faction';
-import { BOARD, TILE_INFO } from '../data/board';
+import { BOARD, MAP_SCALE, TILE_INFO } from '../data/board';
 import type { Animator } from '../scene/Animator';
 import { easeOut } from '../scene/Animator';
 import { cityToll } from '../systems/CitySystem';
@@ -33,6 +33,7 @@ export class World {
   private time = 0;
   private eventMarkers: THREE.Group[] = [];
   private facing = new Map<string, THREE.Group>();
+  private forkArrows = new Map<number, THREE.ArrowHelper>();
 
   constructor(
     scene: THREE.Scene,
@@ -60,7 +61,7 @@ export class World {
   }
 
   ground(x: number, z: number) {
-    return Math.max(this.terrain.heightAt(x, z), 0);
+    return Math.max(this.terrain.heightAt(x / MAP_SCALE, z / MAP_SCALE), 0);
   }
 
   tilePosition(index: number): THREE.Vector3 {
@@ -249,6 +250,29 @@ export class World {
         (beam.material as THREE.MeshBasicMaterial).opacity = 0.8 * (1 - t);
       })
       .then(() => this.root.remove(beam));
+  }
+
+  /** 每個岔路都顯示公共箭頭；包含有三條以上道路的城池。 */
+  syncForkArrows(state: GameState) {
+    for (const tile of this.tiles) {
+      if (tile.links.length < 3) continue;
+      const target = this.tiles[state.forkDirections[tile.index]];
+      const dir = new THREE.Vector3(target.pos.x - tile.pos.x, 0, target.pos.z - tile.pos.z).normalize();
+      let arrow = this.forkArrows.get(tile.index);
+      if (!arrow) {
+        arrow = new THREE.ArrowHelper(dir, new THREE.Vector3(), 4.5, 0xffdf54, 1.4, 0.9);
+        for (const material of [arrow.line.material, arrow.cone.material]) {
+          const materials = Array.isArray(material) ? material : [material];
+          for (const m of materials) { m.depthTest = false; m.depthWrite = false; }
+        }
+        arrow.line.renderOrder = arrow.cone.renderOrder = 6;
+        this.root.add(arrow);
+        this.forkArrows.set(tile.index, arrow);
+      }
+      const p = this.tilePosition(tile.index);
+      arrow.position.set(p.x, p.y + (tile.kind === 'city' ? 5.2 : 4), p.z);
+      arrow.setDirection(dir);
+    }
   }
 
   /** 主公面向的箭頭：dir 為 null 時（尚未出發）不顯示 */

@@ -856,6 +856,7 @@ export class Game {
       attacker.soldiers += joined;
       defender.soldiers += city.garrisonSoldiers - joined;
       city.garrisonSoldiers = 0;
+      city.prosperity = Math.max(20, Math.round(city.prosperity * 0.95 * 100) / 100);
       r = { win: true, attack: myAtk, defense: theirDef, attackerLoss: 0, defenderLoss: 0 };
       this.ui.log(`${LORDS[defender.id].name}自知不敵，從${city.name}臨陣脫逃！${joined} 名守軍倒戈加入${LORDS[attacker.id].name}。`, this.human(defender) ? 'bad' : this.human(attacker) ? 'good' : 'ai');
     } else {

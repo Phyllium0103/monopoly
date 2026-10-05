@@ -414,6 +414,8 @@ export function siege(state: GameState, attacker: Lord, generals: General[], cit
   }
   attacker.soldiers -= attackerLoss;
   city.garrisonSoldiers -= defenderLoss;
+  // 戰火波及：遭攻打的城池繁榮度小幅下降
+  city.prosperity = Math.max(20, Math.round(city.prosperity * 0.95 * 100) / 100);
   for (const g of generals) g.hp = Math.max(1, Math.round(g.hp - maxHp(g) * (win ? 0.1 : 0.25)));
   return { win, attack: atk, defense: def, attackerLoss, defenderLoss };
 }

@@ -71,9 +71,9 @@ export function bestContest(state: GameState, city: City): ContestKind {
   return (['duel', 'alchemy', 'forging', 'talisman', 'formation'] as ContestKind[]).sort((a, b) => score(b) - score(a))[0];
 }
 
-/** 佔領無主城池需支付的安撫費 */
+/** 佔領無主城池需支付的安撫費：永遠高於該城當前過路費，繁榮度越高倍率越大（繁榮 50 約 2.5 倍、100 約 3.5 倍） */
 export function occupyCost(city: City): number {
-  return Math.round(city.prosperity * 60);
+  return Math.round((toll(city, 1) * (1.5 + city.prosperity / 50)) / 100) * 100;
 }
 
 export function canOccupy(state: GameState, lord: Lord, city?: City): boolean {

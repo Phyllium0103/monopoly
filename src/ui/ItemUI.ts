@@ -12,7 +12,7 @@ export const CATEGORY_STYLE: Record<string, { icon: string; color: string }> = {
 /** 黃、玄、地、天四階的代表色 */
 export const TIER_COLORS = ['#b8982e', '#4a74b0', '#8a5a34', '#a45ae8'];
 
-const TIMING = { preroll: '擲骰前', battle: '戰鬥中', both: '平時／戰鬥' } as const;
+const TIMING = { preroll: '擲骰前', battle: '戰鬥中', both: '平時／戰鬥', event: '事件觸發' } as const;
 
 /** 物品名稱列：圖示、名稱與品階徽章 */
 export function itemLabel(defId: string, tier: number): string {
@@ -26,6 +26,7 @@ export function itemLabel(defId: string, tier: number): string {
 /** 物品說明列：效果與使用門檻（能力值、體力）、使用時機 */
 export function itemInfoHtml(defId: string, tier: number): string {
   const d = ITEM_DEFS[defId];
+  if (d.noUser) return `<span class="item-effect">${d.desc(tier)}</span><span class="item-chips"><span class="ichip time">事件觸發，直接使用</span></span>`;
   const t = Math.min(tier, d.min.length - 1);
   return `<span class="item-effect">${d.desc(tier)}</span><span class="item-chips"><span class="ichip req" title="武將的${STAT_NAMES[d.stat]}需達到此數值">${STAT_NAMES[d.stat]} ≥ ${d.min[t]}</span><span class="ichip sta" title="使用後消耗的體力">⚡ 體力 ${d.stamina[t]}</span><span class="ichip time">${TIMING[d.timing]}</span></span>`;
 }

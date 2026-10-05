@@ -132,14 +132,14 @@ function grantReward(state: GameState, lord: Lord, team: General[], all: General
 }
 
 /** 秘境：逐人判定生死，生還者得修為與寶物 */
-function resolveExploration(state: GameState, lord: Lord, ex: Expedition, team: General[]): RealmOutcome {
+async function resolveExploration(state: GameState, lord: Lord, ex: Expedition, team: General[], protect?: (g: General) => Promise<boolean>): Promise<RealmOutcome> {
   const dead: General[] = [];
   const survivors: General[] = [];
   const insights: string[] = [];
   const score = team.reduce((s, g) => s + power(g), 0);
   for (const g of team) {
     const risk = deathChance(g, team, ex.level) * (ex.blessed ? 0.5 : 1);
-    if (Math.random() < risk) {
+    if (Math.random() < risk && !(protect && await protect(g))) {
       killGeneral(state, g);
       dead.push(g);
       continue;
@@ -160,14 +160,14 @@ function resolveExploration(state: GameState, lord: Lord, ex: Expedition, team: 
 }
 
 /** 回合開始時推進秘境倒數，時間到就結算 */
-export function advanceExpeditions(state: GameState, lord: Lord): RealmOutcome[] {
+export async function advanceExpeditions(state: GameState, lord: Lord, protect?: (g: General) => Promise<boolean>): Promise<RealmOutcome[]> {
   const outcomes: RealmOutcome[] = [];
   for (const ex of lord.expeditions) ex.turnsLeft--;
   const done = lord.expeditions.filter((e) => e.turnsLeft <= 0);
   lord.expeditions = lord.expeditions.filter((e) => e.turnsLeft > 0);
   for (const ex of done) {
     const team = ex.generalIds.map((id) => state.generals[id]);
-    outcomes.push(resolveExploration(state, lord, ex, team));
+    outcomes.push(await resolveExploration(state, lord, ex, team, protect));
   }
   return outcomes;
 }

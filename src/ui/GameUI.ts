@@ -249,7 +249,7 @@ export class GameUI {
   }
 
   /** 擲骰動畫 */
-  rollDice(values: number[], bonus = 0): Promise<void> {
+  rollDice(values: number[], bonus = 0, multiplier = 1): Promise<void> {
     const flicker = 10;
     const interval = 60 / this.speed;
     return new Promise((resolve) => {
@@ -261,8 +261,8 @@ export class GameUI {
         if (++n > flicker) {
           clearInterval(timer);
           this.dice.classList.remove('rolling');
-          const sum = values.reduce((a, b) => a + b, 0) + bonus;
-          this.dice.innerHTML = `${values.map((v) => DICE[v - 1]).join('')}<small>${sum} 步${bonus ? `（遁地梭 +${bonus}）` : ''}</small>`;
+          const sum = (values.reduce((a, b) => a + b, 0) + bonus) * multiplier;
+          this.dice.innerHTML = `${values.map((v) => DICE[v - 1]).join('')}<small>${sum} 步${multiplier > 1 ? `（遁地梭 ×${multiplier}）` : bonus ? `（額外 +${bonus}）` : ''}</small>`;
           setTimeout(() => {
             this.dice.classList.add('hidden');
             resolve();

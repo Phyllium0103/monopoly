@@ -1,275 +1,115 @@
-import type { City, GameState, General, Item, Lord } from '../game/types';
-import {
-  BELL_ENERGY, BONE_HP, BREAK_BOOST, CHARGE_ENERGY, DRAIN_STAMINA, ESSENCE_EXP, GATHER_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, PEARL_STAMINA, POISON, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_DAMAGE,
-  SHIELD_RATIO, SHUTTLE_STEPS, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, type ItemDef,
-} from '../data/items';
-import { freeGenerals, reviveGeneral } from '../game/GameState';
-import { addExp, attack, craft, defense, maxHp } from './GeneralSystem';
+import type { Aptitude, City, Element, GameState, General, Item, Lord } from '../game/types';
+import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, BREAK_BOOST, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemTier, type ItemDef } from '../data/items';
+import { freeGenerals, nextUid, reviveGeneral } from '../game/GameState';
+import { addExp, craft, expCap, maxHp } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
 import { fmtStones } from '../game/Currency';
-import { LORDS } from '../faction/Faction';
+import { LORDS, traitOf } from '../faction/Faction';
 import { fx } from '../data/passives';
 import { APTITUDE_NAMES } from '../data/generals';
-import { traitOf } from '../faction/Faction';
 
-export function def(item: Item): ItemDef {
-  return ITEM_DEFS[item.defId];
-}
-
-export function nameOf(item: Item): string {
-  return itemName(item.defId, item.tier);
-}
-
-export function requirement(item: Item, user?: General) {
-  const d = def(item);
-  const i = Math.min(item.tier, d.min.length - 1);
-  return { stat: d.stat, min: d.min[i], stamina: Math.max(1, Math.round(d.stamina[i] * (1 - (user ? (fx(user).itemStamina ?? 0) + (traitOf(user.owner).itemStamina ?? 0) : 0)))) };
-}
-
-export function requirementText(item: Item): string {
-  const r = requirement(item);
-  return `${STAT_NAMES[r.stat]} ≥ ${r.min}・體力 ${r.stamina}`;
-}
-
-/** 能力值與體力是否足以使用 */
-export function canUse(item: Item, user: General): { ok: boolean; reason: string } {
-  const r = requirement(item, user);
-  if (craft(user, r.stat) < r.min) return { ok: false, reason: `${STAT_NAMES[r.stat]}不足（需 ${r.min}）` };
-  if (user.stamina < r.stamina) return { ok: false, reason: `體力不足（需 ${r.stamina}）` };
-  return { ok: true, reason: '' };
-}
-
-export function usableIn(item: Item, context: 'preroll' | 'battle'): boolean {
-  const t = def(item).timing;
-  return t === 'both' || t === context;
-}
-
-/** 使用物品每消耗 1 點體力，使用者修為 +3 */
+export const def = (item: Item): ItemDef => ITEM_DEFS[item.defId];
+export const nameOf = (item: Item): string => itemName(item.defId, item.tier);
 export const ITEM_USE_EXP = 3;
-
-function consume(lord: Lord, item: Item, user: General): number {
-  const cost = requirement(item, user).stamina;
-  user.stamina -= cost;
-  lord.items = lord.items.filter((i) => i.uid !== item.uid);
-  return addExp(user, cost * ITEM_USE_EXP);
+export function requirement(item: Item, user?: General) {
+ const d=def(item),i=Math.min(item.tier,d.min.length-1);
+ return {stat:d.stat,min:d.min[i],stamina:d.noUser?0:Math.max(0,Math.round(d.stamina[i]*(1-(user?(fx(user).itemStamina??0)+(traitOf(user.owner).itemStamina??0):0))))};
 }
-
-export interface PrerollTarget {
-  general?: General;
-  lord?: Lord;
-  city?: City;
-  tile?: number;
-  dice?: number;
+export function requirementText(item: Item): string {const r=requirement(item);return def(item).noUser?'事件觸發，直接使用':STAT_NAMES[r.stat]+' ≥ '+r.min+'・體力 '+r.stamina;}
+export function canUse(item: Item,user: General): {ok:boolean;reason:string} {
+ if(user.status==='dead')return {ok:false,reason:'武將已死亡'};
+ if(def(item).noUser)return {ok:true,reason:''};
+ const r=requirement(item,user);
+ if(craft(user,r.stat)<r.min)return {ok:false,reason:STAT_NAMES[r.stat]+'不足（需 '+r.min+'）'};
+ if(user.stamina<r.stamina)return {ok:false,reason:'體力不足（需 '+r.stamina+'）'};
+ return {ok:true,reason:''};
 }
-
-/** 擲骰前使用：回傳結果文字（傳送陣的移動由遊戲流程處理） */
-export function usePreroll(state: GameState, lord: Lord, item: Item, user: General, target: PrerollTarget): string {
-  const gain = consume(lord, item, user);
-  const msg = applyPreroll(state, lord, item, user, target);
-  return gain ? `${msg}（${user.name}修為 +${gain}）` : msg;
+export function usableIn(item: Item,context:'preroll'|'battle'): boolean {const t=def(item).timing;return t==='both'||t===context;}
+export function consumeItem(lord:Lord,item:Item,user?:General):number {
+ if(lord.itemsLocked>0||!lord.items.some(i=>i.uid===item.uid))throw Error('物品不可使用');
+ if(!def(item).noUser&&(!user||!canUse(item,user).ok))throw Error('使用者能力或體力不足');
+ const cost=user?requirement(item,user).stamina:0;
+ if(user)user.stamina-=cost;
+ lord.items=lord.items.filter(i=>i.uid!==item.uid);
+ return user?addExp(user,cost*ITEM_USE_EXP):0;
 }
-
-function applyPreroll(state: GameState, lord: Lord, item: Item, user: General, target: PrerollTarget): string {
-  const t = item.tier;
-  const name = nameOf(item);
-  const g = target.general;
-  const head = `${user.name}使用${name}`;
-  switch (item.defId) {
-    case 'heal': {
-      const h = Math.min(maxHp(g!) - g!.hp, Math.round(maxHp(g!) * HEAL[t]));
-      g!.hp += h;
-      return `${head}，${g!.name}回復 ${h} 血量。`;
-    }
-    case 'force':
-      g!.bonusForce += STAT_UP[t];
-      return `${head}，${g!.name}武力永久 +${STAT_UP[t]}。`;
-    case 'guard':
-      g!.bonusDefense += STAT_UP[t];
-      return `${head}，${g!.name}防禦永久 +${STAT_UP[t]}。`;
-    case 'qi':
-    case 'essence': {
-      const n = addExp(g!, (item.defId === 'qi' ? QI_EXP : ESSENCE_EXP)[t]);
-      return `${head}，${g!.name}修為 +${n}${n < (item.defId === 'qi' ? QI_EXP : ESSENCE_EXP)[t] ? '（已達瓶頸，溢出的修為散去）' : ''}。`;
-    }
-    case 'foundation':
-      g!.foundation = true;
-      return `${head}，${g!.name}服下築基丹，突破築基成功率提升至 95%。`;
-    case 'thunderward':
-    case 'fiveward': {
-      g!.ward = Math.min(0.8, g!.ward + (item.defId === 'thunderward' ? 0.5 : 0.3));
-      return `${head}，為${g!.name}布下護法大陣，下次雷劫傷害 -${Math.round(g!.ward * 100)}%。`;
-    }
-    case 'demon':
-    case 'illusion': {
-      g!.demon = Math.max(g!.demon, item.defId === 'demon' ? 1 : 2);
-      return `${head}，${g!.name}心魔滋生，下次突破兇險倍增！`;
-    }
-    case 'siegebreak':
-      lord.siegeBoost = 1.3;
-      return `${head}，本回合攻城戰力 ×1.3。`;
-    case 'vigor':
-      g!.stamina = Math.min(100, g!.stamina + STAMINA_UP[t]);
-      return `${head}，${g!.name}體力回復 ${STAMINA_UP[t]}。`;
-    case 'poison': {
-      if (fx(g!).poisonImmune) return `${head}暗算${g!.name}，但${g!.name}百毒不侵！`;
-      const dmg = Math.min(g!.hp - 1, Math.round(maxHp(g!) * POISON[t] * 2.5));
-      g!.hp -= dmg;
-      return `${head}暗算${g!.name}，造成 ${dmg} 傷害！`;
-    }
-    case 'teleport':
-      return `${head}，傳送至${state.tiles[target.tile!].name}！`;
-    case 'confuse':
-      target.lord!.stunned = 2;
-      return `${head}，困住了${lordName(target.lord!)} 2 回合！`;
-    case 'citadel':
-      target.city!.shieldTurns = 5;
-      return `${head}，${target.city!.name}守軍戰力 ×1.5（5 回合）。`;
-    case 'dice':
-      lord.fixedDice = target.dice!;
-      return `${head}，本回合骰子定為 ${target.dice} 點。`;
-    case 'stride':
-      lord.doubleDice = true;
-      return `${head}，本回合擲兩顆骰子。`;
-    case 'thunder': {
-      const loss = Math.round(target.city!.garrisonSoldiers * 0.3);
-      target.city!.garrisonSoldiers -= loss;
-      return `${head}，天雷落在${target.city!.name}，守軍 -${loss}！`;
-    }
-    case 'ghost': {
-      const amount = Math.min(20000, Math.round(target.lord!.stones * 0.08));
-      target.lord!.stones -= amount;
-      lord.stones += amount;
-      return `${head}，從${lordName(target.lord!)}處搬走 ${fmtStones(amount)}！`;
-    }
-    case 'truce':
-      lord.tollFree = true;
-      return `${head}，本回合踏入敵城免繳過路費。`;
-    case 'revive':
-      reviveGeneral(state, lord.id, g!, REVIVE_HP[t], REVIVE_REALM_LOSS[t]);
-      return `${head}，${g!.name}還陽復生，歸入你的麾下（血量 ${Math.round(REVIVE_HP[t] * 100)}%）！`;
-    case 'rootup1':
-    case 'rootup2': {
-      if (g!.aptitude === 'heaven') {
-        const n = addExp(g!, 300);
-        return head + '，' + g!.name + '已是天靈根，藥力化為修為 +' + n + '。';
-      }
-      const elements = ['metal', 'wood', 'water', 'fire', 'earth'] as const;
-      g!.aptitude = item.defId === 'rootup2' || g!.aptitude !== 'waste'
-        ? 'heaven' : elements[Math.floor(Math.random() * elements.length)];
-      return `${head}，${g!.name}洗髓伐骨，靈根提升為【${APTITUDE_NAMES[g!.aptitude]}】！`;
-    }
-    case 'clearmind':
-      g!.demon = 0;
-      return `${head}，${g!.name}心魔盡消。`;
-    case 'bone':
-      g!.base.hp += BONE_HP[t];
-      return `${head}，${g!.name}筋骨強健，血量上限永久提升。`;
-    case 'breakpill':
-      g!.breakBoost = Math.max(g!.breakBoost, BREAK_BOOST[t]);
-      return `${head}，${g!.name}氣機通達，下次突破更有把握（+${Math.round(g!.breakBoost * 100)}%）。`;
-    case 'gather': {
-      const party = freeGenerals(state, lord.id);
-      const total = party.reduce((s, x) => s + addExp(x, GATHER_EXP[t]), 0);
-      return `${head}，${party.length} 名隨行武將共吸納修為 ${total}。`;
-    }
-    case 'mend': {
-      const party = freeGenerals(state, lord.id);
-      for (const x of party) x.hp = Math.min(maxHp(x), x.hp + Math.round(maxHp(x) * MEND_HEAL[t]));
-      return `${head}，${party.length} 名隨行武將傷勢回復 ${Math.round(MEND_HEAL[t] * 100)}%。`;
-    }
-    case 'vein':
-      target.city!.prosperity = Math.min(200, target.city!.prosperity + VEIN_PROSPERITY[t]);
-      return `${head}，${target.city!.name}地脈暢旺，繁榮度 +${VEIN_PROSPERITY[t]}。`;
-    case 'drain':
-      g!.stamina = Math.max(0, g!.stamina - DRAIN_STAMINA[t]);
-      return `${head}，${g!.name}被抽走靈力，體力 -${DRAIN_STAMINA[t]}。`;
-    case 'soldiers':
-      lord.soldiers += SOLDIER_CALL[t];
-      return `${head}，化出 ${SOLDIER_CALL[t]} 名士兵。`;
-    case 'pearl': {
-      const party = freeGenerals(state, lord.id);
-      for (const x of party) x.stamina = Math.min(100, x.stamina + PEARL_STAMINA[t]);
-      return `${head}，${party.length} 名隨行武將體力回復 ${PEARL_STAMINA[t]}。`;
-    }
-    case 'shuttle':
-      lord.bonusSteps = SHUTTLE_STEPS;
-      return `${head}，本回合移動點數 +${SHUTTLE_STEPS}。`;
-  }
-  return head;
+export function unloadTechnique(state:GameState,g:General):void {
+ if(!g.technique)return;
+ const owner=g.owner&&state.lords[g.owner];
+ if(owner&&!owner.scrolls.some(t=>t.uid===g.technique!.uid))owner.scrolls.push(g.technique);
+ g.technique=null;
 }
-
-/** 戰鬥中使用 */
-export function useInDuel(duel: Duel, side: Side, lord: Lord, item: Item, user: General): DuelEvent[] {
-  const gain = consume(lord, item, user);
-  const events = applyInDuel(duel, side, item, user);
-  if (gain) events.push({ text: `${user.name}修為 +${gain}`, kind: 'info' });
-  return events;
+export function changeAptitude(state:GameState,g:General,aptitude:Aptitude):void {
+ g.aptitude=aptitude;
+ if(g.technique&&aptitude!=='heaven'&&aptitude!==g.technique.element)unloadTechnique(state,g);
 }
-
-function applyInDuel(duel: Duel, side: Side, item: Item, user: General): DuelEvent[] {
-  const me = duel.fighter(side);
-  const foe = duel.other(side);
-  const t = item.tier;
-  const head = `${user.name}使用${nameOf(item)}`;
-  switch (item.defId) {
-    case 'heal': {
-      const h = Math.min(me.maxHp - me.hp, Math.round(me.maxHp * HEAL[t]));
-      me.hp += h;
-      return [{ text: `${head}，${me.general.name}回復 ${h} 血量`, target: side, heal: h, kind: 'item' }];
-    }
-    case 'force':
-      me.general.bonusForce += STAT_UP[t];
-      me.atk = attack(me.general);
-      return [{ text: `${head}，${me.general.name}武力 +${STAT_UP[t]}`, kind: 'item' }];
-    case 'guard':
-      me.general.bonusDefense += STAT_UP[t];
-      me.def = defense(me.general);
-      return [{ text: `${head}，${me.general.name}防禦 +${STAT_UP[t]}`, kind: 'item' }];
-    case 'vigor':
-      user.stamina = Math.min(100, user.stamina + STAMINA_UP[t]);
-      return [{ text: `${head}，體力回復 ${STAMINA_UP[t]}`, kind: 'item' }];
-    case 'poison':
-      if (fx(foe.general).poisonImmune) return [{ text: `${head}，但${foe.general.name}百毒不侵！`, kind: 'item' }];
-      foe.poison = { dmg: POISON[t], turns: 3 };
-      return [{ text: `${head}，${foe.general.name}中毒了！`, kind: 'item' }];
-    case 'thunder': {
-      const dmg = duel.damage(foe, foe.maxHp * 0.25);
-      return [{ text: `${head}，天雷轟擊${foe.general.name}，造成 ${dmg} 傷害！`, target: foe.side, damage: dmg, kind: 'item' }];
-    }
-    case 'freeze':
-      if (fx(foe.general).freezeImmune) return [{ text: `${head}，但${foe.general.name}不受定身！`, kind: 'item' }];
-      foe.frozen = 1;
-      return [{ text: `${head}，${foe.general.name}被定身！`, kind: 'item' }];
-    case 'vajra': {
-      const s = Math.round(me.maxHp * 0.3);
-      me.shield += s;
-      return [{ text: `${head}，${me.general.name}獲得 ${s} 點護罩`, kind: 'item' }];
-    }
-    case 'shield': {
-      const s = Math.round(me.maxHp * SHIELD_RATIO[t]);
-      me.shield += s;
-      return [{ text: `${head}，${me.general.name}獲得 ${s} 點護罩`, kind: 'item' }];
-    }
-    case 'rage':
-      me.atk = Math.round(me.atk * (1 + RAGE_ATK[t]));
-      return [{ text: `${head}，${me.general.name}氣血狂湧，武力 +${Math.round(RAGE_ATK[t] * 100)}%（${me.atk}）`, kind: 'item' }];
-    case 'charge':
-      me.energy = Math.min(100, me.energy + CHARGE_ENERGY[t]);
-      return [{ text: `${head}，${me.general.name}能量 +${CHARGE_ENERGY[t]}`, kind: 'item' }];
-    case 'mist':
-      foe.atk = Math.round(foe.atk * (1 - MIST_ATK[t]));
-      return [{ text: `${head}，${foe.general.name}陷入迷蹤，武力降至 ${foe.atk}`, kind: 'item' }];
-    case 'bell':
-      foe.energy = Math.max(0, foe.energy - BELL_ENERGY[t]);
-      return [{ text: `${head}，${foe.general.name}心神震盪，能量歸 ${foe.energy}`, kind: 'item' }];
-    case 'ring': {
-      const dmg = duel.damage(foe, foe.maxHp * RING_DAMAGE[t]);
-      return [{ text: `${head}，法圈擊中${foe.general.name}，造成 ${dmg} 傷害！`, target: foe.side, damage: dmg, kind: 'item' }];
-    }
-  }
-  return [{ text: head, kind: 'item' }];
+export interface PrerollTarget {general?:General;lord?:Lord;city?:City;ownCity?:City;tile?:number;dice?:number;element?:Element;}
+export function usePreroll(state:GameState,lord:Lord,item:Item,user:General,target:PrerollTarget,blocked=false):string {
+ if(!usableIn(item,'preroll'))throw Error('此物品不可在擲骰前使用');
+ if(item.defId==='five'&&(!target.general||['waste','heaven'].includes(target.general.aptitude)||!target.element))throw Error('五行轉生丹只能對五行靈根使用');
+ const gain=consumeItem(lord,item,user);
+ const msg=blocked?user.name+'使用'+nameOf(item)+'，但被替身符抵消。':applyPreroll(state,lord,item,user,target);
+ return msg+(gain?'（'+user.name+'修為 +'+gain+'）':'');
 }
-
-function lordName(l: Lord): string {
-  return LORDS[l.id].name;
+function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:PrerollTarget):string {
+ const t=item.tier,g=target.general,head=user.name+'使用'+nameOf(item),elements=['metal','wood','water','fire','earth'] as const;
+ switch(item.defId){
+ case 'heal':{const h=Math.min(maxHp(g!)-g!.hp,Math.round(maxHp(g!)*HEAL[t]));g!.hp+=h;return head+'，'+g!.name+'回復 '+h+' 血量。';}
+ case 'force':g!.base.force+=STAT_UP[t];return head+'，'+g!.name+'基礎武力 +'+STAT_UP[t]+'。';
+ case 'guard':g!.base.defense+=STAT_UP[t];return head+'，'+g!.name+'基礎防禦 +'+STAT_UP[t]+'。';
+ case 'qi':case 'essence':{const amount=item.defId==='qi'?QI_EXP[t]:(Number.isFinite(expCap(g!))?expCap(g!)*ESSENCE_EXP[t]:0);return head+'，'+g!.name+'修為 +'+addExp(g!,amount)+'（不超過境界上限）。';}
+ case 'foundation':g!.foundation=true;return head+'，'+g!.name+'下次煉氣突破築基成功率 100%。';
+ case 'vigor':g!.stamina=Math.min(100,g!.stamina+STAMINA_UP[t]);return head+'，'+g!.name+'體力回復 '+STAMINA_UP[t]+'。';
+ case 'poison':case 'bow':{const party=freeGenerals(state,target.lord!.id);if(!party.length)return head+'，對方沒有隨行武將。';const victim=party[Math.floor(Math.random()*party.length)];if(item.defId==='poison'&&fx(victim).poisonImmune)return head+'，'+victim.name+'百毒不侵。';const dmg=Math.max(0,Math.min(victim.hp-1,Math.round(maxHp(victim)*(item.defId==='poison'?POISON_PREROLL:BOW_DAMAGE)[t])));victim.hp-=dmg;return head+'，'+victim.name+'受到 '+dmg+' 傷害。';}
+ case 'clearmind':g!.demon=0;return head+'，'+g!.name+'心魔盡消。';
+ case 'bone':g!.base.hp+=BONE_HP[t];return head+'，'+g!.name+'基礎血量 +'+BONE_HP[t]+'。';
+ case 'breakpill':g!.breakBoost=Math.max(g!.breakBoost,BREAK_BOOST[t]);return head+'，'+g!.name+'下次雷劫傷害 -'+Math.round(g!.breakBoost*100)+'%。';
+ case 'revive':{const oldExp=g!.exp;reviveGeneral(state,lord.id,g!,REVIVE_HP[t],REVIVE_REALM_LOSS[t]);if(t===3)g!.exp=oldExp;return head+'，'+g!.name+'復活，歸入你的麾下。';}
+ case 'rootup1':case 'rootup2':if(g!.aptitude==='heaven')return head+'，'+g!.name+'已是天靈根。';changeAptitude(state,g!,item.defId==='rootup2'||g!.aptitude!=='waste'?'heaven':elements[Math.floor(Math.random()*5)]);return head+'，靈根提升為'+APTITUDE_NAMES[g!.aptitude]+'。';
+ case 'reset':unloadTechnique(state,g!);return head+'，'+g!.name+'卸下功法，境界與修為保留。';
+ case 'five':changeAptitude(state,g!,target.element!);return head+'，'+g!.name+'轉為'+APTITUDE_NAMES[g!.aptitude]+'，不符功法已退回原主公行囊。';
+ case 'rootdown':changeAptitude(state,g!,'waste');return head+'，'+g!.name+'變為廢靈根，功法已退回原主公行囊。';
+ case 'teleport':case 'cloud':return head+'，傳送至'+state.tiles[target.tile!].name+'！';
+ case 'confuse':case 'confusing':target.lord!.forcedTile=target.tile!;return head+'，'+LORDS[target.lord!.id].name+'下次行動前往'+state.tiles[target.tile!].name+'。';
+ case 'citadel':target.city!.shieldTurns=5;return head+'，'+target.city!.name+'守軍戰力 ×1.5（5 回合）。';
+ case 'thunderward':case 'fiveward':g!.ward=Math.min(.8,g!.ward+(item.defId==='thunderward'?.5:.3));return head+'，'+g!.name+'下次雷劫減傷 '+Math.round(g!.ward*100)+'%。';
+ case 'illusion':case 'demon':g!.demon=Math.max(g!.demon,2);return head+'，'+g!.name+'下次突破率 -60%，或雷劫威力 ×2。';
+ case 'mend':{const party=freeGenerals(state,lord.id);for(const x of party)x.hp=Math.min(maxHp(x),x.hp+Math.round(maxHp(x)*MEND_HEAL[t]));return head+'，全體隨行武將回血 '+Math.round(MEND_HEAL[t]*100)+'%。';}
+ case 'vein':target.city!.prosperity=Math.min(200,target.city!.prosperity+VEIN_PROSPERITY[t]);return head+'，'+target.city!.name+'繁榮度 +'+VEIN_PROSPERITY[t]+'。';
+ case 'sacrifice':{const c=target.city!,loss=Math.round(c.garrisonSoldiers*SACRIFICE_LOSS[t]);c.garrisonSoldiers-=loss;return head+'，'+c.name+'守軍 -'+loss+'。';}
+ case 'seven':g!.sevenLife=true;return head+'，'+g!.name+'下次渡劫若身死，滿血復生，修為減半。';
+ case 'lock':case 'freeze':target.lord!.stunned=Math.max(1,target.lord!.stunned);target.lord!.itemsLocked=Math.max(1,target.lord!.itemsLocked);return head+'，'+LORDS[target.lord!.id].name+'停留一回合，期間不能使用物品。';
+ case 'graft':{const a=target.ownCity!,b=target.city!;[a.owner,b.owner]=[b.owner,a.owner];[a.garrisonGenerals,b.garrisonGenerals]=[b.garrisonGenerals,a.garrisonGenerals];[a.garrisonSoldiers,b.garrisonSoldiers]=[b.garrisonSoldiers,a.garrisonSoldiers];for(const c of [a,b])for(const id of c.garrisonGenerals)state.generals[id].cityId=c.id;return head+'，'+a.name+'與'+b.name+'交換所有權，駐將與士兵隨原主公轉移。';}
+ case 'dice':lord.fixedDice=target.dice!;return head+'，本回合骰子 '+target.dice+' 點。';
+ case 'stride':lord.doubleDice=true;return head+'，本回合擲兩顆骰子。';
+ case 'ghost':{const amount=Math.round(target.lord!.stones*.1);target.lord!.stones-=amount;lord.stones+=amount;return head+'，盜取'+fmtStones(amount)+'。';}
+ case 'siegebreak':lord.siegeBoost=1.2;return head+'，本回合攻城戰力 ×1.2。';
+ case 'soldiers':lord.soldiers+=SOLDIER_CALL[t];return head+'，化出 '+SOLDIER_CALL[t]+' 名士兵。';
+ case 'transmission':return head+'，免費調遣'+target.city!.name+'，直到關閉。';
+ case 'move':{const pool=target.lord!.items;if(!pool.length)return head+'，對方沒有可搬走的物品。';const taken=pool[Math.floor(Math.random()*pool.length)];target.lord!.items=pool.filter(i=>i.uid!==taken.uid);lord.items.push(taken);return head+'，搬走'+nameOf(taken)+'。';}
+ case 'breath':lord.tollFreeTurns=Math.max(3,lord.tollFreeTurns);lord.tollFree=true;return head+'，本回合及接下來兩個己方回合免繳過路費。';
+ case 'shuttle':lord.moveMultiplier=2;return head+'，本回合移動點數 ×2。';
+ case 'bowl':{const amount=Math.round(lord.stones*BOWL_GAIN[t]);lord.stones+=amount;return head+'，獲得'+fmtStones(amount)+'。';}
+ case 'bag':{const ids=Object.keys(ITEM_DEFS),id=ids[Math.floor(Math.random()*ids.length)],found=makeItem(nextUid(state,'i'),id,rollItemTier(id));lord.items.push(found);return head+'，獲得'+nameOf(found)+'。';}
+ case 'wheel':lord.forkChoice=true;return head+'，下次遇岔路可選擇前進方向。';
+ default:throw Error('尚未實作物品 '+item.defId);
+ }
+}
+export function useInDuel(duel:Duel,side:Side,lord:Lord,item:Item,user:General):DuelEvent[]{
+ if(duel.fighter(side).itemsSealed||!usableIn(item,'battle'))throw Error('此時不可使用物品');
+ const gain=consumeItem(lord,item,user),me=duel.fighter(side),foe=duel.other(side),t=item.tier,head=user.name+'使用'+nameOf(item);let msg=head;
+ switch(item.defId){
+ case 'heal':{const h=Math.min(me.maxHp-me.hp,Math.round(me.maxHp*HEAL[t]));me.hp+=h;msg+='，回血 '+h;break;}
+ case 'poison':if(fx(foe.general).poisonImmune)msg+='，對方百毒不侵';else{foe.poison={dmg:POISON[t],turns:3};msg+='，敵將中毒三回合';}break;
+ case 'rage':me.atk=Math.round(me.atk*(1+RAGE_ATK[t]));msg+='，武力提升至 '+me.atk;break;
+ case 'mist':foe.atk=Math.round(foe.atk*(1-MIST_ATK[t]));msg+='，敵將武力降至 '+foe.atk;break;
+ case 'invert':[me.atk,foe.atk]=[foe.atk,me.atk];[me.def,foe.def]=[foe.def,me.def];msg+='，雙方武力與防禦交換至戰鬥結束';break;
+ case 'shield':case 'vajra':{const shield=Math.round(me.maxHp*(item.defId==='vajra'?.5:SHIELD_RATIO[t]));me.shield+=shield;msg+='，獲得 '+shield+' 護罩';break;}
+ case 'charge':me.energy=Math.min(100,me.energy+CHARGE_ENERGY[t]);msg+='，能量補滿';break;
+ case 'drain':foe.itemsSealed=true;msg+='，敵方本場戰鬥不能使用物品';break;
+ case 'ring':if(fx(foe.general).freezeImmune)msg+='，敵將不受定身';else{foe.frozen=Math.max(foe.frozen,RING_TURNS[t]);msg+='，敵將無法攻擊 '+RING_TURNS[t]+' 回合';}break;
+ case 'blood':me.itemLifesteal={rate:BLOOD_LIFESTEAL[t],turns:5};msg+='，接下來五回合傷害吸血 '+Math.round(BLOOD_LIFESTEAL[t]*100)+'%';break;
+ default:throw Error('尚未實作戰鬥物品 '+item.defId);
+ }
+ return [{text:msg,kind:'item'},...(gain?[{text:user.name+'修為 +'+gain,kind:'info' as const}]:[])];
 }

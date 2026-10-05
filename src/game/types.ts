@@ -97,8 +97,10 @@ export interface General {
   demon: number;
   /** 避雷陣等護法：雷劫傷害減免比例 */
   ward: number;
-  /** 破境丹：下次低階突破成功率加成，或雷劫傷害減免 */
+  /** 引雷丹：下次雷劫傷害減免 */
   breakBoost: number;
+  /** 七星續命陣：下一次渡劫死亡時復生 */
+  sevenLife: boolean;
   /** 死亡前所屬的主公（百草堂復活時分「自己的亡將」與「其他主公的亡將」） */
   lastOwner: LordId | null;
   /** 主公本人：可出戰，但不能駐守城池、不會戰死、不能被變賣 */
@@ -144,6 +146,11 @@ export interface Lord {
   /** 迷魂陣：剩餘停留回合 */
   stunned: number;
   tollFree: boolean;
+  tollFreeTurns: number;
+  itemsLocked: number;
+  forcedTile: number | null;
+  moveMultiplier: number;
+  forkChoice: boolean;
   /** 破城符：本回合攻城戰力加成 */
   siegeBoost: number;
   doubleDice: boolean;

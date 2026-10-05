@@ -1,4 +1,4 @@
-import type { GameState, Lord } from './types';
+import type { GameState, General, Lord } from './types';
 import { citiesOf, generalsOf } from './GameState';
 import { cityIncomeOf } from '../systems/CitySystem';
 import { terrainOf } from '../data/terrain';
@@ -17,7 +17,7 @@ export interface TurnReport {
 }
 
 /** 主公回合開始：城池收入、繁榮成長、將領修煉與回復、秘境結算、靈獸尋寶 */
-export function startTurn(state: GameState, lord: Lord): TurnReport {
+export async function startTurn(state: GameState, lord: Lord, protect?: (g: General) => Promise<boolean>): Promise<TurnReport> {
   const report: TurnReport = { lines: [], realms: [], bottlenecks: [] };
   let stones = 0;
   let soldiers = 0;
@@ -57,8 +57,9 @@ export function startTurn(state: GameState, lord: Lord): TurnReport {
   if (gained) report.lines.push({ text: `眾將周天吐納，修為共 +${gained}`, kind: 'info' });
   for (const id of report.bottlenecks) report.lines.push({ text: `${state.generals[id].name}修為圓滿，進入瓶頸，可在武將名冊嘗試突破。`, kind: 'good' });
 
-  report.realms = advanceExpeditions(state, lord);
-  lord.tollFree = false;
+  report.realms = await advanceExpeditions(state, lord, protect);
+  lord.tollFree = lord.tollFreeTurns > 0;
+  lord.moveMultiplier = 1;
   lord.siegeBoost = 1;
   lord.doubleDice = false;
   lord.fixedDice = null;

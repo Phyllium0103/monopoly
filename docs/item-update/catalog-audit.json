@@ -1,0 +1,742 @@
+{
+  "date": "2026-10-06",
+  "kinds": 58,
+  "tiers": 121,
+  "matchedRows": [
+    {
+      "id": "heal",
+      "tier": 0,
+      "name": "大還丹",
+      "matches": true
+    },
+    {
+      "id": "heal",
+      "tier": 1,
+      "name": "大還丹",
+      "matches": true
+    },
+    {
+      "id": "heal",
+      "tier": 2,
+      "name": "大還丹",
+      "matches": true
+    },
+    {
+      "id": "heal",
+      "tier": 3,
+      "name": "大還丹",
+      "matches": true
+    },
+    {
+      "id": "force",
+      "tier": 0,
+      "name": "神力丹",
+      "matches": true
+    },
+    {
+      "id": "force",
+      "tier": 1,
+      "name": "神力丹",
+      "matches": true
+    },
+    {
+      "id": "force",
+      "tier": 2,
+      "name": "神力丹",
+      "matches": true
+    },
+    {
+      "id": "force",
+      "tier": 3,
+      "name": "神力丹",
+      "matches": true
+    },
+    {
+      "id": "guard",
+      "tier": 0,
+      "name": "護體丹",
+      "matches": true
+    },
+    {
+      "id": "guard",
+      "tier": 1,
+      "name": "護體丹",
+      "matches": true
+    },
+    {
+      "id": "guard",
+      "tier": 2,
+      "name": "護體丹",
+      "matches": true
+    },
+    {
+      "id": "guard",
+      "tier": 3,
+      "name": "護體丹",
+      "matches": true
+    },
+    {
+      "id": "qi",
+      "tier": 0,
+      "name": "凝氣丹",
+      "matches": true
+    },
+    {
+      "id": "qi",
+      "tier": 1,
+      "name": "凝氣丹",
+      "matches": true
+    },
+    {
+      "id": "qi",
+      "tier": 2,
+      "name": "凝氣丹",
+      "matches": true
+    },
+    {
+      "id": "qi",
+      "tier": 3,
+      "name": "凝氣丹",
+      "matches": true
+    },
+    {
+      "id": "essence",
+      "tier": 0,
+      "name": "真元丹",
+      "matches": true
+    },
+    {
+      "id": "essence",
+      "tier": 1,
+      "name": "真元丹",
+      "matches": true
+    },
+    {
+      "id": "essence",
+      "tier": 2,
+      "name": "真元丹",
+      "matches": true
+    },
+    {
+      "id": "essence",
+      "tier": 3,
+      "name": "真元丹",
+      "matches": true
+    },
+    {
+      "id": "foundation",
+      "tier": 0,
+      "name": "築基丹",
+      "matches": true
+    },
+    {
+      "id": "vigor",
+      "tier": 0,
+      "name": "回氣丹",
+      "matches": true
+    },
+    {
+      "id": "vigor",
+      "tier": 1,
+      "name": "回氣丹",
+      "matches": true
+    },
+    {
+      "id": "vigor",
+      "tier": 2,
+      "name": "回氣丹",
+      "matches": true
+    },
+    {
+      "id": "vigor",
+      "tier": 3,
+      "name": "回氣丹",
+      "matches": true
+    },
+    {
+      "id": "poison",
+      "tier": 0,
+      "name": "斷腸毒丹",
+      "matches": true
+    },
+    {
+      "id": "poison",
+      "tier": 1,
+      "name": "斷腸毒丹",
+      "matches": true
+    },
+    {
+      "id": "poison",
+      "tier": 2,
+      "name": "斷腸毒丹",
+      "matches": true
+    },
+    {
+      "id": "poison",
+      "tier": 3,
+      "name": "斷腸毒丹",
+      "matches": true
+    },
+    {
+      "id": "clearmind",
+      "tier": 0,
+      "name": "清心丹",
+      "matches": true
+    },
+    {
+      "id": "bone",
+      "tier": 0,
+      "name": "壯骨丹",
+      "matches": true
+    },
+    {
+      "id": "bone",
+      "tier": 1,
+      "name": "壯骨丹",
+      "matches": true
+    },
+    {
+      "id": "bone",
+      "tier": 2,
+      "name": "壯骨丹",
+      "matches": true
+    },
+    {
+      "id": "bone",
+      "tier": 3,
+      "name": "壯骨丹",
+      "matches": true
+    },
+    {
+      "id": "breakpill",
+      "tier": 0,
+      "name": "引雷丹",
+      "matches": true
+    },
+    {
+      "id": "breakpill",
+      "tier": 1,
+      "name": "引雷丹",
+      "matches": true
+    },
+    {
+      "id": "breakpill",
+      "tier": 2,
+      "name": "引雷丹",
+      "matches": true
+    },
+    {
+      "id": "breakpill",
+      "tier": 3,
+      "name": "引雷丹",
+      "matches": true
+    },
+    {
+      "id": "revive",
+      "tier": 0,
+      "name": "還魂丹",
+      "matches": true
+    },
+    {
+      "id": "revive",
+      "tier": 1,
+      "name": "還魂丹",
+      "matches": true
+    },
+    {
+      "id": "revive",
+      "tier": 2,
+      "name": "還魂丹",
+      "matches": true
+    },
+    {
+      "id": "revive",
+      "tier": 3,
+      "name": "還魂丹",
+      "matches": true
+    },
+    {
+      "id": "rootup1",
+      "tier": 0,
+      "name": "地品洗髓丹",
+      "matches": true
+    },
+    {
+      "id": "rootup2",
+      "tier": 0,
+      "name": "天品伐骨丹",
+      "matches": true
+    },
+    {
+      "id": "reset",
+      "tier": 0,
+      "name": "散功丹",
+      "matches": true
+    },
+    {
+      "id": "rage",
+      "tier": 0,
+      "name": "狂暴丹",
+      "matches": true
+    },
+    {
+      "id": "rage",
+      "tier": 1,
+      "name": "狂暴丹",
+      "matches": true
+    },
+    {
+      "id": "rage",
+      "tier": 2,
+      "name": "狂暴丹",
+      "matches": true
+    },
+    {
+      "id": "rage",
+      "tier": 3,
+      "name": "狂暴丹",
+      "matches": true
+    },
+    {
+      "id": "five",
+      "tier": 0,
+      "name": "五行轉生丹",
+      "matches": true
+    },
+    {
+      "id": "teleport",
+      "tier": 0,
+      "name": "傳送陣",
+      "matches": true
+    },
+    {
+      "id": "confuse",
+      "tier": 0,
+      "name": "迷魂陣",
+      "matches": true
+    },
+    {
+      "id": "citadel",
+      "tier": 0,
+      "name": "護城大陣",
+      "matches": true
+    },
+    {
+      "id": "thunderward",
+      "tier": 0,
+      "name": "避雷陣",
+      "matches": true
+    },
+    {
+      "id": "fiveward",
+      "tier": 0,
+      "name": "五行防禦陣",
+      "matches": true
+    },
+    {
+      "id": "illusion",
+      "tier": 0,
+      "name": "幻境陣",
+      "matches": true
+    },
+    {
+      "id": "mend",
+      "tier": 0,
+      "name": "回春陣",
+      "matches": true
+    },
+    {
+      "id": "mend",
+      "tier": 1,
+      "name": "回春陣",
+      "matches": true
+    },
+    {
+      "id": "mend",
+      "tier": 2,
+      "name": "回春陣",
+      "matches": true
+    },
+    {
+      "id": "mend",
+      "tier": 3,
+      "name": "回春陣",
+      "matches": true
+    },
+    {
+      "id": "vein",
+      "tier": 0,
+      "name": "地脈陣",
+      "matches": true
+    },
+    {
+      "id": "vein",
+      "tier": 1,
+      "name": "地脈陣",
+      "matches": true
+    },
+    {
+      "id": "vein",
+      "tier": 2,
+      "name": "地脈陣",
+      "matches": true
+    },
+    {
+      "id": "vein",
+      "tier": 3,
+      "name": "地脈陣",
+      "matches": true
+    },
+    {
+      "id": "mist",
+      "tier": 0,
+      "name": "迷蹤陣",
+      "matches": true
+    },
+    {
+      "id": "mist",
+      "tier": 1,
+      "name": "迷蹤陣",
+      "matches": true
+    },
+    {
+      "id": "mist",
+      "tier": 2,
+      "name": "迷蹤陣",
+      "matches": true
+    },
+    {
+      "id": "mist",
+      "tier": 3,
+      "name": "迷蹤陣",
+      "matches": true
+    },
+    {
+      "id": "sacrifice",
+      "tier": 0,
+      "name": "血祭陣",
+      "matches": true
+    },
+    {
+      "id": "sacrifice",
+      "tier": 1,
+      "name": "血祭陣",
+      "matches": true
+    },
+    {
+      "id": "sacrifice",
+      "tier": 2,
+      "name": "血祭陣",
+      "matches": true
+    },
+    {
+      "id": "sacrifice",
+      "tier": 3,
+      "name": "血祭陣",
+      "matches": true
+    },
+    {
+      "id": "seven",
+      "tier": 0,
+      "name": "七星續命陣",
+      "matches": true
+    },
+    {
+      "id": "invert",
+      "tier": 0,
+      "name": "顛倒陰陽陣",
+      "matches": true
+    },
+    {
+      "id": "lock",
+      "tier": 0,
+      "name": "鎖仙陣",
+      "matches": true
+    },
+    {
+      "id": "graft",
+      "tier": 0,
+      "name": "移花接木陣",
+      "matches": true
+    },
+    {
+      "id": "dice",
+      "tier": 0,
+      "name": "控骰符",
+      "matches": true
+    },
+    {
+      "id": "stride",
+      "tier": 0,
+      "name": "縮地符",
+      "matches": true
+    },
+    {
+      "id": "freeze",
+      "tier": 0,
+      "name": "定身符",
+      "matches": true
+    },
+    {
+      "id": "ghost",
+      "tier": 0,
+      "name": "五鬼搬運符",
+      "matches": true
+    },
+    {
+      "id": "demon",
+      "tier": 0,
+      "name": "走火入魔符",
+      "matches": true
+    },
+    {
+      "id": "siegebreak",
+      "tier": 0,
+      "name": "破城符",
+      "matches": true
+    },
+    {
+      "id": "shield",
+      "tier": 0,
+      "name": "護身符",
+      "matches": true
+    },
+    {
+      "id": "shield",
+      "tier": 1,
+      "name": "護身符",
+      "matches": true
+    },
+    {
+      "id": "shield",
+      "tier": 2,
+      "name": "護身符",
+      "matches": true
+    },
+    {
+      "id": "shield",
+      "tier": 3,
+      "name": "護身符",
+      "matches": true
+    },
+    {
+      "id": "charge",
+      "tier": 0,
+      "name": "蓄能符",
+      "matches": true
+    },
+    {
+      "id": "drain",
+      "tier": 0,
+      "name": "奪靈符",
+      "matches": true
+    },
+    {
+      "id": "soldiers",
+      "tier": 0,
+      "name": "撒豆成兵符",
+      "matches": true
+    },
+    {
+      "id": "soldiers",
+      "tier": 1,
+      "name": "撒豆成兵符",
+      "matches": true
+    },
+    {
+      "id": "soldiers",
+      "tier": 2,
+      "name": "撒豆成兵符",
+      "matches": true
+    },
+    {
+      "id": "soldiers",
+      "tier": 3,
+      "name": "撒豆成兵符",
+      "matches": true
+    },
+    {
+      "id": "confusing",
+      "tier": 0,
+      "name": "迷魂符",
+      "matches": true
+    },
+    {
+      "id": "transmission",
+      "tier": 0,
+      "name": "傳音符",
+      "matches": true
+    },
+    {
+      "id": "move",
+      "tier": 0,
+      "name": "五鬼搬財符",
+      "matches": true
+    },
+    {
+      "id": "breath",
+      "tier": 0,
+      "name": "斂息符",
+      "matches": true
+    },
+    {
+      "id": "substitute",
+      "tier": 0,
+      "name": "替身符",
+      "matches": true
+    },
+    {
+      "id": "rootdown",
+      "tier": 0,
+      "name": "噬脈絕根符",
+      "matches": true
+    },
+    {
+      "id": "truce",
+      "tier": 0,
+      "name": "免戰牌",
+      "matches": true
+    },
+    {
+      "id": "vajra",
+      "tier": 0,
+      "name": "金剛罩",
+      "matches": true
+    },
+    {
+      "id": "ring",
+      "tier": 0,
+      "name": "乾坤圈",
+      "matches": true
+    },
+    {
+      "id": "ring",
+      "tier": 1,
+      "name": "乾坤圈",
+      "matches": true
+    },
+    {
+      "id": "ring",
+      "tier": 2,
+      "name": "乾坤圈",
+      "matches": true
+    },
+    {
+      "id": "ring",
+      "tier": 3,
+      "name": "乾坤圈",
+      "matches": true
+    },
+    {
+      "id": "shuttle",
+      "tier": 0,
+      "name": "遁地梭",
+      "matches": true
+    },
+    {
+      "id": "bowl",
+      "tier": 0,
+      "name": "聚寶盆",
+      "matches": true
+    },
+    {
+      "id": "bowl",
+      "tier": 1,
+      "name": "聚寶盆",
+      "matches": true
+    },
+    {
+      "id": "bowl",
+      "tier": 2,
+      "name": "聚寶盆",
+      "matches": true
+    },
+    {
+      "id": "bowl",
+      "tier": 3,
+      "name": "聚寶盆",
+      "matches": true
+    },
+    {
+      "id": "bag",
+      "tier": 0,
+      "name": "乾坤袋",
+      "matches": true
+    },
+    {
+      "id": "cloud",
+      "tier": 0,
+      "name": "筋斗雲",
+      "matches": true
+    },
+    {
+      "id": "bow",
+      "tier": 0,
+      "name": "落日弓",
+      "matches": true
+    },
+    {
+      "id": "bow",
+      "tier": 1,
+      "name": "落日弓",
+      "matches": true
+    },
+    {
+      "id": "bow",
+      "tier": 2,
+      "name": "落日弓",
+      "matches": true
+    },
+    {
+      "id": "bow",
+      "tier": 3,
+      "name": "落日弓",
+      "matches": true
+    },
+    {
+      "id": "blood",
+      "tier": 0,
+      "name": "嗜血珠",
+      "matches": true
+    },
+    {
+      "id": "blood",
+      "tier": 1,
+      "name": "嗜血珠",
+      "matches": true
+    },
+    {
+      "id": "blood",
+      "tier": 2,
+      "name": "嗜血珠",
+      "matches": true
+    },
+    {
+      "id": "blood",
+      "tier": 3,
+      "name": "嗜血珠",
+      "matches": true
+    },
+    {
+      "id": "wheel",
+      "tier": 0,
+      "name": "風火輪",
+      "matches": true
+    },
+    {
+      "id": "totem",
+      "tier": 0,
+      "name": "不死圖騰",
+      "matches": true
+    }
+  ],
+  "shopKinds": {
+    "herb": 17,
+    "treasure": 41
+  },
+  "eventHandlers": [
+    "substitute",
+    "truce",
+    "totem"
+  ]
+}

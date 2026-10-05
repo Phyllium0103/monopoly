@@ -1,7 +1,7 @@
 import type { GameState, Lord } from '../game/types';
 import { freeGenerals, generalsOf, nextUid } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
-import { PILL_IDS, itemName, makeEquipment, makeItem, makeTechnique } from '../data/items';
+import { ITEM_DEFS, PILL_IDS, itemName, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { addExp, craft, maxHp } from './GeneralSystem';
 
 export interface RoadOption {
@@ -47,9 +47,9 @@ function giveItem(c: Ctx, defId: string, tier: number) {
   return itemName(item.defId, item.tier);
 }
 
-const TALISMANS = ['dice', 'stride', 'siegebreak', 'shield', 'charge', 'drain', 'soldiers'];
-const FORMATIONS = ['citadel', 'fiveward', 'gather', 'mend', 'vein', 'mist'];
-const ARTIFACTS = ['truce', 'bell', 'ring', 'pearl', 'shuttle', 'vajra'];
+const TALISMANS = Object.keys(ITEM_DEFS).filter(id => ITEM_DEFS[id].category === '符籙');
+const FORMATIONS = Object.keys(ITEM_DEFS).filter(id => ITEM_DEFS[id].category === '陣法');
+const ARTIFACTS = Object.keys(ITEM_DEFS).filter(id => ITEM_DEFS[id].category === '法器');
 
 const DEFS: Def[] = [
   // ───── 靈石與士兵 ─────

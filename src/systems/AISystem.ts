@@ -1,5 +1,5 @@
 import { immortalWinner } from './VictorySystem';
-import type { City, CraftStat, GameState, General, Lord } from '../game/types';
+import type { City, CraftStat, GameState, General, Item, Lord } from '../game/types';
 import { PARTY_LIMIT, abandonIfEmpty, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, canLearn, learn, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
 import { MIN_GARRISON, eliminate, recruitCost, cityToll, garrisonPower, occupyCost } from './CitySystem';
@@ -10,8 +10,11 @@ import { CONTEST_SOLDIERS, canDuel, siegeAllowed, siegeAttack, type BattleKind }
 import type { Offer } from './ShopSystem';
 import { REALM_LEVELS, deathChance } from './RealmSystem';
 
+export interface ItemHooks { use?: (lord: Lord, item: Item, user: General, target: PrerollTarget) => Promise<string>; protect?: (g: General) => Promise<boolean>; }
 /** 擲骰前：療傷、換裝、學功法、補兵 */
-export function aiPreroll(state: GameState, lord: Lord): string[] {
+export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks = {}): Promise<string[]> {
+  if (lord.itemsLocked) return [];
+  const apply = (item: Item, user: General, target: PrerollTarget) => hooks.use ? hooks.use(lord,item,user,target) : Promise.resolve(usePreroll(state,lord,item,user,target));
   const logs: string[] = [];
   const gens = generalsOf(state, lord.id).filter((g) => g.status !== 'realm');
 
@@ -42,72 +45,92 @@ export function aiPreroll(state: GameState, lord: Lord): string[] {
   // 吃回血丹
   for (const g of gens.filter((x) => x.hp < maxHp(x) * 0.4)) {
     const pill = lord.items.find((i) => i.defId === 'heal');
-    const user = pill && gens.find((u) => canUse(pill, u).ok);
-    if (pill && user) logs.push(usePreroll(state, lord, pill, user, { general: g }));
+    const user = pill && gens.find((u) => u.status === 'free' && canUse(pill, u).ok);
+    if (pill && user) logs.push(await apply(pill, user, { general: g }));
   }
   // 永久增益丹藥直接吃
   const strongest = [...gens].sort((a, b) => power(b) - power(a));
   for (const pill of lord.items.filter((i) => ['force', 'guard'].includes(i.defId))) {
-    const user = gens.find((u) => canUse(pill, u).ok);
-    if (user && strongest[0]) logs.push(usePreroll(state, lord, pill, user, { general: strongest[0] }));
+    const user = gens.find((u) => u.status === 'free' && canUse(pill, u).ok);
+    if (user && strongest[0]) logs.push(await apply(pill, user, { general: strongest[0] }));
   }
   // 修為丹藥給未達瓶頸的強將
   for (const pill of lord.items.filter((i) => i.defId === 'qi' || i.defId === 'essence')) {
-    const user = gens.find((u) => canUse(pill, u).ok);
+    const user = gens.find((u) => u.status === 'free' && canUse(pill, u).ok);
     const target = strongest.find((g) => !inBottleneck(g));
-    if (user && target) logs.push(usePreroll(state, lord, pill, user, { general: target }));
+    if (user && target) logs.push(await apply(pill, user, { general: target }));
   }
   // 壯骨丹給最強的將領，清心丹化解心魔
   for (const pill of lord.items.filter((i) => i.defId === 'bone')) {
-    const user = gens.find((u) => canUse(pill, u).ok);
-    if (user && strongest[0]) logs.push(usePreroll(state, lord, pill, user, { general: strongest[0] }));
+    const user = gens.find((u) => u.status === 'free' && canUse(pill, u).ok);
+    if (user && strongest[0]) logs.push(await apply(pill, user, { general: strongest[0] }));
   }
   for (const g of gens.filter((x) => x.demon > 0)) {
     const pill = lord.items.find((i) => i.defId === 'clearmind');
-    const user = pill && gens.find((u) => canUse(pill, u).ok);
-    if (pill && user) logs.push(usePreroll(state, lord, pill, user, { general: g }));
+    const user = pill && gens.find((u) => u.status === 'free' && canUse(pill, u).ok);
+    if (pill && user) logs.push(await apply(pill, user, { general: g }));
   }
   // 靈根丹：給戰力最強的非天靈根武將
   for (const pill of lord.items.filter((i) => i.defId === 'rootup1' || i.defId === 'rootup2')) {
-    const user = gens.find((u) => canUse(pill, u).ok);
+    const user = gens.find((u) => u.status === 'free' && canUse(pill, u).ok);
     const target = strongest.find((g) => g.aptitude !== 'heaven');
-    if (user && target) logs.push(usePreroll(state, lord, pill, user, { general: target }));
+    if (user && target) logs.push(await apply(pill, user, { general: target }));
   }
   // 還魂丹：復活戰力最強的亡者
   const revivePill = lord.items.find((i) => i.defId === 'revive');
   const deadBest = Object.values(state.generals).filter((g) => g.status === 'dead').sort((a, b) => power(b) - power(a))[0];
-  const reviver = revivePill && gens.find((u) => canUse(revivePill, u).ok);
-  if (revivePill && reviver && deadBest) logs.push(usePreroll(state, lord, revivePill, reviver, { general: deadBest }));
-  // 群體陣法與法器：聚靈陣、回春陣、聚元珠、撒豆成兵符、地脈陣
+  const reviver = revivePill && gens.find((u) => u.status === 'free' && canUse(revivePill, u).ok);
+  if (revivePill && reviver && deadBest) logs.push(await apply(revivePill, reviver, { general: deadBest }));
+  // 群體陣法與法器：回春陣與新增法器、撒豆成兵符、地脈陣
   const party = freeGenerals(state, lord.id);
-  const useGroup = (defId: string, target: PrerollTarget = {}) => {
+  const useGroup = async (defId: string, target: PrerollTarget = {}) => {
     const item = lord.items.find((i) => i.defId === defId);
     const user = item && gens.find((u) => u.status === 'free' && canUse(item, u).ok);
-    if (item && user) logs.push(usePreroll(state, lord, item, user, target));
+    if (item && user) logs.push(await apply(item, user, target));
   };
-  if (party.length >= 3 && party.some((g) => !inBottleneck(g))) useGroup('gather');
-  if (party.filter((g) => g.hp < maxHp(g) * 0.7).length >= 2) useGroup('mend');
-  if (party.length && party.reduce((s, g) => s + g.stamina, 0) / party.length < 55) useGroup('pearl');
-  if (lord.soldiers < 8000) useGroup('soldiers');
+  if (party.filter((g) => g.hp < maxHp(g) * 0.7).length >= 2) await useGroup('mend');
+  if (lord.soldiers < 8000) await useGroup('soldiers');
   const best = citiesOf(state, lord.id).sort((a, b) => b.prosperity - a.prosperity)[0];
-  if (best && best.prosperity < 190) useGroup('vein', { city: best });
-  logs.push(...aiBreakthroughs(state, lord));
-  if (immortalWinner(state)) return logs;
+  if (best && best.prosperity < 190) await useGroup('vein', { city: best });
+  for (const id of ['bowl','bag','breath','wheel']) await useGroup(id);
+  logs.push(...await aiBreakthroughs(state, lord, hooks));
+  if (!lord.alive || immortalWinner(state)) return logs;
   // 守軍充足的城池讓駐將閉關
   for (const g of gens.filter((x) => x.status === 'garrison')) g.secluded = state.cities[g.cityId!].garrisonSoldiers >= 2500;
   // 心魔干擾：對敵方瓶頸中的最強將領出手
   const curse = lord.items.find((i) => i.defId === 'demon' || i.defId === 'illusion');
-  const curser = curse && gens.find((u) => canUse(curse, u).ok);
+  const curser = curse && gens.find((u) => u.status === 'free' && canUse(curse, u).ok);
   if (curse && curser) {
     const victim = Object.values(state.generals)
       .filter((g) => g.owner && g.owner !== lord.id && g.status !== 'realm' && g.status !== 'dead' && inBottleneck(g) && !g.demon)
       .sort((a, b) => b.realm - a.realm)[0];
-    if (victim) logs.push(usePreroll(state, lord, curse, curser, { general: victim }));
+    if (victim) logs.push(await apply(curse, curser, { general: victim }));
+  }
+  for (const item of [...lord.items].filter(i=>['ghost','move','poison','bow','lock','freeze','confuse','confusing','rootdown','sacrifice','graft','citadel','seven'].includes(i.defId))) {
+    const user=freeGenerals(state,lord.id).find(g=>canUse(item,g).ok);if (!user) continue;
+    const enemies=Object.values(state.lords).filter(l=>l.alive&&l.id!==lord.id);
+    const victim=enemies[Math.floor(Math.random()*enemies.length)];if (!victim) continue;
+    let target: PrerollTarget={};
+    if (def(item).target==='lord') {
+      if (['poison','bow'].includes(item.defId)&&!freeGenerals(state,victim.id).length) continue;
+      if (item.defId==='move'&&!victim.items.length) continue;
+      target={lord:victim,tile:Math.floor(Math.random()*state.tiles.length)};
+    } else if (def(item).target==='enemyGeneral') {
+      const g=generalsOf(state,victim.id).filter(g=>g.status!=='realm').sort((a,b)=>power(b)-power(a))[0];if(!g)continue;target={general:g};
+    } else if (def(item).target==='enemyCity') {
+      const city=citiesOf(state,victim.id).sort((a,b)=>b.prosperity-a.prosperity)[0],ownCity=citiesOf(state,lord.id).sort((a,b)=>a.prosperity-b.prosperity)[0];
+      if(!city||item.defId==='graft'&&(!ownCity||ownCity.prosperity>=city.prosperity))continue;target={city,ownCity};
+    } else if (def(item).target==='ownCity') {
+      const city=citiesOf(state,lord.id)[0];if(!city)continue;target={city};
+    } else if (def(item).target==='ownGeneral') {
+      const g=strongest.find(g=>g.owner===lord.id&&g.status!=='dead'&&g.status!=='realm'&&g.realm>=2&&!g.sevenLife);if(!g)continue;target={general:g};
+    }
+    logs.push(await apply(item,user,target));
   }
   // 縮地符
   const stride = lord.items.find((i) => i.defId === 'stride');
   const strideUser = stride && gens.find((u) => u.status === 'free' && canUse(stride, u).ok);
-  if (stride && strideUser && Math.random() < 0.4) logs.push(usePreroll(state, lord, stride, strideUser, {}));
+  if (stride && strideUser && Math.random() < 0.4) logs.push(await apply(stride, strideUser, {}));
   // 補兵
   if (lord.soldiers < 8000 && lord.stones > 10000) {
     const n = 2000;
@@ -119,32 +142,32 @@ export function aiPreroll(state: GameState, lord: Lord): string[] {
 }
 
 /** 瓶頸中的將領嘗試突破：低階看成功率，雷劫要先療傷、佈陣，有把握撐過才渡 */
-export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
+export async function aiBreakthroughs(state: GameState, lord: Lord, hooks: ItemHooks = {}): Promise<string[]> {
+  const apply = (item: Item, user: General, target: PrerollTarget) => hooks.use ? hooks.use(lord,item,user,target) : Promise.resolve(usePreroll(state,lord,item,user,target));
   const logs: string[] = [];
   const gens = generalsOf(state, lord.id).filter((g) => g.status !== 'realm');
   for (const g of gens) {
     if (!canAttemptBreak(g, state.round).ok) continue;
-    const helper = (defId: string) => {
+    const helper = async (defId: string) => {
       const item = lord.items.find((i) => i.defId === defId);
-      const user = item && gens.find((u) => u.status !== 'sect' && canUse(item, u).ok);
-      if (item && user) logs.push(usePreroll(state, lord, item, user, { general: g }));
+      const user = item && gens.find((u) => u.status === 'free' && canUse(item, u).ok);
+      if (item && user) logs.push(await apply(item, user, { general: g }));
     };
     if (!needsTribulation(g)) {
-      if (g.realm === 1 && !g.foundation) helper('foundation');
-      if (breakChance(g) < 0.8) helper('breakpill');
+      if (g.realm === 1 && !g.foundation) await helper('foundation');
       if (breakChance(g) < 0.5 && !g.foundation) continue;
       const ok = attemptBreak(g, state.round);
       logs.push(ok ? `✦ ${g.name}突破至【${REALMS[g.realm]}】！` : `${g.name}突破失敗，修為受損。`);
       continue;
     }
     // 雷劫：先回血、佈陣
-    if (g.hp < maxHp(g) * 0.9) helper('heal');
-    if (boltDamage(g) * boltCount(g) > g.hp * 0.8) helper('breakpill');
-    if (boltDamage(g) * boltCount(g) > g.hp * 0.8) helper('thunderward');
-    if (boltDamage(g) * boltCount(g) > g.hp * 0.8) helper('fiveward');
+    if (g.hp < maxHp(g) * 0.9) await helper('heal');
+    if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('breakpill');
+    if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('thunderward');
+    if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('fiveward');
     if (boltDamage(g) * boltCount(g) * 1.1 > g.hp) continue;
     const cityId = g.cityId;
-    const r = tribulation(g);
+    const r = await tribulation(g, hooks.protect ? () => hooks.protect!(g) : undefined);
     if (r.fate === 'death' && cityId) {
       state.cities[cityId].garrisonGenerals = state.cities[cityId].garrisonGenerals.filter((id) => id !== g.id);
       if (abandonIfEmpty(state, cityId)) logs.push(`🏚️ ${state.cities[cityId].name}失去所有駐將，成為空城。`);
@@ -156,7 +179,7 @@ export function aiBreakthroughs(state: GameState, lord: Lord): string[] {
     }
     if (r.success) logs.push(`⚡ ${g.name}渡過 ${r.bolts.length} 道天雷，突破至【${REALMS[g.realm]}】！`);
     if (r.success && g.isLord && immortalWinner(state)) return logs;
-    else if (!r.success) logs.push(r.fate === 'death' ? `⚡ ${g.name}渡劫失敗，身死道消……` : `⚡ ${g.name}渡劫失敗，兵解重修，跌回凡人。`);
+    else if (!r.success) logs.push(r.fate === 'death' ? `⚡ ${g.name}渡劫失敗，身死道消……` : r.fate === 'saved' ? `⚡ ${g.name}渡劫失敗，滿血復生，保留境界。` : `⚡ ${g.name}渡劫失敗，兵解重修，跌回凡人。`);
   }
   return logs;
 }
@@ -255,7 +278,7 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
     if (o.kind === 'item') {
       // 有將領快要渡劫時，優先買護法陣
       if (['thunderward', 'fiveward'].includes(o.item.defId)) return generalsOf(state, lord.id).some((g) => g.realm >= 2 && g.exp >= expCap(g) * 0.6);
-      return def(o.item).category === '丹藥' || ['stride', 'truce', 'citadel', 'siegebreak', 'demon', 'gather', 'mend', 'vein', 'soldiers', 'pearl', 'shuttle'].includes(o.item.defId);
+      return def(o.item).category === '丹藥' || ['stride', 'truce', 'citadel', 'siegebreak', 'demon', 'mend', 'vein', 'soldiers', 'shuttle'].includes(o.item.defId);
     }
     return true;
   });

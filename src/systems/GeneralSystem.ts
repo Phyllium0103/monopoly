@@ -83,9 +83,9 @@ export function breakChance(g: General): number {
   const base = [0.9, 0.75][g.realm] ?? 0.5;
   let c = base;
   if (g.hp < maxHp(g) * 0.5) c -= 0.15;
-  if (g.foundation && g.realm === 1) c = Math.max(c, 0.95);
+  if (g.foundation && g.realm === 1) return 1;
   c -= g.demon * 0.3;
-  c += WORLD.breakBonus + (fx(g).breakBonus ?? 0) + (traitOf(g.owner).breakBonus ?? 0) + g.breakBoost;
+  c += WORLD.breakBonus + (fx(g).breakBonus ?? 0) + (traitOf(g.owner).breakBonus ?? 0);
   return Math.max(0.05, Math.min(0.95, c));
 }
 
@@ -113,7 +113,6 @@ export function attemptBreak(g: General, round: number): boolean {
   const ok = Math.random() < breakChance(g);
   g.foundation = false;
   g.demon = 0;
-  g.breakBoost = 0;
   if (ok) {
     levelUp(g);
     return true;
@@ -165,12 +164,14 @@ export interface TribulationResult {
   bolts: number[];
   success: boolean;
   /** 失敗時：死亡或兵解重修 */
-  fate: 'death' | 'rebirth' | null;
+  fate: 'death' | 'rebirth' | 'saved' | null;
   fromRealm: number;
 }
 
 /** 渡雷劫：逐道扣血，撐過全部即突破；血量歸零則一半身死道消、一半兵解重修 */
-export function tribulation(g: General): TribulationResult {
+export async function tribulation(g: General, protect?: () => Promise<boolean>): Promise<TribulationResult> {
+  const seven = g.sevenLife;
+  g.sevenLife = false;
   const fromRealm = g.realm;
   const per = boltDamage(g);
   const bolts: number[] = [];
@@ -190,6 +191,11 @@ export function tribulation(g: General): TribulationResult {
     return { bolts, success: true, fate: null, fromRealm };
   }
   if (Math.random() < 0.5) {
+    if (seven) {
+      g.hp = maxHp(g); g.exp = Math.round(g.exp * 0.5);
+      return { bolts, success: false, fate: 'saved', fromRealm };
+    }
+    if (protect && await protect()) return { bolts, success: false, fate: 'saved', fromRealm };
     g.status = 'dead';
     g.lastOwner = g.owner;
     g.owner = null;

@@ -69,7 +69,7 @@ export class BattleView {
   }
 
   /** 擂台戰；playerSide 為玩家操作的一方。每回合雙方同時出手，回傳勝方或 'draw'（平手） */
-  runDuel(duel: Duel, playerSide: Side, speed: () => number, useItem: (side: Side) => Promise<DuelEvent[] | null>): Promise<Side | 'draw'> {
+  runDuel(duel: Duel, playerSide: Side, speed: () => number, useItem: (side: Side) => Promise<DuelEvent[] | null>, aiItem?: (side: Side) => DuelEvent[] | null): Promise<Side | 'draw'> {
     return new Promise((resolve) => {
       const body = this.open('⚔️ 擂台戰');
       const logLines: string[] = [];
@@ -98,7 +98,7 @@ export class BattleView {
         actions.appendChild(hint);
         add('🗡️ 攻擊', 'attack', 'primary');
         add(me.general.technique ? `✨ ${me.general.technique.skillName}` : '✨ 功法（未修習）', 'skill', 'danger', !duel.canSkill(playerSide));
-        add('🎒 使用物品', 'item', 'free');
+        add('🎒 使用物品', 'item', 'free', me.itemsSealed);
       };
 
       const show = async (events: DuelEvent[]) => {
@@ -127,7 +127,9 @@ export class BattleView {
           }
           if (!duel.over) {
             const foe: Side = playerSide === 'a' ? 'b' : 'a';
-            const acts = { [playerSide]: action === 'item' ? 'none' : action, [foe]: duel.aiAction(foe) } as Record<Side, 'attack' | 'skill' | 'none'>;
+            const enemyItem = aiItem?.(foe);
+            if (enemyItem) events = events.concat(duel.afterItem(enemyItem));
+            const acts = { [playerSide]: action === 'item' ? 'none' : action, [foe]: enemyItem ? 'none' : duel.aiAction(foe) } as Record<Side, 'attack' | 'skill' | 'none'>;
             events = events.concat(duel.round(acts));
           }
           await show(events);
@@ -219,8 +221,9 @@ export class BattleView {
           this.float('a', `-${r.bolts[i]}`, 'dmg crit');
           await sleep(650 / speed());
         }
+        if (r.fate === 'saved') { bar.style.width = '100%'; label.textContent = cap + ' / ' + cap; }
         const actions = body.querySelector('.battle-actions')!;
-        const text = r.success ? `渡劫成功！晉入【${REALMS[r.fromRealm + 1]}】` : r.fate === 'death' ? '身死道消……' : '兵解重修，跌回凡人';
+        const text = r.success ? `渡劫成功！晉入【${REALMS[r.fromRealm + 1]}】` : r.fate === 'death' ? '身死道消……' : r.fate === 'saved' ? '保命效果生效，滿血復生，境界保留' : '兵解重修，跌回凡人';
         actions.innerHTML = `<div class="result ${r.success ? 'win' : 'lose'}">${text}</div>`;
         const ok = document.createElement('button');
         ok.className = 'btn primary';

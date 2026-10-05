@@ -33,6 +33,8 @@ export interface Fighter {
   shield: number;
   poison: { dmg: number; turns: number } | null;
   frozen: number;
+  itemsSealed: boolean;
+  itemLifesteal: { rate: number; turns: number } | null;
   beast: Beast | null;
 }
 
@@ -164,6 +166,8 @@ export class Duel {
       shield: 0,
       poison: null,
       frozen: 0,
+      itemsSealed: lord.itemsLocked > 0,
+      itemLifesteal: null,
       beast: lord.beast,
     };
     if (f.beast?.skill === 'shield') f.shield = beastPower(f.beast).shield;
@@ -216,7 +220,7 @@ export class Duel {
     const crit = Math.random() < CRIT_BASE + (mine.crit ?? 0);
     const raw = me.atk * (0.9 + Math.random() * 0.2) * 1.6 * (100 / (100 + foe.def)) * em.mult * mult * tide * passive * (crit ? CRIT_MULT : 1);
     const dmg = this.damage(foe, raw, wounded, true);
-    const heal = Math.min(me.maxHp - me.hp, Math.round(dmg * (mine.lifesteal ?? 0)));
+    const heal = Math.min(me.maxHp - me.hp, Math.round(dmg * ((mine.lifesteal ?? 0) + (me.itemLifesteal?.rate ?? 0))));
     me.hp += heal;
     return { dmg, elem: em.text, heal, crit };
   }
@@ -285,6 +289,7 @@ export class Duel {
       for (const side of ['a', 'b'] as const) events.push(...this.endRound(side));
       this.judge();
     }
+    for (const f of [this.a, this.b]) if (f.itemLifesteal && --f.itemLifesteal.turns <= 0) f.itemLifesteal = null;
     this.rounds++;
     if (!this.over && this.rounds >= MAX_ROUNDS) {
       this.draw = true;
@@ -309,6 +314,9 @@ export class Duel {
       const p = beastPower(me.beast);
       if (me.beast.skill === 'attack') {
         const dmg = this.damage(foe, p.attack, foe.hp < foe.maxHp * WOUNDED_HP, true);
+        const recovered = Math.min(me.maxHp - me.hp, Math.round(dmg * (me.itemLifesteal?.rate ?? 0)));
+        me.hp += recovered;
+        if (recovered) events.push({ text: '嗜血珠吸血 +' + recovered, target: me.side, heal: recovered, kind: 'item' });
         events.push({ text: `靈獸${me.beast.name.split('・')[1]}追擊，造成 ${dmg} 傷害`, target: foe.side, damage: dmg, kind: 'beast' });
       } else if (me.beast.skill === 'heal' && me.hp < me.maxHp) {
         const h = Math.min(me.maxHp - me.hp, Math.round(me.maxHp * p.heal));

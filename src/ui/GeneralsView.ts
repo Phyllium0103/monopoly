@@ -133,7 +133,7 @@ export class GeneralsView {
       : needsTribulation(g)
         ? `⚡ 渡劫：${boltCount(g)} 道天雷・每道約 ${Math.round(boltDamage(g))}`
         : `突破成功率 ${Math.round(breakChance(g) * 100)}%`;
-    const buffs = [g.foundation ? '已服築基丹' : '', g.breakBoost ? `破境 ${Math.round(g.breakBoost * 100)}%` : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? `心魔 ×${g.demon}` : ''].filter(Boolean).join('・');
+    const buffs = [g.foundation ? '已服築基丹' : '', g.sevenLife ? '七星續命護法' : '', g.breakBoost ? `引雷減傷 ${Math.round(g.breakBoost * 100)}%` : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? `心魔 ×${g.demon}` : ''].filter(Boolean).join('・');
 
     card.innerHTML = `
       ${ready ? `<div class="ready-banner">✨ 修為圓滿，可以${needsTribulation(g) ? '渡劫' : '突破'}了！</div>` : ''}

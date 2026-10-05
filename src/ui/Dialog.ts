@@ -19,6 +19,11 @@ export interface SliderOptions {
   preview?: (value: number) => string;
 }
 
+/** 條列資料：一行一項，左邊項目名、右邊內容（可含 HTML，須無換行）；warn 的列以紅字強調 */
+export function facts(rows: ([string, string] | [string, string, 'warn'])[]): string {
+  return `<div class="facts">${rows.map(([k, v, w]) => `<div class="fact${w ? ' warn' : ''}"><span class="fk">${k}</span><span class="fv">${v}</span></div>`).join('')}</div>`;
+}
+
 /** 通用彈窗：所有需要玩家決定的流程都透過這裡 */
 export class Dialog {
   private el: HTMLDivElement;
@@ -57,7 +62,7 @@ export class Dialog {
     this.el.innerHTML = '';
     const card = document.createElement('div');
     card.className = 'dialog scroll-card';
-    card.innerHTML = `${icon ? `<div class="dialog-icon">${icon}</div>` : ''}<h2>${title}</h2>${text ? `<p class="dialog-text">${text.replace(/\n/g, '<br>')}</p>` : ''}`;
+    card.innerHTML = `${icon ? `<div class="dialog-icon">${icon}</div>` : ''}<h2>${title}</h2>${text ? `<div class="dialog-text">${text.replace(/\n/g, '<br>')}</div>` : ''}`;
     this.el.appendChild(card);
     return card;
   }

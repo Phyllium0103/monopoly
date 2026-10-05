@@ -1915,3 +1915,25 @@ body {
 .lord-card.clickable:hover {
   background: rgba(241, 210, 122, 0.18);
 }
+
+.facts {
+  margin: 8px 0 12px;
+  border: 1px solid #d8c8a0;
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: left;
+}
+.fact {
+  display: flex;
+  gap: 12px;
+  padding: 6px 12px;
+  line-height: 1.5;
+  font-size: 16px;
+}
+.fact:nth-child(odd) { background: #f6eed8; }
+.fact:nth-child(even) { background: #fbf6ea; }
+.fact + .fact { border-top: 1px solid #e6d8b4; }
+.fact .fk { flex: 0 0 6.5em; color: #8a6a1a; font-weight: 700; }
+.fact .fv { flex: 1; }
+.fact.warn { background: #f8dcd4; color: #b33a2a; }
+.fact.warn .fk { color: #b33a2a; }

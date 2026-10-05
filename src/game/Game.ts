@@ -9,7 +9,7 @@ import { World } from '../world/World';
 import { CharacterSprite } from '../character/CharacterSprite';
 import { LORDS, LORD_IDS, originCss, ownerCss, ownerName } from '../faction/Faction';
 import { GameUI, type ActionButton } from '../ui/GameUI';
-import { Dialog, type Choice } from '../ui/Dialog';
+import { Dialog, facts, type Choice } from '../ui/Dialog';
 import { GeneralsView } from '../ui/GeneralsView';
 import { BattleView } from '../ui/BattleView';
 import { openShop } from '../ui/ShopView';
@@ -633,7 +633,8 @@ export class Game {
     const gens = garrisonOf(this.state, city);
     const picked = await this.dialog.choose(
       `🏯 ${city.name}・指定鬥法`,
-      `選擇一種鬥法：之後有人踏入${city.name}想挑戰時，只能用這種方式（攻城戰與繳費不受限制）。\n駐將：${gens.map((g) => `${g.name}（武力 ${attack(g)}・煉丹 ${craft(g, 'alchemy')}・煉器 ${craft(g, 'forging')}・畫符 ${craft(g, 'talisman')}・佈陣 ${craft(g, 'formation')}）`).join('、') || '無'}`,
+      `選擇一種鬥法：之後有人踏入${city.name}想挑戰時，只能用這種方式（攻城戰與繳費不受限制）。` +
+        facts(gens.length ? gens.map((g) => [g.name, `武力 ${attack(g)}｜煉丹 ${craft(g, 'alchemy')}｜煉器 ${craft(g, 'forging')}｜畫符 ${craft(g, 'talisman')}｜佈陣 ${craft(g, 'formation')}`] as [string, string]) : [['駐將', '無']]),
       kinds.map((k) => ({ label: k.label + (city.contest === k.value ? '（目前）' : ''), sub: k.sub, value: k.value })),
       null,
       '🏯',
@@ -647,7 +648,13 @@ export class Game {
     const choices: Choice<string>[] = free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`, value: g.id, color: originCss(g.origin) }));
     const gids = await this.dialog.pickMany(
       `抵達${city.name}・是否佔領？`,
-      `佔領費 ${fmtStones(occupyCost(city))}（持有 ${fmtStones(lord.stones)}）\n地貌 ${terrainOf(city).icon}${terrainOf(city).name}：${terrainEffects(terrainOf(city))}\n繁榮度 ${fmtProsperity(city.prosperity)}｜每回合收入 ${fmtStones(inc.stones)}、士兵 +${inc.soldiers}｜過路費 ${fmtStones(toll(city, citiesOf(this.state, lord.id).length + 1))}（佔領後）\n請選擇駐守武將（1–${GARRISON_LIMIT} 人，駐將越多守城越強）：`,
+      facts([
+        ['佔領費', `<b>${fmtStones(occupyCost(city))}</b>（持有 ${fmtStones(lord.stones)}）`],
+        ['地貌', `${terrainOf(city).icon} ${terrainOf(city).name}・${terrainEffects(terrainOf(city))}`],
+        ['繁榮度', fmtProsperity(city.prosperity)],
+        ['每回合收入', `${fmtStones(inc.stones)}、士兵 +${inc.soldiers}`],
+        ['佔領後過路費', fmtStones(toll(city, citiesOf(this.state, lord.id).length + 1))],
+      ]) + `請選擇駐守武將（1–${GARRISON_LIMIT} 人，駐將越多守城越強）：`,
       choices,
       1,
       Math.min(GARRISON_LIMIT, free.length),
@@ -705,7 +712,12 @@ export class Game {
     ];
     const kind = await this.dialog.choose(
       `踏入${owner}的${city.name}`,
-      `過路費 ${fmtStones(fee)}｜駐將 ${guards.length ? guards.map((g) => `${g.name}（${REALMS[g.realm]}・戰力 ${power(g)}）`).join('、') : '無'}・守軍 ${city.garrisonSoldiers}\n選擇繳費，或發起戰鬥。<b>戰鬥失敗將付雙倍過路費 ${fmtStones(fee * 2)}。</b>${fee * 2 > lord.stones ? '\n<b style="color:#b33a2a">⚠️ 雙倍過路費超過你持有的靈石，戰敗將先變賣城池，再不夠則隨行武將離開抵債，只剩主公一人時破產！</b>' : ''}`,
+      facts([
+        ['過路費', `<b>${fmtStones(fee)}</b>（戰敗付雙倍 ${fmtStones(fee * 2)}）`],
+        ['守軍', `${city.garrisonSoldiers} 名`],
+        ...(guards.length ? guards.map((g) => ['駐將', `${g.name}・${REALMS[g.realm]}・戰力 ${power(g)}`] as [string, string]) : [['駐將', '無'] as [string, string]]),
+        ...(fee * 2 > lord.stones ? [['⚠️ 警告', '雙倍過路費超過你持有的靈石，戰敗將先變賣城池，再不夠則隨行武將離開抵債，只剩主公一人時破產！', 'warn'] as [string, string, 'warn']] : []),
+      ]) + '選擇繳費，或發起戰鬥：',
       choices,
       null,
       '⚔️',

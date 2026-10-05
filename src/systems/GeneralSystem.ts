@@ -56,19 +56,19 @@ export function addExp(g: General, amount: number): number {
   return g.exp - before;
 }
 
-const APTITUDE_MULT = { heaven: 1.5, earth: 1, pseudo: 0.6 };
+const APTITUDE_MULT = { waste: 0.8, metal: 1, wood: 1, water: 1, fire: 1, earth: 1, heaven: 1.2 };
 /** 極品靈脈：駐守者修為加倍 */
 export const SPIRIT_VEINS = new Set(['luoyang', 'changan']);
 
 /** 周天吐納：每回合被動修為；駐守城池依繁榮度（靈氣濃度）額外增加，閉關再加倍 */
 export function passiveExp(g: General, city: City | null): number {
-  let n = (30 + techniqueExp(g.technique)) * APTITUDE_MULT[g.aptitude];
+  let n = 30 + techniqueExp(g.technique);
   if (g.status === 'garrison' && city) {
     // 繁榮度即靈氣濃度，再依地貌增減（山地、丘陵最宜修行）
     n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1) * (1 + terrainOf(city).spirit);
     if (g.secluded) n *= 2 * WORLD.seclusionMult;
   }
-  return Math.round(n * WORLD.expMult * (1 + (fx(g).exp ?? 0) + (traitOf(g.owner).expMult ?? 0)));
+  return Math.round(n * APTITUDE_MULT[g.aptitude] * WORLD.expMult * (1 + (fx(g).exp ?? 0) + (traitOf(g.owner).expMult ?? 0)));
 }
 
 // ───────────────────────── 突破 ─────────────────────────
@@ -81,7 +81,7 @@ export function needsTribulation(g: General): boolean {
 /** 低階突破成功率 */
 export function breakChance(g: General): number {
   const base = [0.9, 0.75][g.realm] ?? 0.5;
-  let c = base + (g.aptitude === 'heaven' ? 0.15 : g.aptitude === 'pseudo' ? -0.1 : 0);
+  let c = base;
   if (g.hp < maxHp(g) * 0.5) c -= 0.15;
   if (g.foundation && g.realm === 1) c = Math.max(c, 0.95);
   c -= g.demon * 0.3;
@@ -203,11 +203,11 @@ export function tribulation(g: General): TribulationResult {
   return { bolts, success: false, fate: 'rebirth', fromRealm };
 }
 
-/** 生死歷練：勝者掠奪敗者一成修為，偽靈根加倍 */
+/** 生死歷練：勝者掠奪敗者一成修為 */
 export function battleExp(winner: General, loser: General | null): number {
   const steal = loser ? Math.round(loser.exp * 0.1) : 0;
   if (loser) loser.exp -= steal;
-  const gain = (steal + 60 * (winner.realm + 1)) * (winner.aptitude === 'pseudo' ? 2 : 1) * (1 + (traitOf(winner.owner).battleExp ?? 0));
+  const gain = (steal + 60 * (winner.realm + 1)) * (1 + (traitOf(winner.owner).battleExp ?? 0));
   return addExp(winner, gain);
 }
 
@@ -269,8 +269,18 @@ export function unequip(lord: Lord, g: General, kind: 'weapon' | 'armor') {
   g.hp = Math.min(g.hp, maxHp(g));
 }
 
+/** 靈根與功法相容性；玩家介面、電腦與實際裝備共用規則。 */
+export function canLearn(g: General, t: Technique): { ok: boolean; reason: string } {
+  if (g.technique) return { ok: false, reason: '已修習功法，須先自廢修為' };
+  if (g.aptitude === 'waste') return { ok: false, reason: '廢靈根無法裝備功法' };
+  if (g.aptitude !== 'heaven' && g.aptitude !== t.element) return { ok: false, reason: '靈根與功法五行不符' };
+  return { ok: true, reason: '' };
+}
+
 /** 學習功法，學會後不可更換 */
-export function learn(lord: Lord, g: General, t: Technique) {
+export function learn(lord: Lord, g: General, t: Technique): boolean {
+  if (!canLearn(g, t).ok || !lord.scrolls.some(x => x.uid === t.uid)) return false;
   g.technique = t;
   lord.scrolls = lord.scrolls.filter((x) => x.uid !== t.uid);
+  return true;
 }

@@ -15,9 +15,9 @@ export const START_SOLDIERS = 20000;
 /** 主公身邊最多隨行武將數，其餘留在宗門 */
 export const PARTY_LIMIT = 10;
 
-/** 每位人物建立時獨立骰靈根，三種靈根機率相同。 */
+/** 每位人物建立時獨立骰靈根，七種靈根機率相同。 */
 export function rollAptitude(): General['aptitude'] {
-  return (['heaven', 'earth', 'pseudo'] as const)[Math.floor(Math.random() * 3)];
+  return (['waste', 'metal', 'wood', 'water', 'fire', 'earth', 'heaven'] as const)[Math.floor(Math.random() * 7)];
 }
 
 /** 由種子資料建立武將（含聽風樓與後續現身的隱藏人物） */

@@ -321,7 +321,10 @@ export function merchantStock(state: GameState): Offer[] {
   out.push({ kind: 'technique', technique: t, label: t.name, sub: techniqueDesc(t), price: off(t.price) });
   const b = makeBeast(uid('b'), high());
   out.push({ kind: 'beast', beast: b, label: b.name, sub: b.desc, price: off(b.price) });
-  for (const [defId, tier] of [['essence', 3], ['thunderward', 0]] as const) {
+  for (let i = 0; i < 2; i++) {
+    const pool = Object.keys(ITEM_DEFS);
+    const defId = pool[Math.floor(Math.random() * pool.length)];
+    const tier = ITEM_DEFS[defId].price.length === 1 ? 0 : 2 + Math.floor(Math.random() * 2);
     const item = makeItem(uid('i'), defId, tier);
     out.push({ kind: 'item', item, label: itemName(defId, tier), sub: ITEM_DEFS[defId].desc(tier), price: off(item.price) });
   }

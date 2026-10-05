@@ -2,7 +2,7 @@ import type { GameState, Lord, TileKind } from '../game/types';
 import { joinLord, nextUid, reviveGeneral } from '../game/GameState';
 import { merchantStock } from './EventSystem';
 import { fmtStones } from '../game/Currency';
-import { ARTIFACT_IDS, ITEM_DEFS, PILL_IDS, equipDesc, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemTier, rollTier, techniqueDesc } from '../data/items';
+import { ARTIFACT_IDS, ITEM_DEFS, equipDesc, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemTier, rollTier, techniqueDesc } from '../data/items';
 import { APTITUDE_NAMES, REALMS } from '../data/generals';
 import { fxText, passiveOf } from '../data/passives';
 import { generalValue, power, realmName, recruitPrice } from './GeneralSystem';
@@ -52,19 +52,11 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
     case 'herb': {
       const G1 = '丹藥';
       const potions: Offer[] = Array.from({ length: 12 }, () => {
-        const defId = PILL_IDS[Math.floor(Math.random() * PILL_IDS.length)];
+        const pool = Object.keys(ITEM_DEFS).filter(id => ITEM_DEFS[id].category === '丹藥');
+        const defId = pool[Math.floor(Math.random() * pool.length)];
         const item = makeItem(uid('i'), defId, rollItemTier(defId, bias));
         return { kind: 'item', item, label: itemName(defId, item.tier), sub: `${ITEM_DEFS[defId].desc(item.tier)}｜${requirementOf(defId, item.tier)}`, price: item.price, group: G1 };
       });
-      // 常備一顆還魂丹；偶爾有提升靈根的丹藥
-      const reviveItem = makeItem(uid('i'), 'revive', rollItemTier('revive', bias));
-      potions.push({ kind: 'item', item: reviveItem, label: itemName('revive', reviveItem.tier), sub: `${ITEM_DEFS.revive.desc(reviveItem.tier)}｜${requirementOf('revive', reviveItem.tier)}`, price: reviveItem.price, group: G1 });
-      for (const [defId, chance] of [['rootup1', 0.45], ['rootup2', 0.2]] as const) {
-        if (Math.random() < chance) {
-          const it = makeItem(uid('i'), defId, 0);
-          potions.push({ kind: 'item', item: it, label: itemName(defId, 0), sub: `${ITEM_DEFS[defId].desc(0)}｜${requirementOf(defId, 0)}`, price: it.price, group: G1 });
-        }
-      }
       // 丹師能讓亡者還陽，分兩頁：自己麾下的亡將（便宜一半、境界降一階），其他主公的亡將（境界降兩階、一次只能復活一人）
       const dead = Object.values(state.generals).filter((g) => g.status === 'dead' && !g.isLord);
       const reviveOffer = (g: General, own: boolean): Offer => ({
@@ -82,21 +74,12 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
       return [...potions, ...mine, ...others];
     }
     case 'treasure': {
-      // 天寶商行分陣法、符籙、法器三類，每類隨機 10 種
-      const out: Offer[] = [];
-      for (const category of ['陣法', '符籙', '法器'] as const) {
-        const pool = ARTIFACT_IDS.filter((id) => ITEM_DEFS[id].category === category);
-        const seen = new Set<string>();
-        for (let tries = 0; seen.size < 10 && tries < 200; tries++) {
-          const defId = pool[Math.floor(Math.random() * pool.length)];
-          const item = makeItem(uid('i'), defId, rollItemTier(defId, bias));
-          const key = `${defId}:${item.tier}`;
-          if (seen.has(key)) continue;
-          seen.add(key);
-          out.push({ kind: 'item', item, label: itemName(defId, item.tier), sub: `${ITEM_DEFS[defId].desc(item.tier)}｜${requirementOf(defId, item.tier)}`, price: item.price, group: category });
-        }
-      }
-      return out;
+      // 每個貨架先等機率抽種類，再抽品階；不依種類品階數重抽或去重。
+      return Array.from({ length: 30 }, () => {
+        const defId = ARTIFACT_IDS[Math.floor(Math.random() * ARTIFACT_IDS.length)];
+        const item = makeItem(uid('i'), defId, rollItemTier(defId, bias));
+        return { kind: 'item', item, label: itemName(defId, item.tier), sub: ITEM_DEFS[defId].desc(item.tier) + '｜' + requirementOf(defId, item.tier), price: item.price, group: ITEM_DEFS[defId].category } as Offer;
+      });
     }
     case 'forge': {
       // 神器與寶衣各 6 件

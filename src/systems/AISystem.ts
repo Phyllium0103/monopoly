@@ -1,7 +1,7 @@
 import { immortalWinner } from './VictorySystem';
 import type { City, CraftStat, GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, abandonIfEmpty, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
-import { attack, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
+import { attack, canLearn, learn, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
 import { MIN_GARRISON, eliminate, recruitCost, cityToll, garrisonPower, occupyCost } from './CitySystem';
 import { REALMS } from '../data/generals';
 import { equipRealm, equipScore } from '../data/items';
@@ -34,10 +34,9 @@ export function aiPreroll(state: GameState, lord: Lord): string[] {
   }
   // 學功法
   for (const s of [...lord.scrolls].sort((a, b) => b.tier - a.tier)) {
-    const g = gens.filter((x) => !x.technique).sort((a, b) => power(b) - power(a))[0];
-    if (!g) break;
-    g.technique = s;
-    lord.scrolls = lord.scrolls.filter((x) => x.uid !== s.uid);
+    const g = gens.filter((x) => canLearn(x, s).ok).sort((a, b) => power(b) - power(a))[0];
+    if (!g) continue;
+    learn(lord, g, s);
     logs.push(`${g.name}習得「${s.name}」`);
   }
   // 吃回血丹

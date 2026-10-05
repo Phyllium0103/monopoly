@@ -27,7 +27,7 @@ import { terrainEffects, terrainOf } from '../data/terrain';
 import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll } from '../systems/CitySystem';
 import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type SiegeResult, type Side } from '../systems/BattleSystem';
-import { itemChoices } from '../ui/ItemUI';
+import { chooseCategorizedItem } from '../ui/ItemUI';
 import { canUse, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
 import { buy, makeStock, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, partyRealm, realmRolls, realmTurns } from '../systems/RealmSystem';
@@ -704,43 +704,46 @@ export class Game {
     const inc = cityIncome(city);
     const free = deployable(this.state, lord.id);
     const choices: Choice<string>[] = free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`, value: g.id, color: originCss(g.origin) }));
-    const gids = await this.dialog.pickMany(
-      `抵達${city.name}・是否佔領？`,
-      facts([
-        ['佔領費', `<b>${fmtStones(occupyCost(city))}</b>（持有 ${fmtStones(lord.stones)}）`],
-        ['地貌', `${terrainOf(city).icon} ${terrainOf(city).name}・${terrainEffects(terrainOf(city))}`],
-        ['繁榮度', fmtProsperity(city.prosperity)],
-        ['每回合收入', `${fmtStones(inc.stones)}、士兵 +${inc.soldiers}`],
-        ['佔領後過路費', fmtStones(toll(city, citiesOf(this.state, lord.id).length + 1))],
-      ]) + `請選擇駐守武將（1–${GARRISON_LIMIT} 人，駐將越多守城越強）：`,
-      choices,
-      1,
-      Math.min(GARRISON_LIMIT, free.length),
-      '佔領',
-    );
-    if (!gids) return;
-    const soldiers = await this.dialog.slider(
-      `派多少士兵駐守${city.name}？`,
-      `目前隨行士兵 ${lord.soldiers}。一名守軍約等於十五名隨行士兵，守軍越多越難攻破；留在身邊的士兵可用於攻城。`,
-      {
-        min: MIN_GARRISON,
-        max: lord.soldiers,
-        step: 100,
-        initial: Math.min(lord.soldiers, Math.max(MIN_GARRISON, Math.round(city.prosperity * 30))),
-        unit: ' 名',
-        confirm: '派駐',
-        preview: (v) => `守軍戰力約 ${v * GARRISON_STRENGTH}（未計駐將與地貌）・留在身邊 ${lord.soldiers - v} 名`,
-      },
-      '🏯',
-    );
-    if (!soldiers) return;
-    occupy(this.state, lord, city, gids, soldiers, occupyCost(city));
-    this.world.syncCities(this.state);
-    this.world.captureEffect(city.tile, LORDS[lord.id].color);
-    this.ui.log(`支付 ${fmtStones(occupyCost(city))}，派${gids.map((id) => this.state.generals[id].name).join('、')}率 ${soldiers} 兵佔領${city.name}！`, 'good');
-    this.ui.toast(`佔領${city.name}！`);
-    await this.chooseContest(city);
-    this.refresh();
+    for (;;) {
+      const gids = await this.dialog.pickMany(
+        `抵達${city.name}・是否佔領？`,
+        facts([
+          ['佔領費', `<b>${fmtStones(occupyCost(city))}</b>（持有 ${fmtStones(lord.stones)}）`],
+          ['地貌', `${terrainOf(city).icon} ${terrainOf(city).name}・${terrainEffects(terrainOf(city))}`],
+          ['繁榮度', fmtProsperity(city.prosperity)],
+          ['每回合收入', `${fmtStones(inc.stones)}、士兵 +${inc.soldiers}`],
+          ['佔領後過路費', fmtStones(toll(city, citiesOf(this.state, lord.id).length + 1))],
+        ]) + `請選擇駐守武將（1–${GARRISON_LIMIT} 人，駐將越多守城越強）：`,
+        choices,
+        1,
+        Math.min(GARRISON_LIMIT, free.length),
+        '佔領',
+      );
+      if (!gids) return;
+      const soldiers = await this.dialog.slider(
+        `派多少士兵駐守${city.name}？`,
+        `目前隨行士兵 ${lord.soldiers}。一名守軍約等於十五名隨行士兵，守軍越多越難攻破；留在身邊的士兵可用於攻城。`,
+        {
+          min: MIN_GARRISON,
+          max: lord.soldiers,
+          step: 100,
+          initial: Math.min(lord.soldiers, Math.max(MIN_GARRISON, Math.round(city.prosperity * 30))),
+          unit: ' 名',
+          confirm: '派駐',
+          preview: (v) => `守軍戰力約 ${v * GARRISON_STRENGTH}（未計駐將與地貌）・留在身邊 ${lord.soldiers - v} 名`,
+        },
+        '🏯',
+      );
+      if (!soldiers) continue;
+      occupy(this.state, lord, city, gids, soldiers, occupyCost(city));
+      this.world.syncCities(this.state);
+      this.world.captureEffect(city.tile, LORDS[lord.id].color);
+      this.ui.log(`支付 ${fmtStones(occupyCost(city))}，派${gids.map((id) => this.state.generals[id].name).join('、')}率 ${soldiers} 兵佔領${city.name}！`, 'good');
+      this.ui.toast(`佔領${city.name}！`);
+      await this.chooseContest(city);
+      this.refresh();
+      return;
+    }
   }
 
   private async playerEnemyCityChoice(lord: Lord, city: City, fee: number): Promise<{ kind: BattleKind | 'pay'; generals: General[] }> {
@@ -874,35 +877,38 @@ export class Game {
     let sentSoldiers = attacker.soldiers;
     if (this.human(attacker)) {
       const pool = freeGenerals(this.state, attacker.id);
-      const picked = await this.dialog.pickMany(
-        `攻打${city.name}・選擇出征武將`,
-        `最多派遣三名武將；選好武將後，可自行決定出兵數量。\n戰敗則出征的士兵全滅；勝方也會折損，雙方越接近折損越多。\n一名守軍約等於十五名隨行士兵；武將武力越高，統率加成越大。守方約 ${garrisonPower(this.state, city)}。`,
-        pool.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・武力 ${attack(g)}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}${pv(g)}`, value: g })),
-        1,
-        3,
-        '出征',
-      );
-      if (!picked) return null;
-      team = picked;
-      const sent = await this.dialog.slider(
-        `攻打${city.name}・出兵多少？`,
-        `目前隨行士兵 ${attacker.soldiers}。出征的士兵戰敗會全滅，留在身邊的不受影響。`,
-        {
-          min: Math.min(100, attacker.soldiers),
-          max: attacker.soldiers,
-          step: 100,
-          unit: ' 名',
-          confirm: '出征',
-          preview: (v) => {
-            const mine = siegeAttack(attacker, team, v);
-            const theirs = garrisonPower(this.state, city);
-            return `我方約 <b>${mine}</b> vs 守方約 <b>${theirs}</b>（${mine > theirs * 1.15 ? '勝算大' : mine > theirs * 0.85 ? '勢均力敵' : '勝算小'}）・留守 ${attacker.soldiers - v} 名`;
+      for (;;) {
+        const picked = await this.dialog.pickMany(
+          `攻打${city.name}・選擇出征武將`,
+          `最多派遣三名武將；選好武將後，可自行決定出兵數量。\n戰敗則出征的士兵全滅；勝方也會折損，雙方越接近折損越多。\n一名守軍約等於十五名隨行士兵；武將武力越高，統率加成越大。守方約 ${garrisonPower(this.state, city)}。`,
+          pool.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・武力 ${attack(g)}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}${pv(g)}`, value: g })),
+          1,
+          3,
+          '出征',
+        );
+        if (!picked) return null;
+        team = picked;
+        const sent = await this.dialog.slider(
+          `攻打${city.name}・出兵多少？`,
+          `目前隨行士兵 ${attacker.soldiers}。出征的士兵戰敗會全滅，留在身邊的不受影響。`,
+          {
+            min: Math.min(100, attacker.soldiers),
+            max: attacker.soldiers,
+            step: 100,
+            unit: ' 名',
+            confirm: '出征',
+            preview: (v) => {
+              const mine = siegeAttack(attacker, team, v);
+              const theirs = garrisonPower(this.state, city);
+              return `我方約 <b>${mine}</b> vs 守方約 <b>${theirs}</b>（${mine > theirs * 1.15 ? '勝算大' : mine > theirs * 0.85 ? '勢均力敵' : '勝算小'}）・留守 ${attacker.soldiers - v} 名`;
+            },
           },
-        },
-        '🏯',
-      );
-      if (!sent) return null;
-      sentSoldiers = sent;
+          '🏯',
+        );
+        if (!sent) continue;
+        sentSoldiers = sent;
+        break;
+      }
     }
     const oldGenerals = garrisonOf(this.state, city);
     const involved = this.human(attacker) || this.human(defender);
@@ -1015,20 +1021,23 @@ export class Game {
       this.ui.toast('沒有可在戰鬥中使用的物品');
       return null;
     }
-    const item = await this.dialog.choose('使用物品', '', itemChoices(items));
-    if (!item) return null;
-    const fighter = duel.fighter(side).general;
-    const users = [fighter, ...freeGenerals(this.state, lord.id).filter((g) => g.id !== fighter.id)];
-    const user = await this.dialog.choose(
-      `由誰使用${nameOf(item)}？`,
-      '使用物品會消耗該武將的體力，能力值須達到門檻。',
-      users.map((g) => {
-        const c = canUse(item, g);
-        return { label: g.name, sub: `體力 ${g.stamina}・${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
-      }),
-    );
-    if (!user) return null;
-    return useInDuel(duel, side, lord, item, user);
+    const selection = { category: null as string | null };
+    for (;;) {
+      const item = await chooseCategorizedItem(this.dialog, items, selection);
+      if (!item) return null;
+      const fighter = duel.fighter(side).general;
+      const users = [fighter, ...freeGenerals(this.state, lord.id).filter((g) => g.id !== fighter.id)];
+      const user = await this.dialog.choose(
+        `由誰使用${nameOf(item)}？`,
+        '使用物品會消耗該武將的體力，能力值須達到門檻。',
+        users.map((g) => {
+          const c = canUse(item, g);
+          return { label: g.name, sub: `體力 ${g.stamina}・${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
+        }),
+      );
+      if (!user) continue;
+      return useInDuel(duel, side, lord, item, user);
+    }
   }
 
   // ───────────────────────── 秘境、商店、驛道 ─────────────────────────
@@ -1147,30 +1156,31 @@ export class Game {
       this.ui.toast('沒有可在擲骰前使用的物品');
       return;
     }
-    const item = await this.dialog.choose(
-      '使用物品',
-      '先選物品，再選由哪位武將使用（消耗體力、需達能力門檻），最後選擇生效對象。',
-      itemChoices(items),
-    );
-    if (!item) return;
-    const user = await this.dialog.choose(
-      `由誰使用${nameOf(item)}？`,
-      '只有隨行武將可以使用物品。',
-      freeGenerals(this.state, lord.id).map((g) => {
-        const c = canUse(item, g);
-        return { label: g.name, sub: `體力 ${g.stamina}・${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
-      }),
-    );
-    if (!user) return;
-
-    const target = await this.pickItemTarget(lord, item.defId);
-    if (!target) return;
-    const msg = usePreroll(this.state, lord, item, user, target);
-    this.ui.log(msg, 'good');
-    this.ui.toast(msg);
-    this.world.syncCities(this.state);
-    this.refresh();
-    if (item.defId === 'teleport' && target.tile !== undefined) this.rollResolver?.({ type: 'teleport', tile: target.tile });
+    const selection = { category: null as string | null };
+    for (;;) {
+      const item = await chooseCategorizedItem(this.dialog, items, selection);
+      if (!item) return;
+      for (;;) {
+        const user = await this.dialog.choose(
+          `由誰使用${nameOf(item)}？`,
+          '只有隨行武將可以使用物品；取消返回物品清單。',
+          freeGenerals(this.state, lord.id).map((g) => {
+            const c = canUse(item, g);
+            return { label: g.name, sub: `體力 ${g.stamina}・${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
+          }),
+        );
+        if (!user) break;
+        const target = await this.pickItemTarget(lord, item.defId);
+        if (!target) continue;
+        const msg = usePreroll(this.state, lord, item, user, target);
+        this.ui.log(msg, 'good');
+        this.ui.toast(msg);
+        this.world.syncCities(this.state);
+        this.refresh();
+        if (item.defId === 'teleport' && target.tile !== undefined) this.rollResolver?.({ type: 'teleport', tile: target.tile });
+        return;
+      }
+    }
   }
 
   private async pickItemTarget(lord: Lord, defId: string): Promise<PrerollTarget | null> {
@@ -1275,71 +1285,74 @@ export class Game {
       this.ui.toast('你還沒有城池');
       return;
     }
-    const city = await this.dialog.choose(
-      '🏯 調度駐軍',
-      '依道路最短距離收費：10 下品～10 中品。付費後可不限次調整該城，直到關閉；操作期間遊戲暫停。',
-      cities.map((c) => ({ label: c.name, disabled: lord.stones < garrisonDispatch(this.state, lord, c).fee, reason: '靈石不足', sub: `距離 ${garrisonDispatch(this.state, lord, c).distance} 格・調遣費 ${fmtStones(garrisonDispatch(this.state, lord, c).fee)}・駐將 ${c.garrisonGenerals.length ? garrisonOf(this.state, c).map((g) => g.name).join('、') : '無'}（${c.garrisonGenerals.length}/${GARRISON_LIMIT}）・守軍 ${c.garrisonSoldiers}・繁榮 ${fmtProsperity(c.prosperity)}`, value: c })),
-    );
-    if (!city) return;
-    const { fee } = garrisonDispatch(this.state, lord, city);
-    if (!await this.dialog.confirm(`開啟${city.name}調度`, `支付 ${fmtStones(fee)}，即可不限次調整此城，直到關閉。關閉後重新開啟會再收費。`, '付費調度', '取消', '🏯')) return;
-    if (city.owner !== lord.id || lord.stones < fee) return;
-    lord.stones -= fee;
-    this.ui.log(`🏯 ${city.name}調遣費：${fmtStones(fee)}；本次視窗不限次調整。`, 'info');
-    this.refresh();
     for (;;) {
-      const free = deployable(this.state, lord.id);
-      const action = await this.dialog.choose(`調度${city.name}`, `已付費 ${fmtStones(fee)}・本次操作不再收費。守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`, [
-        { label: '增派士兵', sub: `從隨行士兵調入（目前 ${lord.soldiers}）`, value: 'add', disabled: lord.soldiers < 100, reason: '士兵不足' },
-        { label: '撤回士兵', sub: `至少保留 ${MIN_GARRISON} 守軍`, value: 'remove', disabled: city.garrisonSoldiers - MIN_GARRISON < 100, reason: '守軍已達下限' },
-        { label: '調整駐將', sub: `最多 ${GARRISON_LIMIT} 人：從隨行武將派駐，或撤回駐將`, value: 'swap', disabled: !free.length && !city.garrisonGenerals.length, reason: '沒有隨行武將，也沒有駐將' },
-      ], '關閉調度');
-      if (!action) break;
-      if (action === 'add' || action === 'remove') {
-        const max = action === 'add' ? lord.soldiers : city.garrisonSoldiers - MIN_GARRISON;
-        const n = await this.dialog.slider(
-          action === 'add' ? `增派多少士兵駐守${city.name}？` : `從${city.name}撤回多少士兵？`,
-          `守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`,
-          {
-            min: Math.min(100, max),
-            max,
-            step: 100,
-            unit: ' 名',
-            confirm: action === 'add' ? '增派' : '撤回',
-            preview: (v) => (action === 'add' ? `守軍將達 ${city.garrisonSoldiers + v}` : `守軍將剩 ${city.garrisonSoldiers - v}`),
-          },
-          '🏯',
-        );
-        if (!n) continue;
-        const sign = action === 'add' ? 1 : -1;
-        city.garrisonSoldiers += n * sign;
-        lord.soldiers -= n * sign;
-      } else if (action === 'swap') {
-        for (;;) {
-          const on = garrisonOf(this.state, city);
-          const party = deployable(this.state, lord.id);
-          const g = await this.dialog.choose(
-            `🏯 ${city.name}・調整駐將（${on.length}/${GARRISON_LIMIT}）`,
-            '點選駐將可撤回，點選隨行武將可派駐。',
-            [
-              ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, sub: `駐守中｜${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, color: '#c99a2e', disabled: on.length <= 1, reason: '城池至少要有一名駐將' })),
-              ...party.map((x) => ({ label: `▲ 派駐 ${x.name}`, sub: `隨行｜${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, disabled: on.length >= GARRISON_LIMIT, reason: `已滿 ${GARRISON_LIMIT} 人`, color: '#5aa8ec' })),
-            ],
-            '完成',
+      const city = await this.dialog.choose(
+        '🏯 調度駐軍',
+        '依道路最短距離收費：10 下品～10 中品。付費後可不限次調整該城，直到關閉；操作期間遊戲暫停。',
+        cities.map((c) => ({ label: c.name, disabled: lord.stones < garrisonDispatch(this.state, lord, c).fee, reason: '靈石不足', sub: `距離 ${garrisonDispatch(this.state, lord, c).distance} 格・調遣費 ${fmtStones(garrisonDispatch(this.state, lord, c).fee)}・駐將 ${c.garrisonGenerals.length ? garrisonOf(this.state, c).map((g) => g.name).join('、') : '無'}（${c.garrisonGenerals.length}/${GARRISON_LIMIT}）・守軍 ${c.garrisonSoldiers}・繁榮 ${fmtProsperity(c.prosperity)}`, value: c })),
+      );
+      if (!city) return;
+      const { fee } = garrisonDispatch(this.state, lord, city);
+      if (!await this.dialog.confirm(`開啟${city.name}調度`, `支付 ${fmtStones(fee)}，即可不限次調整此城，直到關閉。關閉後重新開啟會再收費。`, '付費調度', '返回選城', '🏯')) continue;
+      if (city.owner !== lord.id || lord.stones < fee) return;
+      lord.stones -= fee;
+      this.ui.log(`🏯 ${city.name}調遣費：${fmtStones(fee)}；本次視窗不限次調整。`, 'info');
+      this.refresh();
+      for (;;) {
+        const free = deployable(this.state, lord.id);
+        const action = await this.dialog.choose(`調度${city.name}`, `已付費 ${fmtStones(fee)}・本次操作不再收費。守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`, [
+          { label: '增派士兵', sub: `從隨行士兵調入（目前 ${lord.soldiers}）`, value: 'add', disabled: lord.soldiers < 100, reason: '士兵不足' },
+          { label: '撤回士兵', sub: `至少保留 ${MIN_GARRISON} 守軍`, value: 'remove', disabled: city.garrisonSoldiers - MIN_GARRISON < 100, reason: '守軍已達下限' },
+          { label: '調整駐將', sub: `最多 ${GARRISON_LIMIT} 人：從隨行武將派駐，或撤回駐將`, value: 'swap', disabled: !free.length && !city.garrisonGenerals.length, reason: '沒有隨行武將，也沒有駐將' },
+        ], '關閉調度');
+        if (!action) break;
+        if (action === 'add' || action === 'remove') {
+          const max = action === 'add' ? lord.soldiers : city.garrisonSoldiers - MIN_GARRISON;
+          const n = await this.dialog.slider(
+            action === 'add' ? `增派多少士兵駐守${city.name}？` : `從${city.name}撤回多少士兵？`,
+            `守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`,
+            {
+              min: Math.min(100, max),
+              max,
+              step: 100,
+              unit: ' 名',
+              confirm: action === 'add' ? '增派' : '撤回',
+              preview: (v) => (action === 'add' ? `守軍將達 ${city.garrisonSoldiers + v}` : `守軍將剩 ${city.garrisonSoldiers - v}`),
+            },
+            '🏯',
           );
-          if (!g) break;
-          if (g.status === 'garrison') {
-            city.garrisonGenerals = city.garrisonGenerals.filter((id) => id !== g.id);
-            joinLord(this.state, lord.id, g);
-          } else {
-            g.status = 'garrison';
-            g.cityId = city.id;
-            city.garrisonGenerals.push(g.id);
+          if (!n) continue;
+          const sign = action === 'add' ? 1 : -1;
+          city.garrisonSoldiers += n * sign;
+          lord.soldiers -= n * sign;
+        } else if (action === 'swap') {
+          for (;;) {
+            const on = garrisonOf(this.state, city);
+            const party = deployable(this.state, lord.id);
+            const g = await this.dialog.choose(
+              `🏯 ${city.name}・調整駐將（${on.length}/${GARRISON_LIMIT}）`,
+              '點選駐將可撤回，點選隨行武將可派駐。',
+              [
+                ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, sub: `駐守中｜${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, color: '#c99a2e', disabled: on.length <= 1, reason: '城池至少要有一名駐將' })),
+                ...party.map((x) => ({ label: `▲ 派駐 ${x.name}`, sub: `隨行｜${REALMS[x.realm]}・戰力 ${power(x)}${pv(x)}`, value: x, disabled: on.length >= GARRISON_LIMIT, reason: `已滿 ${GARRISON_LIMIT} 人`, color: '#5aa8ec' })),
+              ],
+              '完成',
+            );
+            if (!g) break;
+            if (g.status === 'garrison') {
+              city.garrisonGenerals = city.garrisonGenerals.filter((id) => id !== g.id);
+              joinLord(this.state, lord.id, g);
+            } else {
+              g.status = 'garrison';
+              g.cityId = city.id;
+              city.garrisonGenerals.push(g.id);
+            }
           }
         }
+        this.world.syncCities(this.state);
+        this.refresh();
       }
-      this.world.syncCities(this.state);
-      this.refresh();
+      return;
     }
   }
 

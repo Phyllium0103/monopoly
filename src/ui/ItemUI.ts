@@ -80,3 +80,21 @@ export function itemChoices(items: Item[]): Choice<Item>[] {
     color: CATEGORY_STYLE[ITEM_DEFS[item.defId].category].color,
   }));
 }
+
+/** 分類與清單之間逐層返回；保留上次分類供使用者返回物品清單。 */
+export async function chooseCategorizedItem(dialog: import('./Dialog').Dialog, items: Item[], selection: { category: string | null }): Promise<Item | null> {
+  for (;;) {
+    if (!selection.category) {
+      const category = await dialog.choose('使用物品・選擇分類', '選擇分類後查看物品。',
+        ['全部', ...Object.keys(CATEGORY_STYLE)].map(cat => ({
+          label: cat, value: cat, disabled: !items.some(i => cat === '全部' || ITEM_DEFS[i.defId].category === cat), reason: '沒有此類可用物品',
+        })), '關閉');
+      if (!category) return null;
+      selection.category = category;
+    }
+    const item = await dialog.choose('使用物品・' + selection.category, '先選物品，再選使用者與生效對象。',
+      itemChoices(items.filter(i => selection.category === '全部' || ITEM_DEFS[i.defId].category === selection.category)), '返回分類');
+    if (item) return item;
+    selection.category = null;
+  }
+}

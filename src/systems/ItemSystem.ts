@@ -149,14 +149,13 @@ function applyPreroll(state: GameState, lord: Lord, item: Item, user: General, t
       return `${head}，${g!.name}還陽復生，歸入你的麾下（血量 ${Math.round(REVIVE_HP[t] * 100)}%）！`;
     case 'rootup1':
     case 'rootup2': {
-      const order = ['pseudo', 'earth', 'heaven'] as const;
-      const from = order.indexOf(g!.aptitude);
-      const to = Math.min(2, from + (item.defId === 'rootup1' ? 1 : 2));
-      if (to === from) {
+      if (g!.aptitude === 'heaven') {
         const n = addExp(g!, 300);
-        return `${head}，${g!.name}已是天靈根，藥力化為修為 +${n}。`;
+        return head + '，' + g!.name + '已是天靈根，藥力化為修為 +' + n + '。';
       }
-      g!.aptitude = order[to];
+      const elements = ['metal', 'wood', 'water', 'fire', 'earth'] as const;
+      g!.aptitude = item.defId === 'rootup2' || g!.aptitude !== 'waste'
+        ? 'heaven' : elements[Math.floor(Math.random() * elements.length)];
       return `${head}，${g!.name}洗髓伐骨，靈根提升為【${APTITUDE_NAMES[g!.aptitude]}】！`;
     }
     case 'clearmind':

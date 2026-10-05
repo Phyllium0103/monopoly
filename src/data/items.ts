@@ -377,8 +377,8 @@ export const ITEM_DEFS: Record<string, ItemDef> = {
   bone: { id: 'bone', name: '壯骨丹', category: '丹藥', stat: 'alchemy', min: [20, 35, 55, 75], stamina: [12, 18, 24, 30], timing: 'preroll', target: 'ownGeneral', price: price4(2.2), desc: (t) => `永久血量 +${BONE_HP[t]}（基礎值，隨境界放大）` },
   breakpill: { id: 'breakpill', name: '破境丹', category: '丹藥', stat: 'alchemy', min: [30, 45, 60, 80], stamina: [15, 20, 25, 30], timing: 'preroll', target: 'ownGeneral', price: price4(3), desc: (t) => `下次低階突破成功率 +${BREAK_BOOST[t] * 100}%，或下次渡劫天雷傷害 -${BREAK_BOOST[t] * 100}%` },
   revive: { id: 'revive', name: '還魂丹', category: '丹藥', stat: 'alchemy', min: [60, 70, 80, 90], stamina: [30, 35, 40, 50], timing: 'preroll', target: 'deadGeneral', price: [3500, 9000, 22000, 50000], desc: (t) => `復活一名已死去的武將，歸入你的麾下：血量 ${REVIVE_HP[t] * 100}%${REVIVE_REALM_LOSS[t] ? `、境界跌落 ${REVIVE_REALM_LOSS[t]} 級` : '、境界不變'}，修為歸零` },
-  rootup1: { id: 'rootup1', name: '地品洗髓丹', category: '丹藥', stat: 'alchemy', min: [75], stamina: [30], timing: 'preroll', target: 'ownGeneral', price: [12000], desc: () => '靈根提升 1 階（偽靈根→地靈根、地靈根→天靈根）' },
-  rootup2: { id: 'rootup2', name: '天品伐骨丹', category: '丹藥', stat: 'alchemy', min: [90], stamina: [40], timing: 'preroll', target: 'ownGeneral', price: [30000], desc: () => '靈根提升 2 階（偽靈根→天靈根）' },
+  rootup1: { id: 'rootup1', name: '地品洗髓丹', category: '丹藥', stat: 'alchemy', min: [75], stamina: [30], timing: 'preroll', target: 'ownGeneral', price: [12000], desc: () => '廢靈根變為隨機一種五行靈根；五行靈根提升為天靈根' },
+  rootup2: { id: 'rootup2', name: '天品伐骨丹', category: '丹藥', stat: 'alchemy', min: [90], stamina: [40], timing: 'preroll', target: 'ownGeneral', price: [30000], desc: () => '廢靈根或五行靈根直接提升為天靈根' },
   rage: { id: 'rage', name: '狂暴丹', category: '丹藥', stat: 'alchemy', min: [25, 40, 55, 75], stamina: [12, 18, 24, 30], timing: 'battle', target: 'none', battleTarget: 'ownGeneral', price: price4(1.5), desc: (t) => `戰鬥：本場擂台武力 +${RAGE_ATK[t] * 100}%` },
 
   // ───── 陣法（佈陣）─────

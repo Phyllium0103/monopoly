@@ -76,8 +76,8 @@ export interface Item {
 /** free=隨行、sect=留在宗門、garrison=駐守城池、realm=秘境中 */
 export type GeneralStatus = 'free' | 'sect' | 'garrison' | 'realm' | 'dead';
 
-/** 靈根：天靈根修煉快、偽靈根靠戰鬥成長 */
-export type Aptitude = 'heaven' | 'earth' | 'pseudo';
+/** 靈根決定修煉速度與可修習的功法五行 */
+export type Aptitude = 'waste' | Element | 'heaven';
 
 export interface General {
   id: string;

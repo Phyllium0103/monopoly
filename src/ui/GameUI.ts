@@ -112,45 +112,65 @@ export class GameUI {
         </div>`;
       })
       .join('');
-    this.top.innerHTML = `
-      <div class="round">${state.maxRounds === null ? `第 <b>${state.round}</b> 輪・無盡` : `第 <b>${Math.min(state.round, state.maxRounds)}</b> / ${state.maxRounds} 輪`}
+    // 工具列只建立一次：遊戲進行中會頻繁刷新畫面，若每次都重建按鈕，按下去的瞬間按鈕被換掉就點不到
+    if (!this.top.querySelector('.speed')) this.buildToolbar();
+    const set = (el: HTMLElement, html: string) => {
+      if (el.innerHTML !== html) el.innerHTML = html;
+    };
+    set(
+      this.top.querySelector('.round') as HTMLElement,
+      `${state.maxRounds === null ? `第 <b>${state.round}</b> 輪・無盡` : `第 <b>${Math.min(state.round, state.maxRounds)}</b> / ${state.maxRounds} 輪`}
         <div class="world-events">${
           state.events.map((e) => `<span class="ev" title="${e.name}">${e.icon}${e.name} ${e.roundsLeft}</span>`).join('') ||
           `<span class="ev next">下次風雲：第 ${Math.ceil((state.round + 1) / 5) * 5} 輪</span>`
-        }</div>
-      </div>
-      <div class="lords">${lords}</div>
+        }</div>`,
+    );
+    set(this.top.querySelector('.lords') as HTMLElement, lords);
+    const q = <T extends HTMLElement>(sel: string) => this.top.querySelector(sel) as T;
+    q('.log-btn').classList.toggle('on', this.logOpen);
+    q('.auto-btn').classList.toggle('on', this.auto);
+    q('.auto-btn').dataset.tip = this.auto ? '電腦託管中（點擊取消）' : '電腦代打你的回合';
+    this.top.querySelectorAll<HTMLButtonElement>('.speed button[data-s]').forEach((b) => b.classList.toggle('on', Number(b.dataset.s) === this.speed));
+  }
+
+  private buildToolbar() {
+    this.top.innerHTML = `
+      <div class="round"></div>
+      <div class="lords"></div>
       <div class="speed">
-        <button class="btn mini tool log-btn ${this.logOpen ? 'on' : ''}" data-tip="天下紀事（開／關）">📜</button>
-        <button class="btn mini tool auto-btn ${this.auto ? 'on' : ''}" data-tip="${this.auto ? '電腦託管中（點擊取消）' : '電腦代打你的回合'}">🤖</button>
+        <button class="btn mini tool log-btn" data-tip="天下紀事（開／關）">📜</button>
+        <button class="btn mini tool auto-btn" data-tip="電腦代打你的回合">🤖</button>
         <button class="btn mini tool rank-btn" data-tip="城池榜">🏆</button>
         <button class="btn mini tool help-btn" data-tip="說明（地圖：左鍵旋轉・右鍵平移・滾輪縮放・WASD 移動）">📖</button>
         <span class="tool music" data-tip="背景音樂音量">🎵<span class="music-fly"><input type="range" class="music-vol" min="0" max="100" step="5" value="${Math.round(music.volume * 100)}"><span class="music-pct">${Math.round(music.volume * 100)}%</span></span></span>
         <button class="btn mini tool cheat-btn" data-tip="測試用：獲得大量靈石與所有物品">🧪</button>
-        <span class="speed-group">${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}" data-tip="遊戲速度 ${s}×">${s}×</button>`).join('')}</span>
+        <span class="speed-group">${[1, 2, 4].map((s) => `<button class="btn mini" data-s="${s}" data-tip="遊戲速度 ${s}×">${s}×</button>`).join('')}</span>
       </div>`;
-    (this.top.querySelector('.help-btn') as HTMLButtonElement).onclick = () => this.onHelp?.();
-    const vol = this.top.querySelector('.music-vol') as HTMLInputElement;
-    vol.oninput = () => {
-      music.setVolume(Number(vol.value) / 100);
-      (this.top.querySelector('.music-pct') as HTMLElement).textContent = `${vol.value}%`;
-    };
-    this.top.querySelectorAll<HTMLElement>('.lord-card[data-lord]').forEach((c) => {
-      c.onclick = () => this.onLord?.(c.dataset.lord as LordId);
-    });
-    (this.top.querySelector('.rank-btn') as HTMLButtonElement).onclick = () => this.onRank?.();
-    (this.top.querySelector('.auto-btn') as HTMLButtonElement).onclick = () => this.onAuto?.();
-    (this.top.querySelector('.cheat-btn') as HTMLButtonElement).onclick = () => this.onCheat?.();
-    (this.top.querySelector('.log-btn') as HTMLButtonElement).onclick = () => {
+    const q = <T extends HTMLElement>(sel: string) => this.top.querySelector(sel) as T;
+    q('.help-btn').onclick = () => this.onHelp?.();
+    q('.rank-btn').onclick = () => this.onRank?.();
+    q('.auto-btn').onclick = () => this.onAuto?.();
+    q('.cheat-btn').onclick = () => this.onCheat?.();
+    q('.log-btn').onclick = () => {
       this.logOpen = !this.logOpen;
       this.logPanel.classList.toggle('hidden', !this.logOpen);
-      this.renderTop(state);
+      q('.log-btn').classList.toggle('on', this.logOpen);
+    };
+    const vol = q<HTMLInputElement>('.music-vol');
+    vol.oninput = () => {
+      music.setVolume(Number(vol.value) / 100);
+      q('.music-pct').textContent = `${vol.value}%`;
+    };
+    // 主公卡每次刷新都會重建，用事件委派
+    q('.lords').onclick = (e) => {
+      const card = (e.target as HTMLElement).closest<HTMLElement>('.lord-card[data-lord]');
+      if (card) this.onLord?.(card.dataset.lord as LordId);
     };
     this.top.querySelectorAll<HTMLButtonElement>('.speed button[data-s]').forEach((b) => {
       b.onclick = () => {
         this.speed = Number(b.dataset.s);
         this.onSpeed?.(this.speed);
-        this.renderTop(state);
+        this.top.querySelectorAll<HTMLButtonElement>('.speed button[data-s]').forEach((x) => x.classList.toggle('on', x === b));
       };
     });
   }

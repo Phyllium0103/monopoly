@@ -144,15 +144,13 @@ export function boltCount(g: General): number {
   return TRIBULATION_BOLTS[g.realm - 2] ?? 10;
 }
 
-/** 單道天雷的預估傷害（防禦、寶衣、護法陣、體質、心魔都會影響） */
+/** 單道天雷的預估傷害（基礎境界血量、護法、雷劫被動、心魔及世界事件；防禦不影響） */
 export function boltDamage(g: General): number {
   const stage = Math.max(0, Math.min(TRIBULATION_HP_RATIO.length - 1, g.realm - 2));
   const baselineHp = g.base.hp * REALM_MULT[g.realm];
-  const baselineDefense = g.base.defense;
-  // 境界成長同步提高天雷；額外防禦、血量裝備和被動仍有實際幫助。
-  const defenseFactor = (baselineDefense + 200) / (defense(g) / REALM_MULT[g.realm] + 200);
+  // 天雷依基礎境界血量成長，不受防禦數值影響。
   const thunder = Math.max(0, 1 - (fx(g).tribulation ?? 0));
-  return baselineHp * TRIBULATION_HP_RATIO[stage] / boltCount(g) * defenseFactor
+  return baselineHp * TRIBULATION_HP_RATIO[stage] / boltCount(g)
     * Math.max(0, 1 - g.ward) * thunder * (1 + g.demon * 0.5) * WORLD.boltMult * Math.max(0, 1 - g.breakBoost);
 }
 

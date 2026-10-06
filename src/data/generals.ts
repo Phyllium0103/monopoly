@@ -3,7 +3,7 @@ import type { Aptitude, LordId } from '../game/types';
 export const REALMS = ['凡人', '煉氣', '築基', '金丹', '元嬰', '化神', '煉虛', '合體', '大乘', '渡劫', '真仙'] as const;
 /** 各境界修為上限；達到上限即進入瓶頸，需手動突破 */
 export const REALM_EXP = [150, 350, 800, 1600, 3200, 6000, 10000, 16000, 24000, 36000];
-export const REALM_MULT = [1, 1.25, 1.6, 2.1, 2.8, 3.8, 5, 6.5, 8.5, 11, 15];
+export const REALM_MULT = [1, 1.2, 1.6, 2.2, 3.0, 4.0, 5.2, 6.6, 8.2, 10, 12];
 
 export const APTITUDE_NAMES: Record<Aptitude, string> = {
   waste: '廢靈根', metal: '金靈根', wood: '木靈根', water: '水靈根', fire: '火靈根', earth: '土靈根', heaven: '天靈根',
@@ -52,7 +52,7 @@ export const GENERAL_SEEDS: GeneralSeed[] = [
   {"id":"maliang","name":"馬良","origin":"liu","s":[28,48,350,72,60,84,78],"realm":0,"aptitude":"heaven","start":true,"garrison":false,"lord":false},
   {"id":"jianyong","name":"簡雍","origin":"liu","s":[28,48,350,55,45,68,55],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"mizhu","name":"糜竺","origin":"liu","s":[24,50,360,62,72,50,45],"realm":0,"aptitude":"earth","start":false,"garrison":false,"lord":false},
-  {"id":"liushan","name":"劉禪","origin":"liu","s":[10,10,10,10,10,10,10],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
+  {"id":"liushan","name":"劉禪","origin":"liu","s":[30,30,300,30,30,30,30],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"guanxing","name":"關興","origin":"liu","s":[84,70,600,25,40,30,40],"realm":0,"aptitude":"earth","start":false,"garrison":false,"lord":false},
   {"id":"zhangbao","name":"張苞","origin":"liu","s":[85,68,640,15,40,15,30],"realm":0,"aptitude":"waste","start":false,"garrison":false,"lord":false},
   {"id":"wangping","name":"王平","origin":"liu","s":[76,84,600,30,50,35,72],"realm":0,"aptitude":"earth","start":false,"garrison":false,"lord":false},

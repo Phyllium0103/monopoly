@@ -1,9 +1,9 @@
 import { generalCooldownText } from '../systems/GeneralAbilities';
-import type { GameState, General, Lord } from '../game/types';
+import type { Equipment, GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS } from '../data/generals';
 import { fxText, passiveOf, fx } from '../data/passives';
-import { ELEMENT_CSS, equipDesc, equipRealm, equipStats, techniqueDesc, techniqueExp } from '../data/items';
+import { ELEMENT_CSS, equipDesc, equipRealm, techniqueDesc, techniqueExp } from '../data/items';
 import {
   abolish,
   attack,
@@ -28,7 +28,7 @@ import {
 } from '../systems/GeneralSystem';
 import { bagHtml } from './ItemUI';
 import { LORDS, originKingdom } from '../faction/Faction';
-import type { Dialog } from './Dialog';
+import type { Choice, Dialog } from './Dialog';
 
 const SECTIONS: { status: General['status']; title: string }[] = [
   { status: 'free', title: '隨行' },
@@ -156,9 +156,9 @@ export class GeneralsView {
         <span>煉丹 <b>${craft(g, 'alchemy')}</b></span><span>煉器 <b>${craft(g, 'forging')}</b></span><span>畫符 <b>${craft(g, 'talisman')}</b></span><span>佈陣 <b>${craft(g, 'formation')}</b></span>
       </div>
       <div class="equip">
-        <div title="${g.weapon ? equipDesc(g.weapon) : ''}">神器：${g.weapon ? `${g.weapon.name}（${equipStats(g.weapon)}）` : '<span class="muted">無</span>'}</div>
-        <div title="${g.armor ? equipDesc(g.armor) : ''}">寶衣：${g.armor ? `${g.armor.name}（${equipStats(g.armor)}）` : '<span class="muted">無</span>'}</div>
-        <div>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name}</span>・+${techniqueExp(t)}/回合` : '<span class="muted">未修習</span>'}</div>
+        <div class="eq-row" data-slot="weapon"><span class="eq-info" ${g.weapon ? `title="${equipDesc(g.weapon)}"` : ''}>神器：${g.weapon ? g.weapon.name : '<span class="muted">無</span>'}</span></div>
+        <div class="eq-row" data-slot="armor"><span class="eq-info" ${g.armor ? `title="${equipDesc(g.armor)}"` : ''}>寶衣：${g.armor ? g.armor.name : '<span class="muted">無</span>'}</span></div>
+        <div class="eq-row" data-slot="technique"><span class="eq-info">功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}" title="${techniqueDesc(t)}">${t.name}</span>・每回合 +${techniqueExp(t)} 修為` : '<span class="muted">未修習</span>'}</span></div>
       </div>
       <div class="gc-actions"></div>`;
 
@@ -172,6 +172,14 @@ export class GeneralsView {
       actions.appendChild(b);
     };
     const away = g.status === 'realm' || !!g.ghostSourceId;
+    const rowBtn = (slot: string, label: string, disabled: boolean, fn: () => void) => {
+      const b = document.createElement('button');
+      b.className = 'btn mini';
+      b.textContent = label;
+      b.disabled = disabled;
+      b.onclick = fn;
+      card.querySelector(`.eq-row[data-slot="${slot}"]`)!.appendChild(b);
+    };
 
     if (bottleneck) {
       const can = canAttemptBreak(g, state.round);
@@ -189,29 +197,23 @@ export class GeneralsView {
     }
     for (const kind of ['weapon', 'armor'] as const) {
       const pool = lord.gear.filter((e) => e.kind === kind);
-      btn(kind === 'weapon' ? '裝備神器' : '裝備寶衣', away || !pool.length, async () => {
-        const e = await this.dialog.choose(
-          `${g.name}・${kind === 'weapon' ? '裝備神器' : '裝備寶衣'}`,
-          '',
-          pool.map((x) => ({
-            label: x.name,
-            sub: equipDesc(x),
-            value: x,
-            disabled: g.realm < equipRealm(x.tier),
-            reason: `需達${REALMS[equipRealm(x.tier)]}`,
-          })),
-        );
-        if (e) equip(lord, g, e);
+      const name = kind === 'weapon' ? '神器' : '寶衣';
+      rowBtn(kind, g[kind] ? '更換／卸下' : '裝備', away || (!pool.length && !g[kind]), async () => {
+        const choices: Choice<Equipment | 'off'>[] = pool.map((x) => ({
+          label: x.name,
+          sub: equipDesc(x),
+          value: x,
+          disabled: g.realm < equipRealm(x.tier),
+          reason: `需達${REALMS[equipRealm(x.tier)]}`,
+        }));
+        if (g[kind]) choices.unshift({ label: `卸下${g[kind]!.name}`, sub: `取下${name}放回行囊`, value: 'off' });
+        const e = await this.dialog.choose(`${g.name}・${name}`, '', choices);
+        if (e === 'off') unequip(lord, g, kind);
+        else if (e) equip(lord, g, e);
         this.render(state, lord);
       });
     }
-    for (const kind of ['weapon', 'armor'] as const) {
-      btn(kind === 'weapon' ? '卸下神器' : '卸下寶衣', away || !g[kind], () => {
-        unequip(lord, g, kind);
-        this.render(state, lord);
-      });
-    }
-    btn(g.aptitude === 'waste' ? '廢靈根無法學功法' : '學習功法', away || !!t || !lord.scrolls.length || g.aptitude === 'waste', async () => {
+    rowBtn('technique', g.aptitude === 'waste' ? '廢靈根' : '學習功法', away || !!t || !lord.scrolls.length || g.aptitude === 'waste', async () => {
       const s = await this.dialog.choose(
         `${g.name}・學習功法`,
         '每位武將只能修習一種功法；五行靈根須與功法屬性相符，天靈根不限屬性，廢靈根無法修習。學會後不可更換，除非自廢修為。',

@@ -2052,3 +2052,7 @@ body {
 .action-panel .hint { font-size: 14px; margin-bottom: 4px; color: var(--muted); }
 .btn.action { min-width: 84px; padding-top: 5px; padding-bottom: 5px; }
 .help { display: none; }
+
+.equip .eq-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; }
+.equip .eq-info { flex: 1; min-width: 0; }
+.equip .eq-row .btn { flex: none; }

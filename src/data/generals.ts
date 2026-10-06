@@ -49,7 +49,7 @@ export const GENERAL_SEEDS: GeneralSeed[] = [
   {"id":"fazheng","name":"法正","origin":"liu","s":[34,48,360,60,50,82,86],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"madai","name":"馬岱","origin":"liu","s":[80,72,590,25,45,30,45],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"guanping","name":"關平","origin":"liu","s":[82,78,620,25,45,25,40],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
-  {"id":"maliang","name":"馬良","origin":"liu","s":[28,48,350,72,60,84,78],"realm":0,"aptitude":"heaven","start":true,"garrison":false,"lord":false},
+  {"id":"maliang","name":"馬良","origin":"liu","s":[28,48,350,72,60,84,78],"realm":0,"aptitude":"heaven","start":false,"garrison":false,"lord":false},
   {"id":"jianyong","name":"簡雍","origin":"liu","s":[28,48,350,55,45,68,55],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"mizhu","name":"糜竺","origin":"liu","s":[24,50,360,62,72,50,45],"realm":0,"aptitude":"earth","start":false,"garrison":false,"lord":false},
   {"id":"liushan","name":"劉禪","origin":"liu","s":[30,30,300,30,30,30,30],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},

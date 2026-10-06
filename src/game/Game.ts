@@ -280,6 +280,8 @@ export class Game {
   private async showTurnReport(lord: Lord, token: number) {
     const lines = this.ui.endReport();
     if (token !== this.token) return;
+    // 電腦託管時不彈出結果，免得高倍速下畫面一直被蓋住、按不到取消託管（結果仍可在天下紀事看到）
+    if (this.autoPlay) return;
     await this.ui.showReport(`${LORDS[lord.id].name}・第 ${this.state.round} 輪行動結果`, LORDS[lord.id].css, lines, Math.min(6000, 2000 + lines.length * 600) / this.speed);
   }
 

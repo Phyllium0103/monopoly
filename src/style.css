@@ -2056,3 +2056,6 @@ body {
 .equip .eq-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; }
 .equip .eq-info { flex: 1; min-width: 0; }
 .equip .eq-row .btn { flex: none; }
+
+/* 頂部列永遠在結果彈窗之上，隨時可以按（例如取消託管） */
+.top-bar { z-index: 45; }

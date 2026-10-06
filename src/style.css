@@ -2074,3 +2074,13 @@ body {
   padding: 10px 24px 14px;
   background: linear-gradient(rgba(240, 228, 196, 0), var(--paper-2) 30%);
 }
+
+/* 標題也固定在頂部 */
+.dialog > h2 {
+  position: sticky;
+  top: -20px;
+  z-index: 2;
+  margin: -20px -24px 8px;
+  padding: 14px 24px 8px;
+  background: linear-gradient(var(--paper), var(--paper) 75%, rgba(240, 228, 196, 0));
+}

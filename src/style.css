@@ -2084,3 +2084,23 @@ body {
   padding: 14px 24px 8px;
   background: linear-gradient(var(--paper), var(--paper) 75%, rgba(240, 228, 196, 0));
 }
+
+/* 標題與說明文字都固定在頂部（標題高度固定，說明才能貼在它下面） */
+.dialog > h2 {
+  box-sizing: border-box;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+  background: var(--paper);
+}
+.dialog > .dialog-text {
+  position: sticky;
+  top: 36px;
+  z-index: 2;
+  margin: 0 -24px 8px;
+  padding: 2px 24px 8px;
+  background: linear-gradient(var(--paper), var(--paper) 80%, rgba(240, 228, 196, 0));
+}
+.dialog > .dialog-text { max-height: 30vh; overflow-y: auto; }

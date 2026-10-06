@@ -216,7 +216,8 @@ export class GeneralsView {
         this.render(state, lord);
       });
     }
-    rowBtn('technique', g.aptitude === 'waste' ? '廢靈根' : '學習功法', away || !!t || !lord.scrolls.length || g.aptitude === 'waste', async () => {
+    // 已經修習功法就不再顯示學習按鈕
+    if (!t) rowBtn('technique', g.aptitude === 'waste' ? '廢靈根' : '學習功法', away || !lord.scrolls.length || g.aptitude === 'waste', async () => {
       const s = await this.dialog.choose(
         `${g.name}・學習功法`,
         '每位武將只能修習一種功法；五行靈根須與功法屬性相符，天靈根不限屬性，廢靈根無法修習。學會後不可更換，除非自廢修為。',

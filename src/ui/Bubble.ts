@@ -38,7 +38,8 @@ document.addEventListener('mouseover', (e) => {
   const text = tipOf(el);
   if (!text) return hide();
   current = el;
-  bubble.textContent = text;
+  // 「｜」分隔的各項改成換行，一行一項
+  bubble.textContent = text.replace(/\s*[｜|]\s*/g, '\n');
   bubble.classList.remove('hidden');
   place(e.clientX, e.clientY);
 });

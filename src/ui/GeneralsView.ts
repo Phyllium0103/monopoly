@@ -76,7 +76,7 @@ export class GeneralsView {
 
     const bag = bagHtml(lord.items);
     const gear = lord.gear.map((e) => `<span class="chip" title="${tip(equipDesc(e))}">${e.name}</span>`).join('') || '<span class="muted">無</span>';
-    const scrolls = lord.scrolls.map((t) => `<span class="chip" style="border-color:${ELEMENT_CSS[t.element]}">${t.name}</span>`).join('') || '<span class="muted">無</span>';
+    const scrolls = lord.scrolls.map((t) => `<span class="chip" style="border-color:${ELEMENT_CSS[t.element]}" title="${tip(`${t.name.split('・')[0]}｜${techniqueDesc(t)}`)}">${t.name.split('・').slice(1).join('・')}</span>`).join('') || '<span class="muted">無</span>';
     const party = gens.filter((g) => g.status === 'free').length;
 
     this.el.innerHTML = `
@@ -90,7 +90,7 @@ export class GeneralsView {
         <div><b>行囊</b>${bag}</div>
         <div><b>神器寶衣</b>${gear}</div>
         <div><b>功法秘笈</b>${scrolls}</div>
-        <div><b>靈獸</b>${lord.beast ? `<span class="chip">${lord.beast.name}｜${lord.beast.desc}</span>` : '<span class="muted">無</span>'}</div>
+        <div><b>靈獸</b>${lord.beast ? `<span class="chip" title="${tip(lord.beast.desc)}">${lord.beast.name}</span>` : '<span class="muted">無</span>'}</div>
       </div>
       <div class="sections"></div>`;
     (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();

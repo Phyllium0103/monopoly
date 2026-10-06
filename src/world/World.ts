@@ -33,7 +33,7 @@ export class World {
   private time = 0;
   private eventMarkers: THREE.Group[] = [];
   private facing = new Map<string, THREE.Group>();
-  private forkArrows = new Map<number, THREE.ArrowHelper>();
+  private forkArrows = new Map<number, THREE.Group>();
 
   constructor(
     scene: THREE.Scene,
@@ -252,26 +252,56 @@ export class World {
       .then(() => this.root.remove(beam));
   }
 
-  /** 每個岔路都顯示公共箭頭；包含有三條以上道路的城池。 */
+  /** 木頭路牌：立在每個岔路口（含三條以上道路的城池），牌子尖端指向目前的前進方向 */
+  private makeSignpost(): THREE.Group {
+    const wood = new THREE.MeshStandardMaterial({ color: 0xb98a4e, roughness: 0.9 });
+    const dark = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.95 });
+    const g = new THREE.Group();
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 3.2, 8), dark);
+    post.position.y = 1.6;
+    g.add(post);
+    // 指向 +X 的箭頭形木板
+    const shape = new THREE.Shape();
+    shape.moveTo(-1.9, -0.55);
+    shape.lineTo(1.2, -0.55);
+    shape.lineTo(2.2, 0);
+    shape.lineTo(1.2, 0.55);
+    shape.lineTo(-1.9, 0.55);
+    shape.closePath();
+    const plank = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.28, bevelEnabled: false }).rotateX(-Math.PI / 2), wood);
+    plank.position.y = 3.05;
+    const rim = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false }).rotateX(-Math.PI / 2), dark);
+    rim.position.y = 2.97;
+    rim.scale.set(1.06, 1, 1.18);
+    const sign = new THREE.Group();
+    sign.add(rim, plank);
+    for (const x of [-1.4, 0.4]) {
+      const nail = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 6), dark);
+      nail.position.set(x, 3.36, 0);
+      sign.add(nail);
+    }
+    sign.name = 'sign';
+    g.add(sign);
+    g.scale.setScalar(1.15);
+    return g;
+  }
+
   syncForkArrows(state: GameState) {
     for (const tile of this.tiles) {
       if (tile.links.length < 3) continue;
       const target = this.tiles[state.forkDirections[tile.index]];
-      const dir = new THREE.Vector3(target.pos.x - tile.pos.x, 0, target.pos.z - tile.pos.z).normalize();
-      let arrow = this.forkArrows.get(tile.index);
-      if (!arrow) {
-        arrow = new THREE.ArrowHelper(dir, new THREE.Vector3(), 4.5, 0xffdf54, 1.4, 0.9);
-        for (const material of [arrow.line.material, arrow.cone.material]) {
-          const materials = Array.isArray(material) ? material : [material];
-          for (const m of materials) { m.depthTest = false; m.depthWrite = false; }
-        }
-        arrow.line.renderOrder = arrow.cone.renderOrder = 6;
-        this.root.add(arrow);
-        this.forkArrows.set(tile.index, arrow);
+      const dx = target.pos.x - tile.pos.x;
+      const dz = target.pos.z - tile.pos.z;
+      let sign = this.forkArrows.get(tile.index);
+      if (!sign) {
+        sign = this.makeSignpost();
+        this.root.add(sign);
+        this.forkArrows.set(tile.index, sign);
       }
       const p = this.tilePosition(tile.index);
-      arrow.position.set(p.x, p.y + (tile.kind === 'city' ? 5.2 : 4), p.z);
-      arrow.setDirection(dir);
+      sign.position.set(p.x + 1.8, p.y + (tile.kind === 'city' ? 1.2 : 0.2), p.z + 1.8);
+      // 牌子只轉動木板，柱子不動
+      sign.getObjectByName('sign')!.rotation.y = Math.atan2(-dz, dx);
     }
   }
 

@@ -3,7 +3,7 @@ import type { Equipment, GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS } from '../data/generals';
 import { fxText, passiveOf, fx } from '../data/passives';
-import { ELEMENT_CSS, ELEMENT_NAMES, equipDesc, equipRealm, techniqueDesc, techniqueExp } from '../data/items';
+import { ELEMENT_CSS, equipDesc, equipRealm, techniqueDesc } from '../data/items';
 import {
   abolish,
   attack,
@@ -38,6 +38,9 @@ const SECTIONS: { status: General['status']; title: string }[] = [
 ];
 
 /** 武將名冊：查看能力、裝備、學功法、突破渡劫、閉關 */
+/** 提示文字：去掉 HTML 標籤並跳脫引號，才能放進 title 屬性 */
+const tip = (html: string) => html.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;');
+
 export class GeneralsView {
   private el: HTMLDivElement;
   private resolve: (() => void) | null = null;
@@ -72,7 +75,7 @@ export class GeneralsView {
     const manage = this.canManage();
 
     const bag = bagHtml(lord.items);
-    const gear = lord.gear.map((e) => `<span class="chip" title="${equipDesc(e)}">${e.name}</span>`).join('') || '<span class="muted">無</span>';
+    const gear = lord.gear.map((e) => `<span class="chip" title="${tip(equipDesc(e))}">${e.name}</span>`).join('') || '<span class="muted">無</span>';
     const scrolls = lord.scrolls.map((t) => `<span class="chip" style="border-color:${ELEMENT_CSS[t.element]}">${t.name}</span>`).join('') || '<span class="muted">無</span>';
     const party = gens.filter((g) => g.status === 'free').length;
 
@@ -156,9 +159,9 @@ export class GeneralsView {
         <span>煉丹 <b>${craft(g, 'alchemy')}</b></span><span>煉器 <b>${craft(g, 'forging')}</b></span><span>畫符 <b>${craft(g, 'talisman')}</b></span><span>佈陣 <b>${craft(g, 'formation')}</b></span>
       </div>
       <div class="equip">
-        <div class="eq-row" data-slot="weapon"><span class="eq-info" ${g.weapon ? `title="${equipDesc(g.weapon)}"` : ''}>神器：${g.weapon ? g.weapon.name : '<span class="muted">無</span>'}</span></div>
-        <div class="eq-row" data-slot="armor"><span class="eq-info" ${g.armor ? `title="${equipDesc(g.armor)}"` : ''}>寶衣：${g.armor ? g.armor.name : '<span class="muted">無</span>'}</span></div>
-        <div class="eq-row" data-slot="technique"><span class="eq-info" ${t ? `title="${techniqueDesc(t)}｜每回合 +${techniqueExp(t)} 修為"` : ''}>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】${t.name}</span>` : '<span class="muted">未修習</span>'}</span></div>
+        <div class="eq-row" data-slot="weapon"><span class="eq-info" ${g.weapon ? `title="${tip(equipDesc(g.weapon))}"` : ''}>神器：${g.weapon ? g.weapon.name : '<span class="muted">無</span>'}</span></div>
+        <div class="eq-row" data-slot="armor"><span class="eq-info" ${g.armor ? `title="${tip(equipDesc(g.armor))}"` : ''}>寶衣：${g.armor ? g.armor.name : '<span class="muted">無</span>'}</span></div>
+        <div class="eq-row" data-slot="technique"><span class="eq-info" ${t ? `title="${tip(`${t.name.split('・')[0]}｜${techniqueDesc(t)}`)}"` : ''}>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name.split('・').slice(1).join('・')}</span>` : '<span class="muted">未修習</span>'}</span></div>
       </div>
       <div class="gc-actions"></div>`;
 

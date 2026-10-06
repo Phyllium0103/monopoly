@@ -69,9 +69,9 @@ export class BattleView {
   }
 
   /** 擂台戰；playerSide 為玩家操作的一方。每回合雙方同時出手，回傳勝方或 'draw'（平手） */
-  runDuel(duel: Duel, playerSide: Side, speed: () => number, useItem: (side: Side) => Promise<DuelEvent[] | null>, aiItem?: (side: Side) => DuelEvent[] | null): Promise<Side | 'draw'> {
+  runDuel(duel: Duel, playerSide: Side, speed: () => number, useItem: (side: Side) => Promise<DuelEvent[] | null>, aiItem?: (side: Side) => DuelEvent[] | null, title='⚔️ 擂台戰'): Promise<Side | 'draw'> {
     return new Promise((resolve) => {
-      const body = this.open('⚔️ 擂台戰');
+      const body = this.open(title);
       const logLines: string[] = [];
       let waiting: ((a: 'attack' | 'skill' | 'item') => void) | null = null;
 

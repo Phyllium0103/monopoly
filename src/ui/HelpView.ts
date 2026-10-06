@@ -7,7 +7,7 @@ import { MIN_GARRISON, GARRISON_STRENGTH, SOLDIER_PRICE } from '../systems/CityS
 import { CONTEST_SOLDIERS, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE } from '../systems/BattleSystem';
 import { TRIBULATION_BOLTS } from '../systems/GeneralSystem';
 import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY } from '../systems/RealmSystem';
-import { DISASTER_AFTER, EVENT_INTERVAL, WORLD_EVENTS, type EventCategory } from '../systems/EventSystem';
+import { DISASTER_AFTER, EVENT_INTERVAL, FIXED_WORLD_EVENTS, WORLD_EVENTS, type EventCategory } from '../systems/EventSystem';
 import { BOARD, TILE_INFO } from '../data/board';
 import { CITY_TERRAIN, TERRAIN, type TerrainId } from '../data/terrain';
 import { LORDS, LORD_IDS, TRAITS } from '../faction/Faction';
@@ -237,7 +237,7 @@ const PAGES: Page[] = [
       ${list([
         '<b>主公本人</b>（曹操、劉備、孫權、董卓）也是可用的武將，擁有自己的能力與被動：可以擂台、比試、攻城，但<b>不能駐守城池、不能派去秘境、不能被變賣</b>。',
         '<b>主公戰死就等於敗北</b>：擂台上被一擊打到歸零、或渡劫身死，該主公立刻出局。選主公出戰擂台時務必小心。',
-        '<b>隱藏武將</b>不屬於任何勢力（左慈、于吉、華佗、水鏡先生、管輅、張仲景……），可由「仙人出山」事件揭露（每次隨機 3 位）；水鏡先生隨行時，聽風樓也有機會出現所有未出仕且未死亡的隱藏人物。每次聽風樓最多列出 <b>1 位</b>方外人物與 3 位一般將領。方外人物初始為金丹，其餘人物初始為凡人。',
+        '<b>隱藏武將</b>不屬於任何勢力（左慈、于吉、華佗、水鏡先生、管輅、張仲景……），第 15 輪起每 15 輪固定有兩位現身。每次聽風樓有 <b>20%</b> 機率出現方外人物，最多 <b>1 位</b>；水鏡先生隨行時必定抽一位，包含未出世者。若已無未出仕且未死亡的方外人物，則不出現。其餘名額由一般將領填補，候選最多四位。方外人物初始為金丹，其餘人物初始為凡人。',
       ])}
       <h4>隨行與宗門</h4>
       ${list([
@@ -358,6 +358,9 @@ const PAGES: Page[] = [
     title: '📜 九州風雲',
     html: () => `
       <p>每 ${EVENT_INTERVAL} 輪九州掀起一場風雲（隨機事件）；<b>災難類第 ${DISASTER_AFTER} 輪之後才會出現</b>。持續型事件會顯示在左上角，標註剩餘輪數。</p>
+      <h4>固定活動（不占隨機事件次數）</h4>
+      ${list(FIXED_WORLD_EVENTS.map(e=>`${e.icon} <b>${e.name}</b>：${e.desc}`))}
+      <p>比武每場可重選隨行武將，血量與體力不會自動回復；不會戰死，血量至少保留 1。平手依剩餘血量比例裁定，同率抽籤；沿用擂台戰鬥及物品使用規則。仍存活的主公不足四位時會安排輪空或直接決賽。</p>
       ${(['economy', 'cultivation', 'politics'] as const).map((c) => eventGroup(c)).join('')}
       <hr class="help-divider">
       ${eventGroup('disaster')}`,

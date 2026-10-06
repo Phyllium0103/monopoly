@@ -1,3 +1,4 @@
+import { tournamentBracket, tournamentWinner, grantTournamentPrize } from '../systems/TournamentSystem';
 import { abilityUsers, abilityReady, abilityTargets, useGeneralAbility } from '../systems/GeneralAbilities';
 import { garrisonDispatch } from '../systems/GarrisonSystem';
 import { immortalWinner } from '../systems/VictorySystem';
@@ -35,7 +36,7 @@ import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, 
 import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
 import { enterFork, nextMovementTile } from '../systems/MovementSystem';
 import { rollRoadEvent } from '../systems/RoadEvents';
-import { EVENT_INTERVAL, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, syncWorldMods, tickWorldEvents } from '../systems/EventSystem';
+import { EVENT_INTERVAL, IMMORTAL_INTERVAL, TOURNAMENT_INTERVAL, eventDef, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, syncWorldMods, tickWorldEvents } from '../systems/EventSystem';
 
 type Phase = 'idle' | 'preroll' | 'busy' | 'pickTile';
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
@@ -256,6 +257,11 @@ export class Game {
       await this.waitForDispatch();
       if (token !== this.token || this.state.over) return;
       if (await this.checkEnd()) return;
+      const completedRound=!this.state.order.slice(this.state.turn+1).some(id=>this.state.lords[id].alive);
+      if (completedRound && this.state.round%TOURNAMENT_INTERVAL===0) {
+        await this.runTournament();
+        if (token!==this.token || await this.checkEnd()) return;
+      }
       const newRound = advance(this.state);
       if (newRound) {
         if (this.state.maxRounds !== null && this.state.round > this.state.maxRounds) {
@@ -1468,6 +1474,12 @@ export class Game {
   private async newRoundEvents() {
     for (const msg of tickWorldEvents(this.state)) this.ui.log(msg, 'info');
     this.world.setEventMarkers(this.state.merchantTile, this.state.banditTiles);
+    if (this.state.round%IMMORTAL_INTERVAL===0) {
+      const def=eventDef('immortals'),lines=applyWorldEvent(this.state,def);
+      this.ui.log(`【固定活動】${def.icon} ${def.name}：${lines.join(' ')}`,'turn');
+      if (this.state.lords[this.state.player].alive&&!this.autoPlay) await this.dialog.message(def.name,lines.join('\n'),'🧙');
+      this.refresh();
+    }
     if (this.state.round % EVENT_INTERVAL !== 0) return;
 
     const def = pickWorldEvent(this.state);
@@ -1497,6 +1509,67 @@ export class Game {
       await this.dialog.message(`九州風雲・${def.name}`, `${def.desc}${lines.length ? `\n\n${lines.join('\n')}` : ''}${extra}`, def.icon, def.id === 'auction' ? '參加拍賣' : '知道了');
     }
     if (def.id === 'auction') await this.runAuction();
+  }
+
+  /** Every completed twentieth round, independent of the random world event draw. */
+  private async runTournament() {
+    const lords=aliveLords(this.state);
+    if (lords.length<2) return;
+    const bracket=tournamentBracket(lords);
+    this.phase='busy';this.refresh();
+    const announce=`第 ${this.state.round} 輪九州比武大會開始！隨機分組，半決賽與決賽可重選隨行武將；不會戰死，血量與體力不會自動回復。`;
+    this.ui.log('🏆 '+announce,'turn');
+    const pairs=Array.from({length:bracket.length/2},(_,i)=>`${LORDS[bracket[i*2]!.id].name} vs ${bracket[i*2+1]?LORDS[bracket[i*2+1]!.id].name:'輪空'}`);
+    if (this.state.lords[this.state.player].alive && !this.autoPlay) await this.dialog.message('九州比武大會',announce+'\n\n'+pairs.join('\n'),'🏆');
+    let champion:Lord|null;
+    if (lords.length===2) champion=await this.tournamentMatch(bracket[0]!,bracket[1]!,'決賽');
+    else {
+      const finalists:(Lord|null)[]=[];
+      for (let i=0;i<bracket.length;i+=2) {
+        const a=bracket[i],b=bracket[i+1];
+        finalists.push(a&&b?await this.tournamentMatch(a,b,'半決賽'):a??b);
+      }
+      const [a,b]=finalists;
+      champion=a&&b?await this.tournamentMatch(a,b,'決賽'):a??b??null;
+    }
+    if (!champion) {this.ui.log('九州比武大會無人完成參賽，本屆沒有冠軍。','info');return;}
+    const prize=grantTournamentPrize(this.state,champion);
+    const result=`${LORDS[champion.id].name}奪得冠軍，獲得天階上品獎勵「${prize.label}」！`;
+    this.ui.log('🏆 '+result,champion.id===this.state.player?'good':'info');this.refresh();
+    if (this.state.lords[this.state.player].alive&&!this.autoPlay) await this.dialog.message('九州比武大會・冠軍',result+'\n\n'+prize.sub,'🏆');
+  }
+
+  private async tournamentGeneral(lord:Lord,stage:string):Promise<General|null> {
+    const pool=freeGenerals(this.state,lord.id).filter(canDuel);
+    if (!pool.length) return null;
+    if (!this.human(lord)) return [...pool].sort((a,b)=>power(b)*(b.hp/maxHp(b))-power(a)*(a.hp/maxHp(a)))[0];
+    return this.dialog.choose(`九州比武大會・${stage}：派誰出戰？`,'可與上一場派同一人或換人。血量與體力沿用現況；不會戰死，取消視為棄權。',pool.map(g=>({label:g.name,sub:`${REALMS[g.realm]}・戰力 ${power(g)}・血量 ${g.hp}/${maxHp(g)}・體力 ${g.stamina}/${maxStamina(g)}${pv(g)}`,value:g})),'棄權');
+  }
+
+  private async tournamentMatch(a:Lord,b:Lord,stage:string):Promise<Lord|null> {
+    await this.waitForDispatch();
+    const ag=await this.tournamentGeneral(a,stage),bg=await this.tournamentGeneral(b,stage);
+    if (!ag||!bg) {
+      const winner=ag?a:bg?b:null;
+      this.ui.log(`🏆 ${stage}：${winner?LORDS[winner.id].name+'因對手無人應戰或棄權而晉級':'雙方無人應戰或棄權'}。`,'info');
+      return winner;
+    }
+    const duel=new Duel(a,ag,b,bg,true);
+    const involved=this.human(a)||this.human(b);
+    if (involved) {
+      const side:Side=this.human(a)?'a':'b',lord=this.human(a)?a:b;
+      await this.battleView.runDuel(duel,side,()=>this.speed,s=>this.useItemInDuel(duel,s,lord),s=>this.aiBattleItem(duel,s,s==='a'?a:b),`🏆 九州比武大會・${stage}`);
+    } else {
+      while (!duel.over) {
+        const ai=this.aiBattleItem(duel,'a',a);if(ai)duel.afterItem(ai);
+        const bi=duel.over?null:this.aiBattleItem(duel,'b',b);if(bi)duel.afterItem(bi);
+        if(!duel.over)duel.round({a:ai?'none':duel.aiAction('a'),b:bi?'none':duel.aiAction('b')});
+      }
+      duel.finish();
+    }
+    const side=tournamentWinner(duel),winner=side==='a'?a:b;
+    this.ui.log(`🏆 ${stage}：${ag.name} vs ${bg.name}，${LORDS[winner.id].name}晉級${duel.draw?'（平手依剩餘血量比例裁定，同率抽籤）':''}。`,'info');
+    this.refresh();return winner;
   }
 
   private async runAuction() {

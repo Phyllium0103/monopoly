@@ -237,7 +237,7 @@ export const PASSIVES: Record<string, Passive> = {
   yuji: {"name":"符水治病","flavor":"以符水為人治病，吳會之人多事之。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一張隨機符籙・體力回復速度 -90%","fx":{"produceCategory":"符籙","staminaRecovery":-0.9}},
   huatuo: {"name":"神醫","flavor":"麻沸散、五禽戲，起死回生。","effectText":"在隨行隊伍時，可隨時耗費100體力使用\"起死回生\"，復活我方死亡武將，血量 100%，境界跌落 1 級，修為歸零・體力回復速度 -90%","fx":{"reviveAbility":true,"staminaRecovery":-0.9}},
   guanlu: {"name":"卜筮如神","flavor":"精通周易，占卜無不應驗。","effectText":"擲骰前，可預覽三個候選步數，排除其中一個，再從剩下兩個隨機決定；不能直接指定落點。","fx":{"divination":true}},
-  shuijing: {"name":"水鏡先生","flavor":"司馬徽，知人善任，「臥龍鳳雛，得一可安天下」。","effectText":"聽風樓有機會出現所有隱藏人物","fx":{"unlockHidden":true}},
+  shuijing: {"name":"水鏡先生","flavor":"司馬徽，知人善任，「臥龍鳳雛，得一可安天下」。","effectText":"聽風樓必定出現隱藏人物，包含未出世武將","fx":{"unlockHidden":true}},
   pangdegong: {"name":"鹿門隱士","flavor":"龐統之叔，隱居鹿門山，被稱為「水鏡之師」。","effectText":"在隨行隊伍時，隨行隊伍武將修為獲得 +20%","fx":{"partyExp":0.2}},
   huangchengyan: {"name":"機關妙手","flavor":"諸葛亮之岳父，精通機巧，傳授黃月英巧技。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一件隨機法器・體力回復速度 -90%","fx":{"produceCategory":"法器","staminaRecovery":-0.9}},
   xushao: {"name":"月旦評","flavor":"與從兄許靖主持品評人物，稱曹操「治世之能臣，亂世之奸雄」。","effectText":"在隨行隊伍時，聽風樓招募武將價格 -50%","fx":{"partyRecruit":0.5}},

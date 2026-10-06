@@ -3,7 +3,7 @@ import { citiesOf, freeGenerals, generalsOf, newGeneral, nextUid } from '../game
 import { HIDDEN_SEEDS } from '../data/generals';
 import { aliveLords } from '../game/TurnManager';
 import { cityIncomeOf, totalAssets } from './CitySystem';
-import { addExp, inBottleneck, maxHp } from './GeneralSystem';
+import { addExp, expCap, inBottleneck, maxHp } from './GeneralSystem';
 import { ELEMENT_NAMES, ITEM_DEFS, equipDesc, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, techniqueDesc } from '../data/items';
 import { CITY_TERRAIN } from '../data/terrain';
 import { LORDS } from '../faction/Faction';
@@ -27,11 +27,13 @@ export interface WorldEventDef {
 
 /** 每 5 輪抽一次的九州風雲 */
 export const EVENT_INTERVAL = 5;
+export const IMMORTAL_INTERVAL = 15;
+export const TOURNAMENT_INTERVAL = 20;
 /** 災難類事件第 20 輪之後才會出現 */
 export const DISASTER_AFTER = 20;
 
 export const WORLD_EVENTS: WorldEventDef[] = [
-  { id: 'merchant', name: '旅行商人', icon: '🐫', category: 'economy', desc: '一支西域商隊停在地圖上的某個定點，不限時。第一位走到那裡的主公可用 7 折購買地階、天階的稀有貨品，交易後商隊便會離開。' },
+  { id: 'merchant', name: '旅行商人', icon: '🐫', category: 'economy', desc: '一支西域商隊停在地圖上的某個定點，不限時。第一位走到那裡的主公可用 5 折購買地階、天階的稀有貨品，交易後商隊便會離開。' },
   { id: 'windfall', name: '天降橫財', icon: '💰', category: 'economy', desc: '天降靈石雨，每位主公都得到一筆靈石，越窮的拿越多。' },
   { id: 'harvest', name: '五穀豐登', icon: '🌾', category: 'economy', desc: '風調雨順，各主公額外獲得一輪城池收入，所有城池繁榮 +10。' },
   { id: 'auction', name: '天寶拍賣會', icon: '🔨', category: 'economy', desc: '拍賣一件天階寶物，四位主公各自秘密出價，價高者得。' },
@@ -39,29 +41,33 @@ export const WORLD_EVENTS: WorldEventDef[] = [
   { id: 'heavenFavor', name: '天道垂青', icon: '⚡', category: 'cultivation', duration: 3, desc: '天道垂青，接下來 3 輪渡劫天雷傷害 -40%、低階突破成功率 +15%。' },
   { id: 'elementTide', name: '五行輪轉', icon: '🔥', category: 'cultivation', duration: 5, desc: '五行之一當令 5 輪，修習該屬性功法的武將在擂台上傷害 +30%。' },
   { id: 'ancientRealm', name: '上古秘境現世', icon: '🌀', category: 'cultivation', duration: 5, desc: '上古秘境現世 5 輪，期間派入秘境的武將隕落率減半、帶回的寶物品階更高。' },
-  { id: 'immortals', name: '仙人出山', icon: '🧙', category: 'cultivation', desc: '三位隱世的方外高人（從左慈、于吉、華佗、水鏡先生、龐德公、張仲景等十三位中隨機現身）出現在聽風樓，能力極高但身價不菲。' },
   { id: 'edict', name: '天子詔令', icon: '📜', category: 'politics', desc: '天子下詔：總資產最高的主公上繳一成靈石，平分給其他主公。' },
   { id: 'beastTide', name: '妖獸潮', icon: '🐉', category: 'disaster', desc: '妖獸成群襲城，所有城池守軍 -15%；擁有靈獸的主公可由靈獸護城，免除損失。' },
   { id: 'quake', name: '天災地動', icon: '🌋', category: 'disaster', desc: '天崩地裂，隨機 3 座有主城池繁榮 -20。' },
   { id: 'bandits', name: '黃巾餘黨', icon: '🏴', category: 'disaster', duration: 5, desc: '黃巾餘黨盤踞 4 處驛道 5 輪，停在賊窩要繳買路錢，否則損兵。' },
   { id: 'shuffle', name: '乾坤大挪移', icon: '☯', category: 'disaster', desc: '天機錯亂，所有主公的位置隨機互換。' },
   { id: 'demonTrial', name: '心魔劫', icon: '😈', category: 'disaster', desc: '心魔劫降臨，所有處於瓶頸的武將都染上一層心魔。' },
-  { id: 'tradeBoom', name: '商路暢通', icon: '🛒', category: 'economy', duration: 4, desc: '絲路與運河舟車不絕，接下來 4 輪所有城池的靈石收入 ×1.3。' },
-  { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件黃階至玄階的神器或寶衣。' },
+  { id: 'tradeBoom', name: '商路暢通', icon: '🛒', category: 'economy', duration: 5, desc: '接下來 5 輪，所有商店商品購買價格七折（不含招募、復活與拍賣），可與旅行商人五折疊加。' },
+  { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件玄階至地階的神器或寶衣。' },
   { id: 'spiritTide', name: '靈潮湧動', icon: '🌊', category: 'cultivation', duration: 5, desc: '地底靈脈潮汐翻湧，接下來 5 輪駐守城池閉關修煉的武將，修為再 ×1.5。' },
   { id: 'meteor', name: '隕星墜落', icon: '☄️', category: 'cultivation', desc: '流星墜入人間，星髓入藥：每位主公得到兩顆玄品至地品的丹藥。' },
-  { id: 'debate', name: '論道大會', icon: '☯️', category: 'cultivation', desc: '各路修士雲集論道，每位主公所有隨行武將修為 +120。' },
+  { id: 'debate', name: '論道大會', icon: '☯️', category: 'cultivation', desc: '各路修士雲集論道，每位主公所有隨行武將獲得目前境界修為上限的 10% 修為（再套用人物修為加成，不超過瓶頸）。' },
   { id: 'refugees', name: '流民歸附', icon: '🚶', category: 'politics', desc: '亂世流民扶老攜幼投奔明主：每位主公按城池數增加士兵，無城者也有 500 人來投。' },
-  { id: 'summon', name: '招賢令', icon: '📯', category: 'politics', duration: 3, desc: '天下求賢若渴，接下來 3 輪聽風樓的招募價格五折。' },
-  { id: 'locust', name: '蝗災', icon: '🦗', category: 'disaster', duration: 3, desc: '飛蝗蔽日，接下來 3 輪所有城池的靈石收入 ×0.6。' },
+  { id: 'summon', name: '招賢令', icon: '📯', category: 'politics', duration: 5, desc: '天下求賢若渴，接下來 5 輪聽風樓的招募價格五折。' },
+  { id: 'locust', name: '蝗災', icon: '🦗', category: 'disaster', duration: 5, desc: '飛蝗蔽日，接下來 5 輪所有城池的靈石收入 ×0.6。' },
   { id: 'plague', name: '瘟疫', icon: '☠️', category: 'disaster', desc: '大疫流行，所有主公士兵 -8%，隨行武將損失 15% 血量（至少留 1 點）。' },
   { id: 'flood', name: '洪水', icon: '🌧️', category: 'disaster', desc: '大水氾濫，水鄉與濱海的有主城池繁榮 -12、守軍 -10%。' },
   { id: 'mutiny', name: '軍中兵變', icon: '🔥', category: 'disaster', desc: '糧餉不繼，兵多將驕：士兵最多的主公，一成半的兵卒嘩變逃散。' },
   { id: 'raiders', name: '盜賊洗劫', icon: '🥷', category: 'disaster', desc: '江洋大盜覬覦巨富，靈石最多的主公庫房被劫走 8%（至多 3 上品）。' },
 ];
 
+export const FIXED_WORLD_EVENTS: WorldEventDef[] = [
+  {id:'immortals',name:'仙人出世',icon:'🧙',category:'cultivation',desc:'第 15 輪起每 15 輪固定有兩位尚未出世的方外人物現身，不占九州風雲抽選。'},
+  {id:'tournament',name:'九州比武大會',icon:'🏆',category:'politics',desc:'每完成 20 輪固定舉辦隨行武將 1v1 晉級賽，隨機分組，冠軍獲得一件天階上品功法、神器或寶衣。'},
+];
+
 export function eventDef(id: string): WorldEventDef {
-  return WORLD_EVENTS.find((e) => e.id === id)!;
+  return [...WORLD_EVENTS,...FIXED_WORLD_EVENTS].find((e) => e.id === id)!;
 }
 
 
@@ -75,7 +81,8 @@ export function syncWorldMods(state: GameState) {
   WORLD.breakBonus = isActive(state, 'heavenFavor') ? 0.15 : 0;
   WORLD.element = isActive(state, 'elementTide') ? state.favoredElement : null;
   WORLD.realmBlessed = isActive(state, 'ancientRealm');
-  WORLD.incomeMult = (isActive(state, 'tradeBoom') ? 1.3 : 1) * (isActive(state, 'locust') ? 0.6 : 1);
+  WORLD.incomeMult = isActive(state, 'locust') ? 0.6 : 1;
+  WORLD.purchaseMult = isActive(state, 'tradeBoom') ? 0.7 : 1;
   WORLD.seclusionMult = isActive(state, 'spiritTide') ? 1.5 : 1;
   WORLD.recruitMult = isActive(state, 'summon') ? 0.5 : 1;
 }
@@ -114,7 +121,7 @@ const shuffle = <T,>(arr: T[]): T[] => arr.map((v) => [Math.random(), v] as cons
 
 /** 立即或開始事件，回傳要公告的細節 */
 export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] {
-  state.usedEvents.push(def.id);
+  if (WORLD_EVENTS.some(e=>e.id===def.id)) state.usedEvents.push(def.id);
   const lines: string[] = [];
   if (def.duration) state.events.push({ id: def.id, name: def.name, icon: def.icon, roundsLeft: def.duration });
   const alive = aliveLords(state);
@@ -221,7 +228,7 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
     }
     case 'armory':
       for (const l of alive) {
-        const e = makeEquipment(nextUid(state, 'e'), Math.random() < 0.5 ? 'weapon' : 'armor', Math.floor(Math.random() * 6));
+        const e = makeEquipment(nextUid(state, 'e'), Math.random() < 0.5 ? 'weapon' : 'armor', 3 + Math.floor(Math.random() * 6));
         l.gear.push(e);
         lines.push(`${LORDS[l.id].name} 得 ${e.kind === 'weapon' ? '神器' : '寶衣'}「${e.name}」`);
       }
@@ -240,7 +247,7 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
       break;
     case 'debate':
       for (const l of alive) {
-        const total = freeGenerals(state, l.id).reduce((s, g) => s + addExp(g, 120), 0);
+        const total = freeGenerals(state, l.id).reduce((s, g) => s + addExp(g, Number.isFinite(expCap(g)) ? expCap(g)*0.1 : 0), 0);
         lines.push(`${LORDS[l.id].name}的隨行武將共增加修為 ${total}`);
       }
       break;
@@ -293,9 +300,9 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
 // ───────────────────────── 仙人出山 ─────────────────────────
 
 /** 每次現身的隱藏武將數 */
-const HIDDEN_PER_EVENT = 3;
+export const HIDDEN_PER_EVENT = 2;
 
-/** 每次現身 3 位尚未出現的隱藏武將 */
+/** 每次現身兩位尚未出世的方外人物；不足時全數現身。 */
 function revealHidden(state: GameState): General[] {
   const pool = shuffle(HIDDEN_SEEDS.filter((h) => !state.generals[h.id])).slice(0, HIDDEN_PER_EVENT);
   return pool.map((h) => {
@@ -307,11 +314,11 @@ function revealHidden(state: GameState): General[] {
 
 // ───────────────────────── 旅行商人 ─────────────────────────
 
-/** 商隊貨品：地階、天階，7 折 */
+/** 商隊貨品：地階、天階，五折；商路暢通由商店統一疊加。 */
 export function merchantStock(state: GameState): Offer[] {
   const uid = (p: string) => nextUid(state, p);
   const high = () => 6 + Math.floor(Math.random() * 6);
-  const off = (n: number) => Math.round((n * 0.7) / 10) * 10;
+  const off = (n: number) => Math.round(n * 0.5);
   const out: Offer[] = [];
   for (let i = 0; i < 2; i++) {
     const e = makeEquipment(uid('e'), i === 0 ? 'weapon' : 'armor', high());

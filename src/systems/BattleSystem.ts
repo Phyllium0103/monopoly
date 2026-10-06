@@ -82,8 +82,11 @@ export class Duel {
   /** 先手：只有一方擁有先手時，那一方每回合先出手 */
   first: Side | null = null;
   private announced = false;
+  /** Tournament protection: lethal damage causes surrender at 1 HP. */
+  private nonLethal: boolean;
 
-  constructor(aLord: Lord, aGen: General, bLord: Lord, bGen: General) {
+  constructor(aLord: Lord, aGen: General, bLord: Lord, bGen: General, nonLethal=false) {
+    this.nonLethal=nonLethal;
     this.a = this.makeFighter('a', aLord, aGen);
     this.b = this.makeFighter('b', bLord, bGen);
     // 震懾：壓低對手武力
@@ -110,7 +113,7 @@ export class Duel {
   /** 判定勝負：歸零即戰死，低於一成認輸；雙方同時倒下則平手（一死一降，活著的一方獲勝） */
   private judge() {
     if (this.over) return;
-    for (const f of [this.a,this.b]) if (f.hp <= 0 && fx(f.general).duelImmortal) f.hp=1;
+    for (const f of [this.a,this.b]) if (f.hp <= 0 && (this.nonLethal || fx(f.general).duelImmortal)) f.hp=1;
     const state = (f: Fighter) => (f.hp <= 0 ? 'dead' : f.hp < f.maxHp * SURRENDER_HP ? 'down' : 'ok');
     const sa = state(this.a);
     const sb = state(this.b);

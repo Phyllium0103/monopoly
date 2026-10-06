@@ -1,6 +1,7 @@
 import type { GameState, Lord, TileKind } from '../game/types';
 import { joinLord, newGeneral, nextUid, reviveGeneral } from '../game/GameState';
 import { merchantStock } from './EventSystem';
+import { WORLD } from './WorldMods';
 import { fmtStones } from '../game/Currency';
 import { ARTIFACT_IDS, ITEM_DEFS, equipDesc, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemTier, rollTier, techniqueDesc } from '../data/items';
 import { APTITUDE_NAMES, HIDDEN_SEEDS, REALMS } from '../data/generals';
@@ -43,6 +44,10 @@ const shuffle = <T,>(arr: T[]): T[] => arr.map((v) => [Math.random(), v] as cons
 
 /** 每次造訪商店時隨機產生貨架 */
 export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
+  return buildStock(state,lord,kind).map(o=>o.kind==='general'||o.kind==='revive' ? o : {...o,price:Math.round(o.price*WORLD.purchaseMult)});
+}
+
+function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
   const uid = (p: string) => nextUid(state, p);
   // 隨回合推進，高階貨品更常見
   const bias = Math.min(0.9, state.round / 40);
@@ -113,7 +118,8 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
       }
       const shuffledHidden=shuffle(hidden);
       const normal = free.filter((g) => g.origin !== 'immortal');
-      const pool = [...shuffledHidden.slice(0,1), ...normal].slice(0,4);
+      const showHidden=lordHas(lord.id,'unlockHidden') || Math.random()<0.2;
+      const pool = [...(showHidden?shuffledHidden.slice(0,1):[]), ...normal].slice(0,4);
       for (const g of pool) if (!state.generals[g.id]) state.generals[g.id]=g;
       return pool.map(
         (g) =>

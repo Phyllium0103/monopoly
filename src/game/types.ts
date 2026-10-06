@@ -151,12 +151,17 @@ export interface Lord {
   forkExit: number | null;
   /** 本回合已領過的靈脈（每輪每位主公只領一次） */
   veinsTapped: number[];
-  /** 迷魂陣：剩餘停留回合 */
+  /** 定身符／鎖仙陣：下次擲骰時的剩餘停留回合 */
   stunned: number;
   tollFree: boolean;
   tollFreeTurns: number;
   itemsLocked: number;
   forcedTile: number | null;
+  /** 自用停留物品：本回合擲骰時停在原地。 */
+  stayThisTurn?: boolean;
+  /** 每位主公僅能保留一名聽風樓武將；每次鎖定累乘價格。 */
+  tavernLockedGeneral?: string | null;
+  tavernPriceMultipliers?: Record<string, number>;
   moveMultiplier: number;
   forkChoice: boolean;
   /** 破城符：本回合攻城戰力加成 */

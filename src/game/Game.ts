@@ -342,19 +342,6 @@ export class Game {
     this.refresh();
 
     if (clearThisTurn) {this.ui.log(name+'全隊清修，本回合不採取主動行動。','good');await this.wait(700);return;}
-    if (lord.stunned > 0) {
-      lord.stunned--;
-      if (lord.itemsLocked > 0) lord.itemsLocked--;
-      this.ui.log(`${name}受定身／鎖仙效果所困，原地停留。`, 'bad');
-      this.ui.toast(`${name}受定身／鎖仙效果所困`);
-      await this.wait(900);
-      return;
-    }
-    if (lord.forcedTile !== null) {
-      const tile = lord.forcedTile; lord.forcedTile = null;
-      this.ui.log(name + '受迷魂效果引導，前往' + this.state.tiles[tile].name + '。', 'bad');
-      await this.teleport(lord, tile); return;
-    }
     if (this.human(lord)) await this.playerTurn(lord);
     else {
       for(const g of abilityUsers(this.state,lord)) if(abilityReady(this.state,lord,g).ok) {
@@ -377,8 +364,8 @@ export class Game {
     if (this.state.over || await this.checkEnd()) return;
     this.phase = 'busy';
     this.refresh();
-    if (choice.type === 'teleport') await this.teleport(lord, choice.tile);
-    else await this.moveLord(lord, await this.rollDice(lord));
+    if (choice.type === 'teleport' && !lord.stunned && lord.forcedTile===null && !lord.stayThisTurn) await this.teleport(lord, choice.tile);
+    else await this.resolveDiceMovement(lord);
     if (!lord.alive || this.state.over) return;
     // 落地處理完畢就直接結束回合
     this.phase = 'busy';
@@ -417,9 +404,28 @@ export class Game {
       return;
     }
     if (await this.checkEnd()) return;
-    await this.moveLord(lord, await this.rollDice(lord));
+    await this.resolveDiceMovement(lord);
     if (lord.alive && this.canSwapSect(lord)) for (const msg of aiManageSect(this.state, lord)) this.ui.log(`${LORDS[lord.id].name}：${msg}`, 'ai');
     await this.wait(300);
+  }
+
+  /** 移動限制在擲骰時結算；零步與指定落點都走一般落地事件流程。 */
+  private async resolveDiceMovement(lord: Lord) {
+    const steps=await this.rollDice(lord);
+    if(lord.stunned>0) {
+      lord.stunned--; lord.stayThisTurn=false;
+      this.ui.log(LORDS[lord.id].name+'受定身／鎖仙效果所困，本次擲骰原地停留。','bad');
+      try { await this.land(lord,lord.position); }
+      finally { if(lord.itemsLocked>0)lord.itemsLocked--; }
+    } else if(lord.forcedTile!==null) {
+      const tile=lord.forcedTile;lord.forcedTile=null;lord.stayThisTurn=false;
+      this.ui.log(LORDS[lord.id].name+'受迷魂效果引導，本次擲骰強制前往'+this.state.tiles[tile].name+'。','bad');
+      await this.teleport(lord,tile);
+    } else if(lord.stayThisTurn) {
+      lord.stayThisTurn=false;
+      this.ui.log(LORDS[lord.id].name+'使用停留物品，本次擲骰原地停留。','info');
+      await this.land(lord,lord.position);
+    } else await this.moveLord(lord,steps);
   }
 
   private async rollDice(lord: Lord): Promise<number> {
@@ -572,7 +578,7 @@ export class Game {
       case 'realm':
         return this.landRealm(lord, t.name);
       case 'vein':
-        return;
+        return this.passVein(lord,tile);
       case 'portal':
         return this.landPortal(lord);
       case 'road':
@@ -940,18 +946,18 @@ export class Game {
     return r.winner === 'a';
   }
 
-  /** 武將在擂台上被當場擊殺 */
-  private async onGeneralSlain(g: General, involved: boolean, sealed = false) {
+  /** 擂台或擲骰前物品致死，共用護法、清理與主公敗北流程。 */
+  private async onGeneralSlain(g: General, involved: boolean, sealed = false, cause = '戰死擂台') {
     if (!sealed && await this.protectDeath(g)) { this.refresh(); return; }
     const owner = g.owner;
     const abandoned = killGeneral(this.state, g);
     this.world.syncCities(this.state);
     if (abandoned) this.ui.log(`🏚️ ${this.state.cities[abandoned].name}失去所有駐將，成為空城，守軍離去。`, 'bad');
-    this.ui.log(`💀 ${g.name}戰死擂台，從此除名！`, owner === this.state.player ? 'bad' : involved ? 'good' : 'ai');
-    if (involved) this.ui.toast(`${g.name}戰死擂台`);
+    this.ui.log(`💀 ${g.name}${cause}，從此除名！`, owner === this.state.player ? 'bad' : involved ? 'good' : 'ai');
+    if (involved) this.ui.toast(`${g.name}${cause}`);
     this.refresh();
     // 主公戰死，等於敗北
-    if (g.isLord && owner) await this.onBankrupt(this.state.lords[owner], `${g.name}戰死擂台，主公陣亡`);
+    if (g.isLord && owner) await this.onBankrupt(this.state.lords[owner], `${g.name}${cause}，主公陣亡`);
   }
 
   private async runSiege(attacker: Lord, city: City, preset: General[]): Promise<boolean | null> {
@@ -1237,7 +1243,7 @@ export class Game {
 
   private async useItemPreroll(lord: Lord) {
     if (lord.itemsLocked > 0) { this.ui.toast('目前不能使用物品'); return; }
-    const items = lord.items.filter((i) => usableIn(i, 'preroll'));
+    const items = lord.items.filter((i) => usableIn(i, 'preroll') && (!['teleport','cloud','cushion','prison'].includes(i.defId) || (!lord.stunned && lord.forcedTile===null && !lord.stayThisTurn)));
     if (!items.length) {
       this.ui.toast('沒有可在擲骰前使用的物品');
       return;
@@ -1365,7 +1371,11 @@ export class Game {
         }
       }
     }
-    const result=usePreroll(this.state,lord,item,user,target,blocked);
+    const result=await usePreroll(this.state,lord,item,user,target,blocked,async g=>{
+      if(await this.protectDeath(g))return true;
+      await this.onGeneralSlain(g,this.human(lord)||g.owner===this.state.player,true,'遭物品擊殺');
+      return false;
+    });
     if(guardian&&victim){triggerItemBlock(victim,guardian);this.ui.log('左慈擲杯戲曹，敵方非戰鬥物品失效，護法冷卻五個自身回合。','good');}
     return result;
   }

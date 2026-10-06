@@ -101,7 +101,7 @@ export class GameUI {
       .map((id) => {
         const l = state.lords[id];
         const d = LORDS[id];
-        const status = !l.alive ? '<span class="tag dead">出局</span>' : l.stunned ? `<span class="tag stun">迷魂 ${l.stunned}</span>` : '';
+        const status = !l.alive ? '<span class="tag dead">出局</span>' : l.stunned ? `<span class="tag stun">定身 ${l.stunned}</span>` : '';
         const realm = l.expeditions.length ? `<span class="tag realm">🌀${l.expeditions.length}</span>` : '';
         const ready = l.alive && l.isPlayer ? generalsOf(state, id).filter((g) => canAttemptBreak(g, state.round).ok).length : 0;
         const breakTag = ready ? `<span class="tag ready" title="有武將修為圓滿，可到武將名冊突破">✨可突破 ${ready}</span>` : '';

@@ -305,10 +305,10 @@ export const ITEM_CATALOG = [
       1750
     ],
     "effects": [
-      "戰鬥中每回合扣 4% 血量（3 回合）；平時隨機隨行武將直接扣 10% 血量",
-      "戰鬥中每回合扣 7% 血量（3 回合）；平時隨機隨行武將直接扣 18% 血量",
-      "戰鬥中每回合扣 10% 血量（3 回合）；平時隨機隨行武將直接扣 25% 血量",
-      "戰鬥中每回合扣 15% 血量（3 回合）；平時隨機隨行武將直接扣 35% 血量"
+      "戰鬥中每回合扣 4% 血量（3 回合）；平時隨機隨行武將直接扣 10% 血量；平時傷害可致死",
+      "戰鬥中每回合扣 7% 血量（3 回合）；平時隨機隨行武將直接扣 18% 血量；平時傷害可致死",
+      "戰鬥中每回合扣 10% 血量（3 回合）；平時隨機隨行武將直接扣 25% 血量；平時傷害可致死",
+      "戰鬥中每回合扣 15% 血量（3 回合）；平時隨機隨行武將直接扣 35% 血量；平時傷害可致死"
     ],
     "noUser": false,
     "weight": 0.25
@@ -590,16 +590,16 @@ export const ITEM_CATALOG = [
     "target": "ownGeneral",
     "battleTarget": "none",
     "min": [
-      100
+      60
     ],
     "stamina": [
-      100
+      60
     ],
     "price": [
-      12000
+      6000
     ],
     "sellPrice": [
-      6000
+      3000
     ],
     "effects": [
       "只能對五行靈根的武將使用，使用後可改變靈根為指定靈根"
@@ -654,7 +654,7 @@ export const ITEM_CATALOG = [
       2000
     ],
     "effects": [
-      "指定其他主公下回合前往指定地點"
+      "指定其他主公下回合擲骰時強制前往指定地點，並觸發落點事件"
     ],
     "noUser": false,
     "weight": 1
@@ -1000,7 +1000,7 @@ export const ITEM_CATALOG = [
       2000
     ],
     "effects": [
-      "敵人強制停留一回合，且無法使用任何物品。"
+      "敵人下回合擲骰時強制原地停留，仍觸發所在格事件，該回合不能使用物品"
     ],
     "noUser": false,
     "weight": 1
@@ -1104,7 +1104,7 @@ export const ITEM_CATALOG = [
       2000
     ],
     "effects": [
-      "敵人強制停留一回合，且無法使用任何物品。"
+      "敵人下回合擲骰時強制原地停留，仍觸發所在格事件，該回合不能使用物品"
     ],
     "noUser": false,
     "weight": 1
@@ -1342,7 +1342,7 @@ export const ITEM_CATALOG = [
       2000
     ],
     "effects": [
-      "指定其他主公下回合前往指定地點"
+      "指定其他主公下回合擲骰時強制前往指定地點，並觸發落點事件"
     ],
     "noUser": false,
     "weight": 1
@@ -1722,10 +1722,10 @@ export const ITEM_CATALOG = [
       1750
     ],
     "effects": [
-      "指定主公隨機隨行武將直接扣 20% 血量",
-      "指定主公隨機隨行武將直接扣 30% 血量",
-      "指定主公隨機隨行武將直接扣 40% 血量",
-      "指定主公隨機隨行武將直接扣 50% 血量"
+      "指定主公隨機隨行武將直接扣 20% 血量；平時傷害可致死",
+      "指定主公隨機隨行武將直接扣 30% 血量；平時傷害可致死",
+      "指定主公隨機隨行武將直接扣 40% 血量；平時傷害可致死",
+      "指定主公隨機隨行武將直接扣 50% 血量；平時傷害可致死"
     ],
     "noUser": false,
     "weight": 0.25
@@ -1822,5 +1822,57 @@ export const ITEM_CATALOG = [
     ],
     "noUser": true,
     "weight": 0.2
+  },
+  {
+    "id": "cushion",
+    "name": "悟道蒲團",
+    "category": "法器",
+    "stat": "forging",
+    "timing": "preroll",
+    "target": "none",
+    "battleTarget": "none",
+    "min": [
+      40
+    ],
+    "stamina": [
+      30
+    ],
+    "price": [
+      1500
+    ],
+    "sellPrice": [
+      750
+    ],
+    "effects": [
+      "己方主公本回合擲骰時原地停留，仍觸發所在格事件"
+    ],
+    "noUser": false,
+    "weight": 1
+  },
+  {
+    "id": "prison",
+    "name": "畫地為牢符",
+    "category": "符籙",
+    "stat": "talisman",
+    "timing": "preroll",
+    "target": "none",
+    "battleTarget": "none",
+    "min": [
+      40
+    ],
+    "stamina": [
+      30
+    ],
+    "price": [
+      1500
+    ],
+    "sellPrice": [
+      750
+    ],
+    "effects": [
+      "己方主公本回合擲骰時原地停留，仍觸發所在格事件"
+    ],
+    "noUser": false,
+    "weight": 1
   }
 ] as const;

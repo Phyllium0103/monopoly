@@ -1,0 +1,272 @@
+{
+  "date": "2026-10-07",
+  "spreadsheetId": "1YJomtUHInHDzwNReghk7RUrazfLjsnDcjD-jHoTA1sw",
+  "kinds": 60,
+  "tiers": 123,
+  "changedItems": [
+    {
+      "id": "poison",
+      "name": "斷腸毒丹",
+      "category": "丹藥",
+      "stat": "alchemy",
+      "timing": "both",
+      "target": "lord",
+      "battleTarget": "enemyGeneral",
+      "min": [
+        30,
+        40,
+        50,
+        60
+      ],
+      "stamina": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "price": [
+        1000,
+        1800,
+        2500,
+        3500
+      ],
+      "sellPrice": [
+        500,
+        900,
+        1250,
+        1750
+      ],
+      "effects": [
+        "戰鬥中每回合扣 4% 血量（3 回合）；平時隨機隨行武將直接扣 10% 血量；平時傷害可致死",
+        "戰鬥中每回合扣 7% 血量（3 回合）；平時隨機隨行武將直接扣 18% 血量；平時傷害可致死",
+        "戰鬥中每回合扣 10% 血量（3 回合）；平時隨機隨行武將直接扣 25% 血量；平時傷害可致死",
+        "戰鬥中每回合扣 15% 血量（3 回合）；平時隨機隨行武將直接扣 35% 血量；平時傷害可致死"
+      ],
+      "noUser": false,
+      "weight": 0.25
+    },
+    {
+      "id": "five",
+      "name": "五行轉生丹",
+      "category": "丹藥",
+      "stat": "alchemy",
+      "timing": "preroll",
+      "target": "ownGeneral",
+      "battleTarget": "none",
+      "min": [
+        60
+      ],
+      "stamina": [
+        60
+      ],
+      "price": [
+        6000
+      ],
+      "sellPrice": [
+        3000
+      ],
+      "effects": [
+        "只能對五行靈根的武將使用，使用後可改變靈根為指定靈根"
+      ],
+      "noUser": false,
+      "weight": 0.1
+    },
+    {
+      "id": "confuse",
+      "name": "迷魂陣",
+      "category": "陣法",
+      "stat": "formation",
+      "timing": "preroll",
+      "target": "lord",
+      "battleTarget": "none",
+      "min": [
+        80
+      ],
+      "stamina": [
+        40
+      ],
+      "price": [
+        4000
+      ],
+      "sellPrice": [
+        2000
+      ],
+      "effects": [
+        "指定其他主公下回合擲骰時強制前往指定地點，並觸發落點事件"
+      ],
+      "noUser": false,
+      "weight": 1
+    },
+    {
+      "id": "lock",
+      "name": "鎖仙陣",
+      "category": "陣法",
+      "stat": "formation",
+      "timing": "preroll",
+      "target": "lord",
+      "battleTarget": "none",
+      "min": [
+        60
+      ],
+      "stamina": [
+        40
+      ],
+      "price": [
+        4000
+      ],
+      "sellPrice": [
+        2000
+      ],
+      "effects": [
+        "敵人下回合擲骰時強制原地停留，仍觸發所在格事件，該回合不能使用物品"
+      ],
+      "noUser": false,
+      "weight": 1
+    },
+    {
+      "id": "freeze",
+      "name": "定身符",
+      "category": "符籙",
+      "stat": "talisman",
+      "timing": "preroll",
+      "target": "lord",
+      "battleTarget": "none",
+      "min": [
+        60
+      ],
+      "stamina": [
+        40
+      ],
+      "price": [
+        4000
+      ],
+      "sellPrice": [
+        2000
+      ],
+      "effects": [
+        "敵人下回合擲骰時強制原地停留，仍觸發所在格事件，該回合不能使用物品"
+      ],
+      "noUser": false,
+      "weight": 1
+    },
+    {
+      "id": "confusing",
+      "name": "迷魂符",
+      "category": "符籙",
+      "stat": "talisman",
+      "timing": "preroll",
+      "target": "lord",
+      "battleTarget": "none",
+      "min": [
+        80
+      ],
+      "stamina": [
+        40
+      ],
+      "price": [
+        4000
+      ],
+      "sellPrice": [
+        2000
+      ],
+      "effects": [
+        "指定其他主公下回合擲骰時強制前往指定地點，並觸發落點事件"
+      ],
+      "noUser": false,
+      "weight": 1
+    },
+    {
+      "id": "bow",
+      "name": "落日弓",
+      "category": "法器",
+      "stat": "forging",
+      "timing": "preroll",
+      "target": "lord",
+      "battleTarget": "none",
+      "min": [
+        30,
+        45,
+        60,
+        75
+      ],
+      "stamina": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "price": [
+        1000,
+        1800,
+        2500,
+        3500
+      ],
+      "sellPrice": [
+        500,
+        900,
+        1250,
+        1750
+      ],
+      "effects": [
+        "指定主公隨機隨行武將直接扣 20% 血量；平時傷害可致死",
+        "指定主公隨機隨行武將直接扣 30% 血量；平時傷害可致死",
+        "指定主公隨機隨行武將直接扣 40% 血量；平時傷害可致死",
+        "指定主公隨機隨行武將直接扣 50% 血量；平時傷害可致死"
+      ],
+      "noUser": false,
+      "weight": 0.25
+    },
+    {
+      "id": "cushion",
+      "name": "悟道蒲團",
+      "category": "法器",
+      "stat": "forging",
+      "timing": "preroll",
+      "target": "none",
+      "battleTarget": "none",
+      "min": [
+        40
+      ],
+      "stamina": [
+        30
+      ],
+      "price": [
+        1500
+      ],
+      "sellPrice": [
+        750
+      ],
+      "effects": [
+        "己方主公本回合擲骰時原地停留，仍觸發所在格事件"
+      ],
+      "noUser": false,
+      "weight": 1
+    },
+    {
+      "id": "prison",
+      "name": "畫地為牢符",
+      "category": "符籙",
+      "stat": "talisman",
+      "timing": "preroll",
+      "target": "none",
+      "battleTarget": "none",
+      "min": [
+        40
+      ],
+      "stamina": [
+        30
+      ],
+      "price": [
+        1500
+      ],
+      "sellPrice": [
+        750
+      ],
+      "effects": [
+        "己方主公本回合擲骰時原地停留，仍觸發所在格事件"
+      ],
+      "noUser": false,
+      "weight": 1
+    }
+  ]
+}

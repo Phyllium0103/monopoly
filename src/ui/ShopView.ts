@@ -1,7 +1,7 @@
 import { lordHas } from '../data/passives';
 import type { GameState, Lord } from '../game/types';
 import { fmtStones } from '../game/Currency';
-import { SHOP_NAMES, SHOP_REFRESH_COSTS, beginShopVisit, refreshShop, buy, makeSellStock, sell, type SaleOffer, type Offer, type ShopKind } from '../systems/ShopSystem';
+import { SHOP_NAMES, SHOP_REFRESH_COSTS, beginShopVisit, refreshShop, lockTavernGeneral, buy, makeSellStock, sell, type SaleOffer, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { TILE_INFO } from '../data/board';
 import type { Dialog } from './Dialog';
 import { itemInfoHtml, itemLabel } from './ItemUI';
@@ -33,7 +33,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
     `${kind === 'merchant' ? '🐫' : TILE_INFO[kind].icon} ${SHOP_NAMES[kind]}`,
     (body, done) => {
       const render = () => {
-        body.innerHTML = `<p class="dialog-text">${kind==='tavern'?`每次最多招募 ${recruitLimit} 位。本國將領價格較低。`:SHOP_DESC[kind]}</p><div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;
+        body.innerHTML = `<p class="dialog-text">${kind==='tavern'?`每次最多招募 ${recruitLimit} 位。本國將領價格較低。可鎖定一位，刷新及再次進入時保留；每次鎖定價格再乘 1.2。`:SHOP_DESC[kind]}</p><div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;
         if (kind !== 'tavern') {
           const modes = document.createElement('div');
           modes.className = 'shop-tabs';
@@ -79,7 +79,8 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
           const b = document.createElement('button');
           b.className = 'btn primary mini';
           const otherRevive = o.kind === 'revive' && !o.own;
-          const blocked = sold.has(i) || (kind === 'tavern' && recruited >= recruitLimit) || (otherRevive && revivedOther);
+          const unavailable=o.kind==='general' && (!!o.general.owner || o.general.status==='dead');
+          const blocked = unavailable || sold.has(i) || (kind === 'tavern' && recruited >= recruitLimit) || (otherRevive && revivedOther);
           b.textContent = sold.has(i) ? (o.kind === 'revive' ? '已復活' : '已購') : kind === 'tavern' ? '招募' : o.kind === 'revive' ? '復活' : '購買';
           b.disabled = blocked || lord.stones < o.price;
           if (confirmBeast === i) b.textContent = '放生舊靈獸並購買？';
@@ -111,6 +112,14 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
             }
             render();
           };
+          if(kind==='tavern' && o.kind==='general') {
+            const locked=lord.tavernLockedGeneral===o.general.id;
+            const lock=document.createElement('button');lock.className='btn mini';
+            lock.textContent=locked?'🔒 再次鎖定 ×1.2':'鎖定 ×1.2';
+            lock.disabled=sold.has(i)||unavailable;
+            lock.onclick=()=>{const r=lockTavernGeneral(lord,o);if(r.ok)onBuy(r.message);render();};
+            row.appendChild(lock);
+          }
           row.appendChild(b);
           list.appendChild(row);
         });
@@ -135,6 +144,11 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
           render();
         };
         row.appendChild(refresh);
+        if(kind==='tavern' && lord.tavernLockedGeneral) {
+          const unlock=document.createElement('button');unlock.className='btn';unlock.textContent='取消鎖定';
+          unlock.onclick=()=>{lord.tavernLockedGeneral=null;onBuy('取消鎖定；已增加的招募價格保留。');render();};
+          row.appendChild(unlock);
+        }
         const leave = document.createElement('button');
         leave.className = 'btn';
         leave.textContent = '離開';

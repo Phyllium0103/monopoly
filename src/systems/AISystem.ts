@@ -146,6 +146,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
     if (victim) logs.push(await apply(curse, curser, { general: victim }));
   }
   for (const item of [...lord.items].filter(i=>['ghost','move','poison','bow','lock','freeze','confuse','confusing','rootdown','sacrifice','graft','citadel','seven'].includes(i.defId))) {
+    if(state.over || !lord.alive)break;
     const user=freeGenerals(state,lord.id).find(g=>canUse(item,g).ok);if (!user) continue;
     // 妨礙類物品對準威脅最大的對手：總資產最高的優先，條件不符再換下一位
     const enemies=Object.values(state.lords).filter(l=>l.alive&&l.id!==lord.id).sort((x,y)=>totalAssets(state,y.id).total-totalAssets(state,x.id).total);
@@ -175,6 +176,13 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
       const g=strongest.find(g=>g.owner===lord.id&&g.status!=='dead'&&g.status!=='realm'&&g.realm>=2&&!g.sevenLife);if(!g)continue;target={general:g};
     }
     logs.push(await apply(item,user,target));
+  }
+  if(state.over || !lord.alive)return logs;
+  // 有交易需求時可用自用停留物品再次觸發商店。
+  if(!lord.stunned && lord.forcedTile===null && !lord.stayThisTurn && lord.stones>style.shopReserve+3000 && ['tavern','forge','library','treasure','herb','beast'].includes(state.tiles[lord.position].kind) && Math.random()<.25) {
+    const stay=lord.items.find(i=>['cushion','prison'].includes(i.defId));
+    const user=stay&&freeGenerals(state,lord.id).find(g=>canUse(stay,g).ok);
+    if(stay&&user)logs.push(await apply(stay,user,{}));
   }
   // 縮地符
   const stride = lord.items.find((i) => i.defId === 'stride');
@@ -330,7 +338,7 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
     if (o.kind === 'item') {
       // 有將領快要渡劫時，優先買護法陣
       if (['thunderward', 'fiveward'].includes(o.item.defId)) return generalsOf(state, lord.id).some((g) => g.realm >= 2 && g.exp >= expCap(g) * 0.6);
-      return def(o.item).category === '丹藥' || ['stride', 'truce', 'citadel', 'siegebreak', 'demon', 'mend', 'vein', 'soldiers', 'shuttle'].includes(o.item.defId);
+      return def(o.item).category === '丹藥' || ['cushion', 'prison', 'stride', 'truce', 'citadel', 'siegebreak', 'demon', 'mend', 'vein', 'soldiers', 'shuttle'].includes(o.item.defId);
     }
     return true;
   });

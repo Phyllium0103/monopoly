@@ -118,10 +118,12 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
       if (lordHas(lord.id,'unlockHidden')) {
         for (const seed of HIDDEN_SEEDS) if (!state.generals[seed.id]) hidden.push(newGeneral(seed,'immortal',null,'free',null));
       }
-      const shuffledHidden=shuffle(hidden);
-      const normal = free.filter((g) => g.origin !== 'immortal');
+      const locked=free.find(g=>g.id===lord.tavernLockedGeneral);
+      if(!locked)lord.tavernLockedGeneral=null;
+      const shuffledHidden=shuffle(hidden.filter(g=>g.id!==locked?.id));
+      const normal = free.filter((g) => g.origin !== 'immortal' && g.id!==locked?.id);
       const showHidden=lordHas(lord.id,'unlockHidden') || Math.random()<0.2;
-      const pool = [...(showHidden?shuffledHidden.slice(0,1):[]), ...normal].slice(0,4);
+      const pool = [...(locked?[locked]:[]), ...(showHidden&&locked?.origin!=='immortal'?shuffledHidden.slice(0,1):[]), ...normal].slice(0,4);
       for (const g of pool) if (!state.generals[g.id]) state.generals[g.id]=g;
       return pool.map(
         (g) =>
@@ -130,7 +132,7 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
             general: g,
             label: `${g.origin === 'immortal' ? '🧙 ' : ''}${g.name}（${originKingdom(g.origin)}）`,
             sub: `${realmName(g)}・${APTITUDE_NAMES[g.aptitude]}｜被動【${passiveOf(g).name}】${fxText(passiveOf(g).fx)}｜戰力 ${power(g)}｜武${g.base.force} 防${g.base.defense} 丹${g.base.alchemy} 器${g.base.forging} 符${g.base.talisman} 陣${g.base.formation}${g.origin === lord.id ? '｜本國將領優惠' : ''}`,
-            price: recruitPrice(g, lord.id),
+            price: Math.round(recruitPrice(g, lord.id)*(lord.tavernPriceMultipliers?.[g.id]??1)),
           }) as Offer,
       );
     }
@@ -140,7 +142,7 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
 /** 購買；回傳結果文字，失敗回傳 null */
 export function buy(state: GameState, lord: Lord, offer: Offer): { ok: boolean; message: string } {
   if (lord.stones < offer.price) return { ok: false, message: '靈石不足。' };
-  if (offer.kind === 'general' && offer.general.owner) return { ok: false, message: '此人已出仕。' };
+  if (offer.kind === 'general' && (offer.general.owner || offer.general.status==='dead')) return { ok: false, message: '此人已出仕。' };
   if (offer.kind === 'revive' && offer.general.status !== 'dead') return { ok: false, message: '此人已經復活了。' };
   lord.stones -= offer.price;
   switch (offer.kind) {
@@ -162,6 +164,10 @@ export function buy(state: GameState, lord: Lord, offer: Offer): { ok: boolean; 
       break;
     case 'general':
       joinLord(state, lord.id, offer.general);
+      for(const visitor of Object.values(state.lords)) {
+        if(visitor.tavernLockedGeneral===offer.general.id)visitor.tavernLockedGeneral=null;
+        if(visitor.tavernPriceMultipliers)delete visitor.tavernPriceMultipliers[offer.general.id];
+      }
       break;
     case 'revive': {
       const exp=offer.general.exp;
@@ -254,4 +260,14 @@ export function sortOffers<T extends Offer>(offers: readonly T[]): T[] {
 }
 function saleBasis(asset: {price:number;purchasePrice?:number}): number {
   return asset.purchasePrice??asset.price;
+}
+
+/** 鎖定只提高報價，不立即扣靈石；更換人選會取代上一位。 */
+export function lockTavernGeneral(lord: Lord, offer: Extract<Offer,{kind:'general'}>): {ok:boolean;message:string} {
+  if(offer.general.owner || offer.general.status==='dead')return {ok:false,message:'此武將已無法招募。'};
+  lord.tavernPriceMultipliers??={};
+  lord.tavernPriceMultipliers[offer.general.id]=(lord.tavernPriceMultipliers[offer.general.id]??1)*1.2;
+  lord.tavernLockedGeneral=offer.general.id;
+  offer.price=Math.round(offer.price*1.2);
+  return {ok:true,message:'鎖定'+offer.general.name+'，招募價提高為'+fmtStones(offer.price)+'；刷新及再次進入時保留。'};
 }

@@ -89,10 +89,10 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
       });
     }
     case 'forge': {
-      // 神器與寶衣各 6 件
+      // 神器與寶衣各 10 件
       const out: Offer[] = [];
       for (const kindE of ['weapon', 'armor'] as const) {
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 10; i++) {
           const e = makeEquipment(uid('e'), kindE, rollTier(bias));
           out.push({ kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e), price: e.price, group: kindE === 'weapon' ? '神器' : '寶衣' });
         }

@@ -28,6 +28,8 @@ export interface GeneralSeed {
   aptitude: Aptitude;
   /** 開局即在麾下 */
   start?: boolean;
+  /** 開局留守宗門，不占隨行名額 */
+  sect?: boolean;
   /** 開局駐守首都 */
   garrison?: boolean;
   /** 主公本人（可出戰，但不能派進城池、不會戰死） */
@@ -46,7 +48,7 @@ export const GENERAL_SEEDS: GeneralSeed[] = [
   {"id":"weiyan","name":"魏延","origin":"liu","s":[87,76,640,20,45,20,48],"realm":0,"aptitude":"waste","start":true,"garrison":false,"lord":false},
   {"id":"pangtong","name":"龐統","origin":"liu","s":[36,52,380,72,55,86,93],"realm":0,"aptitude":"heaven","start":true,"garrison":false,"lord":false},
   {"id":"jiangwei","name":"姜維","origin":"liu","s":[86,80,620,50,55,65,82],"realm":0,"aptitude":"heaven","start":true,"garrison":false,"lord":false},
-  {"id":"fazheng","name":"法正","origin":"liu","s":[34,48,360,60,50,82,86],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
+  {"id":"fazheng","name":"法正","origin":"liu","s":[34,48,360,60,50,82,86],"realm":0,"aptitude":"earth","start":true,"sect":true,"garrison":false,"lord":false},
   {"id":"madai","name":"馬岱","origin":"liu","s":[80,72,590,25,45,30,45],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"guanping","name":"關平","origin":"liu","s":[82,78,620,25,45,25,40],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"maliang","name":"馬良","origin":"liu","s":[28,48,350,72,60,84,78],"realm":0,"aptitude":"heaven","start":false,"garrison":false,"lord":false},

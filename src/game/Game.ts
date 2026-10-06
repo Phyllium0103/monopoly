@@ -1806,7 +1806,8 @@ export class Game {
     const here = LORD_IDS.filter((id) => this.state.lords[id].alive && this.state.lords[id].position === index);
     const fork = t.links.length >= 3 ? `<div class="ip-row">➜ 岔路箭頭：往${this.state.tiles[this.state.forkDirections[index]].name}</div>` : '';
     const people = here.length ? `<div class="ip-row">此地：${here.map((id) => `<span style="color:${LORDS[id].css}">${LORDS[id].name}</span><small>（${this.facingText(this.state.lords[id])}）</small>`).join('、')}</div>` : '';
-    const links = `<div class="ip-row">通往：${t.links.map((n) => `${TILE_INFO[this.state.tiles[n].kind].icon}${this.state.tiles[n].name}`).join('、')}${t.links.length >= 3 ? '（岔路口）' : ''}</div>`;
+    const linkText = `${t.links.map((n) => `${TILE_INFO[this.state.tiles[n].kind].icon}${this.state.tiles[n].name}`).join('、')}${t.links.length >= 3 ? '（岔路口）' : ''}`;
+    const links = `<div class="ip-row ip-links" title="通往：${linkText}">通往：${linkText}</div>`;
     if (t.kind !== 'city') return `<div class="ip-head"><b>${TILE_INFO[t.kind].icon} ${t.name}</b></div><div class="ip-row">${TILE_INFO[t.kind].desc}</div>${links}${fork}${people}`;
     const c = this.state.cities[t.cityId!];
     const gens = garrisonOf(this.state, c);
@@ -1815,14 +1816,14 @@ export class Game {
     return `
       <div class="ip-head" style="--fc:${ownerCss(c.owner)}"><b>${c.capital ? '★ ' : ''}${c.name}</b><span>${ownerName(c.owner)}</span></div>
       <table>
-        <tr><td>地貌</td><td title="${terrainOf(c).desc}">${terrainOf(c).icon} ${terrainOf(c).name}<small class="terrain-fx">${terrainEffects(terrainOf(c))}</small></td></tr>
-        <tr><td>繁榮度</td><td>${fmtProsperity(c.prosperity)}<small class="terrain-fx">第 ${ranks.prosperity} / ${Object.keys(this.state.cities).length} 名</small></td></tr>
+        <tr><td>地貌</td><td title="${terrainOf(c).desc}｜${terrainEffects(terrainOf(c))}">${terrainOf(c).icon} ${terrainOf(c).name}</td></tr>
+        <tr><td>繁榮度</td><td title="全圖第 ${ranks.prosperity} / ${Object.keys(this.state.cities).length} 名">${fmtProsperity(c.prosperity)}<small class="terrain-fx">第 ${ranks.prosperity} 名</small></td></tr>
         <tr><td>過路費</td><td>${c.owner === 'neutral' ? `佔領後約 ${fmtStones(toll(c))}` : fmtStones(cityToll(this.state, c))}</td></tr>
-        <tr><td>每回合</td><td>${fmtStones(inc.stones)}・兵 +${inc.soldiers}<small class="terrain-fx">${RANK_METRICS.filter((m) => m.id === 'stones' || m.id === 'soldiers').map((m) => `${m.name}第 ${ranks[m.id]}`).join('・')}</small></td></tr>
+        <tr><td>每回合</td><td title="${RANK_METRICS.filter((m) => m.id === 'stones' || m.id === 'soldiers').map((m) => `${m.name}第 ${ranks[m.id]} 名`).join('・')}">${fmtStones(inc.stones)}・兵 +${inc.soldiers}</td></tr>
         <tr><td>駐將</td><td>${gens.length ? gens.map((g) => `${g.name}（${REALMS[g.realm]}・戰力 ${power(g)}）`).join('<br>') : '無'}</td></tr>
         <tr><td>比試</td><td>擂台戰（固定）＋${STAT_NAMES[c.contest]}比試</td></tr>
         <tr><td>守軍</td><td>${c.garrisonSoldiers}${c.shieldTurns ? `・護城大陣 ${c.shieldTurns}` : ''}</td></tr>
-        ${c.owner !== 'neutral' ? `<tr><td>守城戰力</td><td>${garrisonPower(this.state, c)}<small class="terrain-fx">第 ${ranks.defense} 名</small></td></tr>` : ''}
+        ${c.owner !== 'neutral' ? `<tr><td>守城戰力</td><td title="全圖第 ${ranks.defense} 名">${garrisonPower(this.state, c)}<small class="terrain-fx">第 ${ranks.defense} 名</small></td></tr>` : ''}
       </table>${links}${fork}${people}`;
   }
 
@@ -1836,6 +1837,7 @@ export class Game {
     const myTurn = current.id === player.id && player.alive;
     const buttons: ActionButton[] = [];
     let hint: string;
+    let fullHint = '';
     const ready = generalsOf(this.state, player.id).filter((g) => canAttemptBreak(g, this.state.round).ok).length;
     const roster: ActionButton = {
       label: '👥 武將',
@@ -1854,7 +1856,8 @@ export class Game {
       hint = `${LORDS[current.id].name}行動中……`;
       buttons.push(roster);
     } else if (this.phase === 'preroll') {
-      hint = '擲骰前可先使用物品、徵兵或整備武將（調度駐軍與宗門要站在自己的城池）；擲完骰、處理完落地事件，回合就會自動結束';
+      hint = '擲骰前可先整備；擲完骰、處理完事件，回合自動結束';
+      fullHint = '擲骰前可先使用物品、徵兵或整備武將（調度駐軍與宗門要站在自己的城池）；擲完骰、處理完落地事件，回合就會自動結束';
       buttons.push(
         { label: '✨ 方外神通', sub: '製物・起死回生・冤魂召喚', disabled: !abilityUsers(this.state,player).length, onClick: () => void this.generalAbilities(player) },
         { label: '🎒 使用物品', sub: `${player.items.length} 件`, onClick: () => void this.useItemPreroll(player) },
@@ -1867,7 +1870,7 @@ export class Game {
       hint = '傳送陣：點選地圖上任一格（右鍵或 Esc 取消）';
       buttons.push({ label: '✖ 取消', onClick: () => this.tileResolver?.(null) });
     } else hint = '……';
-    this.ui.renderActions(buttons, hint);
+    this.ui.renderActions(buttons, hint, fullHint);
     // 擲骰：右側偏下的大圓鈕
     if (!this.state.over && player.alive && myTurn && !this.autoPlay && this.phase === 'preroll') this.ui.showRoll(() => this.rollResolver?.({ type: 'roll' }));
     else this.ui.hideRoll();

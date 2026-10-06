@@ -60,7 +60,7 @@ export class GameUI {
       <button class="roll-btn hidden" title="擲骰（空白鍵）"><span class="roll-dice">🎲</span><b>擲骰</b><small>空白鍵</small></button>
       <div class="dice hidden"></div>
       <div class="tooltip hidden"></div>
-      <div class="help">左鍵拖曳旋轉 · 右鍵平移 · 滾輪縮放 · WASD 移動視角</div>`;
+`;
     root.appendChild(this.hud);
     const q = <T extends HTMLElement>(s: string) => this.hud.querySelector(s) as T;
     this.top = q('.top-bar');
@@ -105,11 +105,11 @@ export class GameUI {
         const realm = l.expeditions.length ? `<span class="tag realm">🌀${l.expeditions.length}</span>` : '';
         const ready = l.alive && l.isPlayer ? generalsOf(state, id).filter((g) => canAttemptBreak(g, state.round).ok).length : 0;
         const breakTag = ready ? `<span class="tag ready" title="有武將修為圓滿，可到武將名冊突破">✨可突破 ${ready}</span>` : '';
-        return `<div class="lord-card clickable ${id === current ? 'current' : ''} ${l.alive ? '' : 'out'} ${l.isPlayer ? 'me' : ''}" data-lord="${id}" title="點擊查看詳細資料" style="--fc:${d.css}">
+        return `<div class="lord-card clickable ${id === current ? 'current' : ''} ${l.alive ? '' : 'out'} ${l.isPlayer ? 'me' : ''}" data-lord="${id}" style="--fc:${d.css}">
           <div class="lc-head"><b>${d.name}</b><small>${d.kingdom}${l.isPlayer ? '・你' : ''}</small>${status}${realm}${breakTag}</div>
-          <div class="lc-row">💎 靈石 ${fmtStones(l.stones, true)}</div>
-          <div class="lc-row">總資產 ${fmtStones(totalAssets(state, id).total, true)}</div>
-          <div class="lc-row">⚔️ ${l.soldiers} · 🏯 ${citiesOf(state, id).length} · 👥 ${generalsOf(state, id).length}</div>
+          <div class="lc-row">💎 ${fmtStones(l.stones, true)}</div>
+          <div class="lc-row">總資產 <b>${fmtStones(totalAssets(state, id).total, true)}</b></div>
+          <div class="lc-more"><div>⚔️ 士兵 <b>${l.soldiers}</b></div><div>🏯 城池 <b>${citiesOf(state, id).length}</b> 座</div><div>👥 武將 <b>${generalsOf(state, id).length}</b> 名</div><small>點擊查看詳細資料</small></div>
         </div>`;
       })
       .join('');
@@ -121,7 +121,16 @@ export class GameUI {
         }</div>
       </div>
       <div class="lords">${lords}</div>
-      <div class="speed"><button class="btn mini log-btn ${this.logOpen ? 'on' : ''}" title="開關天下紀事">📜 紀事</button><button class="btn mini cheat-btn" title="測試用：獲得大量靈石與所有物品">🧪 測試</button><button class="btn mini auto-btn ${this.auto ? 'on' : ''}" title="由電腦代打你的回合">${this.auto ? '🤖 託管中' : '🤖 託管'}</button><button class="btn mini garrison-btn" ${state.over || !state.lords[state.player].alive ? 'disabled' : ''} title="隨時調兵；依道路距離收費，一次付費可操作到關閉">🏯 調兵</button><button class="btn mini rank-btn">🏆 城池榜</button><button class="btn mini help-btn">📖 說明</button><label class="music" title="背景音樂音量">🎵<input type="range" class="music-vol" min="0" max="100" step="5" value="${Math.round(music.volume * 100)}"><span class="music-pct">${Math.round(music.volume * 100)}%</span></label>${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}">${s}×</button>`).join('')}</div>`;
+      <div class="speed">
+        <button class="btn mini tool log-btn ${this.logOpen ? 'on' : ''}" data-tip="天下紀事（開／關）">📜</button>
+        <button class="btn mini tool auto-btn ${this.auto ? 'on' : ''}" data-tip="${this.auto ? '電腦託管中（點擊取消）' : '電腦代打你的回合'}">🤖</button>
+        <button class="btn mini tool garrison-btn" ${state.over || !state.lords[state.player].alive ? 'disabled' : ''} data-tip="調兵：隨時調動駐軍，依道路距離收費，一次付費可操作到關閉">🏯</button>
+        <button class="btn mini tool rank-btn" data-tip="城池榜">🏆</button>
+        <button class="btn mini tool help-btn" data-tip="說明（地圖：左鍵旋轉・右鍵平移・滾輪縮放・WASD 移動）">📖</button>
+        <span class="tool music" data-tip="背景音樂音量">🎵<span class="music-fly"><input type="range" class="music-vol" min="0" max="100" step="5" value="${Math.round(music.volume * 100)}"><span class="music-pct">${Math.round(music.volume * 100)}%</span></span></span>
+        <button class="btn mini tool cheat-btn" data-tip="測試用：獲得大量靈石與所有物品">🧪</button>
+        <span class="speed-group">${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}" data-tip="遊戲速度 ${s}×">${s}×</button>`).join('')}</span>
+      </div>`;
     (this.top.querySelector('.help-btn') as HTMLButtonElement).onclick = () => this.onHelp?.();
     (this.top.querySelector('.garrison-btn') as HTMLButtonElement).onclick = () => this.onGarrison?.();
     const vol = this.top.querySelector('.music-vol') as HTMLInputElement;
@@ -149,15 +158,18 @@ export class GameUI {
     });
   }
 
-  renderActions(buttons: ActionButton[], hint: string) {
-    this.actions.innerHTML = `<div class="hint">${hint}</div>`;
+  renderActions(buttons: ActionButton[], hint: string, fullHint = '') {
+    this.actions.innerHTML = `<div class="hint" ${fullHint ? `title="${fullHint}"` : ''}>${hint}</div>`;
     const row = document.createElement('div');
     row.className = 'action-row';
     for (const b of buttons) {
       const btn = document.createElement('button');
       btn.className = `btn action ${b.kind ?? ''}${b.highlight ? ' pulse' : ''}`;
       btn.disabled = !!b.disabled;
-      btn.innerHTML = `${b.label}${b.sub ? `<small>${b.sub}</small>` : ''}`;
+      // 太長的說明收進 hover，按鈕本身只留簡短的資訊
+      const longSub = !!b.sub && b.sub.length > 10;
+      if (longSub) btn.dataset.tip = b.sub;
+      btn.innerHTML = `${b.label}${b.sub && !longSub ? `<small>${b.sub}</small>` : ''}`;
       btn.onclick = () => b.onClick();
       row.appendChild(btn);
     }

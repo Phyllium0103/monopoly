@@ -46,9 +46,6 @@ export interface Technique extends PurchasedAsset {
   name: string;
   tier: Tier;
   element: Element;
-  /** 修煉難度 1–5 */
-  /** 完整度 1–5：越完整，能力加成、技能威力與每回合修為越高 */
-  completeness: number;
   /** 能力加成比例 */
   power: number;
   skillName: string;

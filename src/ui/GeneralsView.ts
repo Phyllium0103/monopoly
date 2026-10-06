@@ -3,7 +3,7 @@ import type { Equipment, GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS } from '../data/generals';
 import { fxText, passiveOf, fx } from '../data/passives';
-import { ELEMENT_CSS, equipDesc, equipRealm, techniqueDesc, techniqueExp } from '../data/items';
+import { ELEMENT_CSS, ELEMENT_NAMES, equipDesc, equipRealm, techniqueDesc, techniqueExp } from '../data/items';
 import {
   abolish,
   attack,
@@ -158,7 +158,7 @@ export class GeneralsView {
       <div class="equip">
         <div class="eq-row" data-slot="weapon"><span class="eq-info" ${g.weapon ? `title="${equipDesc(g.weapon)}"` : ''}>神器：${g.weapon ? g.weapon.name : '<span class="muted">無</span>'}</span></div>
         <div class="eq-row" data-slot="armor"><span class="eq-info" ${g.armor ? `title="${equipDesc(g.armor)}"` : ''}>寶衣：${g.armor ? g.armor.name : '<span class="muted">無</span>'}</span></div>
-        <div class="eq-row" data-slot="technique"><span class="eq-info">功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}" title="${techniqueDesc(t)}">${t.name}</span>・每回合 +${techniqueExp(t)} 修為` : '<span class="muted">未修習</span>'}</span></div>
+        <div class="eq-row" data-slot="technique"><span class="eq-info" ${t ? `title="${techniqueDesc(t)}｜每回合 +${techniqueExp(t)} 修為"` : ''}>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】${t.name}</span>` : '<span class="muted">未修習</span>'}</span></div>
       </div>
       <div class="gc-actions"></div>`;
 

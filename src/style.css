@@ -2104,3 +2104,29 @@ body {
   background: linear-gradient(var(--paper), var(--paper) 80%, rgba(240, 228, 196, 0));
 }
 .dialog > .dialog-text { max-height: 30vh; overflow-y: auto; }
+
+/* 商店：標題、分頁、按鈕固定，只有中間的物品清單可以捲動 */
+.dialog:has(.shop-list) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.dialog:has(.shop-list) .dialog-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.dialog:has(.shop-list) .dialog-body > * { flex: none; }
+.dialog:has(.shop-list) .shop-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.dialog:has(.shop-list) .dialog-buttons {
+  position: static;
+  margin: 12px 0 0;
+  padding: 0;
+  background: none;
+}

@@ -252,37 +252,34 @@ export class World {
       .then(() => this.root.remove(beam));
   }
 
-  /** 木頭路牌：立在每個岔路口（含三條以上道路的城池），牌子尖端指向目前的前進方向 */
+  /** 木頭路牌：立在岔路口通往前進方向的路上（避開城池建築），木板尖端指向目前的前進方向 */
   private makeSignpost(): THREE.Group {
-    const wood = new THREE.MeshStandardMaterial({ color: 0xb98a4e, roughness: 0.9 });
-    const dark = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.95 });
+    const wood = new THREE.MeshStandardMaterial({ color: 0xe0b872, roughness: 0.85 });
+    const dark = new THREE.MeshStandardMaterial({ color: 0x4a2c14, roughness: 0.95 });
+    const paint = new THREE.MeshBasicMaterial({ color: 0xc8281c });
     const g = new THREE.Group();
-    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 3.2, 8), dark);
-    post.position.y = 1.6;
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 4.4, 8), dark);
+    post.position.y = 2.2;
     g.add(post);
-    // 指向 +X 的箭頭形木板
-    const shape = new THREE.Shape();
-    shape.moveTo(-1.9, -0.55);
-    shape.lineTo(1.2, -0.55);
-    shape.lineTo(2.2, 0);
-    shape.lineTo(1.2, 0.55);
-    shape.lineTo(-1.9, 0.55);
-    shape.closePath();
-    const plank = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.28, bevelEnabled: false }).rotateX(-Math.PI / 2), wood);
-    plank.position.y = 3.05;
-    const rim = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false }).rotateX(-Math.PI / 2), dark);
-    rim.position.y = 2.97;
-    rim.scale.set(1.06, 1, 1.18);
+    const flat = (pts: [number, number][], depth: number, mat: THREE.Material, y: number, scale = 1) => {
+      const sh = new THREE.Shape();
+      pts.forEach(([x, z], i) => (i ? sh.lineTo(x * scale, z * scale) : sh.moveTo(x * scale, z * scale)));
+      sh.closePath();
+      const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false }).rotateX(-Math.PI / 2), mat);
+      m.position.y = y;
+      return m;
+    };
+    // 指向 +X 的箭頭形木板：深色外框、淺色木板、紅漆箭頭
+    const board: [number, number][] = [[-2.2, -0.9], [1.3, -0.9], [2.9, 0], [1.3, 0.9], [-2.2, 0.9]];
     const sign = new THREE.Group();
-    sign.add(rim, plank);
-    for (const x of [-1.4, 0.4]) {
-      const nail = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 6), dark);
-      nail.position.set(x, 3.36, 0);
-      sign.add(nail);
-    }
+    sign.add(
+      flat(board, 0.16, dark, 4.3, 1.1),
+      flat(board, 0.3, wood, 4.4),
+      flat([[-1.5, -0.28], [0.6, -0.28], [0.6, -0.6], [2.2, 0], [0.6, 0.6], [0.6, 0.28], [-1.5, 0.28]], 0.06, paint, 4.72),
+    );
     sign.name = 'sign';
     g.add(sign);
-    g.scale.setScalar(1.15);
+    g.scale.setScalar(1.3);
     return g;
   }
 
@@ -290,17 +287,19 @@ export class World {
     for (const tile of this.tiles) {
       if (tile.links.length < 3) continue;
       const target = this.tiles[state.forkDirections[tile.index]];
-      const dx = target.pos.x - tile.pos.x;
-      const dz = target.pos.z - tile.pos.z;
+      const len = Math.hypot(target.pos.x - tile.pos.x, target.pos.z - tile.pos.z) || 1;
+      const dx = (target.pos.x - tile.pos.x) / len;
+      const dz = (target.pos.z - tile.pos.z) / len;
       let sign = this.forkArrows.get(tile.index);
       if (!sign) {
         sign = this.makeSignpost();
         this.root.add(sign);
         this.forkArrows.set(tile.index, sign);
       }
+      // 立在通往目標的路上，離城池或路口一小段距離，才不會被建築蓋住
+      const off = tile.kind === 'city' ? 6.5 : 3.2;
       const p = this.tilePosition(tile.index);
-      sign.position.set(p.x + 1.8, p.y + (tile.kind === 'city' ? 1.2 : 0.2), p.z + 1.8);
-      // 牌子只轉動木板，柱子不動
+      sign.position.set(p.x + dx * off, p.y, p.z + dz * off);
       sign.getObjectByName('sign')!.rotation.y = Math.atan2(-dz, dx);
     }
   }

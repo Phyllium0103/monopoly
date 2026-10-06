@@ -16,6 +16,8 @@ export class SceneManager {
   timeScale = 1;
 
   private timer = new THREE.Timer();
+  private frame = 0;
+  private hoverQueued = false;
   private updaters: ((dt: number, time: number) => void)[] = [];
   private raycaster = new THREE.Raycaster();
   private pickables: THREE.Object3D[] = [];
@@ -24,11 +26,14 @@ export class SceneManager {
   onHover: ((obj: THREE.Object3D | null, e: PointerEvent) => void) | null = null;
 
   constructor(container: HTMLElement) {
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    // 高解析螢幕上畫素量成倍增加，上限 1.5 兼顧畫質與流暢
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
+    // 陰影不必每個畫格都重畫：交給 start() 每隔幾格更新一次
+    this.renderer.shadowMap.autoUpdate = false;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
     container.appendChild(this.renderer.domElement);
@@ -53,9 +58,15 @@ export class SceneManager {
     });
     this.renderer.domElement.addEventListener('pointermove', (e) => {
       if (e.buttons) return;
-      const hit = this.pick(e);
-      this.renderer.domElement.style.cursor = hit ? 'pointer' : 'default';
-      this.onHover?.(hit, e);
+      // 滑鼠移動事件很密集，每個畫格最多算一次（對整張地圖做射線檢測不便宜）
+      if (this.hoverQueued) return;
+      this.hoverQueued = true;
+      requestAnimationFrame(() => {
+        this.hoverQueued = false;
+        const hit = this.pick(e);
+        this.renderer.domElement.style.cursor = hit ? 'pointer' : 'default';
+        this.onHover?.(hit, e);
+      });
     });
   }
 
@@ -88,8 +99,11 @@ export class SceneManager {
       for (const u of this.updaters) u(dt, this.animator.time);
       this.environment.update(dt);
       this.cameraController.update(dt);
+      this.frame++;
+      if (this.frame % 3 === 0) this.renderer.shadowMap.needsUpdate = true;
       this.renderer.render(this.scene, this.camera);
-      this.labels.render(this.scene, this.camera);
+      // 文字標籤是 DOM，每格都更新很吃瀏覽器的排版；隔格更新肉眼看不出差別
+      if (this.frame % 2 === 0) this.labels.render(this.scene, this.camera);
     });
   }
 

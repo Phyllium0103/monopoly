@@ -39,7 +39,7 @@ export const ITEM_CATALOG = [
       "回復 100% 血量"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "force",
@@ -80,7 +80,7 @@ export const ITEM_CATALOG = [
       "基礎武力 +15"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "guard",
@@ -121,7 +121,7 @@ export const ITEM_CATALOG = [
       "基礎防禦+15"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "qi",
@@ -162,7 +162,7 @@ export const ITEM_CATALOG = [
       "修為 +2400"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "essence",
@@ -203,7 +203,7 @@ export const ITEM_CATALOG = [
       "修為 +50%"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "foundation",
@@ -229,7 +229,7 @@ export const ITEM_CATALOG = [
       "煉氣突破築基的成功率提升至 100%"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "vigor",
@@ -270,7 +270,7 @@ export const ITEM_CATALOG = [
       "回復 100 體力"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "poison",
@@ -311,7 +311,7 @@ export const ITEM_CATALOG = [
       "戰鬥中每回合扣 15% 血量（3 回合）；平時隨機隨行武將直接扣 35% 血量"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "clearmind",
@@ -378,7 +378,7 @@ export const ITEM_CATALOG = [
       "永久血量 +120（基礎值，隨境界放大）"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "breakpill",
@@ -419,7 +419,7 @@ export const ITEM_CATALOG = [
       "下次渡劫天雷傷害 -30%"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "revive",
@@ -460,7 +460,7 @@ export const ITEM_CATALOG = [
       "復活一名已死去的武將，歸入你的麾下：血量 100%、境界不變，修為不變"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "rootup1",
@@ -486,7 +486,7 @@ export const ITEM_CATALOG = [
       "靈根提升 1 階（廢靈根→隨機五行靈根、隨機五行靈根→天靈根）"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.2
   },
   {
     "id": "rootup2",
@@ -512,7 +512,7 @@ export const ITEM_CATALOG = [
       "靈根提升 2 階（廢靈根→天靈根）"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.2
   },
   {
     "id": "reset",
@@ -538,7 +538,7 @@ export const ITEM_CATALOG = [
       "武將卸下功法，不損耗修為"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.2
   },
   {
     "id": "rage",
@@ -579,7 +579,7 @@ export const ITEM_CATALOG = [
       "戰鬥：本場擂台武力 +50%"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "five",
@@ -605,7 +605,7 @@ export const ITEM_CATALOG = [
       "只能對五行靈根的武將使用，使用後可改變靈根為指定靈根"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.1
   },
   {
     "id": "teleport",
@@ -802,7 +802,7 @@ export const ITEM_CATALOG = [
       "全體隨行武將回復 70% 血量"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "vein",
@@ -843,7 +843,7 @@ export const ITEM_CATALOG = [
       "己方一座城池繁榮度 +30"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "mist",
@@ -884,7 +884,7 @@ export const ITEM_CATALOG = [
       "戰鬥：本場擂台敵將武力 -30%"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "sacrifice",
@@ -925,7 +925,7 @@ export const ITEM_CATALOG = [
       "使敵方城池駐軍減少30%"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "seven",
@@ -951,7 +951,7 @@ export const ITEM_CATALOG = [
       "指定武將下次度劫時若死亡，則滿血復活，境界不變，修為-50%"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.5
   },
   {
     "id": "invert",
@@ -1029,7 +1029,7 @@ export const ITEM_CATALOG = [
       "將我方城池和敵方城池互換，其中的駐將及士兵也一同轉移"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.2
   },
   {
     "id": "dice",
@@ -1226,7 +1226,7 @@ export const ITEM_CATALOG = [
       "戰鬥：為己方武將套上 60% 血量的護罩"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "charge",
@@ -1319,7 +1319,7 @@ export const ITEM_CATALOG = [
       "化出 8000 名士兵"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "confusing",
@@ -1475,7 +1475,7 @@ export const ITEM_CATALOG = [
       "將敵方指定武將的靈根變為廢靈根"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.2
   },
   {
     "id": "truce",
@@ -1568,7 +1568,7 @@ export const ITEM_CATALOG = [
       "戰鬥：敵將無法攻擊4回合"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "shuttle",
@@ -1635,7 +1635,7 @@ export const ITEM_CATALOG = [
       "獲得當前靈石的20%"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "bag",
@@ -1728,7 +1728,7 @@ export const ITEM_CATALOG = [
       "指定主公隨機隨行武將直接扣 50% 血量"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "blood",
@@ -1769,7 +1769,7 @@ export const ITEM_CATALOG = [
       "戰鬥：發動後的五回合內，造成的戰鬥傷害有 30% 轉化為自身的生命值"
     ],
     "noUser": false,
-    "weight": 1
+    "weight": 0.25
   },
   {
     "id": "wheel",
@@ -1821,6 +1821,6 @@ export const ITEM_CATALOG = [
       "任何武將、主公死亡時，可選擇使用，免疫一次死亡"
     ],
     "noUser": true,
-    "weight": 1
+    "weight": 0.2
   }
 ] as const;

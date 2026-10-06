@@ -1,5 +1,6 @@
 import { totalAssets } from '../systems/CitySystem';
 import { music } from './Music';
+import './Bubble';
 import type { GameState, LordId } from '../game/types';
 import { LORDS } from '../faction/Faction';
 import { citiesOf, generalsOf } from '../game/GameState';
@@ -142,7 +143,7 @@ export class GameUI {
         <button class="btn mini tool auto-btn" data-tip="電腦代打你的回合">🤖</button>
         <button class="btn mini tool rank-btn" data-tip="城池榜">🏆</button>
         <button class="btn mini tool help-btn" data-tip="說明（地圖：左鍵旋轉・右鍵平移・滾輪縮放・WASD 移動）">📖</button>
-        <span class="tool music" data-tip="背景音樂音量">🎵<span class="music-fly"><input type="range" class="music-vol" min="0" max="100" step="5" value="${Math.round(music.volume * 100)}"><span class="music-pct">${Math.round(music.volume * 100)}%</span></span></span>
+        <span class="tool music">🎵<span class="music-fly"><input type="range" class="music-vol" min="0" max="100" step="5" value="${Math.round(music.volume * 100)}"><span class="music-pct">${Math.round(music.volume * 100)}%</span></span></span>
         <button class="btn mini tool cheat-btn" data-tip="測試用：獲得大量靈石與所有物品">🧪</button>
         <span class="speed-group">${[1, 2, 4].map((s) => `<button class="btn mini" data-s="${s}" data-tip="遊戲速度 ${s}×">${s}×</button>`).join('')}</span>
       </div>`;

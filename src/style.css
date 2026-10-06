@@ -1960,35 +1960,28 @@ body {
 .asset-details .result-table td { padding: 5px 6px; }
 
 /* ───────── 簡潔介面：次要資訊 hover 才顯示 ───────── */
-[data-tip] { position: relative; }
-[data-tip]:hover::after {
-  content: attr(data-tip);
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  width: max-content;
-  max-width: 260px;
-  padding: 5px 10px;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.5;
-  text-align: left;
-  white-space: normal;
-  color: #f4ead2;
-  background: rgba(20, 14, 10, 0.97);
-  border: 1px solid var(--panel-border);
-  border-radius: 5px;
-  z-index: 60;
+.bubble {
+  position: fixed;
+  z-index: 9999;
+  max-width: min(420px, 80vw);
+  padding: 8px 14px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #f8efd8;
+  background: rgba(22, 15, 10, 0.97);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  white-space: pre-line;
   pointer-events: none;
 }
-.action-row [data-tip]:hover::after { top: auto; bottom: calc(100% + 6px); left: 0; right: auto; }
+.bubble.hidden { display: none; }
 
 .top-bar { gap: 10px; padding: 4px 12px; }
 .speed { display: flex; align-items: center; gap: 3px; flex-wrap: nowrap; }
 .speed-group { display: flex; gap: 2px; margin-left: 4px; }
 .btn.mini.tool { padding: 3px 7px; font-size: 16px; }
 .music { position: relative; display: flex; align-items: center; font-size: 17px; padding: 0 6px; cursor: default; }
-.music[data-tip]:hover::after { display: none; }
 .music-fly {
   display: none;
   position: absolute;

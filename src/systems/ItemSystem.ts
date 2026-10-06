@@ -1,7 +1,7 @@
 import type { Aptitude, City, Element, GameState, General, Item, Lord } from '../game/types';
 import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, BREAK_BOOST, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemTier, type ItemDef } from '../data/items';
 import { freeGenerals, nextUid, reviveGeneral } from '../game/GameState';
-import { addExp, craft, expCap, maxHp } from './GeneralSystem';
+import { addExp, craft, expCap, maxHp, maxStamina } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
 import { fmtStones } from '../game/Currency';
 import { LORDS, traitOf } from '../faction/Faction';
@@ -30,8 +30,14 @@ export function consumeItem(lord:Lord,item:Item,user?:General):number {
  if(!def(item).noUser&&(!user||!canUse(item,user).ok))throw Error('使用者能力或體力不足');
  const cost=user?requirement(item,user).stamina:0;
  if(user)user.stamina-=cost;
- lord.items=lord.items.filter(i=>i.uid!==item.uid);
+ const keep=user ? ({'丹藥':fx(user).keepPill,'法器':fx(user).keepArtifact,'符籙':fx(user).keepTalisman,'陣法':fx(user).keepFormation}[def(item).category]??0) : 0;
+ if (!(keep>0 && Math.random()<keep)) lord.items=lord.items.filter(i=>i.uid!==item.uid);
  return user?addExp(user,cost*ITEM_USE_EXP):0;
+}
+/** Only the effect tier changes; original requirements, stamina and owned item remain unchanged. */
+function enhancedItem(item:Item,user:General):Item {
+ const chance=def(item).category==='陣法' ? fx(user).upgradeFormation??0 : def(item).category==='符籙' ? fx(user).upgradeTalisman??0 : 0;
+ return chance>0 && Math.random()<chance ? {...item,tier:Math.min(item.tier+1,def(item).price.length-1)} : item;
 }
 export function unloadTechnique(state:GameState,g:General):void {
  if(!g.technique)return;
@@ -48,9 +54,12 @@ export function usePreroll(state:GameState,lord:Lord,item:Item,user:General,targ
  if(!usableIn(item,'preroll'))throw Error('此物品不可在擲骰前使用');
  if(item.defId==='five'&&(!target.general||['waste','heaven'].includes(target.general.aptitude)||!target.element))throw Error('五行轉生丹只能對五行靈根使用');
  const gain=consumeItem(lord,item,user);
- const msg=blocked?user.name+'使用'+nameOf(item)+'，但被替身符抵消。':applyPreroll(state,lord,item,user,target);
- return msg+(gain?'（'+user.name+'修為 +'+gain+'）':'');
+ const effect=enhancedItem(item,user);
+ const kept=lord.items.some(i=>i.uid===item.uid);
+ const msg=blocked?user.name+'使用'+nameOf(item)+'，但被護法抵消。':applyPreroll(state,lord,effect,user,target);
+ return msg+(kept?'（被動生效：物品保留）':'')+(effect.tier>item.tier?'（被動生效：效果品階提升）':'')+(gain?'（'+user.name+'修為 +'+gain+'）':'');
 }
+
 function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:PrerollTarget):string {
  const t=item.tier,g=target.general,head=user.name+'使用'+nameOf(item),elements=['metal','wood','water','fire','earth'] as const;
  switch(item.defId){
@@ -59,7 +68,7 @@ function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:Pr
  case 'guard':g!.base.defense+=STAT_UP[t];return head+'，'+g!.name+'基礎防禦 +'+STAT_UP[t]+'。';
  case 'qi':case 'essence':{const amount=item.defId==='qi'?QI_EXP[t]:(Number.isFinite(expCap(g!))?expCap(g!)*ESSENCE_EXP[t]:0);return head+'，'+g!.name+'修為 +'+addExp(g!,amount)+'（不超過境界上限）。';}
  case 'foundation':g!.foundation=true;return head+'，'+g!.name+'下次煉氣突破築基成功率 100%。';
- case 'vigor':g!.stamina=Math.min(100,g!.stamina+STAMINA_UP[t]);return head+'，'+g!.name+'體力回復 '+STAMINA_UP[t]+'。';
+ case 'vigor':g!.stamina=Math.min(maxStamina(g!),g!.stamina+STAMINA_UP[t]);return head+'，'+g!.name+'體力回復 '+STAMINA_UP[t]+'。';
  case 'poison':case 'bow':{const party=freeGenerals(state,target.lord!.id);if(!party.length)return head+'，對方沒有隨行武將。';const victim=party[Math.floor(Math.random()*party.length)];if(item.defId==='poison'&&fx(victim).poisonImmune)return head+'，'+victim.name+'百毒不侵。';const dmg=Math.max(0,Math.min(victim.hp-1,Math.round(maxHp(victim)*(item.defId==='poison'?POISON_PREROLL:BOW_DAMAGE)[t])));victim.hp-=dmg;return head+'，'+victim.name+'受到 '+dmg+' 傷害。';}
  case 'clearmind':g!.demon=0;return head+'，'+g!.name+'心魔盡消。';
  case 'bone':g!.base.hp+=BONE_HP[t];return head+'，'+g!.name+'基礎血量 +'+BONE_HP[t]+'。';
@@ -97,7 +106,9 @@ function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:Pr
 }
 export function useInDuel(duel:Duel,side:Side,lord:Lord,item:Item,user:General):DuelEvent[]{
  if(duel.fighter(side).itemsSealed||!usableIn(item,'battle'))throw Error('此時不可使用物品');
- const gain=consumeItem(lord,item,user),me=duel.fighter(side),foe=duel.other(side),t=item.tier,head=user.name+'使用'+nameOf(item);let msg=head;
+ const gain=consumeItem(lord,item,user),effect=enhancedItem(item,user),me=duel.fighter(side),foe=duel.other(side),t=effect.tier,head=user.name+'使用'+nameOf(effect);let msg=head;
+ if(lord.items.some(i=>i.uid===item.uid))msg+='（被動：物品保留）';
+ if(effect.tier>item.tier)msg+='（被動：品階提升）';
  switch(item.defId){
  case 'heal':{const h=Math.min(me.maxHp-me.hp,Math.round(me.maxHp*HEAL[t]));me.hp+=h;msg+='，回血 '+h;break;}
  case 'poison':if(fx(foe.general).poisonImmune)msg+='，對方百毒不侵';else{foe.poison={dmg:POISON[t],turns:3};msg+='，敵將中毒三回合';}break;

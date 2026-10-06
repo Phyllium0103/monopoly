@@ -80,6 +80,9 @@ export type GeneralStatus = 'free' | 'sect' | 'garrison' | 'realm' | 'dead';
 export type Aptitude = 'waste' | Element | 'heaven';
 
 export interface General {
+  ghostSourceId?: string;
+  ghostTurns?: number;
+  ghostReadyTurn?: number;
   id: string;
   name: string;
   /** 所屬國；immortal 為仙人出山事件的方外高人 */
@@ -130,6 +133,8 @@ export interface Expedition {
 }
 
 export interface Lord {
+  personalTurn?: number;
+  clearCultivationTurns?: number;
   id: LordId;
   isPlayer: boolean;
   alive: boolean;

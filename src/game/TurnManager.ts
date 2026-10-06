@@ -1,3 +1,4 @@
+import { tickGeneralAbilities } from '../systems/GeneralAbilities';
 import type { GameState, General, Lord } from './types';
 import { citiesOf, generalsOf } from './GameState';
 import { cityIncomeOf } from '../systems/CitySystem';
@@ -19,6 +20,7 @@ export interface TurnReport {
 /** 主公回合開始：城池收入、繁榮成長、將領修煉與回復、秘境結算、靈獸尋寶 */
 export async function startTurn(state: GameState, lord: Lord, protect?: (g: General) => Promise<boolean>): Promise<TurnReport> {
   const report: TurnReport = { lines: [], realms: [], bottlenecks: [] };
+  for (const text of tickGeneralAbilities(state,lord)) report.lines.push({text,kind:'info'});
   let stones = 0;
   let soldiers = 0;
   for (const city of citiesOf(state, lord.id)) {

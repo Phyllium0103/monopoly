@@ -5,7 +5,7 @@ import { beastPower } from '../data/items';
 import { fmtProsperity, fmtStones } from '../game/Currency';
 import { WORLD } from './WorldMods';
 import { terrainOf } from '../data/terrain';
-import { fx } from '../data/passives';
+import { fx, lordAura, passiveState } from '../data/passives';
 import { traitOf } from '../faction/Faction';
 
 /** 靈脈路過獎勵：基礎 400 靈石 ×（1＋主公境界） */
@@ -18,7 +18,8 @@ export const SOLDIER_PRICE = 2;
 
 /** 徵兵花費：陣營特色可打折 */
 export function recruitCost(lord: LordId, n: number): number {
-  return Math.round(n * SOLDIER_PRICE * (1 + (traitOf(lord).soldierPrice ?? 0)));
+  const ruler=Object.values(passiveState()?.generals??{}).find(g=>g.owner===lord&&g.isLord);
+  return Math.round(n * Math.max(0, SOLDIER_PRICE * (1 + (traitOf(lord).soldierPrice ?? 0)) - (ruler ? fx(ruler).soldierDiscount??0 : 0)));
 }
 export const MIN_GARRISON = 300;
 /** 一名城池守軍約等於十五名隨行士兵 */
@@ -30,10 +31,16 @@ export function toll(city: City, ownerCities = 1): number {
 }
 
 export function cityToll(state: GameState, city: City): number {
-  return city.owner === 'neutral' ? 0 : Math.round(toll(city, citiesOf(state, city.owner).length) * (1 + (traitOf(city.owner).tollMult ?? 0)));
+  if (city.owner === 'neutral') return 0;
+  const count=citiesOf(state,city.owner).length;
+  const ruler=generalsOf(state,city.owner).find(g=>g.isLord);
+  const bonus=garrisonOf(state,city).reduce((sum,g)=>sum+(fx(g).cityToll??0),0)+(ruler?(fx(ruler).cityCountToll??0)*count:0);
+  return Math.round(toll(city,count)*(1+(traitOf(city.owner).tollMult??0))*(1+bonus));
 }
 
 /** 城池收入，受地貌與駐將被動增減 */
+export function visitingToll(state: GameState, city: City, visitor: Lord): number { return Math.round(cityToll(state,city)*Math.max(0,1-lordAura(visitor.id,'partyToll'))); }
+
 export function cityIncome(city: City, garrison: General[] = []) {
   const t = terrainOf(city);
   const tr = traitOf(city.owner);
@@ -56,11 +63,11 @@ export function cityIncomeOf(state: GameState, city: City) {
 /** 守城戰力：守軍 ×10，駐將防禦越高加成越多，再加上駐將本身戰力；受地貌影響，護城大陣 ×1.5 */
 export function garrisonPower(state: GameState, city: City): number {
   const gens = garrisonOf(state, city);
-  // 駐將越多、防禦越高，守軍加成越大；兵力倍增與守城被動取其中最高者
+  // 駐將越多、防禦越高，守軍加成越大；兵力及守城正加成取最高，守城負面效果全部生效
   const command = 1 + gens.reduce((sum, g) => sum + defense(g), 0) / 450;
-  const f = { troops: Math.max(0, ...gens.map((g) => fx(g).troops ?? 0)), garrisonDef: Math.max(0, ...gens.map((g) => fx(g).garrisonDef ?? 0)) };
+  const f = { troops: Math.max(0, ...gens.map((g) => fx(g).troops ?? 0)), garrisonDef: Math.max(0,...gens.map(g=>fx(g).garrisonDef??0)) + gens.reduce((sum,g)=>sum+Math.min(0,fx(g).garrisonDef??0),0) };
   const base = city.garrisonSoldiers * GARRISON_STRENGTH * (1 + f.troops) * command + gens.reduce((sum, g) => sum + power(g) * 2, 0);
-  return Math.round(base * (1 + terrainOf(city).defense) * (1 + f.garrisonDef) * (1 + (traitOf(city.owner).garrisonDef ?? 0)) * (city.shieldTurns > 0 ? 1.5 : 1));
+  return Math.round(base * (1 + terrainOf(city).defense) * Math.max(0,1 + f.garrisonDef) * (1 + (traitOf(city.owner).garrisonDef ?? 0)) * (city.shieldTurns > 0 ? 1.5 : 1));
 }
 
 /** 依駐將的專長挑一種對自己最有利的鬥法（電腦佔領時使用） */
@@ -87,6 +94,7 @@ export function occupy(state: GameState, lord: Lord, city: City, generalIds: str
   const ids = (Array.isArray(generalIds) ? generalIds : [generalIds]).slice(0, GARRISON_LIMIT);
   for (const id of ids) {
     const g = state.generals[id];
+    if (g.ghostSourceId || fx(g).fixedParty || g.isLord) throw Error('此人物不能駐城');
     g.status = 'garrison';
     g.cityId = city.id;
   }
@@ -120,6 +128,7 @@ export function citySaleValue(city: City): number {
 
 /** 變賣一名隨行武將：自動卸下裝備放回行囊，武將離開進入聽風樓，換得靈石 */
 export function sellGeneral(lord: Lord, g: General): number {
+  if (g.ghostSourceId || fx(g).fixedParty || g.isLord) return 0;
   const value = generalSaleValue(g);
   unequip(lord, g, 'weapon');
   unequip(lord, g, 'armor');
@@ -180,6 +189,7 @@ export function eliminate(state: GameState, lord: Lord) {
   lord.stones = 0;
   for (const city of citiesOf(state, lord.id)) releaseCity(state, city);
   for (const g of generalsOf(state, lord.id)) {
+    if (g.ghostSourceId) {delete state.generals[g.id];continue;}
     if (g.isLord) {
       g.status = 'dead';
       g.owner = null;

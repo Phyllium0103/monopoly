@@ -1,0 +1,4009 @@
+[
+  {
+    "id": "liubei",
+    "name": "劉備",
+    "sheetRow": 7,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "畫符 −6・擂台受傷 −5%・駐守城池士兵收入 +15%・秘境隕落率 −15%",
+        "after": "士兵購買價格 -0.5下品靈石"
+      }
+    ],
+    "fx": {
+      "soldierDiscount": 0.5
+    }
+  },
+  {
+    "id": "guanyu",
+    "name": "關羽",
+    "sheetRow": 8,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "開局駐首都",
+        "before": "FALSE",
+        "after": false
+      },
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "技能背景",
+        "before": "威震華夏，溫酒斬華雄；刮骨療毒而面不改色。然剛而自矜，不屑借助外物。",
+        "after": "威震華夏，溫酒斬華雄；刮骨療毒而面不改色。過五關斬六將。"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台傷害 +8%・爆擊機率 +10%・擂台攻擊 12% 機率連擊・百毒不侵・使用物品體力 +15%",
+        "after": "擂台攻擊 15% 機率連擊・百毒不侵"
+      }
+    ],
+    "fx": {
+      "doubleStrike": 0.15,
+      "poisonImmune": true
+    }
+  },
+  {
+    "id": "zhangfei",
+    "name": "張飛",
+    "sheetRow": 9,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量低於一半時傷害 +20%・擂台上敵將武力 −14%・爆擊機率 +6%・比試得分 −10%",
+        "after": "血量低於一半時傷害 +30%"
+      }
+    ],
+    "fx": {
+      "rage": 0.3
+    }
+  },
+  {
+    "id": "zhaoyun",
+    "name": "趙雲",
+    "sheetRow": 10,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "開局駐首都",
+        "before": "TRUE",
+        "after": true
+      },
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +4%・擂台受傷 −12%・爆擊機率 +8%・擂台攻擊 15% 機率連擊",
+        "after": "擂台閃避機率+10%"
+      }
+    ],
+    "fx": {
+      "dodge": 0.1
+    }
+  },
+  {
+    "id": "zhugeliang",
+    "name": "諸葛亮",
+    "sheetRow": 11,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "基礎煉丹",
+        "before": 80,
+        "after": 72
+      },
+      {
+        "field": "基礎煉器",
+        "before": 72,
+        "after": 90
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −10%・佈陣 +10・駐守時守城戰力 +20%・雷劫傷害 −25%",
+        "after": "使用陣法時，15% 機率不消耗陣法・最大體力-10"
+      }
+    ],
+    "fx": {
+      "keepFormation": 0.15,
+      "maxStamina": -10
+    }
+  },
+  {
+    "id": "huangzhong",
+    "name": "黃忠",
+    "sheetRow": 12,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −5%・功法技能傷害 +20%・爆擊機率 +12%・擂台攻擊 10% 機率連擊",
+        "after": "爆擊機率 +12%"
+      }
+    ],
+    "fx": {
+      "crit": 0.12
+    }
+  },
+  {
+    "id": "machao",
+    "name": "馬超",
+    "sheetRow": 13,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −5%・爆擊機率 +8%・擂台攻擊 12% 機率連擊・作戰時兵力 +25%",
+        "after": "防禦 −5%・武力 +10%・擂台必定先手"
+      }
+    ],
+    "fx": {
+      "def": -0.05,
+      "atk": 0.1,
+      "firstStrike": true
+    }
+  },
+  {
+    "id": "weiyan",
+    "name": "魏延",
+    "sheetRow": 14,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +4%・血量低於一半時傷害 +10%・爆擊機率 +6%・駐守時守城戰力 +25%",
+        "after": "駐守時守城戰力 +20%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.2
+    }
+  },
+  {
+    "id": "pangtong",
+    "name": "龐統",
+    "sheetRow": 15,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −10%・畫符 +8・修為獲得 +12%・比試得分 +12%",
+        "after": "使用符籙時，15% 機率不消耗符籙・最大體力-10"
+      }
+    ],
+    "fx": {
+      "keepTalisman": 0.15,
+      "maxStamina": -10
+    }
+  },
+  {
+    "id": "jiangwei",
+    "name": "姜維",
+    "sheetRow": 16,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "攻城統率 +12%・修為獲得 +12%",
+        "after": "與\"諸葛亮\"派遣到同一城池時，姜維所有能力+20%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "zhugeliang"
+      ],
+      "synergyTarget": "jiangwei",
+      "synergyStats": 0.2
+    }
+  },
+  {
+    "id": "fazheng",
+    "name": "法正",
+    "sheetRow": 17,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −5%・攻城統率 +8%・比試得分 +15%",
+        "after": "駐守時城池過路費 +15%"
+      }
+    ],
+    "fx": {
+      "cityToll": 0.15
+    }
+  },
+  {
+    "id": "madai",
+    "name": "馬岱",
+    "sheetRow": 18,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台傷害 +8%・擂台必定先手・爆擊機率 +6%",
+        "after": "擂台必定先手"
+      }
+    ],
+    "fx": {
+      "firstStrike": true
+    }
+  },
+  {
+    "id": "guanping",
+    "name": "關平",
+    "sheetRow": 19,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +8%・駐守時守城戰力 +12%",
+        "after": "與\"關羽\"派遣到同一城池時，關平所有能力+20%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "guanyu"
+      ],
+      "synergyTarget": "guanping",
+      "synergyStats": 0.2
+    }
+  },
+  {
+    "id": "maliang",
+    "name": "馬良",
+    "sheetRow": 20,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守城池士兵收入 +5%・修為獲得 +18%・比試得分 +10%",
+        "after": "駐守城池士兵收入 +20%"
+      }
+    ],
+    "fx": {
+      "citySoldiers": 0.2
+    }
+  },
+  {
+    "id": "jianyong",
+    "name": "簡雍",
+    "sheetRow": 21,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −5%・比試得分 +18%",
+        "after": "在隨行隊伍時，聽風樓招募武將價格 -20%"
+      }
+    ],
+    "fx": {
+      "partyRecruit": 0.2
+    }
+  },
+  {
+    "id": "mizhu",
+    "name": "糜竺",
+    "sheetRow": 22,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "開局麾下",
+        "before": "TRUE",
+        "after": false
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −8%・駐守城池靈石收入 +22%",
+        "after": "駐守城池靈石收入 +20%"
+      }
+    ],
+    "fx": {
+      "cityStones": 0.2
+    }
+  },
+  {
+    "id": "liushan",
+    "name": "劉禪",
+    "sheetRow": 23,
+    "status": "added",
+    "changes": [],
+    "fx": {
+      "fixedParty": true,
+      "realmFactor": 2,
+      "tribulationSuccess": true,
+      "duelImmortal": true
+    }
+  },
+  {
+    "id": "guanxing",
+    "name": "關興",
+    "sheetRow": 24,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "功法技能傷害 +12%・修為獲得 +10%",
+        "after": "與\"關羽\"派遣到同一城池時，關興修煉速度+20%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "guanyu"
+      ],
+      "synergyTarget": "guanxing",
+      "synergyExp": 0.2
+    }
+  },
+  {
+    "id": "zhangbao",
+    "name": "張苞",
+    "sheetRow": 25,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 +5%・血量低於一半時傷害 +20%・秘境隕落率 +10%",
+        "after": "與\"張飛\"派遣到同一城池時，張苞所有能力+20%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "zhangfei"
+      ],
+      "synergyTarget": "zhangbao",
+      "synergyStats": 0.2
+    }
+  },
+  {
+    "id": "wangping",
+    "name": "王平",
+    "sheetRow": 26,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +4%・駐守時守城戰力 +25%",
+        "after": "駐守時守城戰力 +20%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.2
+    }
+  },
+  {
+    "id": "liaohua",
+    "name": "廖化",
+    "sheetRow": 27,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 +12%・秘境隕落率 −15%",
+        "after": "秘境隕落率 −30%"
+      }
+    ],
+    "fx": {
+      "realmSafety": 0.3
+    }
+  },
+  {
+    "id": "yanyan",
+    "name": "嚴顏",
+    "sheetRow": 28,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +12%・擂台受傷 −8%",
+        "after": "駐守時守城戰力 +20%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.2
+    }
+  },
+  {
+    "id": "huangquan",
+    "name": "黃權",
+    "sheetRow": 29,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +8%・駐守時守城戰力 +12%・比試得分 +5%",
+        "after": "在隨行隊伍時，過路費 -10%"
+      }
+    ],
+    "fx": {
+      "partyToll": 0.1
+    }
+  },
+  {
+    "id": "liyan",
+    "name": "李嚴",
+    "sheetRow": 30,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守城池靈石收入 +8%・駐守城池士兵收入 +20%・雷劫傷害 +10%",
+        "after": "駐守城池靈石收入 +15%・駐守城池士兵收入 +15%"
+      }
+    ],
+    "fx": {
+      "cityStones": 0.15,
+      "citySoldiers": 0.15
+    }
+  },
+  {
+    "id": "masu",
+    "name": "馬謖",
+    "sheetRow": 31,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "佈陣 +10・駐守時守城戰力 −15%・比試得分 +10%",
+        "after": "駐守時守城戰力 −15%・比試得分 +40%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": -0.15,
+      "contest": 0.4
+    }
+  },
+  {
+    "id": "jiangwan",
+    "name": "蔣琬",
+    "sheetRow": 32,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守城池靈石收入 +18%・駐守城池士兵收入 +5%",
+        "after": "駐守城池靈石收入 +15%・駐守城池士兵收入 +15%"
+      }
+    ],
+    "fx": {
+      "cityStones": 0.15,
+      "citySoldiers": 0.15
+    }
+  },
+  {
+    "id": "feiyi",
+    "name": "費禕",
+    "sheetRow": 33,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "修為獲得 +8%・使用物品體力 −25%",
+        "after": "使用物品體力 −40%"
+      }
+    ],
+    "fx": {
+      "itemStamina": 0.4
+    }
+  },
+  {
+    "id": "sunqian",
+    "name": "孫乾",
+    "sheetRow": 34,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "秘境隕落率 −8%・比試得分 +10%",
+        "after": "秘境隕落率 −30%"
+      }
+    ],
+    "fx": {
+      "realmSafety": 0.3
+    }
+  },
+  {
+    "id": "yiji",
+    "name": "伊籍",
+    "sheetRow": 35,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "使用物品體力 −10%・比試得分 +14%",
+        "after": "秘境隕落率 −30%"
+      }
+    ],
+    "fx": {
+      "realmSafety": 0.3
+    }
+  },
+  {
+    "id": "zhoucang",
+    "name": "周倉",
+    "sheetRow": 36,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +4%・血量 +18%・佈陣 −8",
+        "after": "擂台戰不會陣亡"
+      }
+    ],
+    "fx": {
+      "duelImmortal": true
+    }
+  },
+  {
+    "id": "chendao",
+    "name": "陳到",
+    "sheetRow": 37,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "作戰時兵力 +30%・駐守時守城戰力 +10%",
+        "after": "作戰時兵力 +10%・駐守時守城戰力 +10%"
+      }
+    ],
+    "fx": {
+      "troops": 0.1,
+      "garrisonDef": 0.1
+    }
+  },
+  {
+    "id": "liufeng",
+    "name": "劉封",
+    "sheetRow": 38,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +6%・血量低於一半時傷害 +12%・擂台上敵將武力 −4%・比試得分 −10%",
+        "after": "擂台上敵將武力 −5%・駐守時守城戰力 -10%"
+      }
+    ],
+    "fx": {
+      "intimidate": 0.05,
+      "garrisonDef": -0.1
+    }
+  },
+  {
+    "id": "mengda",
+    "name": "孟達",
+    "sheetRow": 39,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "畫符 +6・擂台必定先手・駐守時守城戰力 −10%",
+        "after": "擂台必定先手"
+      }
+    ],
+    "fx": {
+      "firstStrike": true
+    }
+  },
+  {
+    "id": "dengzhi",
+    "name": "鄧芝",
+    "sheetRow": 40,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "秘境隕落率 −10%・比試得分 +20%",
+        "after": "秘境隕落率 −20%・比試得分 +15%"
+      }
+    ],
+    "fx": {
+      "realmSafety": 0.2,
+      "contest": 0.15
+    }
+  },
+  {
+    "id": "menghuo",
+    "name": "孟獲",
+    "sheetRow": 41,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 +15%・血量低於一半時傷害 +12%・作戰時兵力 +20%・比試得分 −10%",
+        "after": "作戰時兵力 +25%・比試得分 −30%"
+      }
+    ],
+    "fx": {
+      "troops": 0.25,
+      "contest": -0.3
+    }
+  },
+  {
+    "id": "zhurongfuren",
+    "name": "祝融夫人",
+    "sheetRow": 42,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "煉器 +5・功法技能傷害 +12%・擂台必定先手・爆擊機率 +12%",
+        "after": "與\"孟獲\"派遣到同一城池時，祝融夫人所有能力+20%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "menghuo"
+      ],
+      "synergyTarget": "zhurongfuren",
+      "synergyStats": 0.2
+    }
+  },
+  {
+    "id": "huangyueying",
+    "name": "黃月英",
+    "sheetRow": 43,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −10%・煉器 +12・佈陣 +6・修為獲得 +10%",
+        "after": "使用法器時，15% 機率不消耗法器・最大體力-10"
+      }
+    ],
+    "fx": {
+      "keepArtifact": 0.15,
+      "maxStamina": -10
+    }
+  },
+  {
+    "id": "shamoke",
+    "name": "沙摩柯",
+    "sheetRow": 44,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −5%・血量低於一半時傷害 +12%・爆擊機率 +10%・作戰時兵力 +25%",
+        "after": "作戰時兵力 +20%"
+      }
+    ],
+    "fx": {
+      "troops": 0.2
+    }
+  },
+  {
+    "id": "guansuo",
+    "name": "關索",
+    "sheetRow": 45,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −3%・擂台必定先手・爆擊機率 +6%・擂台攻擊 10% 機率連擊",
+        "after": "擂台攻擊 10% 機率連擊"
+      }
+    ],
+    "fx": {
+      "doubleStrike": 0.1
+    }
+  },
+  {
+    "id": "mifang",
+    "name": "糜芳",
+    "sheetRow": 46,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守時守城戰力 −15%・駐守城池靈石收入 +6%・比試得分 +5%",
+        "after": "駐守時守城戰力 −50%・駐守城池靈石收入 +30%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": -0.5,
+      "cityStones": 0.3
+    }
+  },
+  {
+    "id": "zhugezhan",
+    "name": "諸葛瞻",
+    "sheetRow": 47,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台受傷 −8%・駐守時守城戰力 +12%・修為獲得 +8%",
+        "after": "駐守時守城戰力 +15%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.15
+    }
+  },
+  {
+    "id": "zhangxingcai",
+    "name": "張星彩",
+    "sheetRow": 48,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +5%・血量低於一半時傷害 +14%・擂台攻擊 6% 機率連擊",
+        "after": "血量低於一半時傷害 +15%"
+      }
+    ],
+    "fx": {
+      "rage": 0.15
+    }
+  },
+  {
+    "id": "sunquan",
+    "name": "孫權",
+    "sheetRow": 49,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −4%・駐守時守城戰力 +15%・駐守城池靈石收入 +10%・比試得分 +8%",
+        "after": "每次進入聽風樓時，可選擇兩位武將招募"
+      }
+    ],
+    "fx": {
+      "recruitLimit": 2
+    }
+  },
+  {
+    "id": "zhouyu",
+    "name": "周瑜",
+    "sheetRow": 50,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −5%・佈陣 +8・功法技能傷害 +22%・爆擊機率 +6%",
+        "after": "使用陣法時，30% 機率高一階"
+      }
+    ],
+    "fx": {
+      "upgradeFormation": 0.3
+    }
+  },
+  {
+    "id": "lusu",
+    "name": "魯肅",
+    "sheetRow": 51,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −5%・駐守城池靈石收入 +18%・比試得分 +10%",
+        "after": "在隨行隊伍時，天寶商行購買價格 -15%"
+      }
+    ],
+    "fx": {
+      "partyTreasure": 0.15
+    }
+  },
+  {
+    "id": "lvmeng",
+    "name": "呂蒙",
+    "sheetRow": 52,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台必定先手・修為獲得 +25%・雷劫傷害 +10%",
+        "after": "修為獲得 +30%"
+      }
+    ],
+    "fx": {
+      "exp": 0.3
+    }
+  },
+  {
+    "id": "luxun",
+    "name": "陸遜",
+    "sheetRow": 53,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "功法技能傷害 +12%・血量低於一半時傷害 −10%・作戰時兵力 +40%",
+        "after": "使用符籙時，15% 機率不消耗符籙・最大體力-10"
+      }
+    ],
+    "fx": {
+      "keepTalisman": 0.15,
+      "maxStamina": -10
+    }
+  },
+  {
+    "id": "ganning",
+    "name": "甘寧",
+    "sheetRow": 54,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −4%・擂台開場能量 45%・爆擊機率 +8%・擂台攻擊 12% 機率連擊",
+        "after": "擂台閃避機率+10%"
+      }
+    ],
+    "fx": {
+      "dodge": 0.1
+    }
+  },
+  {
+    "id": "taishici",
+    "name": "太史慈",
+    "sheetRow": 55,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "攻擊額外能量 +3・血量低於一半時傷害 +14%・爆擊機率 +10%・擂台攻擊 12% 機率連擊",
+        "after": "攻擊額外能量 +10・擂台攻擊 10% 機率連擊"
+      }
+    ],
+    "fx": {
+      "energyGain": 10,
+      "doubleStrike": 0.1
+    }
+  },
+  {
+    "id": "huanggai",
+    "name": "黃蓋",
+    "sheetRow": 56,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 +22%・煉器 +6・百毒不侵",
+        "after": "血量 +20%・百毒不侵"
+      }
+    ],
+    "fx": {
+      "hp": 0.2,
+      "poisonImmune": true
+    }
+  },
+  {
+    "id": "zhoutai",
+    "name": "周泰",
+    "sheetRow": 57,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −3%・擂台受傷 −18%・百毒不侵",
+        "after": "擂台受傷 −15%"
+      }
+    ],
+    "fx": {
+      "duelTaken": 0.15
+    }
+  },
+  {
+    "id": "chengpu",
+    "name": "程普",
+    "sheetRow": 58,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +8%・駐守時守城戰力 +14%",
+        "after": "在隨行隊伍時，主公修練速度 +20%"
+      }
+    ],
+    "fx": {
+      "partyLordExp": 0.2
+    }
+  },
+  {
+    "id": "lingtong",
+    "name": "凌統",
+    "sheetRow": 59,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +4%・血量 −5%・血量低於一半時傷害 +20%",
+        "after": "擂台受傷 −15%"
+      }
+    ],
+    "fx": {
+      "duelTaken": 0.15
+    }
+  },
+  {
+    "id": "handang",
+    "name": "韓當",
+    "sheetRow": 60,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +8%・攻城統率 +10%",
+        "after": "攻城統率 +15%"
+      }
+    ],
+    "fx": {
+      "siegeLead": 0.15
+    }
+  },
+  {
+    "id": "zhangzhao",
+    "name": "張昭",
+    "sheetRow": 61,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −6%・駐守城池靈石收入 +18%・駐守城池士兵收入 +10%",
+        "after": "駐守城池靈石收入 +15%・駐守城池士兵收入 +15%"
+      }
+    ],
+    "fx": {
+      "cityStones": 0.15,
+      "citySoldiers": 0.15
+    }
+  },
+  {
+    "id": "zhugejin",
+    "name": "諸葛瑾",
+    "sheetRow": 62,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "使用物品體力 −10%・比試得分 +14%",
+        "after": "在隨行隊伍時，過路費 -10%"
+      }
+    ],
+    "fx": {
+      "partyToll": 0.1
+    }
+  },
+  {
+    "id": "xusheng",
+    "name": "徐盛",
+    "sheetRow": 63,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "作戰時兵力 +45%・駐守時守城戰力 +5%",
+        "after": "駐守時守城戰力 +20%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.2
+    }
+  },
+  {
+    "id": "zhuran",
+    "name": "朱然",
+    "sheetRow": 64,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +8%・駐守時守城戰力 +18%",
+        "after": "駐守時守城戰力 +30%・駐守城池士兵收入 -10%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.3,
+      "citySoldiers": -0.1
+    }
+  },
+  {
+    "id": "jiangqin",
+    "name": "蔣欽",
+    "sheetRow": 65,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "攻城統率 +10%・秘境隕落率 −10%",
+        "after": "秘境隕落率 −30%"
+      }
+    ],
+    "fx": {
+      "realmSafety": 0.3
+    }
+  },
+  {
+    "id": "dingfeng",
+    "name": "丁奉",
+    "sheetRow": 66,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台傷害 +8%・擂台必定先手・爆擊機率 +8%",
+        "after": "防禦 −5%・爆擊機率 +10%"
+      }
+    ],
+    "fx": {
+      "def": -0.05,
+      "crit": 0.1
+    }
+  },
+  {
+    "id": "panzhang",
+    "name": "潘璋",
+    "sheetRow": 67,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台傷害 +8%・擂台上敵將武力 −8%・駐守城池靈石收入 −5%",
+        "after": "擂台傷害 +25%・駐守城池靈石收入 −10%"
+      }
+    ],
+    "fx": {
+      "duelDmg": 0.25,
+      "cityStones": -0.1
+    }
+  },
+  {
+    "id": "zhuhuan",
+    "name": "朱桓",
+    "sheetRow": 68,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守時守城戰力 +22%",
+        "after": "駐守時守城戰力 +25%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.25
+    }
+  },
+  {
+    "id": "yufan",
+    "name": "虞翻",
+    "sheetRow": 69,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −4%・修為獲得 +18%・低階突破率 +10%",
+        "after": "防禦 −5%・修為獲得 +20%"
+      }
+    ],
+    "fx": {
+      "def": -0.05,
+      "exp": 0.2
+    }
+  },
+  {
+    "id": "guyong",
+    "name": "顧雍",
+    "sheetRow": 70,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守城池靈石收入 +18%・比試得分 +5%",
+        "after": "駐守城池靈石收入 +20%"
+      }
+    ],
+    "fx": {
+      "cityStones": 0.2
+    }
+  },
+  {
+    "id": "lukang",
+    "name": "陸抗",
+    "sheetRow": 71,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "攻城統率 +8%・駐守時守城戰力 +22%",
+        "after": "駐守時守城戰力 +20%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.2
+    }
+  },
+  {
+    "id": "sunce",
+    "name": "孫策",
+    "sheetRow": 72,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +8%・防禦 −6%・爆擊機率 +8%・擂台攻擊 15% 機率連擊",
+        "after": "防禦 −10%・爆擊機率 +10%・擂台攻擊 10% 機率連擊"
+      }
+    ],
+    "fx": {
+      "def": -0.1,
+      "crit": 0.1,
+      "doubleStrike": 0.1
+    }
+  },
+  {
+    "id": "sunshangxiang",
+    "name": "孫尚香",
+    "sheetRow": 73,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "煉器 +8・功法技能傷害 +10%・擂台必定先手・爆擊機率 +10%",
+        "after": "功法技能傷害 +30%・擂台必定先手・爆擊機率 +5%"
+      }
+    ],
+    "fx": {
+      "skillDmg": 0.3,
+      "firstStrike": true,
+      "crit": 0.05
+    }
+  },
+  {
+    "id": "lvfan",
+    "name": "呂範",
+    "sheetRow": 74,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守城池靈石收入 +18%・比試得分 +5%",
+        "after": "駐守城池靈石收入 +20%"
+      }
+    ],
+    "fx": {
+      "cityStones": 0.2
+    }
+  },
+  {
+    "id": "heqi",
+    "name": "賀齊",
+    "sheetRow": 75,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "煉器 +5・攻城統率 +12%",
+        "after": "攻城統率 +15%"
+      }
+    ],
+    "fx": {
+      "siegeLead": 0.15
+    }
+  },
+  {
+    "id": "sunjian",
+    "name": "孫堅",
+    "sheetRow": 76,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +6%・血量 +8%・血量低於一半時傷害 +15%・秘境隕落率 +10%",
+        "after": "與\"孫策\"派遣到同一城池時，雙方所有能力+10%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "sunce"
+      ],
+      "synergyTarget": "both",
+      "synergyStats": 0.1
+    }
+  },
+  {
+    "id": "bulianshi",
+    "name": "步練師",
+    "sheetRow": 77,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −8%・駐守城池靈石收入 +12%・駐守城池士兵收入 +8%・比試得分 +10%",
+        "after": "在隨行隊伍時，主公修煉速度 +10%"
+      }
+    ],
+    "fx": {
+      "partyLordExp": 0.1
+    }
+  },
+  {
+    "id": "daqiao",
+    "name": "大喬",
+    "sheetRow": 78,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −10%・煉丹 +6・擂台上敵將武力 −4%・修為獲得 +10%",
+        "after": "與\"孫策\"派遣到同一城池時，孫策所有能力+20%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "sunce"
+      ],
+      "synergyTarget": "sunce",
+      "synergyStats": 0.2
+    }
+  },
+  {
+    "id": "xiaoqiao",
+    "name": "小喬",
+    "sheetRow": 79,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −10%・畫符 +6・雷劫傷害 −10%・比試得分 +10%",
+        "after": "與\"周瑜\"派遣到同一城池時，周瑜所有能力+20%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "zhouyu"
+      ],
+      "synergyTarget": "zhouyu",
+      "synergyStats": 0.2
+    }
+  },
+  {
+    "id": "zhugeke",
+    "name": "諸葛恪",
+    "sheetRow": 80,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −6%・攻城統率 +8%・比試得分 +14%",
+        "after": "比試得分 +20%"
+      }
+    ],
+    "fx": {
+      "contest": 0.2
+    }
+  },
+  {
+    "id": "sunjiao",
+    "name": "孫皎",
+    "sheetRow": 81,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 +5%・攻城統率 +6%・駐守城池士兵收入 +10%",
+        "after": "駐守城池士兵收入 +20%"
+      }
+    ],
+    "fx": {
+      "citySoldiers": 0.2
+    }
+  },
+  {
+    "id": "zhoufang",
+    "name": "周魴",
+    "sheetRow": 82,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −4%・畫符 +6・比試得分 +14%",
+        "after": "駐守時守城戰力 +20%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.2
+    }
+  },
+  {
+    "id": "lukai",
+    "name": "陸凱",
+    "sheetRow": 83,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −6%・駐守城池靈石收入 +10%・比試得分 +8%",
+        "after": "與\"陸遜\"派遣到同一城池時，陸遜所有能力+20%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "luxun"
+      ],
+      "synergyTarget": "luxun",
+      "synergyStats": 0.2
+    }
+  },
+  {
+    "id": "wuguotai",
+    "name": "吳國太",
+    "sheetRow": 84,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −10%・血量 −10%・駐守時守城戰力 +6%・駐守城池士兵收入 +12%",
+        "after": "在隨行隊伍時，主公修煉速度 +10%"
+      }
+    ],
+    "fx": {
+      "partyLordExp": 0.1
+    }
+  },
+  {
+    "id": "sunluban",
+    "name": "孫魯班",
+    "sheetRow": 85,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −10%・擂台上敵將武力 −4%・駐守城池靈石收入 +10%・比試得分 +6%",
+        "after": "駐守城池靈石收入 +20%"
+      }
+    ],
+    "fx": {
+      "cityStones": 0.2
+    }
+  },
+  {
+    "id": "zhuzhi",
+    "name": "朱治",
+    "sheetRow": 86,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +5%・駐守時守城戰力 +10%・駐守城池士兵收入 +5%",
+        "after": "與\"孫策\"派遣到同一城池時，孫策所有能力+10%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "sunce"
+      ],
+      "synergyTarget": "sunce",
+      "synergyStats": 0.1
+    }
+  },
+  {
+    "id": "sundeng",
+    "name": "孫登",
+    "sheetRow": 87,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −5%・駐守城池士兵收入 +8%・修為獲得 +10%・秘境隕落率 −5%",
+        "after": "駐守城池士兵收入 +20%"
+      }
+    ],
+    "fx": {
+      "citySoldiers": 0.2
+    }
+  },
+  {
+    "id": "liuzan",
+    "name": "留贊",
+    "sheetRow": 88,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −5%・擂台受傷 −6%・血量低於一半時傷害 +18%",
+        "after": "血量低於一半時傷害 +15%"
+      }
+    ],
+    "fx": {
+      "rage": 0.15
+    }
+  },
+  {
+    "id": "caocao",
+    "name": "曹操",
+    "sheetRow": 89,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −4%・攻城統率 +12%・駐守城池靈石收入 +10%・比試得分 +10%",
+        "after": "每占領一座城池，城池過路費 +5%"
+      }
+    ],
+    "fx": {
+      "cityCountToll": 0.05
+    }
+  },
+  {
+    "id": "xiahoudun",
+    "name": "夏侯惇",
+    "sheetRow": 90,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 +8%・血量低於一半時傷害 +26%・爆擊機率 +6%・比試得分 −8%",
+        "after": "血量低於一半時傷害 +30%"
+      }
+    ],
+    "fx": {
+      "rage": 0.3
+    }
+  },
+  {
+    "id": "xiahouyuan",
+    "name": "夏侯淵",
+    "sheetRow": 91,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −5%・擂台必定先手・爆擊機率 +10%・攻城統率 +12%",
+        "after": "攻擊額外能量 +10・擂台必定先手・爆擊機率 +8%"
+      }
+    ],
+    "fx": {
+      "energyGain": 10,
+      "firstStrike": true,
+      "crit": 0.08
+    }
+  },
+  {
+    "id": "zhangliao",
+    "name": "張遼",
+    "sheetRow": 92,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台上敵將武力 −10%・爆擊機率 +8%・作戰時兵力 +60%",
+        "after": "擂台上敵將武力 −15%"
+      }
+    ],
+    "fx": {
+      "intimidate": 0.15
+    }
+  },
+  {
+    "id": "xuchu",
+    "name": "許褚",
+    "sheetRow": 93,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +10%・血量 +10%・佈陣 −6・爆擊機率 +6%・擂台攻擊 8% 機率連擊",
+        "after": "武力 +10%・秘境隕落率 +20%・擂台攻擊 10% 機率連擊"
+      }
+    ],
+    "fx": {
+      "atk": 0.1,
+      "realmSafety": -0.2,
+      "doubleStrike": 0.1
+    }
+  },
+  {
+    "id": "dianwei",
+    "name": "典韋",
+    "sheetRow": 94,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量低於一半時傷害 +26%・爆擊機率 +8%・擂台攻擊 12% 機率連擊・雷劫傷害 +10%",
+        "after": "在隨行隊伍時，主公修煉速度 +10%"
+      }
+    ],
+    "fx": {
+      "partyLordExp": 0.1
+    }
+  },
+  {
+    "id": "guojia",
+    "name": "郭嘉",
+    "sheetRow": 95,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −15%・修為獲得 +18%・比試得分 +20%",
+        "after": "比試得分 +30%"
+      }
+    ],
+    "fx": {
+      "contest": 0.3
+    }
+  },
+  {
+    "id": "xunyu",
+    "name": "荀彧",
+    "sheetRow": 96,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −5%・駐守城池靈石收入 +22%・比試得分 +10%",
+        "after": "在隨行隊伍時，聽風樓招募武將價格 -20%"
+      }
+    ],
+    "fx": {
+      "partyRecruit": 0.2
+    }
+  },
+  {
+    "id": "xuhuang",
+    "name": "徐晃",
+    "sheetRow": 97,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +5%・攻城統率 +16%",
+        "after": "駐守城池士兵收入 +20%・攻城統率 +15%"
+      }
+    ],
+    "fx": {
+      "citySoldiers": 0.2,
+      "siegeLead": 0.15
+    }
+  },
+  {
+    "id": "caoren",
+    "name": "曹仁",
+    "sheetRow": 98,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +5%・駐守時守城戰力 +30%",
+        "after": "駐守時守城戰力 +30%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.3
+    }
+  },
+  {
+    "id": "zhanghe",
+    "name": "張郃",
+    "sheetRow": 99,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台受傷 −10%・攻城統率 +10%",
+        "after": "使用陣法時，5% 機率不消耗陣法"
+      }
+    ],
+    "fx": {
+      "keepFormation": 0.05
+    }
+  },
+  {
+    "id": "chengyu",
+    "name": "程昱",
+    "sheetRow": 100,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −4%・駐守城池士兵收入 +10%・比試得分 +14%",
+        "after": "駐守時守城戰力 +15%・駐守城池士兵收入 +15%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.15,
+      "citySoldiers": 0.15
+    }
+  },
+  {
+    "id": "xunyou",
+    "name": "荀攸",
+    "sheetRow": 101,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −5%・修為獲得 +10%・比試得分 +18%",
+        "after": "比試得分 +20%"
+      }
+    ],
+    "fx": {
+      "contest": 0.2
+    }
+  },
+  {
+    "id": "yujin",
+    "name": "于禁",
+    "sheetRow": 102,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守時守城戰力 +18%・駐守城池士兵收入 +10%・雷劫傷害 +8%",
+        "after": "駐守時守城戰力 +15%・駐守城池士兵收入 +15%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.15,
+      "citySoldiers": 0.15
+    }
+  },
+  {
+    "id": "yuejin",
+    "name": "樂進",
+    "sheetRow": 103,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −5%・擂台必定先手・作戰時兵力 +25%",
+        "after": "擂台必定先手・作戰時兵力 +20%"
+      }
+    ],
+    "fx": {
+      "firstStrike": true,
+      "troops": 0.2
+    }
+  },
+  {
+    "id": "caohong",
+    "name": "曹洪",
+    "sheetRow": 104,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 +8%・駐守城池靈石收入 +14%・修為獲得 −5%",
+        "after": "在隨行隊伍時，天寶商行購買價格 -15%"
+      }
+    ],
+    "fx": {
+      "partyTreasure": 0.15
+    }
+  },
+  {
+    "id": "simayi",
+    "name": "司馬懿",
+    "sheetRow": 105,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "基礎煉丹",
+        "before": 75,
+        "after": 85
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +10%・修為獲得 +8%・雷劫傷害 −25%",
+        "after": "使用丹藥時，15% 機率不消耗丹藥・最大體力-10"
+      }
+    ],
+    "fx": {
+      "keepPill": 0.15,
+      "maxStamina": -10
+    }
+  },
+  {
+    "id": "caozhen",
+    "name": "曹真",
+    "sheetRow": 106,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "攻城統率 +10%・駐守時守城戰力 +10%",
+        "after": "駐守時守城戰力 +20%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.2
+    }
+  },
+  {
+    "id": "lidian",
+    "name": "李典",
+    "sheetRow": 107,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +5%・煉丹 +4・修為獲得 +14%",
+        "after": "修為獲得 +20%・比試得分 +15%"
+      }
+    ],
+    "fx": {
+      "exp": 0.2,
+      "contest": 0.15
+    }
+  },
+  {
+    "id": "pangde",
+    "name": "龐德",
+    "sheetRow": 108,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −4%・血量低於一半時傷害 +26%・擂台上敵將武力 −4%・爆擊機率 +10%",
+        "after": "血量低於一半時傷害 +15%・擂台上敵將武力 −10%"
+      }
+    ],
+    "fx": {
+      "rage": 0.15,
+      "intimidate": 0.1
+    }
+  },
+  {
+    "id": "wenpin",
+    "name": "文聘",
+    "sheetRow": 109,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +4%・駐守時守城戰力 +22%",
+        "after": "駐守時守城戰力 +20%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.2
+    }
+  },
+  {
+    "id": "manchong",
+    "name": "滿寵",
+    "sheetRow": 110,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "佈陣 +5・駐守時守城戰力 +22%",
+        "after": "駐守時守城戰力 +15%・駐守城池士兵收入 +15%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.15,
+      "citySoldiers": 0.15
+    }
+  },
+  {
+    "id": "zhongyao",
+    "name": "鍾繇",
+    "sheetRow": 111,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −5%・畫符 +14",
+        "after": "使用符籙時，15% 機率不消耗符籙・最大體力-10"
+      }
+    ],
+    "fx": {
+      "keepTalisman": 0.15,
+      "maxStamina": -10
+    }
+  },
+  {
+    "id": "chenqun",
+    "name": "陳群",
+    "sheetRow": 112,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守城池靈石收入 +14%・修為獲得 +10%",
+        "after": "駐守城池靈石收入 +20%"
+      }
+    ],
+    "fx": {
+      "cityStones": 0.2
+    }
+  },
+  {
+    "id": "dengai",
+    "name": "鄧艾",
+    "sheetRow": 113,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "作戰時兵力 +35%・秘境隕落率 −15%・比試得分 −10%",
+        "after": "作戰時兵力 +25%・比試得分 −10%"
+      }
+    ],
+    "fx": {
+      "troops": 0.25,
+      "contest": -0.1
+    }
+  },
+  {
+    "id": "haozhao",
+    "name": "郝昭",
+    "sheetRow": 114,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "作戰時兵力 +40%・攻城統率 −10%・駐守時守城戰力 +20%",
+        "after": "駐守時守城戰力 +20%・駐守城池士兵收入 +20%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.2,
+      "citySoldiers": 0.2
+    }
+  },
+  {
+    "id": "caopi",
+    "name": "曹丕",
+    "sheetRow": 115,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −5%・駐守城池靈石收入 +14%・比試得分 +8%",
+        "after": "比試得分 +25%"
+      }
+    ],
+    "fx": {
+      "contest": 0.25
+    }
+  },
+  {
+    "id": "caozhang",
+    "name": "曹彰",
+    "sheetRow": 116,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +7%・血量低於一半時傷害 +15%・擂台上敵將武力 −5%・爆擊機率 +8%・比試得分 −12%",
+        "after": "武力 +15%・修為獲得 -20%"
+      }
+    ],
+    "fx": {
+      "atk": 0.15,
+      "exp": -0.2
+    }
+  },
+  {
+    "id": "caoang",
+    "name": "曹昂",
+    "sheetRow": 117,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +5%・擂台受傷 −10%・秘境隕落率 +10%",
+        "after": "在隨行隊伍時，主公修煉速度 +10%"
+      }
+    ],
+    "fx": {
+      "partyLordExp": 0.1
+    }
+  },
+  {
+    "id": "xushu",
+    "name": "徐庶",
+    "sheetRow": 118,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "佈陣 +6・修為獲得 +10%・比試得分 +8%",
+        "after": "修為獲得 +20%"
+      }
+    ],
+    "fx": {
+      "exp": 0.2
+    }
+  },
+  {
+    "id": "zhonghui",
+    "name": "鍾會",
+    "sheetRow": 119,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "畫符 +5・修為獲得 +12%・雷劫傷害 +10%",
+        "after": "修為獲得 +20%"
+      }
+    ],
+    "fx": {
+      "exp": 0.2
+    }
+  },
+  {
+    "id": "simazhao",
+    "name": "司馬昭",
+    "sheetRow": 120,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守城池士兵收入 +12%・比試得分 +8%",
+        "after": "駐守城池士兵收入 +30%"
+      }
+    ],
+    "fx": {
+      "citySoldiers": 0.3
+    }
+  },
+  {
+    "id": "caozhi",
+    "name": "曹植",
+    "sheetRow": 121,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −10%・血量 −10%・畫符 +12",
+        "after": "比試得分 +25%"
+      }
+    ],
+    "fx": {
+      "contest": 0.25
+    }
+  },
+  {
+    "id": "simashi",
+    "name": "司馬師",
+    "sheetRow": 122,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +6%・攻城統率 +8%・修為獲得 +8%",
+        "after": "駐守城池士兵收入 +20%・駐守時城池過路費 +10%"
+      }
+    ],
+    "fx": {
+      "citySoldiers": 0.2,
+      "cityToll": 0.1
+    }
+  },
+  {
+    "id": "caiwenji",
+    "name": "蔡文姬",
+    "sheetRow": 123,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −10%・血量 −10%・畫符 +14・比試得分 +10%",
+        "after": "比試得分 +25%"
+      }
+    ],
+    "fx": {
+      "contest": 0.25
+    }
+  },
+  {
+    "id": "zhenji",
+    "name": "甄姬",
+    "sheetRow": 124,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −10%・畫符 +8・煉丹 +4・擂台上敵將武力 −4%",
+        "after": "比試得分 +25%"
+      }
+    ],
+    "fx": {
+      "contest": 0.25
+    }
+  },
+  {
+    "id": "xuyou",
+    "name": "許攸",
+    "sheetRow": 125,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −6%・擂台必定先手・比試得分 +15%",
+        "after": "使用物品體力 −40%"
+      }
+    ],
+    "fx": {
+      "itemStamina": 0.4
+    }
+  },
+  {
+    "id": "jianggan",
+    "name": "蔣幹",
+    "sheetRow": 126,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守時守城戰力 −10%・秘境隕落率 −10%・比試得分 +10%",
+        "after": "秘境隕落率 −30%"
+      }
+    ],
+    "fx": {
+      "realmSafety": 0.3
+    }
+  },
+  {
+    "id": "niujin",
+    "name": "牛金",
+    "sheetRow": 127,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −4%・擂台必定先手・作戰時兵力 +20%",
+        "after": "攻城統率 +10%・作戰時兵力 +15%"
+      }
+    ],
+    "fx": {
+      "siegeLead": 0.1,
+      "troops": 0.15
+    }
+  },
+  {
+    "id": "wangshuang",
+    "name": "王雙",
+    "sheetRow": 128,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −6%・擂台上敵將武力 −4%・擂台攻擊 12% 機率連擊",
+        "after": "擂台攻擊 10% 機率連擊"
+      }
+    ],
+    "fx": {
+      "doubleStrike": 0.1
+    }
+  },
+  {
+    "id": "dongzhuo",
+    "name": "董卓",
+    "sheetRow": 129,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +6%・防禦 −4%・血量 +10%・擂台上敵將武力 −10%・駐守城池靈石收入 +8%・秘境隕落率 +10%",
+        "after": "百草堂復活敵方陣營武將時，血量 100%、境界不變，修為不變"
+      }
+    ],
+    "fx": {
+      "reviveEnemyIntact": true
+    }
+  },
+  {
+    "id": "lvbu",
+    "name": "呂布",
+    "sheetRow": 130,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +8%・防禦 −5%・擂台上敵將武力 −8%・爆擊機率 +10%・擂台攻擊 20% 機率連擊・使用物品體力 +20%",
+        "after": "擂台戰時無視血量低於25%時的免傷效果"
+      }
+    ],
+    "fx": {
+      "ignoreWounded": true
+    }
+  },
+  {
+    "id": "huaxiong",
+    "name": "華雄",
+    "sheetRow": 131,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −4%・擂台傷害 +8%・擂台必定先手・爆擊機率 +10%",
+        "after": "擂台攻擊 15% 機率連擊"
+      }
+    ],
+    "fx": {
+      "doubleStrike": 0.15
+    }
+  },
+  {
+    "id": "lijue",
+    "name": "李傕",
+    "sheetRow": 132,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "攻城統率 +10%・駐守城池靈石收入 +10%・駐守城池士兵收入 −5%",
+        "after": "與\"郭汜\"派遣到同一城池時，駐守城池靈石收入 +35%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "guosi"
+      ],
+      "synergyStones": 0.35
+    }
+  },
+  {
+    "id": "guosi",
+    "name": "郭汜",
+    "sheetRow": 133,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +3%・駐守時守城戰力 −8%・駐守城池士兵收入 +14%",
+        "after": "與\"李傕\"派遣到同一城池時，駐守城池士兵收入 +35%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "lijue"
+      ],
+      "synergySoldiers": 0.35
+    }
+  },
+  {
+    "id": "liru",
+    "name": "李儒",
+    "sheetRow": 134,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −8%・煉丹 +14・百毒不侵",
+        "after": "在隨行隊伍時，主公修煉速度 +10%"
+      }
+    ],
+    "fx": {
+      "partyLordExp": 0.1
+    }
+  },
+  {
+    "id": "jiaxu",
+    "name": "賈詡",
+    "sheetRow": 135,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −8%・秘境隕落率 −25%・比試得分 +20%",
+        "after": "使用符籙時，30% 機率高一階・最大體力-10"
+      }
+    ],
+    "fx": {
+      "upgradeTalisman": 0.3,
+      "maxStamina": -10
+    }
+  },
+  {
+    "id": "xurong",
+    "name": "徐榮",
+    "sheetRow": 136,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "作戰時兵力 +30%・攻城統率 +8%",
+        "after": "作戰時兵力 +20%・攻城統率 +10%"
+      }
+    ],
+    "fx": {
+      "troops": 0.2,
+      "siegeLead": 0.1
+    }
+  },
+  {
+    "id": "gaoshun",
+    "name": "高順",
+    "sheetRow": 137,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "作戰時兵力 +50%・駐守時守城戰力 +10%・駐守城池士兵收入 −5%",
+        "after": "作戰時兵力 +30%"
+      }
+    ],
+    "fx": {
+      "troops": 0.3
+    }
+  },
+  {
+    "id": "chengong",
+    "name": "陳宮",
+    "sheetRow": 138,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −3%・駐守時守城戰力 +10%・比試得分 +14%",
+        "after": "比試得分 +25%"
+      }
+    ],
+    "fx": {
+      "contest": 0.25
+    }
+  },
+  {
+    "id": "zhangji",
+    "name": "張濟",
+    "sheetRow": 139,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +4%・攻城統率 +10%・駐守時守城戰力 −5%",
+        "after": "駐守城池士兵收入 +20%"
+      }
+    ],
+    "fx": {
+      "citySoldiers": 0.2
+    }
+  },
+  {
+    "id": "zhangxiu",
+    "name": "張繡",
+    "sheetRow": 140,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台必定先手・攻城統率 +10%・修為獲得 +5%",
+        "after": "擂台必定先手"
+      }
+    ],
+    "fx": {
+      "firstStrike": true
+    }
+  },
+  {
+    "id": "hucheer",
+    "name": "胡車兒",
+    "sheetRow": 141,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +8%・擂台開場能量 25%・比試得分 −10%",
+        "after": "擂台開場能量 100%"
+      }
+    ],
+    "fx": {
+      "energyStart": 100
+    }
+  },
+  {
+    "id": "diaochan",
+    "name": "貂蟬",
+    "sheetRow": 142,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −10%・擂台上敵將武力 −20%・百毒不侵・比試得分 +10%",
+        "after": "在隨行隊伍時，若隨行隊伍裡有\"呂布\"，則呂布暴擊率 +5%"
+      }
+    ],
+    "fx": {
+      "partyTarget": "lvbu",
+      "partyCrit": 0.05
+    }
+  },
+  {
+    "id": "zangba",
+    "name": "臧霸",
+    "sheetRow": 143,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守時守城戰力 +18%・駐守城池士兵收入 +10%",
+        "after": "駐守時守城戰力 +20%・駐守城池士兵收入 +10%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.2,
+      "citySoldiers": 0.1
+    }
+  },
+  {
+    "id": "mateng",
+    "name": "馬騰",
+    "sheetRow": 144,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "攻城統率 +12%・駐守城池士兵收入 +14%",
+        "after": "駐守城池士兵收入 +20%"
+      }
+    ],
+    "fx": {
+      "citySoldiers": 0.2
+    }
+  },
+  {
+    "id": "hansui",
+    "name": "韓遂",
+    "sheetRow": 145,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守時守城戰力 +14%・比試得分 +10%",
+        "after": "擂台開場能量 100%"
+      }
+    ],
+    "fx": {
+      "energyStart": 100
+    }
+  },
+  {
+    "id": "lisu",
+    "name": "李肅",
+    "sheetRow": 146,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −5%・畫符 +6・比試得分 +14%",
+        "after": "在隨行隊伍時，天寶商行購買價格 -15%"
+      }
+    ],
+    "fx": {
+      "partyTreasure": 0.15
+    }
+  },
+  {
+    "id": "yanxing",
+    "name": "閻行",
+    "sheetRow": 147,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台傷害 +8%・擂台攻擊 10% 機率連擊",
+        "after": "擂台傷害 +10%"
+      }
+    ],
+    "fx": {
+      "duelDmg": 0.1
+    }
+  },
+  {
+    "id": "chenggongying",
+    "name": "成公英",
+    "sheetRow": 148,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −5%・佈陣 +5・比試得分 +14%",
+        "after": "秘境隕落率 −30%"
+      }
+    ],
+    "fx": {
+      "realmSafety": 0.3
+    }
+  },
+  {
+    "id": "zhanglu",
+    "name": "張魯",
+    "sheetRow": 149,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −5%・煉丹 +10・百毒不侵・駐守城池靈石收入 +10%",
+        "after": "使用丹藥時，15% 機率不消耗丹藥・最大體力-10"
+      }
+    ],
+    "fx": {
+      "keepPill": 0.15,
+      "maxStamina": -10
+    }
+  },
+  {
+    "id": "yanliang",
+    "name": "顏良",
+    "sheetRow": 150,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −6%・擂台傷害 +8%・血量低於一半時傷害 +10%・爆擊機率 +8%",
+        "after": "與\"文丑\"派遣到同一城池時，顏良武力+15%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "wenchou"
+      ],
+      "synergyTarget": "yanliang",
+      "synergyForce": 0.15
+    }
+  },
+  {
+    "id": "wenchou",
+    "name": "文丑",
+    "sheetRow": 151,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −5%・擂台傷害 +6%・擂台必定先手・爆擊機率 +6%",
+        "after": "與\"顏良\"派遣到同一城池時，文丑武力+15%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "yanliang"
+      ],
+      "synergyTarget": "wenchou",
+      "synergyForce": 0.15
+    }
+  },
+  {
+    "id": "jiling",
+    "name": "紀靈",
+    "sheetRow": 152,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +5%・作戰時兵力 +20%・使用物品體力 +10%",
+        "after": "作戰時兵力 +20%"
+      }
+    ],
+    "fx": {
+      "troops": 0.2
+    }
+  },
+  {
+    "id": "juyi",
+    "name": "鞠義",
+    "sheetRow": 153,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台必定先手・作戰時兵力 +40%・駐守時守城戰力 −10%",
+        "after": "作戰時兵力 +20%"
+      }
+    ],
+    "fx": {
+      "troops": 0.2
+    }
+  },
+  {
+    "id": "jushou",
+    "name": "沮授",
+    "sheetRow": 154,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −5%・佈陣 +6・比試得分 +16%",
+        "after": "秘境隕落率 −30%"
+      }
+    ],
+    "fx": {
+      "realmSafety": 0.3
+    }
+  },
+  {
+    "id": "tianfeng",
+    "name": "田豐",
+    "sheetRow": 155,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −10%・修為獲得 +10%・雷劫傷害 +10%・比試得分 +18%",
+        "after": "比試得分 +25%"
+      }
+    ],
+    "fx": {
+      "contest": 0.25
+    }
+  },
+  {
+    "id": "lvlingqi",
+    "name": "呂玲綺",
+    "sheetRow": 156,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 +4%・擂台開場能量 15%・爆擊機率 +10%・擂台攻擊 10% 機率連擊",
+        "after": "在隨行隊伍時，若隨行隊伍裡有\"呂布\"，則呂布暴擊率 +5%"
+      }
+    ],
+    "fx": {
+      "partyTarget": "lvbu",
+      "partyCrit": 0.05
+    }
+  },
+  {
+    "id": "yuanshao",
+    "name": "袁紹",
+    "sheetRow": 157,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量低於一半時傷害 −10%・駐守城池靈石收入 +12%・駐守城池士兵收入 +12%・比試得分 −8%",
+        "after": "與\"袁術\"派遣到同一城池時，駐守城池士兵收入 +30%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "yuanshu"
+      ],
+      "synergySoldiers": 0.3
+    }
+  },
+  {
+    "id": "yuanshu",
+    "name": "袁術",
+    "sheetRow": 158,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −4%・攻城統率 +6%・駐守時守城戰力 −10%・駐守城池靈石收入 +14%",
+        "after": "與\"袁紹\"派遣到同一城池時，駐守城池靈石收入 +30%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "yuanshao"
+      ],
+      "synergyStones": 0.3
+    }
+  },
+  {
+    "id": "zhangjiao",
+    "name": "張角",
+    "sheetRow": 159,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −5%・畫符 +12・煉丹 +6・駐守城池士兵收入 +15%・雷劫傷害 −20%",
+        "after": "\"張角\"、\"張寶\"、\"張良\"派遣到同一城池時，駐守城池士兵收入 +35%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "zhangbaoyj",
+        "zhangliang"
+      ],
+      "synergySoldiers": 0.35
+    }
+  },
+  {
+    "id": "zhangbaoyj",
+    "name": "張寶",
+    "sheetRow": 160,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −3%・畫符 +8・功法技能傷害 +10%",
+        "after": "\"張角\"、\"張寶\"、\"張良\"派遣到同一城池時，駐守城池士兵收入 +25%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "zhangjiao",
+        "zhangliang"
+      ],
+      "synergySoldiers": 0.25
+    }
+  },
+  {
+    "id": "zhangliang",
+    "name": "張梁",
+    "sheetRow": 161,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −3%・血量低於一半時傷害 +10%・作戰時兵力 +15%",
+        "after": "\"張角\"、\"張寶\"、\"張良\"派遣到同一城池時，駐守城池士兵收入 +15%"
+      }
+    ],
+    "fx": {
+      "companion": [
+        "zhangjiao",
+        "zhangbaoyj"
+      ],
+      "synergySoldiers": 0.15
+    }
+  },
+  {
+    "id": "gongsunzan",
+    "name": "公孫瓚",
+    "sheetRow": 162,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "擂台必定先手・爆擊機率 +8%・作戰時兵力 +25%・駐守時守城戰力 −6%",
+        "after": "擂台必定先手・作戰時兵力 +25%"
+      }
+    ],
+    "fx": {
+      "firstStrike": true,
+      "troops": 0.25
+    }
+  },
+  {
+    "id": "liubiao",
+    "name": "劉表",
+    "sheetRow": 163,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −8%・駐守時守城戰力 +14%・駐守城池靈石收入 +10%",
+        "after": "駐守時守城戰力 +15%・駐守城池靈石收入 +15%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.15,
+      "cityStones": 0.15
+    }
+  },
+  {
+    "id": "shenpei",
+    "name": "審配",
+    "sheetRow": 164,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +4%・駐守時守城戰力 +22%・比試得分 +6%",
+        "after": "駐守時守城戰力 +20%"
+      }
+    ],
+    "fx": {
+      "garrisonDef": 0.2
+    }
+  },
+  {
+    "id": "taoqian",
+    "name": "陶謙",
+    "sheetRow": 165,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −8%・駐守時守城戰力 +6%・駐守城池靈石收入 +12%",
+        "after": "在隨行隊伍時，過路費 -10%"
+      }
+    ],
+    "fx": {
+      "partyToll": 0.1
+    }
+  },
+  {
+    "id": "gaolan",
+    "name": "高覽",
+    "sheetRow": 166,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +4%・擂台傷害 +6%",
+        "after": "擂台傷害 +10%"
+      }
+    ],
+    "fx": {
+      "duelDmg": 0.1
+    }
+  },
+  {
+    "id": "wutugu",
+    "name": "兀突骨",
+    "sheetRow": 167,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +15%・血量 +25%・佈陣 −8・功法技能傷害 −20%・作戰時兵力 +20%",
+        "after": "防禦 +15%・血量 +25%"
+      }
+    ],
+    "fx": {
+      "def": 0.15,
+      "hp": 0.25
+    }
+  },
+  {
+    "id": "mulu",
+    "name": "木鹿大王",
+    "sheetRow": 168,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "凡人"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "血量 −5%・畫符 +8・擂台必定先手・作戰時兵力 +15%",
+        "after": "攻擊額外能量 +20"
+      }
+    ],
+    "fx": {
+      "energyGain": 20
+    }
+  },
+  {
+    "id": "zuoci",
+    "name": "左慈",
+    "sheetRow": 169,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "畫符 +12・不受定身・雷劫傷害 −35%",
+        "after": "在隨行隊伍時，當敵人對主公發動物品時，使物品效果失效(非戰鬥)"
+      }
+    ],
+    "fx": {
+      "partyItemBlock": true
+    }
+  },
+  {
+    "id": "yuji",
+    "name": "于吉",
+    "sheetRow": 170,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "百毒不侵・修為獲得 +15%・使用物品體力 −40%",
+        "after": "在隨行隊伍時，可隨時耗費100體力獲得一張隨機符籙・體力回復速度 -90%"
+      }
+    ],
+    "fx": {
+      "produceCategory": "符籙",
+      "staminaRecovery": -0.9
+    }
+  },
+  {
+    "id": "huatuo",
+    "name": "華佗",
+    "sheetRow": 171,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 2,
+        "after": 3
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "煉丹 +16・傷害吸血 +10%・百毒不侵",
+        "after": "在隨行隊伍時，可隨時耗費100體力使用\"起死回生\"，復活我方死亡武將，血量 100%，境界跌落 1 級，修為歸零・體力回復速度 -90%"
+      }
+    ],
+    "fx": {
+      "reviveAbility": true,
+      "staminaRecovery": -0.9
+    }
+  },
+  {
+    "id": "guanlu",
+    "name": "管輅",
+    "sheetRow": 172,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "低階突破率 +15%・秘境隕落率 −25%",
+        "after": "擲骰前，可預覽三個候選步數，排除其中一個，再從剩下兩個隨機決定；不能直接指定落點。"
+      }
+    ],
+    "fx": {
+      "divination": true
+    }
+  },
+  {
+    "id": "shuijing",
+    "name": "水鏡先生",
+    "sheetRow": 173,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 2,
+        "after": 3
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −10%・佈陣 +10・修為獲得 +20%・比試得分 +10%",
+        "after": "在隨行隊伍時，聽風樓增加隱藏武將出現機率"
+      }
+    ],
+    "fx": {
+      "hiddenSlots": 3
+    }
+  },
+  {
+    "id": "pangdegong",
+    "name": "龐德公",
+    "sheetRow": 174,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 2,
+        "after": 3
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "修為獲得 +15%・雷劫傷害 −20%・秘境隕落率 −15%",
+        "after": "在隨行隊伍時，隨行隊伍武將修為獲得 +20%"
+      }
+    ],
+    "fx": {
+      "partyExp": 0.2
+    }
+  },
+  {
+    "id": "huangchengyan",
+    "name": "黃承彥",
+    "sheetRow": 175,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 2,
+        "after": 3
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "煉器 +16・駐守時守城戰力 +10%",
+        "after": "在隨行隊伍時，可隨時耗費100體力獲得一件隨機法器・體力回復速度 -90%"
+      }
+    ],
+    "fx": {
+      "produceCategory": "法器",
+      "staminaRecovery": -0.9
+    }
+  },
+  {
+    "id": "xushao",
+    "name": "許劭",
+    "sheetRow": 176,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 2,
+        "after": 3
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 −5%・低階突破率 +10%・比試得分 +20%",
+        "after": "在隨行隊伍時，聽風樓招募武將價格 -50%"
+      }
+    ],
+    "fx": {
+      "partyRecruit": 0.5
+    }
+  },
+  {
+    "id": "zhangzhongjing",
+    "name": "張仲景",
+    "sheetRow": 177,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 2,
+        "after": 3
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "武力 −10%・煉丹 +18・傷害吸血 +8%・百毒不侵",
+        "after": "在隨行隊伍時，可隨時耗費100體力獲得一件隨機丹藥・體力回復速度 -90%"
+      }
+    ],
+    "fx": {
+      "produceCategory": "丹藥",
+      "staminaRecovery": -0.9
+    }
+  },
+  {
+    "id": "dongfeng",
+    "name": "董奉",
+    "sheetRow": 178,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 2,
+        "after": 3
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "煉丹 +14・傷害吸血 +6%・使用物品體力 −30%",
+        "after": "在隨行隊伍時，百草堂復活武將不需耗費靈石"
+      }
+    ],
+    "fx": {
+      "freeRevive": true
+    }
+  },
+  {
+    "id": "guanning",
+    "name": "管寧",
+    "sheetRow": 179,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界代碼",
+        "before": 2,
+        "after": 3
+      },
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "駐守時守城戰力 +12%・駐守城池士兵收入 +10%・修為獲得 +15%",
+        "after": "在隨行隊伍時，主公回合開始時，可選擇全隊清修，本回合放棄任何行動，隨行隊伍武將修為獲得 +100%，持續5回合"
+      }
+    ],
+    "fx": {
+      "seclusionAbility": true
+    }
+  },
+  {
+    "id": "nanhua",
+    "name": "南華老仙",
+    "sheetRow": 180,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "基礎佈陣",
+        "before": 92,
+        "after": 99
+      },
+      {
+        "field": "目前效果文字",
+        "before": "畫符 +14・佈陣 +8・功法技能傷害 +15%・不受定身・雷劫傷害 −30%",
+        "after": "在隨行隊伍時，可隨時耗費100體力獲得一個隨機陣法・體力回復速度 -90%"
+      }
+    ],
+    "fx": {
+      "produceCategory": "陣法",
+      "staminaRecovery": -0.9
+    }
+  },
+  {
+    "id": "pujing",
+    "name": "普靜禪師",
+    "sheetRow": 181,
+    "status": "modified",
+    "changes": [
+      {
+        "field": "境界名稱",
+        "before": "",
+        "after": "金丹"
+      },
+      {
+        "field": "目前效果文字",
+        "before": "防禦 +12%・血量 +15%・百毒不侵・修為獲得 +10%・秘境隕落率 −15%",
+        "after": "在隨行隊伍時，每五回合可召喚已死亡武將冤魂加入隊伍，血量 100%，境界不變，修為不變，持續五回合，冤魂無法獲得修為、穿戴裝備及功法；持續時間不影響該武將復活，復活後該武將從可召喚名單中去除"
+      }
+    ],
+    "fx": {
+      "ghostAbility": true
+    }
+  }
+]

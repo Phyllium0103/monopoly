@@ -1,3 +1,4 @@
+import { abilityUsers, abilityReady, abilityTargets, useGeneralAbility } from '../systems/GeneralAbilities';
 import { garrisonDispatch } from '../systems/GarrisonSystem';
 import { immortalWinner } from '../systems/VictorySystem';
 import * as THREE from 'three';
@@ -20,12 +21,12 @@ import { RankView } from '../ui/RankView';
 import { LordView } from '../ui/LordView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { REALMS } from '../data/generals';
-import { fxText, passiveOf } from '../data/passives';
+import { fxText, passiveOf, fx, lordHas } from '../data/passives';
 import { ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
-import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll } from '../systems/CitySystem';
-import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, craft, maxHp, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
+import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, visitingToll, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll } from '../systems/CitySystem';
+import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, craft, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type SiegeResult, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
 import { canUse, consumeItem, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
@@ -139,7 +140,7 @@ export class Game {
     lord.beast = makeBeast(nextUid(this.state, 'b'), 11);
     for (const g of generalsOf(this.state, lord.id)) {
       g.hp = maxHp(g);
-      g.stamina = 100;
+      g.stamina = maxStamina(g);
     }
     this.ui.log('🧪 測試：獲得 100 極品靈石、10 萬士兵，以及所有丹藥、陣法、符籙、法器（各階）、各階神器寶衣與功法、天階靈獸。', 'good');
     this.ui.toast('🧪 測試：已獲得大量靈石與所有物品');
@@ -248,6 +249,7 @@ export class Game {
         if (!this.human(lord)) this.ui.beginReport();
         await this.takeTurn(lord);
         if (lord.tollFreeTurns > 0) lord.tollFreeTurns--;
+        if (lord.clearCultivationTurns) lord.clearCultivationTurns--;
         lord.tollFree = lord.tollFreeTurns > 0;
         if (!this.state.over && !this.human(lord)) await this.showTurnReport(lord, token);
       }
@@ -313,6 +315,11 @@ export class Game {
     this.sm.cameraController.focus(sprite.group.position);
     this.refresh();
 
+    let clearThisTurn=false;
+    if (!lord.stunned && lord.forcedTile===null && lordHas(lord.id,'seclusionAbility') && !(lord.clearCultivationTurns??0)) {
+      clearThisTurn=this.human(lord) ? await this.dialog.confirm('管寧：全隊清修？','啟動當回合放棄全部主動行動，隨行隊伍（含主公）修為獲得 +100%，持續五個自身回合。','開始清修','正常行動') : Math.random()<.15;
+      if (clearThisTurn) lord.clearCultivationTurns=5;
+    }
     const report = await startTurn(this.state, lord, (g) => this.protectDeath(g));
     this.ui.log(`<b style="color:${LORDS[lord.id].css}">【${name}】</b>的回合`, 'turn');
     for (const l of report.lines) this.ui.log(`${name}：${l.text}`, this.human(lord) ? l.kind : 'ai');
@@ -325,6 +332,7 @@ export class Game {
     }
     this.refresh();
 
+    if (clearThisTurn) {this.ui.log(name+'全隊清修，本回合不採取主動行動。','good');await this.wait(700);return;}
     if (lord.stunned > 0) {
       lord.stunned--;
       if (lord.itemsLocked > 0) lord.itemsLocked--;
@@ -339,7 +347,13 @@ export class Game {
       await this.teleport(lord, tile); return;
     }
     if (this.human(lord)) await this.playerTurn(lord);
-    else await this.aiTurn(lord);
+    else {
+      for(const g of abilityUsers(this.state,lord)) if(abilityReady(this.state,lord,g).ok) {
+        const target=abilityTargets(this.state,lord,g).sort((a,b)=>power(b)-power(a))[0];
+        if(fx(g).produceCategory || target) this.ui.log(useGeneralAbility(this.state,lord,g,target),'ai');
+      }
+      await this.aiTurn(lord);
+    }
   }
 
   private async playerTurn(lord: Lord) {
@@ -400,7 +414,15 @@ export class Game {
   }
 
   private async rollDice(lord: Lord): Promise<number> {
-    const values = lord.fixedDice ? [lord.fixedDice] : Array.from({ length: lord.doubleDice ? 2 : 1 }, () => 1 + Math.floor(Math.random() * 6));
+    const draw=()=>Array.from({length:lord.doubleDice?2:1},()=>1+Math.floor(Math.random()*6));
+    let values=lord.fixedDice ? [lord.fixedDice] : draw();
+    if (!lord.fixedDice && lordHas(lord.id,'divination')) {
+      const candidates=Array.from({length:3},draw);
+      const exclude=this.human(lord) ? await this.dialog.choose('管輅：卜問前路','排除一個候選步數，從另外兩個隨機決定。取消則隨機排除。',candidates.map((v,i)=>({label:'候選 '+(i+1)+'：'+v.reduce((a,b)=>a+b,0)+' 點',value:i}))) : candidates.reduce((best,v,i)=>v.reduce((a,b)=>a+b,0)<candidates[best].reduce((a,b)=>a+b,0)?i:best,0);
+      const excluded=exclude??Math.floor(Math.random()*3);
+      const remaining=candidates.filter((_,i)=>i!==excluded);
+      values=remaining[Math.floor(Math.random()*remaining.length)];
+    }
     await this.ui.rollDice(values, lord.bonusSteps, lord.moveMultiplier);
     await this.waitForDispatch();
     const dice = values.reduce((a, b) => a + b, 0);
@@ -575,7 +597,7 @@ export class Game {
     }
     // 他人城池
     const owner = this.state.lords[city.owner];
-    const fee = cityToll(this.state, city);
+    const fee = visitingToll(this.state, city, lord);
     const truce = lord.items.find(i => i.defId === 'truce');
     if (!lord.tollFree && truce && !lord.itemsLocked && (!this.human(lord) || await this.dialog.confirm('免戰牌：免繳過路費？','踏入'+city.name+'，過路費 '+fmtStones(fee)+'。','使用免戰牌','繼續選擇'))) {
       consumeItem(lord,truce);this.ui.log(name+'使用免戰牌，免繳'+city.name+'過路費。','good');return;
@@ -980,7 +1002,7 @@ export class Game {
       joinLord(this.state, defender.id, og);
     }
     city.garrisonGenerals = [];
-    const weakest = [...team].filter((x) => !x.isLord).sort((a, b) => power(a) - power(b))[0] ?? deployable(this.state, attacker.id)[0];
+    const weakest = [...team].filter((x) => !x.isLord && !fx(x).fixedParty && !x.ghostSourceId).sort((a, b) => power(a) - power(b))[0] ?? deployable(this.state, attacker.id)[0];
     let gids = weakest ? [weakest.id] : [];
     let soldiers = Math.min(attacker.soldiers, Math.max(MIN_GARRISON, Math.round(attacker.soldiers * 0.4)));
     if (this.human(attacker)) {
@@ -1139,10 +1161,13 @@ export class Game {
       });
       return;
     }
-    const pick = aiShop(this.state, lord, offers);
-    if (!pick) return;
-    buy(this.state, lord, pick);
-    this.ui.log(`${LORDS[lord.id].name}在${this.state.tiles[lord.position].name}購得「${pick.label}」。`, 'ai');
+    const limit=kind==='tavern' && lordHas(lord.id,'recruitLimit') ? 2 : 1;
+    for(let i=0;i<limit;i++) {
+      const pick=aiShop(this.state,lord,offers.filter(o=>o.kind!=='general'||!o.general.owner));
+      if(!pick)break;
+      const result=buy(this.state,lord,pick);if(!result.ok)break;
+      this.ui.log(result.message,'ai');
+    }
     this.refresh();
   }
 
@@ -1175,6 +1200,20 @@ export class Game {
   }
 
   // ───────────────────────── 玩家擲骰前操作 ─────────────────────────
+
+  private async generalAbilities(lord: Lord) {
+    for (;;) {
+      const user=await this.dialog.choose('方外神通','隨行人物可在整備期間使用，不限所在位置。製物／起死回生耗 100 體力，冤魂召喚每五個自身回合一次。',abilityUsers(this.state,lord).map(g=>{const r=abilityReady(this.state,lord,g);return {label:g.name,sub:passiveOf(g).effectText,value:g,disabled:!r.ok,reason:r.reason};}));
+      if(!user)break;
+      let target:General|undefined;
+      if(!fx(user).produceCategory) {
+        const selected=await this.dialog.choose(fx(user).reviveAbility?'起死回生：選擇我方亡將':'召喚冤魂：選擇亡將','取消返回神通列表。',abilityTargets(this.state,lord,user).map(g=>({label:g.name,sub:REALMS[g.realm]+'・修為 '+g.exp,value:g})),'返回');
+        if(!selected)continue;target=selected;
+      }
+      this.ui.log(useGeneralAbility(this.state,lord,user,target),'good');this.refresh();
+    }
+    this.refresh();
+  }
 
   private async useItemPreroll(lord: Lord) {
     if (lord.itemsLocked > 0) { this.ui.toast('目前不能使用物品'); return; }
@@ -1291,8 +1330,9 @@ export class Game {
 
   private async usePrerollWithReaction(lord: Lord, item: Item, user: General, target: PrerollTarget): Promise<string> {
     const victim = target.lord ?? (target.general?.isLord && target.general.owner ? this.state.lords[target.general.owner] : undefined);
-    let blocked=false;
-    if (victim && victim.id !== lord.id && !victim.itemsLocked) {
+    let blocked=!!victim && victim.id!==lord.id && lordHas(victim.id,'partyItemBlock');
+    if (blocked) this.ui.log('左慈擲杯戲曹，敵方非戰鬥物品失效。','good');
+    if (!blocked && victim && victim.id !== lord.id && !victim.itemsLocked) {
       const card=victim.items.find(i=>i.defId==='substitute');
       const users=card?freeGenerals(this.state,victim.id).filter(g=>canUse(card,g).ok):[];
       if (card && users.length) {
@@ -1552,7 +1592,7 @@ export class Game {
   private async manageSect(lord: Lord) {
     for (;;) {
       const allFree = freeGenerals(this.state, lord.id);
-      const party = allFree.filter((g) => !g.isLord);
+      const party = allFree.filter((g) => !g.isLord && !fx(g).fixedParty && !g.ghostSourceId);
       const sect = sectGenerals(this.state, lord.id);
       const choices: Choice<General>[] = [
         ...party.map((g) => ({ label: `▼ ${g.name}`, sub: `隨行 → 留守宗門｜${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`, value: g, color: '#c99a2e' })),
@@ -1728,6 +1768,7 @@ export class Game {
     } else if (this.phase === 'preroll') {
       hint = '擲骰前可先使用物品、徵兵或整備武將（調度駐軍與宗門要站在自己的城池）；擲完骰、處理完落地事件，回合就會自動結束';
       buttons.push(
+        { label: '✨ 方外神通', sub: '製物・起死回生・冤魂召喚', disabled: !abilityUsers(this.state,player).length, onClick: () => void this.generalAbilities(player) },
         { label: '🎒 使用物品', sub: `${player.items.length} 件`, onClick: () => void this.useItemPreroll(player) },
         { label: '⚔️ 徵兵', sub: `${(recruitCost(player.id, 100) / 100).toFixed(2).replace(/\.?0+$/, '')}/名`, onClick: () => void this.recruitSoldiers(player) },
         { label: '🏯 調度駐軍', sub: '依距離收費・一次付費可操作到關閉', disabled: !citiesOf(this.state, player.id).length, onClick: () => void this.openGarrison() },

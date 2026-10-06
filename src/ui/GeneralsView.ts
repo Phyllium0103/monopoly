@@ -1,7 +1,7 @@
 import type { GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS } from '../data/generals';
-import { fxText, passiveOf } from '../data/passives';
+import { fxText, passiveOf, fx } from '../data/passives';
 import { ELEMENT_CSS, equipDesc, equipRealm, equipStats, techniqueDesc, techniqueExp } from '../data/items';
 import {
   abolish,
@@ -19,6 +19,8 @@ import {
   inBottleneck,
   learn,
   maxHp,
+  maxStamina,
+  expMultiplier,
   needsTribulation,
   passiveExp,
   power,
@@ -126,12 +128,12 @@ export class GeneralsView {
     const t = g.technique;
     const city = g.cityId ? state.cities[g.cityId] : null;
     const trip = lord.expeditions.find((e) => e.generalIds.includes(g.id));
-    const status = g.status === 'garrison' ? `駐守${city?.name ?? ''}${g.secluded ? '・閉關中' : ''}` : g.status === 'realm' ? `${trip?.realmName ?? '外出'}（${trip?.turnsLeft ?? 0} 回合）` : g.status === 'sect' ? '宗門' : '隨行';
+    const status = g.ghostSourceId ? `冤魂（剩餘 ${g.ghostTurns} 回合）` : g.status === 'garrison' ? `駐守${city?.name ?? ''}${g.secluded ? '・閉關中' : ''}` : g.status === 'realm' ? `${trip?.realmName ?? '外出'}（${trip?.turnsLeft ?? 0} 回合）` : g.status === 'sect' ? '宗門' : '隨行';
     const bottleneck = inBottleneck(g);
     const breakInfo = !bottleneck
       ? ''
       : needsTribulation(g)
-        ? `⚡ 渡劫：${boltCount(g)} 道天雷・每道約 ${Math.round(boltDamage(g))}`
+        ? fx(g).tribulationSuccess ? '⚡ 專屬被動：渡劫必定成功' : `⚡ 渡劫：${boltCount(g)} 道天雷・每道約 ${Math.round(boltDamage(g))}`
         : `突破成功率 ${Math.round(breakChance(g) * 100)}%`;
     const buffs = [g.foundation ? '已服築基丹' : '', g.sevenLife ? '七星續命護法' : '', g.breakBoost ? `引雷減傷 ${Math.round(g.breakBoost * 100)}%` : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? `心魔 ×${g.demon}` : ''].filter(Boolean).join('・');
 
@@ -143,11 +145,11 @@ export class GeneralsView {
         <span class="chip trait" title="${passiveOf(g).flavor}">【${passiveOf(g).name}】</span>
         ${buffs ? `<span class="chip buff">${buffs}</span>` : ''}
       </div>
-      <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（化神圓滿）'}・每回合 +${passiveExp(g, city)}${bottleneck ? '・瓶頸' : ''}</span></div>
+      <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（化神圓滿）'}・每回合 +${Math.round(passiveExp(g, city)*expMultiplier(g))}${bottleneck ? '・瓶頸' : ''}</span></div>
       <div class="passive"><b>【${passiveOf(g).name}】</b>${fxText(passiveOf(g).fx)}<small>${passiveOf(g).flavor}</small></div>
       ${breakInfo ? `<div class="break-info">${breakInfo}</div>` : ''}
       <div class="bar hp"><i style="width:${(g.hp / maxHp(g)) * 100}%"></i><span>血量 ${g.hp} / ${maxHp(g)}</span></div>
-      <div class="bar sta"><i style="width:${g.stamina}%"></i><span>體力 ${g.stamina} / 100</span></div>
+      <div class="bar sta"><i style="width:${g.stamina/maxStamina(g)*100}%"></i><span>體力 ${g.stamina} / ${maxStamina(g)}</span></div>
       <div class="stats">
         <span>武力 <b>${attack(g)}</b></span><span>防禦 <b>${defense(g)}</b></span><span>戰力 <b>${power(g)}</b></span>
         <span>煉丹 <b>${craft(g, 'alchemy')}</b></span><span>煉器 <b>${craft(g, 'forging')}</b></span><span>畫符 <b>${craft(g, 'talisman')}</b></span><span>佈陣 <b>${craft(g, 'formation')}</b></span>
@@ -168,7 +170,7 @@ export class GeneralsView {
       b.onclick = fn;
       actions.appendChild(b);
     };
-    const away = g.status === 'realm';
+    const away = g.status === 'realm' || !!g.ghostSourceId;
 
     if (bottleneck) {
       const can = canAttemptBreak(g, state.round);

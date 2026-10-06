@@ -110,6 +110,7 @@ export class Duel {
   /** 判定勝負：歸零即戰死，低於一成認輸；雙方同時倒下則平手（一死一降，活著的一方獲勝） */
   private judge() {
     if (this.over) return;
+    for (const f of [this.a,this.b]) if (f.hp <= 0 && fx(f.general).duelImmortal) f.hp=1;
     const state = (f: Fighter) => (f.hp <= 0 ? 'dead' : f.hp < f.maxHp * SURRENDER_HP ? 'down' : 'ok');
     const sa = state(this.a);
     const sb = state(this.b);
@@ -192,7 +193,7 @@ export class Duel {
   damage(target: Fighter, amount: number, wounded = target.hp < target.maxHp * WOUNDED_HP, defer = false): number {
     let dmg = Math.max(1, Math.round(amount));
     // 瀕危：血量低於 25% 時減傷 25%
-    if (wounded) dmg = Math.max(1, Math.round(dmg * (1 - WOUNDED_REDUCE)));
+    if (wounded && !fx(this.other(target.side).general).ignoreWounded) dmg = Math.max(1, Math.round(dmg * (1 - WOUNDED_REDUCE)));
     if (target.shield > 0) {
       const absorbed = Math.min(target.shield, dmg);
       target.shield -= absorbed;
@@ -208,6 +209,7 @@ export class Duel {
     const me = this.fighter(side);
     const foe = this.other(side);
     const mine = fx(me.general);
+    if (Math.random() < (fx(foe.general).dodge??0)) return {dmg:0,elem:'閃避',heal:0,crit:false};
     const em = elementMod(me.element, foe.element);
     // 五行輪轉：當令屬性傷害 +30%
     const tide = WORLD.element && me.element === WORLD.element ? 1.3 : 1;

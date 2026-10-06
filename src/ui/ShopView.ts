@@ -1,3 +1,4 @@
+import { lordHas } from '../data/passives';
 import type { GameState, Lord } from '../game/types';
 import { fmtStones } from '../game/Currency';
 import { SHOP_NAMES, buy, makeSellStock, sell, type SaleOffer, type Offer, type ShopKind } from '../systems/ShopSystem';
@@ -19,7 +20,8 @@ const SHOP_DESC: Record<ShopKind, string> = {
 export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: ShopKind, offers: Offer[], onBuy: (msg: string) => void): Promise<void> {
   const sold = new Set<number>();
   let mode: 'buy' | 'sell' = 'buy';
-  let recruited = false;
+  let recruited = 0;
+  const recruitLimit=lordHas(lord.id,'recruitLimit')?2:1;
   let confirmBeast = -1;
   // 分類商店（天寶商行、天工坊、百草堂）用分頁顯示
   const groups = [...new Set(offers.map((o) => o.group).filter((g): g is string => !!g))];
@@ -29,7 +31,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
     `${kind === 'merchant' ? '🐫' : TILE_INFO[kind].icon} ${SHOP_NAMES[kind]}`,
     (body, done) => {
       const render = () => {
-        body.innerHTML = `<p class="dialog-text">${SHOP_DESC[kind]}</p><div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;
+        body.innerHTML = `<p class="dialog-text">${kind==='tavern'?`每次最多招募 ${recruitLimit} 位。本國將領價格較低。`:SHOP_DESC[kind]}</p><div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;
         if (kind !== 'tavern') {
           const modes = document.createElement('div');
           modes.className = 'shop-tabs';
@@ -75,7 +77,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
           const b = document.createElement('button');
           b.className = 'btn primary mini';
           const otherRevive = o.kind === 'revive' && !o.own;
-          const blocked = sold.has(i) || (kind === 'tavern' && recruited) || (otherRevive && revivedOther);
+          const blocked = sold.has(i) || (kind === 'tavern' && recruited >= recruitLimit) || (otherRevive && revivedOther);
           b.textContent = sold.has(i) ? (o.kind === 'revive' ? '已復活' : '已購') : kind === 'tavern' ? '招募' : o.kind === 'revive' ? '復活' : '購買';
           b.disabled = blocked || lord.stones < o.price;
           if (confirmBeast === i) b.textContent = '放生舊靈獸並購買？';
@@ -101,7 +103,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
             const r = buy(state, lord, o);
             if (r.ok) {
               sold.add(i);
-              if (kind === 'tavern') recruited = true;
+              if (kind === 'tavern') recruited++;
               if (o.kind === 'revive' && !o.own) revivedOther = true;
               onBuy(r.message);
             }

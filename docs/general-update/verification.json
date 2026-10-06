@@ -1,0 +1,24 @@
+{
+  "sourceRows": 175,
+  "parameterRows": 267,
+  "actualRows": 175,
+  "formulaErrors": 0,
+  "sourceCellsMatched": 3500,
+  "parameterCellsMatched": 2136,
+  "formulaCellsMatched": 2275,
+  "initialAbilityValuesMatched": 1750,
+  "build": "TypeScript --noEmit and Vite production build passed",
+  "gameplayTestsRun": false,
+  "spreadsheet": "https://docs.google.com/spreadsheets/d/1lm1UGWn7R-ILYeKl8fILWrMN8820BCRFgyF4sivsCE4/edit",
+  "date": "2026-10-06",
+  "tables": {
+    "武將設定": "A6:T181",
+    "開場能力": "A6:M181",
+    "技能參數": "A6:H273"
+  },
+  "guardRules": [
+    "Ghosts leave when owner is eliminated and cannot enter tavern stock.",
+    "Guaranteed tribulation does not use AI risk veto.",
+    "Negative garrison effects cannot be canceled by a character with no bonus."
+  ]
+}

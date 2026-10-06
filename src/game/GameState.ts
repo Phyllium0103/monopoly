@@ -1,8 +1,9 @@
+import { bindPassiveState, fx } from '../data/passives';
 import type { City, General, GameState, Lord, LordId } from './types';
 import { BOARD } from '../data/board';
 import { GENERAL_SEEDS, type GeneralSeed } from '../data/generals';
 import { LORDS, LORD_IDS, TRAITS } from '../faction/Faction';
-import { maxHp } from '../systems/GeneralSystem';
+import { maxHp, maxStamina } from '../systems/GeneralSystem';
 import { bestContest } from '../systems/CitySystem';
 import { createForkDirections } from '../systems/MovementSystem';
 
@@ -58,6 +59,7 @@ export function newGeneral(
     cityId,
   };
   g.hp = maxHp(g);
+  g.stamina = maxStamina(g);
   return g;
 }
 
@@ -150,6 +152,9 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     banditTiles: [],
     favoredElement: null,
   };
+  bindPassiveState(state);
+  for (const g of Object.values(generals)) if (g.owner && fx(g).fixedParty) joinLord(state,g.owner,g);
+  for (const g of Object.values(generals)) g.hp=maxHp(g);
   for (const city of Object.values(cities)) city.contest = bestContest(state, city);
   return state;
 }
@@ -169,7 +174,7 @@ export function freeGenerals(state: GameState, lord: LordId): General[] {
 
 /** 可以派去駐守城池、探索秘境、被變賣的隨行武將（不含主公本人） */
 export function deployable(state: GameState, lord: LordId): General[] {
-  return freeGenerals(state, lord).filter((g) => !g.isLord);
+  return freeGenerals(state, lord).filter((g) => !g.isLord && !fx(g).fixedParty && !g.ghostSourceId);
 }
 
 /** 留在宗門的將領 */
@@ -182,7 +187,11 @@ export function joinLord(state: GameState, lord: LordId, g: General) {
   g.owner = lord;
   g.cityId = null;
   g.secluded = false;
-  g.status = freeGenerals(state, lord).length < PARTY_LIMIT ? 'free' : 'sect';
+  if (fx(g).fixedParty) {
+    const party=freeGenerals(state,lord).filter(p=>p.id!==g.id);
+    if (party.length >= PARTY_LIMIT) { const displaced=party.find(p=>!p.isLord && !fx(p).fixedParty && !p.ghostSourceId); if(displaced) displaced.status='sect'; }
+    g.status='free';
+  } else g.status = freeGenerals(state, lord).filter(p=>p.id!==g.id).length < PARTY_LIMIT ? 'free' : 'sect';
 }
 
 /** 一座城池最多駐守的武將數 */
@@ -194,6 +203,7 @@ export function garrisonOf(state: GameState, city: City): General[] {
 
 /** 復活死去的武將：歸入主公麾下，修為歸零，血量依比例，境界可能跌落 */
 export function reviveGeneral(state: GameState, lord: LordId, g: General, hpRatio = 1, realmLoss = 0) {
+  if (g.ghostSourceId || g.status !== 'dead') throw Error('只有死亡的實體武將可以復活');
   g.status = 'free';
   g.exp = 0;
   g.demon = 0;
@@ -201,7 +211,7 @@ export function reviveGeneral(state: GameState, lord: LordId, g: General, hpRati
   g.breakBoost = 0;
   g.realm = Math.max(0, g.realm - realmLoss);
   g.hp = Math.max(1, Math.round(maxHp(g) * hpRatio));
-  g.stamina = 100;
+  g.stamina = maxStamina(g);
   joinLord(state, lord, g);
 }
 
@@ -219,6 +229,7 @@ export function abandonIfEmpty(state: GameState, cityId: string | null): boolean
 
 /** 武將戰死：從主公與城池除名；若因此變成空城，回傳城池 id */
 export function killGeneral(state: GameState, g: General): string | null {
+  if (g.ghostSourceId) {delete state.generals[g.id]; return null;}
   let abandoned: string | null = null;
   if (g.cityId) {
     const city = state.cities[g.cityId];

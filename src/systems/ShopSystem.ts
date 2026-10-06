@@ -1,10 +1,10 @@
 import type { GameState, Lord, TileKind } from '../game/types';
-import { joinLord, nextUid, reviveGeneral } from '../game/GameState';
+import { joinLord, newGeneral, nextUid, reviveGeneral } from '../game/GameState';
 import { merchantStock } from './EventSystem';
 import { fmtStones } from '../game/Currency';
 import { ARTIFACT_IDS, ITEM_DEFS, equipDesc, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemTier, rollTier, techniqueDesc } from '../data/items';
-import { APTITUDE_NAMES, REALMS } from '../data/generals';
-import { fxText, passiveOf } from '../data/passives';
+import { APTITUDE_NAMES, HIDDEN_SEEDS, REALMS } from '../data/generals';
+import { fxText, passiveOf, lordAura, lordHas } from '../data/passives';
 import { generalValue, power, realmName, recruitPrice } from './GeneralSystem';
 import { originKingdom } from '../faction/Faction';
 import type { Beast, Equipment, General, Item, Technique } from '../game/types';
@@ -18,7 +18,7 @@ export type Offer = (
   | { kind: 'technique'; technique: Technique; label: string; sub: string; price: number }
   | { kind: 'beast'; beast: Beast; label: string; sub: string; price: number }
   | { kind: 'general'; general: General; label: string; sub: string; price: number }
-  | { kind: 'revive'; general: General; label: string; sub: string; price: number; realmLoss: number; own: boolean }
+  | { kind: 'revive'; general: General; label: string; sub: string; price: number; realmLoss: number; own: boolean; preserveExp?: boolean }
 ) & {
   /** 分頁名稱（商店分類） */
   group?: string;
@@ -63,22 +63,24 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
         kind: 'revive',
         general: g,
         own,
-        realmLoss: own ? 1 : 2,
+        realmLoss: !own && lordHas(lord.id,'reviveEnemyIntact') ? 0 : own ? 1 : 2,
+        preserveExp: !own && lordHas(lord.id,'reviveEnemyIntact'),
         group: own ? '復活・自己的亡將' : '復活・其他主公的亡將',
         label: `🕯️ 復活 ${g.name}（${originKingdom(g.origin)}）`,
         sub: `${realmName(g)}・${APTITUDE_NAMES[g.aptitude]}｜被動【${passiveOf(g).name}】${fxText(passiveOf(g).fx)}｜復活後境界降 ${own ? 1 : 2} 階（→${realmAfter(g, own ? 1 : 2)}）、修為歸零、血量全滿，歸入你的麾下${own ? '｜自己的亡將，價格減半' : '｜一次只能復活一人'}`,
-        price: Math.round((recruitPrice(g, lord.id) * 1.5 * (own ? 0.5 : 1)) / 100) * 100,
+        price: lordHas(lord.id,'freeRevive') ? 0 : Math.round((recruitPrice(g, lord.id) * 1.5 * (own ? 0.5 : 1)) / 100) * 100,
       });
       const mine = dead.filter((g) => g.lastOwner === lord.id).map((g) => reviveOffer(g, true));
       const others = dead.filter((g) => g.lastOwner !== lord.id).map((g) => reviveOffer(g, false));
-      return [...potions, ...mine, ...others];
+      return [...potions, ...mine, ...others].map(o => o.kind==='revive' ? {...o,sub: `${realmName(o.general)}｜復活後境界降 ${o.realmLoss} 階、${o.preserveExp?'修為保留':'修為歸零'}、血量全滿${o.price===0?'｜董奉：免費復活':''}`} : o);
     }
     case 'treasure': {
+      const discount=Math.max(0,1-lordAura(lord.id,'partyTreasure'));
       // 每個貨架先等機率抽種類，再抽品階；不依種類品階數重抽或去重。
       return Array.from({ length: 30 }, () => {
         const defId = ARTIFACT_IDS[Math.floor(Math.random() * ARTIFACT_IDS.length)];
         const item = makeItem(uid('i'), defId, rollItemTier(defId, bias));
-        return { kind: 'item', item, label: itemName(defId, item.tier), sub: ITEM_DEFS[defId].desc(item.tier) + '｜' + requirementOf(defId, item.tier), price: item.price, group: ITEM_DEFS[defId].category } as Offer;
+        return { kind: 'item', item, label: itemName(defId, item.tier), sub: ITEM_DEFS[defId].desc(item.tier) + '｜' + requirementOf(defId, item.tier), price: Math.round(item.price*discount), group: ITEM_DEFS[defId].category } as Offer;
       });
     }
     case 'forge': {
@@ -104,11 +106,15 @@ export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[]
       });
     case 'tavern': {
       const free = shuffle(Object.values(state.generals).filter((g) => g.owner === null && g.status !== 'dead'));
-      // 隱藏武將最多占兩個名額，不會把一般將領全擠掉；一般將領不夠時才補隱藏武將
+      // 方外人物最多一名；水鏡先生隨行時也可抽尚未揭露者，不以其他方外人物補空位
       const hidden = free.filter((g) => g.origin === 'immortal');
+      if (lordHas(lord.id,'unlockHidden')) {
+        for (const seed of HIDDEN_SEEDS) if (!state.generals[seed.id]) hidden.push(newGeneral(seed,'immortal',null,'free',null));
+      }
+      const shuffledHidden=shuffle(hidden);
       const normal = free.filter((g) => g.origin !== 'immortal');
-      const pool = [...hidden.slice(0, 2), ...normal].slice(0, 4);
-      for (const g of hidden.slice(2)) if (pool.length < 4) pool.push(g);
+      const pool = [...shuffledHidden.slice(0,1), ...normal].slice(0,4);
+      for (const g of pool) if (!state.generals[g.id]) state.generals[g.id]=g;
       return pool.map(
         (g) =>
           ({
@@ -145,9 +151,12 @@ export function buy(state: GameState, lord: Lord, offer: Offer): { ok: boolean; 
     case 'general':
       joinLord(state, lord.id, offer.general);
       break;
-    case 'revive':
+    case 'revive': {
+      const exp=offer.general.exp;
       reviveGeneral(state, lord.id, offer.general, 1, offer.realmLoss);
+      if (offer.preserveExp) offer.general.exp=exp;
       break;
+    }
   }
   return { ok: true, message: `花費 ${fmtStones(offer.price)} 購得「${offer.label}」。` };
 }

@@ -3,35 +3,45 @@ import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
 import { ELEMENT_BIAS, techniqueExp } from '../data/items';
 import { WORLD } from './WorldMods';
 import { terrainOf } from '../data/terrain';
-import { fx } from '../data/passives';
+import { fx, lordAura, passiveState } from '../data/passives';
 import { traitOf } from '../faction/Faction';
+
+/** Avoid floating point half-rounding differences from the editable spreadsheet. */
+const roundStat=(value:number)=>Math.round(Number(value.toFixed(8)));
 
 export function realmName(g: General): string {
   return REALMS[g.realm];
 }
 
+export function realmMultiplier(g: General): number { return REALM_MULT[g.realm] * (fx(g).realmFactor ?? 1); }
+export function maxStamina(g: General): number { return Math.max(0, 100 + (fx(g).maxStamina ?? 0)); }
+export function expMultiplier(g: General): number {
+  if (g.ghostSourceId) return 0;
+  const aura=g.owner && g.status === 'free' ? lordAura(g.owner,'partyExp') + (g.isLord ? lordAura(g.owner,'partyLordExp') : 0) + ((passiveState()?.lords[g.owner].clearCultivationTurns ?? 0)>0 ? 1 : 0) : 0;
+  return Math.max(0,1+(fx(g).exp??0)+aura);
+}
 export function attack(g: General): number {
   const t = (g.technique?.power ?? 0) * (g.technique ? ELEMENT_BIAS[g.technique.element].atk : 1);
-  return Math.round((g.base.force + g.bonusForce + (g.weapon?.force ?? 0) + (g.armor?.force ?? 0)) * REALM_MULT[g.realm] * (1 + t) * (1 + (fx(g).atk ?? 0)));
+  return roundStat((g.base.force + g.bonusForce + (g.weapon?.force ?? 0) + (g.armor?.force ?? 0)) * realmMultiplier(g) * (1 + t) * (1 + (fx(g).atk ?? 0)) * (1 + (fx(g).allStats ?? 0)));
 }
 
 export function defense(g: General): number {
   const t = (g.technique?.power ?? 0) * (g.technique ? ELEMENT_BIAS[g.technique.element].def : 1);
-  return Math.round((g.base.defense + g.bonusDefense + (g.armor?.defense ?? 0) + (g.weapon?.defense ?? 0)) * REALM_MULT[g.realm] * (1 + t * 0.5) * (1 + (fx(g).def ?? 0)));
+  return roundStat((g.base.defense + g.bonusDefense + (g.armor?.defense ?? 0) + (g.weapon?.defense ?? 0)) * realmMultiplier(g) * (1 + t * 0.5) * (1 + (fx(g).def ?? 0)) * (1 + (fx(g).allStats ?? 0)));
 }
 
 export function maxHp(g: General): number {
-  return Math.round((g.base.hp + (g.armor?.hp ?? 0) + (g.weapon?.hp ?? 0)) * REALM_MULT[g.realm] * (1 + (fx(g).hp ?? 0)));
+  return roundStat((g.base.hp + (g.armor?.hp ?? 0) + (g.weapon?.hp ?? 0)) * realmMultiplier(g) * (1 + (fx(g).hp ?? 0)) * (1 + (fx(g).allStats ?? 0)));
 }
 
 /** 煉丹／煉器／畫符／佈陣，境界越高越精 */
 export function craft(g: General, stat: CraftStat): number {
-  return Math.round((g.base[stat] + (fx(g).craft?.[stat] ?? 0) + (g.weapon?.craft[stat] ?? 0) + (g.armor?.craft[stat] ?? 0)) * (1 + g.realm * 0.1));
+  return roundStat((g.base[stat] + (fx(g).craft?.[stat] ?? 0) + (g.weapon?.craft[stat] ?? 0) + (g.armor?.craft[stat] ?? 0)) * (1 + g.realm * 0.1) * (fx(g).realmFactor ?? 1) * (1 + (fx(g).allStats ?? 0)));
 }
 
 /** 綜合戰力，用於攻城、秘境與 AI 評估 */
 export function power(g: General): number {
-  return Math.round(attack(g) * 2 + defense(g) + maxHp(g) / 5);
+  return roundStat(attack(g) * 2 + defense(g) + maxHp(g) / 5);
 }
 
 export function totalCraft(g: General): number {
@@ -52,7 +62,7 @@ export function inBottleneck(g: General): boolean {
 /** 增加修為（瓶頸時溢出的部分作廢），回傳實際增加量 */
 export function addExp(g: General, amount: number): number {
   const before = g.exp;
-  g.exp = Math.min(expCap(g), g.exp + Math.max(0, Math.round(amount)));
+  g.exp = Math.min(expCap(g), g.exp + Math.max(0, Math.round(amount * expMultiplier(g))));
   return g.exp - before;
 }
 
@@ -62,13 +72,14 @@ export const SPIRIT_VEINS = new Set(['luoyang', 'changan']);
 
 /** 周天吐納：每回合被動修為；駐守城池依繁榮度（靈氣濃度）額外增加，閉關再加倍 */
 export function passiveExp(g: General, city: City | null): number {
+  if (g.ghostSourceId) return 0;
   let n = 30 + techniqueExp(g.technique);
   if (g.status === 'garrison' && city) {
     // 繁榮度即靈氣濃度，再依地貌增減（山地、丘陵最宜修行）
     n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1) * (1 + terrainOf(city).spirit);
     if (g.secluded) n *= 2 * WORLD.seclusionMult;
   }
-  return Math.round(n * APTITUDE_MULT[g.aptitude] * WORLD.expMult * (1 + (fx(g).exp ?? 0) + (traitOf(g.owner).expMult ?? 0)));
+  return Math.round(n * APTITUDE_MULT[g.aptitude] * WORLD.expMult * (1 + (traitOf(g.owner).expMult ?? 0)));
 }
 
 // ───────────────────────── 突破 ─────────────────────────
@@ -91,7 +102,7 @@ export function breakChance(g: General): number {
 
 export function canAttemptBreak(g: General, round: number): { ok: boolean; reason: string } {
   if (!inBottleneck(g)) return { ok: false, reason: '修為未滿' };
-  if (g.status === 'realm' || g.status === 'dead') return { ok: false, reason: '不在宗門掌控中' };
+  if (g.ghostSourceId || g.status === 'realm' || g.status === 'dead') return { ok: false, reason: '不在宗門掌控中' };
   if (!needsTribulation(g) && g.failedRound >= round) return { ok: false, reason: '氣血未復，下一輪才能再試' };
   return { ok: true, reason: '' };
 }
@@ -170,6 +181,7 @@ export interface TribulationResult {
 
 /** 渡雷劫：逐道扣血，撐過全部即突破；血量歸零則一半身死道消、一半兵解重修 */
 export async function tribulation(g: General, protect?: () => Promise<boolean>): Promise<TribulationResult> {
+  if (fx(g).tribulationSuccess) { const fromRealm=g.realm; g.sevenLife=false; g.ward=0; g.demon=0; g.breakBoost=0; levelUp(g); return {bolts:[],success:true,fate:null,fromRealm}; }
   const seven = g.sevenLife;
   g.sevenLife = false;
   const fromRealm = g.realm;
@@ -235,11 +247,12 @@ export function abolish(g: General) {
 
 /** 回合開始的回復 */
 export function recover(g: General) {
-  g.stamina = Math.min(100, g.stamina + 15);
+  g.stamina = Math.min(maxStamina(g), Math.round((g.stamina + 15 * Math.max(0,1+(fx(g).staminaRecovery??0))) * 10) / 10);
   g.hp = Math.min(maxHp(g), g.hp + Math.round(maxHp(g) * 0.12));
 }
 
 export function generalValue(g: General): number {
+  if (g.ghostSourceId) return 0;
   return Math.round(power(g) * 8 + totalCraft(g) * 10 + (g.weapon?.price ?? 0) * 0.5 + (g.armor?.price ?? 0) * 0.5 + (g.technique?.price ?? 0) * 0.5);
 }
 
@@ -254,11 +267,12 @@ export function generalSaleValue(g: General): number {
 /** 聽風樓招募價：本國將領較便宜 */
 export function recruitPrice(g: General, lord: string): number {
   const base = generalValue(g) * 0.6 + 2000;
-  return Math.round((base * (g.origin === lord ? 0.6 : 1.5) * WORLD.recruitMult * (1 + (traitOf(lord as LordId).recruit ?? 0))) / 100) * 100;
+  return Math.round((base * (g.origin === lord ? 0.6 : 1.5) * WORLD.recruitMult * (1 + (traitOf(lord as LordId).recruit ?? 0)) * Math.max(0,1-lordAura(lord as LordId,'partyRecruit'))) / 100) * 100;
 }
 
 /** 裝備神器或寶衣；換下的裝備放回行囊 */
 export function equip(lord: Lord, g: General, e: Equipment) {
+  if (g.ghostSourceId) return;
   const old = g[e.kind];
   g[e.kind] = e;
   lord.gear = lord.gear.filter((x) => x.uid !== e.uid);
@@ -277,6 +291,7 @@ export function unequip(lord: Lord, g: General, kind: 'weapon' | 'armor') {
 
 /** 靈根與功法相容性；玩家介面、電腦與實際裝備共用規則。 */
 export function canLearn(g: General, t: Technique): { ok: boolean; reason: string } {
+  if (g.ghostSourceId) return {ok:false,reason:'冤魂無法裝備功法'};
   if (g.technique) return { ok: false, reason: '已修習功法，須先自廢修為' };
   if (g.aptitude === 'waste') return { ok: false, reason: '廢靈根無法裝備功法' };
   if (g.aptitude !== 'heaven' && g.aptitude !== t.element) return { ok: false, reason: '靈根與功法五行不符' };

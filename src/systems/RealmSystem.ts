@@ -65,6 +65,7 @@ export function deathChance(g: General, team: General[], level = 1): number {
 }
 
 export function dispatch(lord: Lord, team: General[], realmName: string, level = 1) {
+  if (team.some(g=>g.ghostSourceId || fx(g).fixedParty)) throw Error('固定隨行人物與冤魂不能派入秘境');
   for (const g of team) g.status = 'realm';
   lord.expeditions.push({ generalIds: team.map((g) => g.id), turnsLeft: realmTurns(level, team), realmName, level, blessed: WORLD.realmBlessed });
 }

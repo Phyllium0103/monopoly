@@ -1,8 +1,9 @@
+import { fx } from '../data/passives';
 import { immortalWinner } from './VictorySystem';
 import type { City, CraftStat, GameState, General, Item, Lord } from '../game/types';
 import { PARTY_LIMIT, abandonIfEmpty, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, canLearn, learn, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
-import { MIN_GARRISON, eliminate, recruitCost, cityToll, garrisonPower, occupyCost } from './CitySystem';
+import { MIN_GARRISON, eliminate, recruitCost, visitingToll, garrisonPower, occupyCost } from './CitySystem';
 import { REALMS } from '../data/generals';
 import { equipRealm, equipScore } from '../data/items';
 import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
@@ -16,7 +17,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   if (lord.itemsLocked) return [];
   const apply = (item: Item, user: General, target: PrerollTarget) => hooks.use ? hooks.use(lord,item,user,target) : Promise.resolve(usePreroll(state,lord,item,user,target));
   const logs: string[] = [];
-  const gens = generalsOf(state, lord.id).filter((g) => g.status !== 'realm');
+  const gens = generalsOf(state, lord.id).filter((g) => g.status !== 'realm' && !g.ghostSourceId);
 
   // 自動裝備最好的神器、寶衣
   for (const kind of ['weapon', 'armor'] as const) {
@@ -165,7 +166,7 @@ export async function aiBreakthroughs(state: GameState, lord: Lord, hooks: ItemH
     if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('breakpill');
     if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('thunderward');
     if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('fiveward');
-    if (boltDamage(g) * boltCount(g) * 1.1 > g.hp) continue;
+    if (!fx(g).tribulationSuccess && boltDamage(g) * boltCount(g) * 1.1 > g.hp) continue;
     const cityId = g.cityId;
     const r = await tribulation(g, hooks.protect ? () => hooks.protect!(g) : undefined);
     if (r.fate === 'death' && cityId) {
@@ -223,7 +224,7 @@ export function aiEnemyCity(state: GameState, lord: Lord, city: City): AiBattleC
   if (!free.length) return { kind: 'pay', generals: [] };
   const owner = state.lords[city.owner as Lord['id']];
   const defenders = defenderPool(state, city);
-  const cost = cityToll(state, city);
+  const cost = visitingToll(state, city, lord);
 
   // 攻城：明顯優勢才打
   const team = [...free].sort((a, b) => attack(b) - attack(a)).slice(0, 3);

@@ -87,7 +87,6 @@ export class Game {
     this.lordView.facingText = (id) => this.facingText(this.state.lords[id]);
     this.ui.onLord = (id) => this.lordView.open(this.state, id);
     this.ui.onHelp = () => this.help.open();
-    this.ui.onGarrison = () => void this.openGarrison();
     this.ui.onRank = () => this.rankView.open(this.state);
     this.ui.onAuto = () => this.toggleAuto();
     this.ui.onCheat = () => this.cheat();

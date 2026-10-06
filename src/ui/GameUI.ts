@@ -38,7 +38,6 @@ export class GameUI {
   speed = 1;
   onSpeed: ((s: number) => void) | null = null;
   onHelp: (() => void) | null = null;
-  onGarrison: (() => void) | null = null;
   onRank: (() => void) | null = null;
   onAuto: (() => void) | null = null;
   onCheat: (() => void) | null = null;
@@ -124,7 +123,6 @@ export class GameUI {
       <div class="speed">
         <button class="btn mini tool log-btn ${this.logOpen ? 'on' : ''}" data-tip="天下紀事（開／關）">📜</button>
         <button class="btn mini tool auto-btn ${this.auto ? 'on' : ''}" data-tip="${this.auto ? '電腦託管中（點擊取消）' : '電腦代打你的回合'}">🤖</button>
-        <button class="btn mini tool garrison-btn" ${state.over || !state.lords[state.player].alive ? 'disabled' : ''} data-tip="調兵：隨時調動駐軍，依道路距離收費，一次付費可操作到關閉">🏯</button>
         <button class="btn mini tool rank-btn" data-tip="城池榜">🏆</button>
         <button class="btn mini tool help-btn" data-tip="說明（地圖：左鍵旋轉・右鍵平移・滾輪縮放・WASD 移動）">📖</button>
         <span class="tool music" data-tip="背景音樂音量">🎵<span class="music-fly"><input type="range" class="music-vol" min="0" max="100" step="5" value="${Math.round(music.volume * 100)}"><span class="music-pct">${Math.round(music.volume * 100)}%</span></span></span>
@@ -132,7 +130,6 @@ export class GameUI {
         <span class="speed-group">${[1, 2, 4].map((s) => `<button class="btn mini ${s === this.speed ? 'on' : ''}" data-s="${s}" data-tip="遊戲速度 ${s}×">${s}×</button>`).join('')}</span>
       </div>`;
     (this.top.querySelector('.help-btn') as HTMLButtonElement).onclick = () => this.onHelp?.();
-    (this.top.querySelector('.garrison-btn') as HTMLButtonElement).onclick = () => this.onGarrison?.();
     const vol = this.top.querySelector('.music-vol') as HTMLInputElement;
     vol.oninput = () => {
       music.setVolume(Number(vol.value) / 100);

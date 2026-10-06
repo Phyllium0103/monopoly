@@ -3,13 +3,50 @@ import { immortalWinner } from './VictorySystem';
 import type { City, CraftStat, GameState, General, Item, Lord } from '../game/types';
 import { PARTY_LIMIT, abandonIfEmpty, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, canLearn, learn, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
-import { MIN_GARRISON, eliminate, recruitCost, visitingToll, garrisonPower, occupyCost } from './CitySystem';
+import { MIN_GARRISON, eliminate, recruitCost, visitingToll, garrisonPower, occupyCost, totalAssets } from './CitySystem';
 import { REALMS } from '../data/generals';
 import { equipRealm, equipScore } from '../data/items';
 import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
 import { CONTEST_SOLDIERS, canDuel, siegeAllowed, siegeAttack, type BattleKind } from './BattleSystem';
 import type { Offer } from './ShopSystem';
 import { REALM_LEVELS, deathChance } from './RealmSystem';
+
+/** 各陣營電腦的打法：同樣的判斷流程，門檻不同，表現出不同個性 */
+export interface AiStyle {
+  /** 攻城：我方攻擊力要達到守城戰力的幾倍才出手（越小越好戰） */
+  siegeRatio: number;
+  /** 單挑：評分要高出對方幾倍才挑戰 */
+  duelRatio: number;
+  /** 技藝比試：能力值要高出對方幾倍才比 */
+  craftRatio: number;
+  /** 佔領城池後至少保留的靈石 */
+  occupyReserve: number;
+  /** 只剩一名武將時，願意佔領的最低繁榮度 */
+  occupyMinProsperity: number;
+  /** 商店保留的備用金、略過購買的機率 */
+  shopReserve: number;
+  shopSkip: number;
+  /** 武將人數上限內優先招募 */
+  recruitCap: number;
+  /** 秘境：出發機率與可接受的平均隕落率 */
+  realmChance: number;
+  realmRisk: number;
+  /** 隨行士兵低於此數就補兵 */
+  soldierFloor: number;
+  /** 商店偏好的物品（優先購買） */
+  likes: string[];
+}
+
+export const AI_STYLES: Record<Lord['id'], AiStyle> = {
+  // 曹操：重修煉與丹藥，穩健出手
+  cao: { siegeRatio: 1.3, duelRatio: 1.15, craftRatio: 1.2, occupyReserve: 8000, occupyMinProsperity: 50, shopReserve: 6000, shopSkip: 0.2, recruitCap: 15, realmChance: 0.8, realmRisk: 0.15, soldierFloor: 8000, likes: ['qi', 'essence', 'foundation', 'breakpill', 'bone'] },
+  // 劉備：廣佔城池、經營為本，不輕易攻城
+  liu: { siegeRatio: 1.6, duelRatio: 1.2, craftRatio: 1.25, occupyReserve: 4000, occupyMinProsperity: 35, shopReserve: 5000, shopSkip: 0.3, recruitCap: 16, realmChance: 0.7, realmRisk: 0.15, soldierFloor: 8000, likes: ['soldiers', 'vein', 'mend', 'heal'] },
+  // 孫權：守成，保守出擊、秘境挑安全的、留足備用金與守備
+  sun: { siegeRatio: 1.9, duelRatio: 1.25, craftRatio: 1.3, occupyReserve: 10000, occupyMinProsperity: 55, shopReserve: 9000, shopSkip: 0.35, recruitCap: 14, realmChance: 0.7, realmRisk: 0.1, soldierFloor: 12000, likes: ['citadel', 'truce', 'thunderward', 'fiveward', 'siegebreak'] },
+  // 董卓：好戰，優勢不大也敢打，大量徵兵，常去秘境練兵
+  dong: { siegeRatio: 1.1, duelRatio: 1.05, craftRatio: 1.15, occupyReserve: 6000, occupyMinProsperity: 40, shopReserve: 4000, shopSkip: 0.25, recruitCap: 15, realmChance: 0.55, realmRisk: 0.2, soldierFloor: 15000, likes: ['force', 'guard', 'demon', 'siegebreak', 'stride'] },
+};
 
 export interface ItemHooks { use?: (lord: Lord, item: Item, user: General, target: PrerollTarget) => Promise<string>; protect?: (g: General) => Promise<boolean>; }
 /** 擲骰前：療傷、換裝、學功法、補兵 */
@@ -18,6 +55,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   const apply = (item: Item, user: General, target: PrerollTarget) => hooks.use ? hooks.use(lord,item,user,target) : Promise.resolve(usePreroll(state,lord,item,user,target));
   const logs: string[] = [];
   const gens = generalsOf(state, lord.id).filter((g) => g.status !== 'realm' && !g.ghostSourceId);
+  const style = AI_STYLES[lord.id];
 
   // 自動裝備最好的神器、寶衣
   for (const kind of ['weapon', 'armor'] as const) {
@@ -90,7 +128,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
     if (item && user) logs.push(await apply(item, user, target));
   };
   if (party.filter((g) => g.hp < maxHp(g) * 0.7).length >= 2) await useGroup('mend');
-  if (lord.soldiers < 8000) await useGroup('soldiers');
+  if (lord.soldiers < style.soldierFloor) await useGroup('soldiers');
   const best = citiesOf(state, lord.id).sort((a, b) => b.prosperity - a.prosperity)[0];
   if (best && best.prosperity < 190) await useGroup('vein', { city: best });
   for (const id of ['bowl','bag','breath','wheel']) await useGroup(id);
@@ -109,12 +147,22 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   }
   for (const item of [...lord.items].filter(i=>['ghost','move','poison','bow','lock','freeze','confuse','confusing','rootdown','sacrifice','graft','citadel','seven'].includes(i.defId))) {
     const user=freeGenerals(state,lord.id).find(g=>canUse(item,g).ok);if (!user) continue;
-    const enemies=Object.values(state.lords).filter(l=>l.alive&&l.id!==lord.id);
-    const victim=enemies[Math.floor(Math.random()*enemies.length)];if (!victim) continue;
+    // 妨礙類物品對準威脅最大的對手：總資產最高的優先，條件不符再換下一位
+    const enemies=Object.values(state.lords).filter(l=>l.alive&&l.id!==lord.id).sort((x,y)=>totalAssets(state,y.id).total-totalAssets(state,x.id).total);
+    const usable=(v: Lord): boolean => {
+      const t=def(item).target;
+      if (t==='lord') {
+        if (['poison','bow'].includes(item.defId)&&!freeGenerals(state,v.id).length) return false;
+        if (item.defId==='move'&&!v.items.length) return false;
+        return true;
+      }
+      if (t==='enemyGeneral') return generalsOf(state,v.id).some(g=>g.status!=='realm');
+      if (t==='enemyCity') return citiesOf(state,v.id).length>0;
+      return true;
+    };
+    const victim=enemies.find(usable);if (!victim) continue;
     let target: PrerollTarget={};
     if (def(item).target==='lord') {
-      if (['poison','bow'].includes(item.defId)&&!freeGenerals(state,victim.id).length) continue;
-      if (item.defId==='move'&&!victim.items.length) continue;
       target={lord:victim,tile:Math.floor(Math.random()*state.tiles.length)};
     } else if (def(item).target==='enemyGeneral') {
       const g=generalsOf(state,victim.id).filter(g=>g.status!=='realm').sort((a,b)=>power(b)-power(a))[0];if(!g)continue;target={general:g};
@@ -133,7 +181,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   const strideUser = stride && gens.find((u) => u.status === 'free' && canUse(stride, u).ok);
   if (stride && strideUser && Math.random() < 0.4) logs.push(await apply(stride, strideUser, {}));
   // 補兵
-  if (lord.soldiers < 8000 && lord.stones > 10000) {
+  if (lord.soldiers < style.soldierFloor && lord.stones > 10000) {
     const n = 2000;
     lord.stones -= recruitCost(lord.id, n);
     lord.soldiers += n;
@@ -203,9 +251,10 @@ export function aiOccupy(state: GameState, lord: Lord, city: City): { generalId:
   const free = deployable(state, lord.id);
   if (!free.length || lord.soldiers < MIN_GARRISON) return null;
   // 保留一筆備用金應付過路費
-  if (lord.stones - occupyCost(city) < 8000) return null;
+  const style = AI_STYLES[lord.id];
+  if (lord.stones - occupyCost(city) < style.occupyReserve) return null;
   // 只剩一名武將時，只為較繁榮的城池出手
-  if (free.length === 1 && city.prosperity < 50) return null;
+  if (free.length === 1 && city.prosperity < style.occupyMinProsperity) return null;
   const g = [...free].sort((a, b) => power(a) - power(b))[0];
   const soldiers = Math.max(MIN_GARRISON, Math.min(lord.soldiers - 5000, Math.round(city.prosperity * 30)));
   if (soldiers < MIN_GARRISON || soldiers > lord.soldiers) return null;
@@ -225,22 +274,23 @@ export function aiEnemyCity(state: GameState, lord: Lord, city: City): AiBattleC
   const owner = state.lords[city.owner as Lord['id']];
   const defenders = defenderPool(state, city);
   const cost = visitingToll(state, city, lord);
+  const style = AI_STYLES[lord.id];
 
   // 攻城：明顯優勢才打
   const team = [...free].sort((a, b) => attack(b) - attack(a)).slice(0, 3);
-  if (siegeAllowed(state.round) && siegeAttack(lord, team) > garrisonPower(state, city) * 1.3 && free.length >= 2) return { kind: 'siege', generals: team };
+  if (siegeAllowed(state.round) && siegeAttack(lord, team) > garrisonPower(state, city) * style.siegeRatio && free.length >= 2) return { kind: 'siege', generals: team };
 
   // 每座城固定開放單挑
   const only = city.contest;
   const best = [...free].filter(canDuel).sort((a, b) => duelScore(b) - duelScore(a))[0];
   const bestDef = [...defenders].filter(canDuel).sort((a, b) => duelScore(b) - duelScore(a))[0];
-  if (best && (!bestDef || duelScore(best) > duelScore(bestDef) * 1.15)) return { kind: 'duel', generals: [best] };
+  if (best && (!bestDef || duelScore(best) > duelScore(bestDef) * style.duelRatio)) return { kind: 'duel', generals: [best] };
 
   // 技藝比試（雙方各需 500 兵維持秩序）
   for (const stat of lord.soldiers >= CONTEST_SOLDIERS ? [only] : []) {
     const me = [...free].sort((a, b) => craft(b, stat) - craft(a, stat))[0];
     const them = [...defenders].sort((a, b) => craft(b, stat) - craft(a, stat))[0];
-    if (them && craft(me, stat) > craft(them, stat) * 1.25) return { kind: stat, generals: [me] };
+    if (them && craft(me, stat) > craft(them, stat) * style.craftRatio) return { kind: stat, generals: [me] };
   }
   // 付得起就付
   if (lord.stones >= cost * 2 || !owner) return { kind: 'pay', generals: [] };
@@ -267,13 +317,14 @@ export function aiDefender(state: GameState, city: City, kind: BattleKind): Gene
 
 /** 商店：保留一筆備用金，挑一件買；將領不足時優先招募 */
 export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | null {
-  const reserve = 6000;
+  const style = AI_STYLES[lord.id];
+  const reserve = style.shopReserve;
   const affordable = offers.filter((o) => o.price <= lord.stones - reserve);
   if (!affordable.length) return null;
   const revives = affordable.filter((o) => o.kind === 'revive' && o.price < lord.stones * 0.5);
-  if (revives.length && generalsOf(state, lord.id).length < 14) return revives.sort((a, b) => b.price - a.price)[0];
+  if (revives.length && generalsOf(state, lord.id).length < style.recruitCap) return revives.sort((a, b) => b.price - a.price)[0];
   const recruits = affordable.filter((o) => o.kind === 'general');
-  if (recruits.length && generalsOf(state, lord.id).length < 14) return recruits.sort((a, b) => a.price - b.price)[0];
+  if (recruits.length && generalsOf(state, lord.id).length < style.recruitCap) return recruits.sort((a, b) => a.price - b.price)[0];
   const want = affordable.filter((o) => {
     if (o.kind === 'beast') return !lord.beast || lord.beast.tier < o.beast.tier;
     if (o.kind === 'item') {
@@ -283,18 +334,21 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
     }
     return true;
   });
-  if (!want.length || Math.random() < 0.3) return null;
-  return want.sort((a, b) => b.price - a.price)[0];
+  if (!want.length || Math.random() < style.shopSkip) return null;
+  // 先挑陣營偏好的物品，沒有再挑最貴的
+  const liked = want.filter((o) => o.kind === 'item' && style.likes.includes(o.item.defId));
+  return (liked.length ? liked : want).sort((a, b) => b.price - a.price)[0];
 }
 
 /** 秘境：有空閒武將時，挑風險可接受的最高難度派遣 */
 export function aiRealm(state: GameState, lord: Lord): { team: General[]; level: number } | null {
   const free = deployable(state, lord.id).sort((a, b) => b.realm - a.realm || power(b) - power(a));
-  if (!free.length || Math.random() > 0.7) return null;
+  const style = AI_STYLES[lord.id];
+  if (!free.length || Math.random() > style.realmChance) return null;
   const team = free.slice(0, Math.min(4, free.length));
   for (let level = REALM_LEVELS.length - 1; level >= 0; level--) {
     const risk = team.reduce((s, g) => s + deathChance(g, team, level), 0) / team.length;
-    if (risk < 0.15) return { team, level };
+    if (risk < style.realmRisk) return { team, level };
   }
   return null;
 }

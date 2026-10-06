@@ -1,7 +1,7 @@
 import type { GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, freeGenerals, nextUid, reviveGeneral } from '../game/GameState';
 import { fx } from '../data/passives';
-import { ITEM_DEFS, itemName, makeItem, rollItemTier } from '../data/items';
+import { ITEM_DEFS, itemName, makeItem, rollItemId, rollItemTier } from '../data/items';
 import { maxHp } from './GeneralSystem';
 
 /** Abilities share the same authoritative functions for human players and AI. */
@@ -28,7 +28,8 @@ export function useGeneralAbility(state: GameState, lord: Lord, g: General, targ
   const f=fx(g);
   if (f.produceCategory) {
     const pool=Object.keys(ITEM_DEFS).filter(id=>ITEM_DEFS[id].category===f.produceCategory);
-    const id=pool[Math.floor(Math.random()*pool.length)];
+    const id=rollItemId(pool);
+    if(!id) return '該類物品權重皆為0，未製造物品，也未耗費體力。';
     const item=makeItem(nextUid(state,'i'),id,rollItemTier(id,Math.min(.9,state.round/40)));
     g.stamina-=100; lord.items.push(item);
     return `${g.name}耗費 100 體力，獲得${itemName(item.defId,item.tier)}。`;
@@ -51,4 +52,30 @@ export function tickGeneralAbilities(state: GameState,lord:Lord):string[] {
     if (g.ghostTurns<=0) {delete state.generals[g.id];messages.push(`${g.name}存在時間已到，離開隊伍。`);}
   }
   return messages;
+}
+
+
+/** 清修選擇在 startTurn 前顯示，故以即將開始的自身回合比較冷卻。 */
+export function seclusionUser(state: GameState, lord: Lord): General | undefined {
+  const turn=(lord.personalTurn??0)+1;
+  return freeGenerals(state,lord.id).find(g=>!g.ghostSourceId&&fx(g).seclusionAbility&&(g.seclusionReadyTurn??0)<=turn);
+}
+export function startSeclusion(lord: Lord, g: General): void {
+  const turn=(lord.personalTurn??0)+1;
+  lord.clearCultivationTurns=5;
+  g.seclusionReadyTurn=turn+(fx(g).seclusionCooldown??10);
+}
+/** 物品免疫在敵方行動時觸發，只有冷卻結束的隨行本體能保護主公。 */
+export function itemBlockUser(state: GameState, lord: Lord): General | undefined {
+  return freeGenerals(state,lord.id).find(g=>!g.ghostSourceId&&fx(g).partyItemBlock&&(g.itemBlockReadyTurn??0)<=(lord.personalTurn??0));
+}
+export function triggerItemBlock(lord: Lord, g: General): void {
+  g.itemBlockReadyTurn=(lord.personalTurn??0)+(fx(g).itemBlockCooldown??5);
+}
+export function generalCooldownText(lord: Lord, g: General): string {
+  const turn=lord.personalTurn??0;
+  const parts:string[]=[];
+  if(fx(g).seclusionAbility) parts.push(`清修冷卻 ${Math.max(0,(g.seclusionReadyTurn??0)-turn)} 回合`);
+  if(fx(g).partyItemBlock) parts.push(`護法冷卻 ${Math.max(0,(g.itemBlockReadyTurn??0)-turn)} 回合`);
+  return parts.join('・');
 }

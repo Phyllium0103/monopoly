@@ -315,6 +315,8 @@ export interface ItemDef {
   battleTarget?: ItemTarget;
   price: number[];
   sellPrice?: number[];
+  /** 相對出現權重；0 排除隨機抽取。 */
+  weight: number;
   noUser?: boolean;
   desc: (tier: number) => string;
 }
@@ -352,6 +354,18 @@ export const PILL_IDS = Object.keys(ITEM_DEFS).filter(id => ITEM_DEFS[id].catego
 export const ARTIFACT_IDS = Object.keys(ITEM_DEFS).filter(id => ITEM_DEFS[id].category !== '丹藥');
 
 export const ITEM_CATEGORIES: ItemDef['category'][] = ['丹藥', '陣法', '符籙', '法器'];
+
+/** 相同物品的各品階共用種類權重；空池／全部權重為0時不抽物品。 */
+export function rollItemId(pool: readonly string[] = Object.keys(ITEM_DEFS)): string | null {
+  const eligible=[...new Set(pool)].map(id=>({id,weight:ITEM_DEFS[id]?.weight??0})).filter(d=>Number.isFinite(d.weight)&&d.weight>0);
+  if (!eligible.length) return null;
+  // 正規化避免極大合法權重相加溢位。
+  const scale=Math.max(...eligible.map(d=>d.weight));
+  let r=Math.random()*eligible.reduce((sum,d)=>sum+d.weight/scale,0);
+  for (const d of eligible) { r-=d.weight/scale; if (r<0) return d.id; }
+  return eligible[eligible.length-1].id;
+}
+
 
 /** 只有單一品階的物品（不加黃玄地天前綴） */
 export function singleTier(defId: string): boolean {

@@ -1,5 +1,5 @@
 import type { Aptitude, City, Element, GameState, General, Item, Lord } from '../game/types';
-import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, BREAK_BOOST, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemTier, type ItemDef } from '../data/items';
+import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, BREAK_BOOST, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemId, rollItemTier, type ItemDef } from '../data/items';
 import { freeGenerals, nextUid, reviveGeneral } from '../game/GameState';
 import { addExp, craft, expCap, maxHp, maxStamina } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
@@ -99,7 +99,7 @@ function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:Pr
  case 'breath':lord.tollFreeTurns=Math.max(3,lord.tollFreeTurns);lord.tollFree=true;return head+'，本回合及接下來兩個己方回合免繳過路費。';
  case 'shuttle':lord.moveMultiplier=2;return head+'，本回合移動點數 ×2。';
  case 'bowl':{const amount=Math.round(lord.stones*BOWL_GAIN[t]);lord.stones+=amount;return head+'，獲得'+fmtStones(amount)+'。';}
- case 'bag':{const ids=Object.keys(ITEM_DEFS),id=ids[Math.floor(Math.random()*ids.length)],found=makeItem(nextUid(state,'i'),id,rollItemTier(id));lord.items.push(found);return head+'，獲得'+nameOf(found)+'。';}
+ case 'bag':{const id=rollItemId();if(!id)return head+'，所有物品權重皆為0，未獲得物品。';const found=makeItem(nextUid(state,'i'),id,rollItemTier(id));lord.items.push(found);return head+'，獲得'+nameOf(found)+'。';}
  case 'wheel':lord.forkChoice=true;return head+'，下次遇岔路可選擇前進方向。';
  default:throw Error('尚未實作物品 '+item.defId);
  }

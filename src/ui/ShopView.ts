@@ -1,7 +1,7 @@
 import { lordHas } from '../data/passives';
 import type { GameState, Lord } from '../game/types';
 import { fmtStones } from '../game/Currency';
-import { SHOP_NAMES, buy, makeSellStock, sell, type SaleOffer, type Offer, type ShopKind } from '../systems/ShopSystem';
+import { SHOP_NAMES, SHOP_REFRESH_COSTS, beginShopVisit, refreshShop, buy, makeSellStock, sell, type SaleOffer, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { TILE_INFO } from '../data/board';
 import type { Dialog } from './Dialog';
 import { itemInfoHtml, itemLabel } from './ItemUI';
@@ -18,13 +18,15 @@ const SHOP_DESC: Record<ShopKind, string> = {
 
 /** 商店介面；可連續購買、出售，按離開結束。 */
 export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: ShopKind, offers: Offer[], onBuy: (msg: string) => void): Promise<void> {
+  const visit=beginShopVisit(state,lord,kind,offers);
+  offers=visit.offers;
   const sold = new Set<number>();
   let mode: 'buy' | 'sell' = 'buy';
   let recruited = 0;
   const recruitLimit=lordHas(lord.id,'recruitLimit')?2:1;
   let confirmBeast = -1;
   // 分類商店（天寶商行、天工坊、百草堂）用分頁顯示
-  const groups = [...new Set(offers.map((o) => o.group).filter((g): g is string => !!g))];
+  let groups = [...new Set(offers.map((o) => o.group).filter((g): g is string => !!g))];
   let tab = groups[0] ?? '';
   let revivedOther = false;
   return dialog.custom<void>(
@@ -38,7 +40,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
           for (const value of ['buy', 'sell'] as const) {
             const button = document.createElement('button');
             button.className = `shop-tab ${mode === value ? 'on' : ''}`;
-            button.textContent = value === 'buy' ? '購買' : '出售（原價五成）';
+            button.textContent = value === 'buy' ? '購買' : '出售（成交價五成）';
             button.onclick = () => { mode = value; confirmBeast = -1; render(); };
             modes.appendChild(button);
           }
@@ -116,6 +118,23 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
         body.appendChild(list);
         const row = document.createElement('div');
         row.className = 'dialog-buttons';
+        const cost=SHOP_REFRESH_COSTS[visit.refreshes];
+        const refresh=document.createElement('button');
+        refresh.className='btn primary';
+        refresh.textContent=cost===undefined?'刷新額度已用完（2/2）':`刷新 ${fmtStones(cost)}（${visit.refreshes}/2）`;
+        refresh.disabled=cost===undefined||lord.stones<cost;
+        refresh.onclick=()=>{
+          const r=refreshShop(state,lord,visit);
+          if(r.ok){
+            offers=visit.offers;
+            sold.clear(); confirmBeast=-1;
+            groups=[...new Set(offers.map(o=>o.group).filter((g):g is string=>!!g))];
+            if(!groups.includes(tab)) tab=groups[0]??'';
+            onBuy(r.message);
+          }
+          render();
+        };
+        row.appendChild(refresh);
         const leave = document.createElement('button');
         leave.className = 'btn';
         leave.textContent = '離開';

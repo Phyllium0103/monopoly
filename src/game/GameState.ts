@@ -1,4 +1,4 @@
-import { bindPassiveState, fx, PASSIVES } from '../data/passives';
+import { bindPassiveState, fx } from '../data/passives';
 import type { City, General, GameState, Lord, LordId } from './types';
 import { BOARD } from '../data/board';
 import { GENERAL_SEEDS, type GeneralSeed } from '../data/generals';
@@ -81,19 +81,14 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
   }
 
   const generals: Record<string, General> = {};
-  // 先保留固定隨行者的名額，避免初始化後把關羽等優先隨行者擠回宗門。
   const freeCount: Record<string, number> = {};
-  for (const seed of GENERAL_SEEDS) if (seed.start && PASSIVES[seed.id]?.fx.fixedParty) {
-    freeCount[seed.origin] = (freeCount[seed.origin] ?? 0) + 1;
-  }
   for (const g of GENERAL_SEEDS) {
     const capital = LORDS[g.origin as LordId].capital;
     const owner = g.start ? (g.origin as LordId) : null;
     // 隨行最多 PARTY_LIMIT 人，多出來的開局放在宗門
     let status: General['status'] = 'free';
     if (g.garrison) status = 'garrison';
-    else if (owner && g.sect && !PASSIVES[g.id]?.fx.fixedParty) status = 'sect';
-    else if (owner && !PASSIVES[g.id]?.fx.fixedParty) {
+    else if (owner) {
       freeCount[owner] = (freeCount[owner] ?? 0) + 1;
       if (freeCount[owner] > PARTY_LIMIT) status = 'sect';
     }

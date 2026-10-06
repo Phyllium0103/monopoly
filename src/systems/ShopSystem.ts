@@ -3,7 +3,7 @@ import { joinLord, newGeneral, nextUid, reviveGeneral } from '../game/GameState'
 import { merchantStock } from './EventSystem';
 import { WORLD } from './WorldMods';
 import { fmtStones } from '../game/Currency';
-import { ARTIFACT_IDS, ITEM_DEFS, equipDesc, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemTier, rollTier, techniqueDesc } from '../data/items';
+import { ARTIFACT_IDS, ITEM_DEFS, equipDesc, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemId, rollItemTier, rollTier, techniqueDesc } from '../data/items';
 import { APTITUDE_NAMES, HIDDEN_SEEDS, REALMS } from '../data/generals';
 import { fxText, passiveOf, lordAura, lordHas } from '../data/passives';
 import { generalValue, power, realmName, recruitPrice } from './GeneralSystem';
@@ -44,7 +44,7 @@ const shuffle = <T,>(arr: T[]): T[] => arr.map((v) => [Math.random(), v] as cons
 
 /** 每次造訪商店時隨機產生貨架 */
 export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
-  return buildStock(state,lord,kind).map(o=>o.kind==='general'||o.kind==='revive' ? o : {...o,price:Math.round(o.price*WORLD.purchaseMult)});
+  return sortOffers(buildStock(state,lord,kind).map(o=>o.kind==='general'||o.kind==='revive' ? o : {...o,price:Math.round(o.price*WORLD.purchaseMult)}));
 }
 
 function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
@@ -56,11 +56,12 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
       return merchantStock(state);
     case 'herb': {
       const G1 = '丹藥';
-      const potions: Offer[] = Array.from({ length: 12 }, () => {
+      const potions: Offer[] = Array.from({ length: 12 }).flatMap(() => {
         const pool = Object.keys(ITEM_DEFS).filter(id => ITEM_DEFS[id].category === '丹藥');
-        const defId = pool[Math.floor(Math.random() * pool.length)];
+        const defId = rollItemId(pool);
+        if (!defId) return [];
         const item = makeItem(uid('i'), defId, rollItemTier(defId, bias));
-        return { kind: 'item', item, label: itemName(defId, item.tier), sub: `${ITEM_DEFS[defId].desc(item.tier)}｜${requirementOf(defId, item.tier)}`, price: item.price, group: G1 };
+        return [{ kind: 'item' as const, item, label: itemName(defId, item.tier), sub: `${ITEM_DEFS[defId].desc(item.tier)}｜${requirementOf(defId, item.tier)}`, price: item.price, group: G1 }];
       });
       // 丹師能讓亡者還陽，分兩頁：自己麾下的亡將（便宜一半、境界降一階），其他主公的亡將（境界降兩階、一次只能復活一人）
       const dead = Object.values(state.generals).filter((g) => g.status === 'dead' && !g.isLord);
@@ -81,11 +82,12 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
     }
     case 'treasure': {
       const discount=Math.max(0,1-lordAura(lord.id,'partyTreasure'));
-      // 每個貨架先等機率抽種類，再抽品階；不依種類品階數重抽或去重。
-      return Array.from({ length: 30 }, () => {
-        const defId = ARTIFACT_IDS[Math.floor(Math.random() * ARTIFACT_IDS.length)];
+      // 每個貨架先按種類權重抽物品，再抽品階；不依品階數重抽或去重。
+      return Array.from({ length: 30 }).flatMap(() => {
+        const defId = rollItemId(ARTIFACT_IDS);
+        if (!defId) return [];
         const item = makeItem(uid('i'), defId, rollItemTier(defId, bias));
-        return { kind: 'item', item, label: itemName(defId, item.tier), sub: ITEM_DEFS[defId].desc(item.tier) + '｜' + requirementOf(defId, item.tier), price: Math.round(item.price*discount), group: ITEM_DEFS[defId].category } as Offer;
+        return [{ kind: 'item', item, label: itemName(defId, item.tier), sub: ITEM_DEFS[defId].desc(item.tier) + '｜' + requirementOf(defId, item.tier), price: Math.round(item.price*discount), group: ITEM_DEFS[defId].category } as Offer];
       });
     }
     case 'forge': {
@@ -143,15 +145,19 @@ export function buy(state: GameState, lord: Lord, offer: Offer): { ok: boolean; 
   lord.stones -= offer.price;
   switch (offer.kind) {
     case 'item':
+      offer.item.purchasePrice=offer.price;
       lord.items.push(offer.item);
       break;
     case 'equipment':
+      offer.equipment.purchasePrice=offer.price;
       lord.gear.push(offer.equipment);
       break;
     case 'technique':
+      offer.technique.purchasePrice=offer.price;
       lord.scrolls.push(offer.technique);
       break;
     case 'beast':
+      offer.beast.purchasePrice=offer.price;
       lord.beast = offer.beast;
       break;
     case 'general':
@@ -172,7 +178,7 @@ export function offerValue(offer: Offer): number {
 }
 
 
-/** 回收原價五成；只列出行囊中的物品與目前的靈獸。 */
+/** 回收成交價五成；未購入獎勵的處理依 saleBasis。 */
 export const SHOP_SELL_RATIO = 0.5;
 export type SaleOffer = Extract<Offer, { kind: 'item' | 'equipment' | 'technique' | 'beast' }>;
 
@@ -183,17 +189,17 @@ export function makeSellStock(lord: Lord, kind: ShopKind): SaleOffer[] {
   for (const item of lord.items) {
     const d = ITEM_DEFS[item.defId];
     if (!all && !(kind === 'herb' && d.category === '丹藥') && !(kind === 'treasure' && ['法器', '陣法', '符籙'].includes(d.category))) continue;
-    stock.push({ kind: 'item', item, label: itemName(item.defId, item.tier), sub: d.desc(item.tier), price: price(item.price) });
+    stock.push({ kind: 'item', item, label: itemName(item.defId, item.tier), sub: d.desc(item.tier), price: price(saleBasis(item)) });
   }
   if (all || kind === 'forge') for (const equipment of lord.gear)
-    stock.push({ kind: 'equipment', equipment, label: equipment.name, sub: equipDesc(equipment), price: price(equipment.price) });
+    stock.push({ kind: 'equipment', equipment, label: equipment.name, sub: equipDesc(equipment), price: price(saleBasis(equipment)) });
   if (all || kind === 'library') for (const technique of lord.scrolls)
-    stock.push({ kind: 'technique', technique, label: technique.name, sub: techniqueDesc(technique), price: price(technique.price) });
+    stock.push({ kind: 'technique', technique, label: technique.name, sub: techniqueDesc(technique), price: price(saleBasis(technique)) });
   if ((all || kind === 'beast') && lord.beast) {
     const beast = lord.beast;
-    stock.push({ kind: 'beast', beast, label: beast.name, sub: beast.desc, price: price(beast.price) });
+    stock.push({ kind: 'beast', beast, label: beast.name, sub: beast.desc, price: price(saleBasis(beast)) });
   }
-  return stock;
+  return sortOffers(stock);
 }
 
 function saleUid(offer: SaleOffer): string {
@@ -218,4 +224,34 @@ export function sell(lord: Lord, kind: ShopKind, offer: SaleOffer): { ok: boolea
   }
   lord.stones += owned.price;
   return { ok: true, message: `出售「${owned.label}」，獲得 ${fmtStones(owned.price)}。` };
+}
+
+
+/** 每次進店有獨立兩次刷新額度，費用固定、不享購物折扣。 */
+export const SHOP_REFRESH_COSTS = [2500, 5000] as const;
+export interface ShopVisit { kind: ShopKind; offers: Offer[]; refreshes: number; }
+export function beginShopVisit(state: GameState, lord: Lord, kind: ShopKind, offers?: Offer[]): ShopVisit {
+  return {kind,offers:sortOffers(offers??makeStock(state,lord,kind)),refreshes:0};
+}
+export function refreshShop(state: GameState, lord: Lord, visit: ShopVisit): {ok:boolean;message:string} {
+  const cost=SHOP_REFRESH_COSTS[visit.refreshes];
+  if (cost===undefined) return {ok:false,message:'本次造訪已刷新兩次。'};
+  if (lord.stones<cost) return {ok:false,message:'靈石不足，無法刷新。'};
+  const offers=makeStock(state,lord,visit.kind);
+  lord.stones-=cost;
+  visit.offers=offers;
+  visit.refreshes++;
+  return {ok:true,message:`花費 ${fmtStones(cost)} 刷新${SHOP_NAMES[visit.kind]}（${visit.refreshes}/2）。`};
+}
+function offerTier(o: Offer): number {
+  if (o.kind==='general'||o.kind==='revive') return o.general.realm;
+  if (o.kind==='item') return ITEM_DEFS[o.item.defId].price.length===1 ? -1 : o.item.tier*3+2;
+  return o.kind==='equipment'?o.equipment.tier:o.kind==='technique'?o.technique.tier:o.beast.tier;
+}
+/** 品階／境界由高到低，同階價格由低到高，再按中文名稱。 */
+export function sortOffers<T extends Offer>(offers: readonly T[]): T[] {
+  return [...offers].sort((a,b)=>offerTier(b)-offerTier(a)||a.price-b.price||a.label.localeCompare(b.label,'zh-Hant'));
+}
+function saleBasis(asset: {price:number;purchasePrice?:number}): number {
+  return asset.purchasePrice??asset.price;
 }

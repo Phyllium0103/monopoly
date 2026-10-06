@@ -1,3 +1,4 @@
+import { generalCooldownText } from '../systems/GeneralAbilities';
 import type { GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS } from '../data/generals';
@@ -146,7 +147,7 @@ export class GeneralsView {
         ${buffs ? `<span class="chip buff">${buffs}</span>` : ''}
       </div>
       <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（化神圓滿）'}・每回合 +${Math.round(passiveExp(g, city)*expMultiplier(g))}${bottleneck ? '・瓶頸' : ''}</span></div>
-      <div class="passive"><b>【${passiveOf(g).name}】</b>${fxText(passiveOf(g).fx)}<small>${passiveOf(g).flavor}</small></div>
+      <div class="passive"><b>【${passiveOf(g).name}】</b>${fxText(passiveOf(g).fx)}${generalCooldownText(lord,g)?`<small>${generalCooldownText(lord,g)}</small>`:''}<small>${passiveOf(g).flavor}</small></div>
       ${breakInfo ? `<div class="break-info">${breakInfo}</div>` : ''}
       <div class="bar hp"><i style="width:${(g.hp / maxHp(g)) * 100}%"></i><span>血量 ${g.hp} / ${maxHp(g)}</span></div>
       <div class="bar sta"><i style="width:${g.stamina/maxStamina(g)*100}%"></i><span>體力 ${g.stamina} / ${maxStamina(g)}</span></div>

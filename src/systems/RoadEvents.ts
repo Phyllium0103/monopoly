@@ -1,7 +1,7 @@
 import type { GameState, Lord } from '../game/types';
 import { freeGenerals, generalsOf, nextUid } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
-import { ITEM_DEFS, PILL_IDS, itemName, makeEquipment, makeItem, makeTechnique } from '../data/items';
+import { ITEM_DEFS, PILL_IDS, itemName, makeEquipment, makeItem, makeTechnique, rollItemId } from '../data/items';
 import { addExp, craft, maxHp } from './GeneralSystem';
 
 export interface RoadOption {
@@ -41,7 +41,8 @@ const pick = <T,>(arr: readonly T[]): T => arr[Math.floor(Math.random() * arr.le
 /** 隨回合推進，奇遇的獎勵也更豐厚 */
 const scale = (c: Ctx) => 1 + c.state.round / 20;
 
-function giveItem(c: Ctx, defId: string, tier: number) {
+function giveItem(c: Ctx, defId: string | null, tier: number) {
+  if (!defId) return '無符合權重的物品，未取得獎勵';
   const item = makeItem(nextUid(c.state, 'i'), defId, tier);
   c.lord.items.push(item);
   return itemName(item.defId, item.tier);
@@ -200,7 +201,7 @@ const DEFS: Def[] = [
       title: '散修贈丹',
       tone: 'good',
       story: `${c.place}的路旁，一位衣衫襤褸的散修正被野狗圍困，你的親兵上前驅散了牠們。散修感激涕零，從懷裡摸出一只小瓷瓶：「無以為報，這丹藥便贈予恩公。」`,
-      apply: () => `獲贈「${giveItem(c, pick(PILL_IDS), rand(0, 1))}」。`,
+      apply: () => `獲贈「${giveItem(c, rollItemId(PILL_IDS), rand(0, 1))}」。`,
     }),
   },
   {
@@ -210,7 +211,7 @@ const DEFS: Def[] = [
       title: '古洞遺丹',
       tone: 'good',
       story: `${c.place}一側的崖壁被雨水沖開，露出一個幽深的洞穴。洞中石龕裡供著一只落滿塵土的丹爐，爐底還殘留著幾顆溫潤的丹藥。`,
-      apply: () => `取得「${giveItem(c, pick(PILL_IDS), rand(1, 2))}」。`,
+      apply: () => `取得「${giveItem(c, rollItemId(PILL_IDS), rand(1, 2))}」。`,
     }),
   },
   {
@@ -220,7 +221,7 @@ const DEFS: Def[] = [
       title: '老道贈符',
       tone: 'good',
       story: `${c.place}的土地廟前，一位老道人正在整理符紙。他見你氣宇不凡，隨手抽出一張黃符遞來：「貧道看你將來必有大用，此符便送你防身。」`,
-      apply: () => `獲贈「${giveItem(c, pick(TALISMANS), rand(0, 1))}」。`,
+      apply: () => `獲贈「${giveItem(c, rollItemId(TALISMANS), rand(0, 1))}」。`,
     }),
   },
   {
@@ -230,7 +231,7 @@ const DEFS: Def[] = [
       title: '殘破陣盤',
       tone: 'good',
       story: `${c.place}的荒草堆裡半埋著一塊刻滿紋路的青石盤，是前朝方士遺留下的陣盤，雖已殘缺，核心的陣眼卻還完好。`,
-      apply: () => `修補後可用：「${giveItem(c, pick(FORMATIONS), rand(0, 1))}」。`,
+      apply: () => `修補後可用：「${giveItem(c, rollItemId(FORMATIONS), rand(0, 1))}」。`,
     }),
   },
   {
@@ -240,7 +241,7 @@ const DEFS: Def[] = [
       title: '鐵匠贈器',
       tone: 'good',
       story: `${c.place}的鐵匠鋪裡爐火正旺，老鐵匠在打一件奇怪的小東西。他說這是祖上傳下的法器圖樣，多年來沒人識貨，今日見你帶兵經過，便做主送給你。`,
-      apply: () => `獲贈「${giveItem(c, pick(ARTIFACTS), rand(0, 1))}」。`,
+      apply: () => `獲贈「${giveItem(c, rollItemId(ARTIFACTS), rand(0, 1))}」。`,
     }),
   },
   // ───── 黃、玄階的功法與神器 ─────
@@ -312,7 +313,7 @@ const DEFS: Def[] = [
               c.lord.soldiers -= lose;
               const n = Math.round(rand(1500, 2800) * scale(c));
               c.lord.stones += n;
-              const name = giveItem(c, pick(PILL_IDS), rand(0, 1));
+              const name = giveItem(c, rollItemId(PILL_IDS), rand(0, 1));
               return `流寇四散而逃，你折損 ${lose} 人。老掌櫃千恩萬謝，奉上 ${fmtStones(n)} 與一顆「${name}」。`;
             },
           },
@@ -341,7 +342,7 @@ const DEFS: Def[] = [
             apply: () => {
               if (Math.random() < chance) {
                 const n = addExp(best, Math.round(150 * scale(c)));
-                const name = giveItem(c, pick(FORMATIONS), rand(0, 1));
+                const name = giveItem(c, rollItemId(FORMATIONS), rand(0, 1));
                 return `${best.name}落子如飛，半炷香後便破了此局。老者撫掌大笑，贈你「${name}」，${best.name}修為 +${n}。`;
               }
               const lost = Math.min(800, c.lord.stones);

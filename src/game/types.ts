@@ -23,7 +23,10 @@ export type CraftStat = 'alchemy' | 'forging' | 'talisman' | 'formation';
 /** 品階：0=黃品下 … 11=天品上 */
 export type Tier = number;
 
-export interface Equipment {
+/** 實際成交價；未購入的獎勵保留空值。 */
+export interface PurchasedAsset { purchasePrice?: number; }
+
+export interface Equipment extends PurchasedAsset {
   uid: string;
   kind: 'weapon' | 'armor';
   name: string;
@@ -38,7 +41,7 @@ export interface Equipment {
   price: number;
 }
 
-export interface Technique {
+export interface Technique extends PurchasedAsset {
   uid: string;
   name: string;
   tier: Tier;
@@ -55,7 +58,7 @@ export interface Technique {
 
 export type BeastSkill = 'attack' | 'shield' | 'heal' | 'treasure' | 'buff';
 
-export interface Beast {
+export interface Beast extends PurchasedAsset {
   uid: string;
   name: string;
   tier: Tier;
@@ -65,7 +68,7 @@ export interface Beast {
 }
 
 /** 丹藥與天寶商行的法器、陣法、符籙 */
-export interface Item {
+export interface Item extends PurchasedAsset {
   uid: string;
   defId: string;
   /** 丹藥品階 0–3（黃玄地天）；法器固定 0 */
@@ -83,6 +86,9 @@ export interface General {
   ghostSourceId?: string;
   ghostTurns?: number;
   ghostReadyTurn?: number;
+  /** 下次可全隊清修／抵消物品的主公自身回合序號。 */
+  seclusionReadyTurn?: number;
+  itemBlockReadyTurn?: number;
   id: string;
   name: string;
   /** 所屬國；immortal 為仙人出山事件的方外高人 */

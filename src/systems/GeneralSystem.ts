@@ -108,8 +108,13 @@ export function canAttemptBreak(g: General, round: number): { ok: boolean; reaso
 }
 
 export function levelUp(g: General) {
+  if (g.realm>=REALMS.length-1) return;
   const ratio = g.hp / maxHp(g);
   g.realm++;
+  // 境界成長寫回基礎能力，與一般境界倍率各自計算；低階突破同樣適用。
+  const growth=fx(g);
+  for(const stat of ['force','defense','alchemy','forging','talisman','formation'] as const) g.base[stat]+=growth.levelBaseGain??0;
+  g.base.hp+=growth.levelHpGain??0;
   g.exp = 0;
   g.hp = Math.max(1, Math.round(maxHp(g) * ratio));
 }

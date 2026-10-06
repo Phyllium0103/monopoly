@@ -5,7 +5,7 @@ import { cityIncomeOf } from '../systems/CitySystem';
 import { terrainOf } from '../data/terrain';
 import { addExp, inBottleneck, passiveExp, recover } from '../systems/GeneralSystem';
 import { advanceExpeditions, type RealmOutcome } from '../systems/RealmSystem';
-import { ITEM_DEFS, PILL_IDS, beastPower } from '../data/items';
+import { ITEM_DEFS, PILL_IDS, beastPower, rollItemId } from '../data/items';
 import { nextUid } from './GameState';
 import { fmtStones } from './Currency';
 import { traitOf } from '../faction/Faction';
@@ -40,9 +40,8 @@ export async function startTurn(state: GameState, lord: Lord, protect?: (g: Gene
     lord.stones += found;
     let text = `${lord.beast.name}尋得 ${fmtStones(found)}`;
     if (lord.beast.name.includes('九尾狐') && Math.random() < 0.15) {
-      const defId = PILL_IDS[Math.floor(Math.random() * PILL_IDS.length)];
-      lord.items.push({ uid: nextUid(state, 'i'), defId, tier: 0, price: ITEM_DEFS[defId].price[0] });
-      text += `，還叼回一顆丹藥`;
+      const defId = rollItemId(PILL_IDS);
+      if(defId){lord.items.push({ uid: nextUid(state, 'i'), defId, tier: 0, price: ITEM_DEFS[defId].price[0] });text += `，還叼回一顆丹藥`;}
     }
     report.lines.push({ text, kind: 'good' });
   }

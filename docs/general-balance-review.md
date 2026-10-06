@@ -2,6 +2,8 @@
 
 日期：2026-10-06（台北時間）
 
+> 本文保留當時評估資料。其後已更新劉禪成長、兀突骨加成、管寧及左慈冷卻，現行規則見 [商店與武將更新](shop-and-general-update.md)。
+
 ## 範圍與判讀方式
 
 逐一檢視目前程式的175位人物：蜀42、吳40、魏40、群雄40、方外13。資料來源是 `src/data/generals.ts`、`src/data/passives.ts`，並對照 GeneralSystem、BattleSystem、CitySystem、ItemSystem、RealmSystem、GeneralAbilities、ShopSystem、Game 中的實際運作。

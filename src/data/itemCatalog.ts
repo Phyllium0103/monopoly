@@ -1,4 +1,4 @@
-/** 2026-10-06：以物品設定的新效果文字為準。完整來源與逐條比對見 docs/item-update。 */
+/** 物品種類按權重抽取，再獨立決定品階；0 表示不隨機出現。 */
 export const ITEM_CATALOG = [
   {
     "id": "heal",
@@ -38,7 +38,8 @@ export const ITEM_CATALOG = [
       "回復 70% 血量",
       "回復 100% 血量"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "force",
@@ -78,7 +79,8 @@ export const ITEM_CATALOG = [
       "基礎武力 +10",
       "基礎武力 +15"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "guard",
@@ -118,7 +120,8 @@ export const ITEM_CATALOG = [
       "基礎防禦 +10",
       "基礎防禦+15"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "qi",
@@ -158,7 +161,8 @@ export const ITEM_CATALOG = [
       "修為 +1200",
       "修為 +2400"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "essence",
@@ -198,7 +202,8 @@ export const ITEM_CATALOG = [
       "修為 +30%",
       "修為 +50%"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "foundation",
@@ -223,7 +228,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "煉氣突破築基的成功率提升至 100%"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "vigor",
@@ -263,7 +269,8 @@ export const ITEM_CATALOG = [
       "回復 80 體力",
       "回復 100 體力"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "poison",
@@ -303,7 +310,8 @@ export const ITEM_CATALOG = [
       "戰鬥中每回合扣 10% 血量（3 回合）；平時隨機隨行武將直接扣 25% 血量",
       "戰鬥中每回合扣 15% 血量（3 回合）；平時隨機隨行武將直接扣 35% 血量"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "clearmind",
@@ -328,7 +336,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "化解一名武將身上的心魔"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "bone",
@@ -368,7 +377,8 @@ export const ITEM_CATALOG = [
       "永久血量 +60（基礎值，隨境界放大）",
       "永久血量 +120（基礎值，隨境界放大）"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "breakpill",
@@ -408,7 +418,8 @@ export const ITEM_CATALOG = [
       "下次渡劫天雷傷害 -20%",
       "下次渡劫天雷傷害 -30%"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "revive",
@@ -448,7 +459,8 @@ export const ITEM_CATALOG = [
       "復活一名已死去的武將，歸入你的麾下：血量 50%、境界跌落 1 級，修為歸零",
       "復活一名已死去的武將，歸入你的麾下：血量 100%、境界不變，修為不變"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "rootup1",
@@ -473,7 +485,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "靈根提升 1 階（廢靈根→隨機五行靈根、隨機五行靈根→天靈根）"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "rootup2",
@@ -498,7 +511,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "靈根提升 2 階（廢靈根→天靈根）"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "reset",
@@ -523,7 +537,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "武將卸下功法，不損耗修為"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "rage",
@@ -563,7 +578,8 @@ export const ITEM_CATALOG = [
       "戰鬥：本場擂台武力 +35%",
       "戰鬥：本場擂台武力 +50%"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "five",
@@ -588,7 +604,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "只能對五行靈根的武將使用，使用後可改變靈根為指定靈根"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "teleport",
@@ -613,7 +630,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "傳送至地圖上任一格（取代本回合擲骰）"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "confuse",
@@ -638,7 +656,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "指定其他主公下回合前往指定地點"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "citadel",
@@ -663,7 +682,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "己方城池 5 回合內守軍戰力 ×1.5"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "thunderward",
@@ -688,7 +708,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "為武將佈陣護法，下次渡劫天雷傷害 -50%"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "fiveward",
@@ -713,7 +734,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "下次渡劫天雷傷害 -30%（可與避雷陣疊加，最多減免 80%）"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "illusion",
@@ -738,7 +760,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "以幻境引動心魔：下次突破成功率 -60%，或雷劫威力 ×2"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "mend",
@@ -778,7 +801,8 @@ export const ITEM_CATALOG = [
       "全體隨行武將回復 45% 血量",
       "全體隨行武將回復 70% 血量"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "vein",
@@ -818,7 +842,8 @@ export const ITEM_CATALOG = [
       "己方一座城池繁榮度 +20",
       "己方一座城池繁榮度 +30"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "mist",
@@ -858,7 +883,8 @@ export const ITEM_CATALOG = [
       "戰鬥：本場擂台敵將武力 -20%",
       "戰鬥：本場擂台敵將武力 -30%"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "sacrifice",
@@ -898,7 +924,8 @@ export const ITEM_CATALOG = [
       "使敵方城池駐軍減少20%",
       "使敵方城池駐軍減少30%"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "seven",
@@ -923,7 +950,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "指定武將下次度劫時若死亡，則滿血復活，境界不變，修為-50%"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "invert",
@@ -948,7 +976,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "戰鬥：使雙方武力、防禦暫時顛倒，直到戰鬥結束"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "lock",
@@ -973,7 +1002,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "敵人強制停留一回合，且無法使用任何物品。"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "graft",
@@ -998,7 +1028,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "將我方城池和敵方城池互換，其中的駐將及士兵也一同轉移"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "dice",
@@ -1023,7 +1054,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "本回合骰子點數由你決定"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "stride",
@@ -1048,7 +1080,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "本回合擲兩顆骰子"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "freeze",
@@ -1073,7 +1106,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "敵人強制停留一回合，且無法使用任何物品。"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "ghost",
@@ -1098,7 +1132,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "盜取指定主公 10% 靈石"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "demon",
@@ -1123,7 +1158,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "心魔干擾敵將：下次突破成功率 -60%，或雷劫威力 ×2"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "siegebreak",
@@ -1148,7 +1184,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "本回合攻城戰力 ×1.2"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "shield",
@@ -1188,7 +1225,8 @@ export const ITEM_CATALOG = [
       "戰鬥：為己方武將套上 40% 血量的護罩",
       "戰鬥：為己方武將套上 60% 血量的護罩"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "charge",
@@ -1213,7 +1251,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "戰鬥：立即獲得 100 點能量"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "drain",
@@ -1238,7 +1277,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "戰鬥：敵方無法使用物品"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "soldiers",
@@ -1278,7 +1318,8 @@ export const ITEM_CATALOG = [
       "化出 6000 名士兵",
       "化出 8000 名士兵"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "confusing",
@@ -1303,7 +1344,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "指定其他主公下回合前往指定地點"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "transmission",
@@ -1328,7 +1370,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "任意調遣一座城池的兵力"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "move",
@@ -1353,7 +1396,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "隨機偷取指定主公的任一一個丹藥/法器/符籙/陣法"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "breath",
@@ -1378,7 +1422,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "接下來3回合內無需付過路費"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "substitute",
@@ -1403,7 +1448,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "當敵人對主公發動物品時可選擇使用，使物品效果失效(非戰鬥)"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "rootdown",
@@ -1428,7 +1474,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "將敵方指定武將的靈根變為廢靈根"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "truce",
@@ -1453,7 +1500,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "踏入敵城時可選擇使用，免繳過路費"
     ],
-    "noUser": true
+    "noUser": true,
+    "weight": 1
   },
   {
     "id": "vajra",
@@ -1478,7 +1526,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "戰鬥：為己方武將套上可吸收 50% 血量的護罩"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "ring",
@@ -1518,7 +1567,8 @@ export const ITEM_CATALOG = [
       "戰鬥：敵將無法攻擊3回合",
       "戰鬥：敵將無法攻擊4回合"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "shuttle",
@@ -1543,7 +1593,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "本回合移動點數 x2"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "bowl",
@@ -1583,7 +1634,8 @@ export const ITEM_CATALOG = [
       "獲得當前靈石的15%",
       "獲得當前靈石的20%"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "bag",
@@ -1608,7 +1660,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "獲得隨機一個丹藥/陣法/符籙/法器"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "cloud",
@@ -1633,7 +1686,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "傳送至地圖上任一格（取代本回合擲骰）"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "bow",
@@ -1673,7 +1727,8 @@ export const ITEM_CATALOG = [
       "指定主公隨機隨行武將直接扣 40% 血量",
       "指定主公隨機隨行武將直接扣 50% 血量"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "blood",
@@ -1713,7 +1768,8 @@ export const ITEM_CATALOG = [
       "戰鬥：發動後的五回合內，造成的戰鬥傷害有 20% 轉化為自身的生命值",
       "戰鬥：發動後的五回合內，造成的戰鬥傷害有 30% 轉化為自身的生命值"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "wheel",
@@ -1738,7 +1794,8 @@ export const ITEM_CATALOG = [
     "effects": [
       "下次遇到岔路時，可選擇要往哪邊前進"
     ],
-    "noUser": false
+    "noUser": false,
+    "weight": 1
   },
   {
     "id": "totem",
@@ -1763,6 +1820,7 @@ export const ITEM_CATALOG = [
     "effects": [
       "任何武將、主公死亡時，可選擇使用，免疫一次死亡"
     ],
-    "noUser": true
+    "noUser": true,
+    "weight": 1
   }
 ] as const;

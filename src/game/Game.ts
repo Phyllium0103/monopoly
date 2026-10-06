@@ -1,5 +1,5 @@
 import { tournamentBracket, tournamentWinner, grantTournamentPrize } from '../systems/TournamentSystem';
-import { abilityUsers, abilityReady, abilityTargets, useGeneralAbility } from '../systems/GeneralAbilities';
+import { abilityUsers, abilityReady, abilityTargets, useGeneralAbility, seclusionUser, startSeclusion, itemBlockUser, triggerItemBlock } from '../systems/GeneralAbilities';
 import { garrisonDispatch } from '../systems/GarrisonSystem';
 import { immortalWinner } from '../systems/VictorySystem';
 import * as THREE from 'three';
@@ -31,7 +31,7 @@ import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battl
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type SiegeResult, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
 import { canUse, consumeItem, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
-import { buy, makeStock, type Offer, type ShopKind } from '../systems/ShopSystem';
+import { buy, makeStock, beginShopVisit, refreshShop, SHOP_REFRESH_COSTS, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, partyRealm, realmRolls, realmTurns } from '../systems/RealmSystem';
 import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
 import { enterFork, nextMovementTile } from '../systems/MovementSystem';
@@ -322,9 +322,10 @@ export class Game {
     this.refresh();
 
     let clearThisTurn=false;
-    if (!lord.stunned && lord.forcedTile===null && lordHas(lord.id,'seclusionAbility') && !(lord.clearCultivationTurns??0)) {
-      clearThisTurn=this.human(lord) ? await this.dialog.confirm('管寧：全隊清修？','啟動當回合放棄全部主動行動，隨行隊伍（含主公）修為獲得 +100%，持續五個自身回合。','開始清修','正常行動') : Math.random()<.15;
-      if (clearThisTurn) lord.clearCultivationTurns=5;
+    const seclusion=seclusionUser(this.state,lord);
+    if (!lord.stunned && lord.forcedTile===null && seclusion && !(lord.clearCultivationTurns??0)) {
+      clearThisTurn=this.human(lord) ? await this.dialog.confirm('管寧：全隊清修？','啟動當回合放棄全部主動行動，隨行隊伍（含主公）修為獲得 +100%，持續五個自身回合；使用後冷卻十個自身回合。','開始清修','正常行動') : Math.random()<.15;
+      if (clearThisTurn) startSeclusion(lord,seclusion);
     }
     const report = await startTurn(this.state, lord, (g) => this.protectDeath(g));
     this.ui.log(`<b style="color:${LORDS[lord.id].css}">【${name}】</b>的回合`, 'turn');
@@ -1168,11 +1169,18 @@ export class Game {
       return;
     }
     const limit=kind==='tavern' && lordHas(lord.id,'recruitLimit') ? 2 : 1;
-    for(let i=0;i<limit;i++) {
-      const pick=aiShop(this.state,lord,offers.filter(o=>o.kind!=='general'||!o.general.owner));
-      if(!pick)break;
+    const visit=beginShopVisit(this.state,lord,kind,offers);
+    for(let purchased=0;purchased<limit;) {
+      const pick=aiShop(this.state,lord,visit.offers.filter(o=>o.kind!=='general'||!o.general.owner));
+      if(!pick){
+        const cost=SHOP_REFRESH_COSTS[visit.refreshes];
+        // 電腦只在沒有合適貨品且付費後仍留足備用金時刷新。
+        if(cost===undefined||!visit.offers.length||lord.stones<cost+8000) break;
+        const r=refreshShop(this.state,lord,visit);if(!r.ok)break;
+        this.ui.log(r.message,'ai');continue;
+      }
       const result=buy(this.state,lord,pick);if(!result.ok)break;
-      this.ui.log(result.message,'ai');
+      purchased++;this.ui.log(result.message,'ai');
     }
     this.refresh();
   }
@@ -1336,8 +1344,8 @@ export class Game {
 
   private async usePrerollWithReaction(lord: Lord, item: Item, user: General, target: PrerollTarget): Promise<string> {
     const victim = target.lord ?? (target.general?.isLord && target.general.owner ? this.state.lords[target.general.owner] : undefined);
-    let blocked=!!victim && victim.id!==lord.id && lordHas(victim.id,'partyItemBlock');
-    if (blocked) this.ui.log('左慈擲杯戲曹，敵方非戰鬥物品失效。','good');
+    const guardian=victim&&victim.id!==lord.id?itemBlockUser(this.state,victim):undefined;
+    let blocked=!!guardian;
     if (!blocked && victim && victim.id !== lord.id && !victim.itemsLocked) {
       const card=victim.items.find(i=>i.defId==='substitute');
       const users=card?freeGenerals(this.state,victim.id).filter(g=>canUse(card,g).ok):[];
@@ -1351,7 +1359,9 @@ export class Game {
         }
       }
     }
-    return usePreroll(this.state,lord,item,user,target,blocked);
+    const result=usePreroll(this.state,lord,item,user,target,blocked);
+    if(guardian&&victim){triggerItemBlock(victim,guardian);this.ui.log('左慈擲杯戲曹，敵方非戰鬥物品失效，護法冷卻五個自身回合。','good');}
+    return result;
   }
 
   private async protectDeath(g: General): Promise<boolean> {

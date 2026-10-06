@@ -3,7 +3,7 @@ import { joinLord, killGeneral, nextUid } from '../game/GameState';
 import { addExp, craft, levelUp, power, totalCraft } from './GeneralSystem';
 import { REALMS } from '../data/generals';
 import { WORLD } from './WorldMods';
-import { PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, tierName } from '../data/items';
+import { PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, rollItemId, tierName } from '../data/items';
 import { fx } from '../data/passives';
 import { traitOf } from '../faction/Faction';
 import type { Expedition } from '../game/types';
@@ -112,7 +112,8 @@ function grantReward(state: GameState, lord: Lord, team: General[], all: General
       return `${kind === 'weapon' ? '神器' : '寶衣'}「${e.name}」`;
     }
     case 'pill': {
-      const defId = PILL_IDS[Math.floor(Math.random() * PILL_IDS.length)];
+      const defId = rollItemId(PILL_IDS);
+      if (!defId) return '丹藥種類權重皆為0，未獲得丹藥';
       const pt = Math.min(3, Math.floor(tier / 3));
       const count = 2;
       const pills = Array.from({ length: count }, () => makeItem(uid('i'), defId, pt));

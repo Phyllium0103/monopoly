@@ -4,7 +4,7 @@ import { HIDDEN_SEEDS } from '../data/generals';
 import { aliveLords } from '../game/TurnManager';
 import { cityIncomeOf, totalAssets } from './CitySystem';
 import { addExp, expCap, inBottleneck, maxHp } from './GeneralSystem';
-import { ELEMENT_NAMES, ITEM_DEFS, equipDesc, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, techniqueDesc } from '../data/items';
+import { ELEMENT_NAMES, ITEM_DEFS, equipDesc, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, rollItemId, techniqueDesc } from '../data/items';
 import { CITY_TERRAIN } from '../data/terrain';
 import { LORDS } from '../faction/Faction';
 import { fmtStones } from '../game/Currency';
@@ -237,7 +237,8 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
       for (const l of alive) {
         const names: string[] = [];
         for (let i = 0; i < 2; i++) {
-          const defId = PILL_IDS[Math.floor(Math.random() * PILL_IDS.length)];
+          const defId = rollItemId(PILL_IDS);
+          if (!defId) continue;
           const item = makeItem(nextUid(state, 'i'), defId, 1 + Math.floor(Math.random() * 2));
           l.items.push(item);
           names.push(itemName(item.defId, item.tier));
@@ -330,7 +331,8 @@ export function merchantStock(state: GameState): Offer[] {
   out.push({ kind: 'beast', beast: b, label: b.name, sub: b.desc, price: off(b.price) });
   for (let i = 0; i < 2; i++) {
     const pool = Object.keys(ITEM_DEFS);
-    const defId = pool[Math.floor(Math.random() * pool.length)];
+    const defId = rollItemId(pool);
+    if (!defId) continue;
     const tier = ITEM_DEFS[defId].price.length === 1 ? 0 : 2 + Math.floor(Math.random() * 2);
     const item = makeItem(uid('i'), defId, tier);
     out.push({ kind: 'item', item, label: itemName(defId, tier), sub: ITEM_DEFS[defId].desc(tier), price: off(item.price) });
@@ -389,8 +391,8 @@ export function resolveAuction(state: GameState, lot: Offer, bids: { id: LordId;
   const w = tied[Math.floor(Math.random() * tied.length)];
   const lord = state.lords[w.id];
   lord.stones -= w.bid;
-  if (lot.kind === 'equipment') lord.gear.push(lot.equipment);
-  else if (lot.kind === 'technique') lord.scrolls.push(lot.technique);
-  else if (lot.kind === 'beast') lord.beast = lot.beast;
+  if (lot.kind === 'equipment') {lot.equipment.purchasePrice=w.bid;lord.gear.push(lot.equipment);}
+  else if (lot.kind === 'technique') {lot.technique.purchasePrice=w.bid;lord.scrolls.push(lot.technique);}
+  else if (lot.kind === 'beast') {lot.beast.purchasePrice=w.bid;lord.beast=lot.beast;}
   return { winner: w.id, price: w.bid, bids };
 }

@@ -28,8 +28,6 @@ export interface GeneralSeed {
   aptitude: Aptitude;
   /** 開局即在麾下 */
   start?: boolean;
-  /** 開局留守宗門，不占隨行名額 */
-  sect?: boolean;
   /** 開局駐守首都 */
   garrison?: boolean;
   /** 主公本人（可出戰，但不能派進城池、不會戰死） */
@@ -39,6 +37,7 @@ export interface GeneralSeed {
 /** Authoritative edited general spreadsheet, 2026-10-06. */
 export const GENERAL_SEEDS: GeneralSeed[] = [
   {"id":"liubei","name":"劉備","origin":"liu","s":[70,74,600,50,50,50,72],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":true},
+  {"id":"liushan","name":"劉禪","origin":"liu","s":[50,50,500,50,50,50,50],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"guanyu","name":"關羽","origin":"liu","s":[96,84,720,20,40,25,60],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"zhangfei","name":"張飛","origin":"liu","s":[94,68,760,8,30,8,25],"realm":0,"aptitude":"waste","start":true,"garrison":false,"lord":false},
   {"id":"zhaoyun","name":"趙雲","origin":"liu","s":[93,86,700,28,45,30,50],"realm":0,"aptitude":"heaven","start":true,"garrison":true,"lord":false},
@@ -48,13 +47,12 @@ export const GENERAL_SEEDS: GeneralSeed[] = [
   {"id":"weiyan","name":"魏延","origin":"liu","s":[87,76,640,20,45,20,48],"realm":0,"aptitude":"waste","start":true,"garrison":false,"lord":false},
   {"id":"pangtong","name":"龐統","origin":"liu","s":[36,52,380,72,55,86,93],"realm":0,"aptitude":"heaven","start":true,"garrison":false,"lord":false},
   {"id":"jiangwei","name":"姜維","origin":"liu","s":[86,80,620,50,55,65,82],"realm":0,"aptitude":"heaven","start":true,"garrison":false,"lord":false},
-  {"id":"fazheng","name":"法正","origin":"liu","s":[34,48,360,60,50,82,86],"realm":0,"aptitude":"earth","start":true,"sect":true,"garrison":false,"lord":false},
   {"id":"madai","name":"馬岱","origin":"liu","s":[80,72,590,25,45,30,45],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"guanping","name":"關平","origin":"liu","s":[82,78,620,25,45,25,40],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"maliang","name":"馬良","origin":"liu","s":[28,48,350,72,60,84,78],"realm":0,"aptitude":"heaven","start":false,"garrison":false,"lord":false},
   {"id":"jianyong","name":"簡雍","origin":"liu","s":[28,48,350,55,45,68,55],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
+  {"id":"fazheng","name":"法正","origin":"liu","s":[34,48,360,60,50,82,86],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"mizhu","name":"糜竺","origin":"liu","s":[24,50,360,62,72,50,45],"realm":0,"aptitude":"earth","start":false,"garrison":false,"lord":false},
-  {"id":"liushan","name":"劉禪","origin":"liu","s":[30,30,300,30,30,30,30],"realm":0,"aptitude":"earth","start":true,"garrison":false,"lord":false},
   {"id":"guanxing","name":"關興","origin":"liu","s":[84,70,600,25,40,30,40],"realm":0,"aptitude":"earth","start":false,"garrison":false,"lord":false},
   {"id":"zhangbao","name":"張苞","origin":"liu","s":[85,68,640,15,40,15,30],"realm":0,"aptitude":"waste","start":false,"garrison":false,"lord":false},
   {"id":"wangping","name":"王平","origin":"liu","s":[76,84,600,30,50,35,72],"realm":0,"aptitude":"earth","start":false,"garrison":false,"lord":false},

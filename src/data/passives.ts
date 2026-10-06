@@ -7,6 +7,7 @@ export interface PassiveFx {
   upgradeFormation?: number; upgradeTalisman?: number;
   companion?: string[]; synergyTarget?: string; synergyStats?: number; synergyForce?: number; synergyExp?: number; synergyStones?: number; synergySoldiers?: number;
   partyTarget?: string; partyCrit?: number; partyLordExp?: number; partyExp?: number; partyRecruit?: number; partyTreasure?: number; partyToll?: number;
+  levelBaseGain?: number; levelHpGain?: number; seclusionCooldown?: number; itemBlockCooldown?: number;
   allStats?: number; soldierDiscount?: number; fixedParty?: boolean; realmFactor?: number; tribulationSuccess?: boolean; duelImmortal?: boolean; recruitLimit?: number; cityCountToll?: number; cityToll?: number; reviveEnemyIntact?: boolean; ignoreWounded?: boolean;
   partyItemBlock?: boolean; produceCategory?: string; reviveAbility?: boolean; divination?: boolean; hiddenSlots?: number; unlockHidden?: boolean; freeRevive?: boolean; seclusionAbility?: boolean; ghostAbility?: boolean;
 
@@ -87,7 +88,7 @@ export const PASSIVES: Record<string, Passive> = {
   maliang: {"name":"白眉","flavor":"馬氏五常，白眉最良；安撫五溪蠻夷。","effectText":"駐守城池士兵收入 +20%","fx":{"citySoldiers":0.2}},
   jianyong: {"name":"談笑風生","flavor":"優游風議，性簡傲跌宕。","effectText":"在隨行隊伍時，聽風樓招募武將價格 -20%","fx":{"partyRecruit":0.2}},
   mizhu: {"name":"富甲一方","flavor":"家資鉅億，傾家資助劉備；不諳武事。","effectText":"駐守城池靈石收入 +20%","fx":{"cityStones":0.2}},
-  liushan: {"name":"扶不起的阿斗","flavor":"「此間樂，不思蜀。」","effectText":"固定為隨行將領・境界加乘為原本的兩倍，渡劫必定成功・擂台戰不會陣亡","fx":{"fixedParty":true,"realmFactor":2,"tribulationSuccess":true,"duelImmortal":true}},
+  liushan: {"name":"扶不起的阿斗","flavor":"「此間樂，不思蜀。」","effectText":"固定為隨行將領・每次成功突破境界後，六項基礎能力 +5、基礎血量 +50・渡劫必定成功・擂台戰不會陣亡","fx":{"fixedParty":true,"levelBaseGain":5,"levelHpGain":50,"tribulationSuccess":true,"duelImmortal":true}},
   guanxing: {"name":"青龍傳人","flavor":"承父親青龍刀法，少年英武。","effectText":"與\"關羽\"派遣到同一城池時，關興修煉速度+20%","fx":{"companion":["guanyu"],"synergyTarget":"guanxing","synergyExp":0.2}},
   zhangbao: {"name":"虎父無犬子","flavor":"丈八蛇矛，勇猛不遜其父，惜早逝。","effectText":"與\"張飛\"派遣到同一城池時，張苞所有能力+20%","fx":{"companion":["zhangfei"],"synergyTarget":"zhangbao","synergyStats":0.2}},
   wangping: {"name":"街亭良將","flavor":"馬謖失街亭，唯王平所部全師而還。","effectText":"駐守時守城戰力 +20%","fx":{"garrisonDef":0.2}},
@@ -223,17 +224,17 @@ export const PASSIVES: Record<string, Passive> = {
   lvlingqi: {"name":"戟中女傑","flavor":"傳說呂布之女，勇武絕倫，披甲上陣。","effectText":"在隨行隊伍時，若隨行隊伍裡有\"呂布\"，則呂布暴擊率 +5%","fx":{"partyTarget":"lvbu","partyCrit":0.05}},
   yuanshao: {"name":"四世三公","flavor":"河北霸主，名門之後，坐擁四州，終因多疑寡斷而敗。","effectText":"與\"袁術\"派遣到同一城池時，駐守城池士兵收入 +30%","fx":{"companion":["yuanshu"],"synergySoldiers":0.3}},
   yuanshu: {"name":"僭號稱帝","flavor":"據淮南，稱帝建號，驕奢淫逸，終眾叛親離。","effectText":"與\"袁紹\"派遣到同一城池時，駐守城池靈石收入 +30%","fx":{"companion":["yuanshao"],"synergyStones":0.3}},
-  zhangjiao: {"name":"大賢良師","flavor":"太平道首領，創黃巾起義，符水治病，聚眾數十萬。","effectText":"\"張角\"、\"張寶\"、\"張良\"派遣到同一城池時，駐守城池士兵收入 +35%","fx":{"companion":["zhangbaoyj","zhangliang"],"synergySoldiers":0.35}},
-  zhangbaoyj: {"name":"地公將軍","flavor":"張角之弟，作法呼風喚雨，鎮守廣宗。","effectText":"\"張角\"、\"張寶\"、\"張良\"派遣到同一城池時，駐守城池士兵收入 +25%","fx":{"companion":["zhangjiao","zhangliang"],"synergySoldiers":0.25}},
-  zhangliang: {"name":"人公將軍","flavor":"張角三弟，統兵出戰，與皇甫嵩對陣而死。","effectText":"\"張角\"、\"張寶\"、\"張良\"派遣到同一城池時，駐守城池士兵收入 +15%","fx":{"companion":["zhangjiao","zhangbaoyj"],"synergySoldiers":0.15}},
+  zhangjiao: {"name":"大賢良師","flavor":"太平道首領，創黃巾起義，符水治病，聚眾數十萬。","effectText":"\"張角\"、\"張寶\"、\"張梁\"派遣到同一城池時，駐守城池士兵收入 +35%","fx":{"companion":["zhangbaoyj","zhangliang"],"synergySoldiers":0.35}},
+  zhangbaoyj: {"name":"地公將軍","flavor":"張角之弟，作法呼風喚雨，鎮守廣宗。","effectText":"\"張角\"、\"張寶\"、\"張梁\"派遣到同一城池時，駐守城池士兵收入 +25%","fx":{"companion":["zhangjiao","zhangliang"],"synergySoldiers":0.25}},
+  zhangliang: {"name":"人公將軍","flavor":"張角三弟，統兵出戰，與皇甫嵩對陣而死。","effectText":"\"張角\"、\"張寶\"、\"張梁\"派遣到同一城池時，駐守城池士兵收入 +15%","fx":{"companion":["zhangjiao","zhangbaoyj"],"synergySoldiers":0.15}},
   gongsunzan: {"name":"白馬將軍","flavor":"白馬義從縱橫塞北，威震烏桓，後敗於袁紹。","effectText":"擂台必定先手・作戰時兵力 +25%","fx":{"firstStrike":true,"troops":0.25}},
   liubiao: {"name":"荊襄九郡","flavor":"坐鎮荊州，單馬入宜城，保境安民，但無進取之志。","effectText":"駐守時守城戰力 +15%・駐守城池靈石收入 +15%","fx":{"garrisonDef":0.15,"cityStones":0.15}},
   shenpei: {"name":"忠烈守鄴","flavor":"袁紹謀臣，死守鄴城，寧死不降。","effectText":"駐守時守城戰力 +20%","fx":{"garrisonDef":0.2}},
   taoqian: {"name":"三讓徐州","flavor":"徐州牧，仁厚長者，三讓徐州於劉備。","effectText":"在隨行隊伍時，過路費 -10%","fx":{"partyToll":0.1}},
   gaolan: {"name":"河北四庭柱","flavor":"袁紹麾下名將，後降曹操。","effectText":"擂台傷害 +10%","fx":{"duelDmg":0.1}},
-  wutugu: {"name":"藤甲兵","flavor":"烏戈國主，身長一丈二，所率藤甲兵刀槍不入，怕火攻。","effectText":"防禦 +15%・血量 +25%","fx":{"def":0.15,"hp":0.25}},
+  wutugu: {"name":"藤甲兵","flavor":"烏戈國主，身長一丈二，所率藤甲兵刀槍不入，怕火攻。","effectText":"防禦 +10%・血量 +10%","fx":{"def":0.1,"hp":0.1}},
   mulu: {"name":"驅獸","flavor":"八納洞洞主，能驅猛獸，騎白象出戰，並施妖法。","effectText":"攻擊額外能量 +20","fx":{"energyGain":20}},
-  zuoci: {"name":"擲杯戲曹","flavor":"擲杯化鳩，戲弄曹操，來去無蹤。","effectText":"在隨行隊伍時，當敵人對主公發動物品時，使物品效果失效(非戰鬥)","fx":{"partyItemBlock":true}},
+  zuoci: {"name":"擲杯戲曹","flavor":"擲杯化鳩，戲弄曹操，來去無蹤。","effectText":"在隨行隊伍時，當敵人對主公發動非戰鬥物品時，使物品效果失效；觸發後冷卻五個自身回合","fx":{"partyItemBlock":true,"itemBlockCooldown":5}},
   yuji: {"name":"符水治病","flavor":"以符水為人治病，吳會之人多事之。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一張隨機符籙・體力回復速度 -90%","fx":{"produceCategory":"符籙","staminaRecovery":-0.9}},
   huatuo: {"name":"神醫","flavor":"麻沸散、五禽戲，起死回生。","effectText":"在隨行隊伍時，可隨時耗費100體力使用\"起死回生\"，復活我方死亡武將，血量 100%，境界跌落 1 級，修為歸零・體力回復速度 -90%","fx":{"reviveAbility":true,"staminaRecovery":-0.9}},
   guanlu: {"name":"卜筮如神","flavor":"精通周易，占卜無不應驗。","effectText":"擲骰前，可預覽三個候選步數，排除其中一個，再從剩下兩個隨機決定；不能直接指定落點。","fx":{"divination":true}},
@@ -243,7 +244,7 @@ export const PASSIVES: Record<string, Passive> = {
   xushao: {"name":"月旦評","flavor":"與從兄許靖主持品評人物，稱曹操「治世之能臣，亂世之奸雄」。","effectText":"在隨行隊伍時，聽風樓招募武將價格 -50%","fx":{"partyRecruit":0.5}},
   zhangzhongjing: {"name":"醫聖","flavor":"著《傷寒雜病論》，辨證施治，開後世醫學之先河。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一件隨機丹藥・體力回復速度 -90%","fx":{"produceCategory":"丹藥","staminaRecovery":-0.9}},
   dongfeng: {"name":"杏林","flavor":"行醫不收錢，重症者種杏五株，輕者一株，積杏成林。","effectText":"在隨行隊伍時，百草堂復活武將不需耗費靈石","fx":{"freeRevive":true}},
-  guanning: {"name":"割席","flavor":"與華歆割席斷交，隱居遼東，一生不仕，德行高潔。","effectText":"在隨行隊伍時，主公回合開始時，可選擇全隊清修，本回合放棄任何行動，隨行隊伍武將修為獲得 +100%，持續5回合","fx":{"seclusionAbility":true}},
+  guanning: {"name":"割席","flavor":"與華歆割席斷交，隱居遼東，一生不仕，德行高潔。","effectText":"在隨行隊伍時，主公回合開始時，可選擇全隊清修，只放棄啟動回合的主動行動；隨行人物（含主公）修為獲得 +100%，持續五個自身回合；使用後冷卻十個自身回合","fx":{"seclusionAbility":true,"seclusionCooldown":10}},
   nanhua: {"name":"南華老仙","flavor":"《三國演義》中授天書於張角的仙人，碧眼童顏，手執藜杖。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一個隨機陣法・體力回復速度 -90%","fx":{"produceCategory":"陣法","staminaRecovery":-0.9}},
   pujing: {"name":"玉泉點化","flavor":"玉泉山老僧，點化關羽的亡魂，一念可解怨結。","effectText":"在隨行隊伍時，每五回合可召喚已死亡武將冤魂加入隊伍，血量 100%，境界不變，修為不變，持續五回合，冤魂無法獲得修為、穿戴裝備及功法；持續時間不影響該武將復活，復活後該武將從可召喚名單中去除","fx":{"ghostAbility":true}},
 };

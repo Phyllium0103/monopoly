@@ -120,6 +120,11 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
       }
       const locked=free.find(g=>g.id===lord.tavernLockedGeneral);
       if(!locked)lord.tavernLockedGeneral=null;
+      // 被鎖定的人選每保留一次（刷新或下次進入）招募價 ×1.2
+      else {
+        lord.tavernPriceMultipliers??={};
+        lord.tavernPriceMultipliers[locked.id]=(lord.tavernPriceMultipliers[locked.id]??1)*1.2;
+      }
       const shuffledHidden=shuffle(hidden.filter(g=>g.id!==locked?.id));
       const normal = free.filter((g) => g.origin !== 'immortal' && g.id!==locked?.id);
       const showHidden=lordHas(lord.id,'unlockHidden') || Math.random()<0.2;
@@ -262,13 +267,10 @@ function saleBasis(asset: {price:number;purchasePrice?:number}): number {
   return asset.purchasePrice??asset.price;
 }
 
-/** 鎖定只提高報價，不立即扣靈石；更換人選會取代上一位。 */
+/** 鎖定只是「保留」：這位人選會留到下一次刷新或進入聽風樓，那時招募價才 ×1.2；更換人選會取代上一位。 */
 export function lockTavernGeneral(lord: Lord, offer: Extract<Offer,{kind:'general'}>): {ok:boolean;message:string} {
   if(offer.general.owner || offer.general.status==='dead')return {ok:false,message:'此武將已無法招募。'};
-  if(lord.tavernLockedGeneral===offer.general.id)return {ok:false,message:offer.general.name+'已經鎖定，不能重複鎖定。'};
-  lord.tavernPriceMultipliers??={};
-  lord.tavernPriceMultipliers[offer.general.id]=(lord.tavernPriceMultipliers[offer.general.id]??1)*1.2;
+  if(lord.tavernLockedGeneral===offer.general.id)return {ok:false,message:offer.general.name+'已經鎖定。'};
   lord.tavernLockedGeneral=offer.general.id;
-  offer.price=Math.round(offer.price*1.2);
-  return {ok:true,message:'鎖定'+offer.general.name+'，招募價提高為'+fmtStones(offer.price)+'；刷新及再次進入時保留。'};
+  return {ok:true,message:'鎖定'+offer.general.name+'；刷新或下次進入聽風樓時會保留，招募價屆時 ×1.2。'};
 }

@@ -42,7 +42,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
         if (old) keepScroll = old.scrollTop;
         if (view !== lastView) keepScroll = 0;
         lastView = view;
-        body.innerHTML = `<p class="dialog-text">${kind==='tavern'?`每次最多招募 ${recruitLimit} 位。本國將領價格較低。可鎖定一位，刷新及再次進入時保留；每次鎖定價格再乘 1.2。`:SHOP_DESC[kind]}</p><div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;
+        body.innerHTML = `<p class="dialog-text">${kind==='tavern'?`每次最多招募 ${recruitLimit} 位。本國將領價格較低。可鎖定一位：鎖定後，刷新或下次進入時這位會保留，保留時招募價 ×1.2。`:SHOP_DESC[kind]}</p><div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;
         if (kind !== 'tavern') {
           const modes = document.createElement('div');
           modes.className = 'shop-tabs';
@@ -127,12 +127,12 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
             const locked=lord.tavernLockedGeneral===o.general.id;
             const lock=document.createElement('button');lock.className='btn mini';
             // 切換：已鎖定時再按一次就是取消（價格不會再漲），不能連按累加
-            lock.textContent=locked?'🔒 已鎖定':'鎖定 ×1.2';
+            lock.textContent=locked?'🔒 已鎖定':'鎖定';
             lock.classList.toggle('on',locked);
-            lock.title=locked?'點擊取消鎖定（已增加的價格保留）':'鎖定後，刷新或下次進入聽風樓時這位仍會保留；鎖定一次價格 ×1.2';
+            lock.title=locked?'點擊取消鎖定':'鎖定後，刷新或下次進入聽風樓時這位仍會出現，招募價屆時 ×1.2';
             lock.disabled=sold.has(i)||unavailable;
             lock.onclick=()=>{
-              if(locked){lord.tavernLockedGeneral=null;onBuy('取消鎖定'+o.general.name+'；已增加的招募價格保留。');}
+              if(locked){lord.tavernLockedGeneral=null;onBuy('取消鎖定'+o.general.name+'。');}
               else{const r=lockTavernGeneral(lord,o);if(r.ok)onBuy(r.message);}
               render();
             };

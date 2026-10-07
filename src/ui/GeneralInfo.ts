@@ -27,7 +27,7 @@ export function itemTargetInfo(g: General, defId: string): string {
   else if (defId === 'revive') context = `狀態：已死亡・修為：${g.exp}`;
   // 沒有特別的欄位時，只顯示最基本的狀態
   if (!context) context = `${REALMS[g.realm]}｜血量 ${g.hp}/${maxHp(g)}・體力 ${g.stamina}/${maxStamina(g)}`;
-  return `<b>${context}</b>`;
+  return `<b>${context}</b>・戰力 <b>${power(g)}</b>`;
 }
 
 /** 選使用者：只顯示這個物品用得到的能力值（含門檻）與體力（含消耗） */

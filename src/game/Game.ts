@@ -1132,7 +1132,7 @@ export class Game {
           `難度以境界命名，看的是境界而不是戰力：秘境境界比隊伍高，歷時越久（最長 9 回合）、越兇險；比隊伍低就越快（最短 1 回合）、越安全；境界相同為 3 回合。獎勵 2～5 份。\n以下依你境界最高的三人估計。接著選擇派遣人數（${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人）。`,
           REALM_LEVELS.map((l, i) => ({
             label: `${l.icon} ${l.name}秘境`,
-            sub: `歷時約 ${realmTurns(i, best)} 回合・平均隕落率約 ${Math.round((best.reduce((sum, g) => sum + deathChance(g, best, i), 0) / best.length) * 100)}%・寶物品階 ${l.tier >= 0 ? '+' : ''}${l.tier}・修為 ×${l.exp}・寶物 ${realmRolls(i, 3)}～${realmRolls(i, 4)} 份`,
+            sub: `歷時約 ${realmTurns(i, best)} 回合・平均隕落率約 ${Math.round((best.reduce((sum, g) => sum + deathChance(g, best, i), 0) / best.length) * 100)}%<br>寶物品階 ${l.tier >= 0 ? '+' : ''}${l.tier}・修為 ×${l.exp}・寶物 ${realmRolls(i, 3)}～${realmRolls(i, 4)} 份`,
             value: i,
           })),
           '取消',

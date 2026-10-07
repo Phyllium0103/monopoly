@@ -229,7 +229,7 @@ export function elementRelation(e: Element): { beats: Element; beatenBy: Element
 /** 功法說明（可含 HTML）：屬性、相剋、能力加成、每回合修為、技能 */
 export function techniqueDesc(t: Technique): string {
   const r = elementRelation(t.element);
-  return `<b style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】屬性</b>（剋${ELEMENT_NAMES[r.beats]}、被${ELEMENT_NAMES[r.beatenBy]}剋）｜武力 +${Math.round(t.power * ELEMENT_BIAS[t.element].atk * 100)}%、防禦 +${Math.round(t.power * 0.5 * ELEMENT_BIAS[t.element].def * 100)}%｜每回合修為 +${techniqueExp(t)}｜技能「${t.skillName}」造成 ×${t.skillPower} 傷害（能量滿 100 施放）`;
+  return `<b style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】屬性</b>（剋${ELEMENT_NAMES[r.beats]}、被${ELEMENT_NAMES[r.beatenBy]}剋）｜武力 +${Math.round(t.power * ELEMENT_BIAS[t.element].atk * 100)}%、防禦 +${Math.round(t.power * 0.5 * ELEMENT_BIAS[t.element].def * 100)}%｜每回合修為 +${techniqueExp(t)}<br>技能「${t.skillName}」造成 ×${t.skillPower} 傷害（能量滿 100 施放）`;
 }
 
 /** 功法帶來的每回合修為：黃階 +20、玄階 +40、地階 +70、天階 +100，同階上中下品再遞增 */

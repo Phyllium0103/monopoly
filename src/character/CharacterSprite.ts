@@ -178,6 +178,11 @@ function drawFigure(c: Figure): HTMLCanvasElement {
   return cv;
 }
 
+/** 主公代號 → 立繪檔名 */
+const LORD_ART: Record<string, string> = { cao: 'caocao', liu: 'liubei', sun: 'sunquan', dong: 'dongzhuo' };
+/** 立繪是正方形，棋子大小（世界座標） */
+const ART_SIZE = 3.1;
+
 export class CharacterSprite {
   group = new THREE.Group();
   private sprite: THREE.Sprite;
@@ -188,15 +193,35 @@ export class CharacterSprite {
   private moving = false;
   private phase = Math.random() * Math.PI * 2;
   selected = false;
+  /** 棋子目前的大小與朝向（1 朝右、-1 朝左；立繪原本朝右） */
+  private w = 2;
+  private h = 3;
+  private facing = 1;
 
   constructor(public character: Figure) {
     const tex = new THREE.CanvasTexture(drawFigure(character));
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = 4;
-    this.sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, alphaTest: 0.1 }));
+    this.sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, alphaTest: 0.1, depthTest: false }));
     this.sprite.center.set(0.5, 0);
-    this.sprite.scale.set(2, 3, 1);
+    // 棋子永遠畫在建築與山的前面，才不會被城池擋住
+    this.sprite.renderOrder = 10;
+    this.sprite.scale.set(this.w, this.h, 1);
     this.sprite.userData = { pick: true, lordId: character.lord };
+    const art = LORD_ART[character.id];
+    if (art) {
+      new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}art/generals/${art}.png`, (t) => {
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.anisotropy = 4;
+        const mat = this.sprite.material as THREE.SpriteMaterial;
+        mat.map?.dispose();
+        mat.map = t;
+        mat.needsUpdate = true;
+        this.w = ART_SIZE;
+        this.h = ART_SIZE;
+        this.apply();
+      });
+    }
     this.group.add(this.sprite);
 
     this.shadow = new THREE.Mesh(
@@ -221,8 +246,19 @@ export class CharacterSprite {
     this.label.style.borderColor = LORDS[character.lord].css;
     this.label.textContent = character.name;
     const labelObj = new CSS2DObject(this.label);
-    labelObj.position.set(0, 3.3, 0);
+    labelObj.position.set(0, 3.4, 0);
     this.group.add(labelObj);
+  }
+
+  /** 套用目前的大小與朝向（左右翻轉用負的寬度） */
+  private apply(squash = 1) {
+    this.sprite.scale.set((this.w / squash) * this.facing, this.h * squash, 1);
+  }
+
+  /** 面向左或右；之後對戰時可讓兩邊面對面 */
+  setFacing(dir: 1 | -1) {
+    this.facing = dir;
+    this.apply();
   }
 
   setGroundPosition(p: THREE.Vector3) {
@@ -249,6 +285,8 @@ export class CharacterSprite {
       const from = points[i - 1];
       const to = points[i];
       const long = longSteps[i] ?? false;
+      const dx = to.x - from.x;
+      if (Math.abs(dx) > 0.05) this.facing = dx < 0 ? -1 : 1;
       const dur = long ? 0.9 : 0.28;
       await animator.tween(dur, (t) => {
         const k = long ? easeInOut(t) : t;
@@ -257,13 +295,13 @@ export class CharacterSprite {
         this.sprite.position.y = hop;
         // 跳躍時的擠壓伸展
         const squash = 1 + Math.sin(Math.PI * t) * 0.12;
-        this.sprite.scale.set(2 / squash, 3 * squash, 1);
+        this.apply(squash);
         this.shadow.scale.setScalar(1 - hop * 0.3);
         onStep?.(this.group.position);
       });
     }
     this.sprite.position.y = 0;
-    this.sprite.scale.set(2, 3, 1);
+    this.apply();
     this.moving = false;
   }
 
@@ -272,7 +310,7 @@ export class CharacterSprite {
       // Idle：上下浮動
       this.sprite.position.y = this.baseY + Math.sin(time * 2.2 + this.phase) * 0.06;
       const breathe = 1 + Math.sin(time * 2.2 + this.phase) * 0.015;
-      this.sprite.scale.set(2, 3 * breathe, 1);
+      this.sprite.scale.set(this.w * this.facing, this.h * breathe, 1);
     }
     if (this.ring.visible) {
       this.ring.rotation.z += dt * 1.5;

@@ -2185,3 +2185,11 @@ body {
 }
 .choice-text { flex: 1; min-width: 0; }
 .shop-row .sr-icon { margin-right: 2px; }
+
+/* 裝備格：圖示＋名稱＋品階 */
+.gc-slot { width: 104px !important; height: 144px !important; }
+.gc-portrait { height: 144px; }
+.gc-slot .slot-icon { width: 64px; height: 64px; object-fit: contain; }
+.gc-slot b { font-size: 13.5px !important; flex: none !important; line-height: 1.25; text-align: center; }
+.gc-slot .slot-tier { font-style: normal; font-size: 12px; color: var(--gold-light); }
+.gc-table { align-self: stretch; }

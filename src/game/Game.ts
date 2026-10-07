@@ -28,7 +28,7 @@ import { ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeIte
 import { TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
 import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, visitingToll, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll } from '../systems/CitySystem';
-import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, craft, inBottleneck, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
+import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, craft, defense, inBottleneck, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
 import { generalInfo, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
@@ -1090,9 +1090,14 @@ export class Game {
     return this.dialog.choose(
       title,
       '',
-      pool.map((g) => ({
+      // 只列與這場比試有關的數值（含被動）；技藝比試依該能力值由高到低，擂台依戰力
+      [...pool].sort((x, y) => (stat ? craft(y, stat) - craft(x, stat) : power(y) - power(x))).map((g) => ({
         label: g.name, icon: portraitUrl(g),
-        sub: `${stat ? `<b>${STAT_NAMES[stat]} ${craft(g, stat)}</b><br>` : ''}${generalInfo(g)}${risky(g)}${g.technique ? `・${g.technique.name}` : ''}${pv(g)}`,
+        sub: stat
+          ? `<b>${STAT_NAMES[stat]} ${craft(g, stat)}</b>・${REALMS[g.realm]}${pv(g)}`
+          : kind === 'duel'
+            ? `${REALMS[g.realm]}｜血量 ${g.hp}/${maxHp(g)}・戰力 ${power(g)}<br>武力 ${attack(g)}・防禦 ${defense(g)}${risky(g)}${g.technique ? `・${g.technique.name}` : ''}${pv(g)}`
+            : `戰力 ${power(g)}・武力 ${attack(g)}${pv(g)}`,
         value: g,
         color: originCss(g.origin),
       })),

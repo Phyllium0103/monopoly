@@ -43,7 +43,7 @@ const SECTIONS: { status: General['status']; title: string }[] = [
 const ART = `${import.meta.env.BASE_URL}art/generals/`;
 
 /** 提示文字：去掉 HTML 標籤並跳脫引號，才能放進 title 屬性 */
-const tip = (html: string) => html.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;');
+const tip = (html: string) => html.replace(/<br\s*\/?>/g, '｜').replace(/<[^>]+>/g, '').replace(/"/g, '&quot;');
 
 /** 武將名冊可選的排序項目（由大到小；主公永遠排第一） */
 const SORTS: { id: string; name: string; value: (g: General) => number }[] = [

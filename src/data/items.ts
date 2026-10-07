@@ -148,7 +148,7 @@ export function equipStats(e: Equipment): string {
 
 /** 裝備說明：種類、品階、數值、需要境界與價值 */
 export function equipDesc(e: Equipment): string {
-  return `${e.kind === 'weapon' ? '神器' : '寶衣'}｜${tierName(e.tier)}｜${equipStats(e)}｜需要${REALMS[equipRealm(e.tier)]}以上｜價值 ${e.price}下品`;
+  return `${e.kind === 'weapon' ? '神器' : '寶衣'}｜${tierName(e.tier)}｜${equipStats(e)}<br>需要${REALMS[equipRealm(e.tier)]}以上｜價值 ${e.price}下品`;
 }
 
 // ───────────────────────── 功法 ─────────────────────────

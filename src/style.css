@@ -2201,3 +2201,9 @@ body {
 .gc-table td b { display: block; font-size: 20px; line-height: 1.25; }
 .gc-table .gc-row-main { background: rgba(255, 255, 255, 0.07); }
 .gc-table .gc-row-main td b { color: var(--gold-light); }
+
+/* 結算畫面：標題與「重新開始」固定，只有中間的內容捲動 */
+.end-screen .result-card { display: flex; flex-direction: column; overflow: hidden !important; max-height: 90vh; padding: 0 !important; }
+.end-screen .rc-head { flex: none; padding: 16px 30px 8px; border-bottom: 1px solid rgba(138, 106, 58, 0.35); }
+.end-screen .rc-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 10px 30px; }
+.end-screen .rc-foot { flex: none; padding: 12px 30px 16px; border-top: 1px solid rgba(138, 106, 58, 0.35); text-align: center; }

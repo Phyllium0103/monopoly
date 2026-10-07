@@ -92,10 +92,13 @@ export function showEndScreen(root: HTMLElement, state: GameState, reason: strin
   el.className = 'screen end-screen';
   el.innerHTML = `
     <div class="result-card scroll-card">
-      <div class="divider">════════════════════</div>
-      <h1>天下結算</h1>
-      <div class="result-reason">${reason}</div>
-      <div class="result-title">第 ${myRank} 名・${titles[myRank - 1]}</div>
+      <div class="rc-head">
+        <div class="divider">════════════════════</div>
+        <h1>天下結算</h1>
+        <div class="result-reason">${reason}</div>
+        <div class="result-title">第 ${myRank} 名・${titles[myRank - 1]}</div>
+      </div>
+      <div class="rc-body">
       <table class="result-table">
         <tr><td>主公</td><td style="color:${LORDS[state.player].css}">${LORDS[state.player].name}</td></tr>
         <tr><td>靈石</td><td>${fmtStones(me.a.stones)}</td></tr>
@@ -117,7 +120,8 @@ export function showEndScreen(root: HTMLElement, state: GameState, reason: strin
       <h3>全部資產明細</h3>
       <p class="muted">估值以此表計入總資產：士兵每名 ${SOLDIER_PRICE} 下品、城池繁榮每點 100 下品、物品市價五折；已裝備的神器、寶衣及功法包含在武將估值內。</p>
       ${rows.map(r => assetDetails(state, r.id)).join('')}
-      <button class="btn primary big">重新開始</button>
+      </div>
+      <div class="rc-foot"><button class="btn primary big">重新開始</button></div>
     </div>`;
   el.querySelector('button')!.onclick = () => {
     el.remove();

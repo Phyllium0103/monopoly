@@ -33,7 +33,15 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
   return dialog.custom<void>(
     `${kind === 'merchant' ? '🐫' : TILE_INFO[kind].icon} ${SHOP_NAMES[kind]}`,
     (body, done) => {
+      let keepScroll = 0;
+      let lastView = '';
       const render = () => {
+        // 買賣之後只更新內容；停留在同一個分頁時保留清單的捲動位置
+        const view = `${mode}|${tab}`;
+        const old = body.querySelector('.shop-list') as HTMLElement | null;
+        if (old) keepScroll = old.scrollTop;
+        if (view !== lastView) keepScroll = 0;
+        lastView = view;
         body.innerHTML = `<p class="dialog-text">${kind==='tavern'?`每次最多招募 ${recruitLimit} 位。本國將領價格較低。可鎖定一位，刷新及再次進入時保留；每次鎖定價格再乘 1.2。`:SHOP_DESC[kind]}</p><div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;
         if (kind !== 'tavern') {
           const modes = document.createElement('div');
@@ -128,6 +136,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
         });
         if (!visibleOffers.length) list.innerHTML = `<p class="muted">${mode === 'sell' ? '行囊中沒有本店可收購的物品。' : '目前沒有可購買的項目。'}</p>`;
         body.appendChild(list);
+        list.scrollTop = keepScroll;
         const row = document.createElement('div');
         row.className = 'dialog-buttons';
         const cost=SHOP_REFRESH_COSTS[visit.refreshes];

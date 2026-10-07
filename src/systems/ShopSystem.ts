@@ -96,7 +96,7 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
       for (const kindE of ['weapon', 'armor'] as const) {
         for (let i = 0; i < 10; i++) {
           const e = makeEquipment(uid('e'), kindE, rollTier(bias));
-          out.push({ kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e), price: e.price, group: kindE === 'weapon' ? '神器' : '寶衣' });
+          out.push({ kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e, false), price: e.price, group: kindE === 'weapon' ? '神器' : '寶衣' });
         }
       }
       return out;
@@ -198,7 +198,7 @@ export function makeSellStock(lord: Lord, kind: ShopKind): SaleOffer[] {
     stock.push({ kind: 'item', item, label: itemName(item.defId, item.tier), sub: d.desc(item.tier), price: price(saleBasis(item)) });
   }
   if (all || kind === 'forge') for (const equipment of lord.gear)
-    stock.push({ kind: 'equipment', equipment, label: equipment.name, sub: equipDesc(equipment), price: price(saleBasis(equipment)) });
+    stock.push({ kind: 'equipment', equipment, label: equipment.name, sub: equipDesc(equipment, false), price: price(saleBasis(equipment)) });
   if (all || kind === 'library') for (const technique of lord.scrolls)
     stock.push({ kind: 'technique', technique, label: technique.name, sub: techniqueDesc(technique), price: price(saleBasis(technique)) });
   if ((all || kind === 'beast') && lord.beast) {

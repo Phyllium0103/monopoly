@@ -323,7 +323,7 @@ export function merchantStock(state: GameState): Offer[] {
   const out: Offer[] = [];
   for (let i = 0; i < 2; i++) {
     const e = makeEquipment(uid('e'), i === 0 ? 'weapon' : 'armor', high());
-    out.push({ kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e), price: off(e.price) });
+    out.push({ kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e, false), price: off(e.price) });
   }
   const t = makeTechnique(uid('t'), high());
   out.push({ kind: 'technique', technique: t, label: t.name, sub: techniqueDesc(t), price: off(t.price) });
@@ -355,7 +355,7 @@ export function auctionLot(state: GameState): Offer {
   const r = Math.random();
   if (r < 0.3) {
     const e = makeEquipment(uid('e'), Math.random() < 0.5 ? 'weapon' : 'armor', tier);
-    return { kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e), price: e.price };
+    return { kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e, false), price: e.price };
   }
   if (r < 0.65) {
     const t = makeTechnique(uid('t'), tier);

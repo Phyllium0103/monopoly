@@ -31,5 +31,5 @@ export function grantTournamentPrize(state: GameState,lord: Lord): Offer {
     return {kind:'technique',technique:t,label:t.name,sub:techniqueDesc(t),price:0};
   }
   const e=makeEquipment(nextUid(state,'e'),kind===1?'weapon':'armor',11);lord.gear.push(e);
-  return {kind:'equipment',equipment:e,label:e.name,sub:equipDesc(e),price:0};
+  return {kind:'equipment',equipment:e,label:e.name,sub: equipDesc(e, false),price:0};
 }

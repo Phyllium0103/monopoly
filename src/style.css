@@ -2224,3 +2224,18 @@ body {
   cursor: pointer;
 }
 .sort-select:focus { outline: 1px solid var(--gold); }
+
+/* 靈根顏色：依五行屬性；天靈根為天藍色混金黃 */
+.chip.apt-metal { border-color: #e8d27a; color: #f2e08a; background: rgba(232, 210, 122, 0.12); }
+.chip.apt-wood { border-color: #5fc46a; color: #8fe39a; background: rgba(95, 196, 106, 0.12); }
+.chip.apt-water { border-color: #5aa8ec; color: #8cc8ff; background: rgba(90, 168, 236, 0.12); }
+.chip.apt-fire { border-color: #ec6a4a; color: #ff9c86; background: rgba(236, 106, 74, 0.12); }
+.chip.apt-earth { border-color: #c49a5a; color: #dcb87a; background: rgba(196, 154, 90, 0.12); }
+.chip.apt-waste { border-color: #8a8a8a; color: #b0b0b0; background: rgba(140, 140, 140, 0.12); }
+.chip.apt-heaven {
+  border-color: transparent;
+  color: #2a1a06;
+  font-weight: 700;
+  background: linear-gradient(100deg, #6ec8ff 0%, #a9dcff 38%, #f6d56a 72%, #f1b93a 100%);
+  box-shadow: 0 0 6px rgba(241, 210, 122, 0.55);
+}

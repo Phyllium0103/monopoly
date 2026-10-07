@@ -186,8 +186,8 @@ export class GeneralsView {
         </div>
         <table class="gc-table">
           <tr class="gc-row-main">
-            <td><small>武力</small><b>${attack(g)}</b></td>
             <td><small>戰力</small><b>${power(g)}</b></td>
+            <td><small>武力</small><b>${attack(g)}</b></td>
             <td><small>防禦</small><b>${defense(g)}</b></td>
             <td><small>修為／回合</small><b>+${Math.round(passiveExp(g, city) * expMultiplier(g))}</b></td>
           </tr>

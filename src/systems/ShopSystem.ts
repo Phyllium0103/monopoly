@@ -265,6 +265,7 @@ function saleBasis(asset: {price:number;purchasePrice?:number}): number {
 /** 鎖定只提高報價，不立即扣靈石；更換人選會取代上一位。 */
 export function lockTavernGeneral(lord: Lord, offer: Extract<Offer,{kind:'general'}>): {ok:boolean;message:string} {
   if(offer.general.owner || offer.general.status==='dead')return {ok:false,message:'此武將已無法招募。'};
+  if(lord.tavernLockedGeneral===offer.general.id)return {ok:false,message:offer.general.name+'已經鎖定，不能重複鎖定。'};
   lord.tavernPriceMultipliers??={};
   lord.tavernPriceMultipliers[offer.general.id]=(lord.tavernPriceMultipliers[offer.general.id]??1)*1.2;
   lord.tavernLockedGeneral=offer.general.id;

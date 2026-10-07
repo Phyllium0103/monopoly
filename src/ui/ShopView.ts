@@ -126,9 +126,16 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
           if(kind==='tavern' && o.kind==='general') {
             const locked=lord.tavernLockedGeneral===o.general.id;
             const lock=document.createElement('button');lock.className='btn mini';
-            lock.textContent=locked?'🔒 再次鎖定 ×1.2':'鎖定 ×1.2';
+            // 切換：已鎖定時再按一次就是取消（價格不會再漲），不能連按累加
+            lock.textContent=locked?'🔒 已鎖定':'鎖定 ×1.2';
+            lock.classList.toggle('on',locked);
+            lock.title=locked?'點擊取消鎖定（已增加的價格保留）':'鎖定後，刷新或下次進入聽風樓時這位仍會保留；鎖定一次價格 ×1.2';
             lock.disabled=sold.has(i)||unavailable;
-            lock.onclick=()=>{const r=lockTavernGeneral(lord,o);if(r.ok)onBuy(r.message);render();};
+            lock.onclick=()=>{
+              if(locked){lord.tavernLockedGeneral=null;onBuy('取消鎖定'+o.general.name+'；已增加的招募價格保留。');}
+              else{const r=lockTavernGeneral(lord,o);if(r.ok)onBuy(r.message);}
+              render();
+            };
             row.appendChild(lock);
           }
           row.appendChild(b);
@@ -155,11 +162,6 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
           render();
         };
         row.appendChild(refresh);
-        if(kind==='tavern' && lord.tavernLockedGeneral) {
-          const unlock=document.createElement('button');unlock.className='btn';unlock.textContent='取消鎖定';
-          unlock.onclick=()=>{lord.tavernLockedGeneral=null;onBuy('取消鎖定；已增加的招募價格保留。');render();};
-          row.appendChild(unlock);
-        }
         const leave = document.createElement('button');
         leave.className = 'btn';
         leave.textContent = '離開';

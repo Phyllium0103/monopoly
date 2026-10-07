@@ -2259,3 +2259,8 @@ body {
 .cr-main .cr-name { width: auto; }
 .cr-main .cr-name b { font-size: 20px; }
 .cr-main .bar.contest { flex: none; height: 22px; }
+
+/* 擂台戰：雙方立繪面對面（右邊的人左右翻轉） */
+.f-portrait { display: grid; place-items: center; height: 150px; margin: -2px 0 4px; border-radius: 8px; background: radial-gradient(ellipse at 50% 70%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 70%); }
+.f-portrait img { height: 146px; width: auto; max-width: 100%; object-fit: contain; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5)); }
+.f-portrait.flip img { transform: scaleX(-1); }

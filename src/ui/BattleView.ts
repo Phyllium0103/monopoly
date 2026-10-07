@@ -45,6 +45,7 @@ export class BattleView {
     ].join('');
     return `
       <div class="fighter ${active ? 'active' : ''}" data-side="${f.side}" style="--fc:${LORDS[f.lord].css}">
+        <div class="f-portrait ${f.side === 'b' ? 'flip' : ''}"><img src="${portraitUrl(f.general)}" alt="" onerror="this.style.visibility='hidden'"></div>
         <div class="f-lord">${LORDS[f.lord].name}</div>
         <div class="f-name">${f.general.name}<small>${REALMS[f.general.realm]}</small></div>
         <div class="f-elem">${t ? `<span style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】${t.skillName}</span>` : '<span class="muted">無功法</span>'}</div>

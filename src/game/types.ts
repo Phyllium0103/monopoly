@@ -160,7 +160,8 @@ export interface Lord {
   /** 自用停留物品：本回合擲骰時停在原地。 */
   stayThisTurn?: boolean;
   /** 每位主公僅能保留一名聽風樓武將；每次鎖定累乘價格。 */
-  tavernLockedGeneral?: string | null;
+  /** 聽風樓鎖定保留的武將（可同時鎖定多位） */
+  tavernLocked?: string[];
   tavernPriceMultipliers?: Record<string, number>;
   moveMultiplier: number;
   forkChoice: boolean;

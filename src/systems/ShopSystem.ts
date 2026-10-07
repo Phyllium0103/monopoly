@@ -118,17 +118,19 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
       if (lordHas(lord.id,'unlockHidden')) {
         for (const seed of HIDDEN_SEEDS) if (!state.generals[seed.id]) hidden.push(newGeneral(seed,'immortal',null,'free',null));
       }
-      const locked=free.find(g=>g.id===lord.tavernLockedGeneral);
-      if(!locked)lord.tavernLockedGeneral=null;
+      // 鎖定的人選：仍在野的才保留，其餘（已被招募、死亡）自動解除
+      const lockedList=free.filter(g=>lord.tavernLocked?.includes(g.id));
+      lord.tavernLocked=lockedList.map(g=>g.id);
       // 被鎖定的人選每保留一次（刷新或下次進入）招募價 ×1.2
-      else {
+      for (const g of lockedList) {
         lord.tavernPriceMultipliers??={};
-        lord.tavernPriceMultipliers[locked.id]=(lord.tavernPriceMultipliers[locked.id]??1)*1.2;
+        lord.tavernPriceMultipliers[g.id]=(lord.tavernPriceMultipliers[g.id]??1)*1.2;
       }
-      const shuffledHidden=shuffle(hidden.filter(g=>g.id!==locked?.id));
-      const normal = free.filter((g) => g.origin !== 'immortal' && g.id!==locked?.id);
+      const lockedIds=new Set(lockedList.map(g=>g.id));
+      const shuffledHidden=shuffle(hidden.filter(g=>!lockedIds.has(g.id)));
+      const normal = free.filter((g) => g.origin !== 'immortal' && !lockedIds.has(g.id));
       const showHidden=lordHas(lord.id,'unlockHidden') || Math.random()<0.2;
-      const pool = [...(locked?[locked]:[]), ...(showHidden&&locked?.origin!=='immortal'?shuffledHidden.slice(0,1):[]), ...normal].slice(0,4);
+      const pool = [...lockedList, ...(showHidden?shuffledHidden.slice(0,1):[]), ...normal].slice(0,Math.max(4,lockedList.length+1));
       for (const g of pool) if (!state.generals[g.id]) state.generals[g.id]=g;
       return pool.map(
         (g) =>
@@ -170,7 +172,7 @@ export function buy(state: GameState, lord: Lord, offer: Offer): { ok: boolean; 
     case 'general':
       joinLord(state, lord.id, offer.general);
       for(const visitor of Object.values(state.lords)) {
-        if(visitor.tavernLockedGeneral===offer.general.id)visitor.tavernLockedGeneral=null;
+        if(visitor.tavernLocked)visitor.tavernLocked=visitor.tavernLocked.filter(id=>id!==offer.general.id);
         if(visitor.tavernPriceMultipliers)delete visitor.tavernPriceMultipliers[offer.general.id];
       }
       break;
@@ -267,10 +269,11 @@ function saleBasis(asset: {price:number;purchasePrice?:number}): number {
   return asset.purchasePrice??asset.price;
 }
 
-/** 鎖定只是「保留」：這位人選會留到下一次刷新或進入聽風樓，那時招募價才 ×1.2；更換人選會取代上一位。 */
+/** 鎖定只是「保留」：這位人選會留到下一次刷新或進入聽風樓，那時招募價才 ×1.2；每位武將可以各自鎖定、各自取消。 */
 export function lockTavernGeneral(lord: Lord, offer: Extract<Offer,{kind:'general'}>): {ok:boolean;message:string} {
   if(offer.general.owner || offer.general.status==='dead')return {ok:false,message:'此武將已無法招募。'};
-  if(lord.tavernLockedGeneral===offer.general.id)return {ok:false,message:offer.general.name+'已經鎖定。'};
-  lord.tavernLockedGeneral=offer.general.id;
+  lord.tavernLocked??=[];
+  if(lord.tavernLocked.includes(offer.general.id))return {ok:false,message:offer.general.name+'已經鎖定。'};
+  lord.tavernLocked.push(offer.general.id);
   return {ok:true,message:'鎖定'+offer.general.name+'；刷新或下次進入聽風樓時會保留，招募價屆時 ×1.2。'};
 }

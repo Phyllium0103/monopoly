@@ -131,7 +131,7 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
             kind: 'general',
             general: g,
             label: `${g.origin === 'immortal' ? '🧙 ' : ''}${g.name}（${originKingdom(g.origin)}）`,
-            sub: `${realmName(g)}｜<span class="chip apt-${g.aptitude}">${APTITUDE_NAMES[g.aptitude]}</span>｜被動【${passiveOf(g).name}】${fxText(passiveOf(g).fx)}<br>戰力 ${power(g)}｜武力 ${g.base.force}・防禦 ${g.base.defense}・煉丹 ${g.base.alchemy}・煉器 ${g.base.forging}・畫符 ${g.base.talisman}・佈陣 ${g.base.formation}${g.origin === lord.id ? '<br><span class="tavern-perk">本國將領優惠</span>' : ''}`,
+            sub: `${realmName(g)}｜<span class="chip apt-${g.aptitude}">${APTITUDE_NAMES[g.aptitude]}</span>｜<span class="chip trait" title="${`【${passiveOf(g).name}】${fxText(passiveOf(g).fx)}｜${passiveOf(g).flavor}`.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;')}">【${passiveOf(g).name}】</span><br>戰力 ${power(g)}｜武力 ${g.base.force}・防禦 ${g.base.defense}・煉丹 ${g.base.alchemy}・煉器 ${g.base.forging}・畫符 ${g.base.talisman}・佈陣 ${g.base.formation}${g.origin === lord.id ? '<br><span class="tavern-perk">本國將領優惠</span>' : ''}`,
             price: Math.round(recruitPrice(g, lord.id)*(lord.tavernPriceMultipliers?.[g.id]??1)),
           }) as Offer,
       );

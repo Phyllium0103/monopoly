@@ -2250,3 +2250,4 @@ body {
 .shop-row .chip.apt-waste { color: #666; border-color: #999; background: rgba(140, 140, 140, 0.18); }
 .shop-row .chip.apt-heaven { color: #2a1a06; border-color: transparent; background: linear-gradient(100deg, #6ec8ff 0%, #a9dcff 38%, #f6d56a 72%, #f1b93a 100%); box-shadow: 0 0 4px rgba(241, 185, 58, 0.6); }
 .tavern-perk { color: #2a7a3a; font-weight: 700; }
+.shop-row .chip.trait { color: #1b6a86; border-color: #3a9bbf; background: rgba(143, 228, 255, 0.28); cursor: help; }

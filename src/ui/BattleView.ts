@@ -3,6 +3,7 @@ import { LORDS } from '../faction/Faction';
 import { fxText, passiveOf } from '../data/passives';
 import { REALMS } from '../data/generals';
 import { generalInfo } from './GeneralInfo';
+import { portraitUrl } from './Icons';
 import { ELEMENT_CSS, ELEMENT_NAMES, STAT_NAMES } from '../data/items';
 import { TRIBULATION_BOLTS, craft, type TribulationResult } from '../systems/GeneralSystem';
 import { WOUNDED_HP, WOUNDED_REDUCE, type ContestResult, type Duel, type DuelEvent, type Fighter, type SiegeResult, type Side } from '../systems/BattleSystem';
@@ -163,9 +164,11 @@ export class BattleView {
       const max = Math.max(r.aScore, r.bScore, 1);
       const row = (g: General, lord: LordId, score: number, side: Side) => `
         <div class="contest-row ${r.winner === side ? 'winner' : ''}" style="--fc:${LORDS[lord].css}">
-          <div class="cr-name"><b>${g.name}</b><small>${LORDS[lord].name}・${name} ${craft(g, r.stat)}</small></div>
-          <div class="bar contest"><i data-w="${(score / max) * 100}" style="width:0%"></i><span>${score}</span></div>
-          <small>${generalInfo(g)}</small>
+          <img class="cr-portrait" src="${portraitUrl(g)}" alt="" onerror="this.style.visibility='hidden'">
+          <div class="cr-main">
+            <div class="cr-name"><b>${g.name}</b><small>${LORDS[lord].name}・${REALMS[g.realm]}・${name} ${craft(g, r.stat)}</small></div>
+            <div class="bar contest"><i data-w="${(score / max) * 100}" style="width:0%"></i><span>${score}</span></div>
+          </div>
         </div>`;
       body.innerHTML = `
         <p class="dialog-text">雙方各派一名武將比拼${name}，能力值越高越有勝算。</p>

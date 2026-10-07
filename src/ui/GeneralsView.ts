@@ -45,7 +45,23 @@ const ART = `${import.meta.env.BASE_URL}art/generals/`;
 /** 提示文字：去掉 HTML 標籤並跳脫引號，才能放進 title 屬性 */
 const tip = (html: string) => html.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;');
 
+/** 武將名冊可選的排序項目（由大到小；主公永遠排第一） */
+const SORTS: { id: string; name: string; value: (g: General) => number }[] = [
+  { id: 'power', name: '戰力', value: (g) => power(g) },
+  { id: 'attack', name: '武力', value: (g) => attack(g) },
+  { id: 'defense', name: '防禦', value: (g) => defense(g) },
+  { id: 'hp', name: '血量上限', value: (g) => maxHp(g) },
+  { id: 'alchemy', name: '煉丹', value: (g) => craft(g, 'alchemy') },
+  { id: 'forging', name: '煉器', value: (g) => craft(g, 'forging') },
+  { id: 'talisman', name: '畫符', value: (g) => craft(g, 'talisman') },
+  { id: 'formation', name: '佈陣', value: (g) => craft(g, 'formation') },
+  { id: 'realm', name: '境界', value: (g) => g.realm * 1e6 + g.exp },
+  { id: 'exp', name: '修為', value: (g) => g.exp },
+];
+
 export class GeneralsView {
+  /** 目前的排序項目，預設戰力 */
+  private sortId = 'power';
   private el: HTMLDivElement;
   private resolve: (() => void) | null = null;
 
@@ -87,6 +103,7 @@ export class GeneralsView {
       <div class="drawer-head">
         <h2 style="color:${LORDS[lord.id].css}">${LORDS[lord.id].name}・武將名冊</h2>
         <span class="muted">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : '・非你的回合，無法突破或閉關'}</span>
+        <label class="sort-box">排序 <select class="sort-select">${SORTS.map((x) => `<option value="${x.id}" ${x.id === this.sortId ? 'selected' : ''}>${x.name}</option>`).join('')}</select></label>
         <button class="btn close">關閉 ✕</button>
       </div>
       <div class="ready-section"></div>
@@ -98,9 +115,16 @@ export class GeneralsView {
       </div>
       <div class="sections"></div>`;
     (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
+    (this.el.querySelector('.sort-select') as HTMLSelectElement).onchange = (e) => {
+      this.sortId = (e.target as HTMLSelectElement).value;
+      this.render(state, lord);
+    };
+    const key = (SORTS.find((x) => x.id === this.sortId) ?? SORTS[0]).value;
+    // 主公固定第一，其餘依所選數值由大到小，同分再比戰力
+    const order = (a: General, b: General) => Number(b.isLord) - Number(a.isLord) || key(b) - key(a) || power(b) - power(a);
 
     // 可以突破的武將暫時移到最上方
-    const ready = gens.filter((g) => canAttemptBreak(g, state.round).ok);
+    const ready = gens.filter((g) => canAttemptBreak(g, state.round).ok).sort(order);
     const readyBox = this.el.querySelector('.ready-section') as HTMLElement;
     if (ready.length) {
       const h = document.createElement('h3');
@@ -115,7 +139,7 @@ export class GeneralsView {
 
     const sections = this.el.querySelector('.sections')!;
     for (const sec of SECTIONS) {
-      const list = gens.filter((g) => g.status === sec.status && !readyIds.has(g.id));
+      const list = gens.filter((g) => g.status === sec.status && !readyIds.has(g.id)).sort(order);
       if (!list.length) continue;
       const h = document.createElement('h3');
       h.className = 'section-title';

@@ -2172,3 +2172,16 @@ body {
 .gc-table th, .gc-table td { border: 1px solid rgba(255, 255, 255, 0.16); padding: 3px 8px; }
 .gc-table th { background: rgba(255, 255, 255, 0.06); color: var(--muted); font-weight: 500; white-space: nowrap; text-align: left; }
 .gc-table td { font-weight: 700; text-align: right; }
+
+/* 選擇清單與商店：項目左側的圖片 */
+.choice.has-icon { display: flex; align-items: center; gap: 12px; }
+.choice-icon, .sr-icon {
+  flex: none;
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: rgba(60, 40, 20, 0.1);
+}
+.choice-text { flex: 1; min-width: 0; }
+.shop-row .sr-icon { margin-right: 2px; }

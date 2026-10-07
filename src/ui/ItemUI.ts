@@ -1,5 +1,6 @@
 import type { Item } from '../game/types';
 import type { Choice } from './Dialog';
+import { itemIconUrl } from './Icons';
 import { ITEM_DEFS, PILL_GRADES, STAT_NAMES, itemName, requirementOf } from '../data/items';
 
 export const CATEGORY_STYLE: Record<string, { icon: string; color: string }> = {
@@ -78,6 +79,7 @@ export function itemChoices(items: Item[]): Choice<Item>[] {
     label: `${itemLabel(item.defId, item.tier)}${count > 1 ? `<span class="item-count">×${count}</span>` : ''}`,
     sub: itemInfoHtml(item.defId, item.tier),
     value: item,
+    icon: itemIconUrl(item.defId),
     color: CATEGORY_STYLE[ITEM_DEFS[item.defId].category].color,
   }));
 }

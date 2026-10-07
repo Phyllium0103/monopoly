@@ -6,6 +6,8 @@ export interface Choice<T> {
   /** 無法選擇的原因 */
   reason?: string;
   color?: string;
+  /** 圖片網址（物品、裝備、靈獸圖示或武將頭像） */
+  icon?: string;
 }
 
 export interface SliderOptions {
@@ -80,7 +82,11 @@ export class Dialog {
     b.className = 'choice';
     b.disabled = !!c.disabled;
     if (c.color) b.style.borderLeftColor = c.color;
-    b.innerHTML = `<b>${c.label}</b>${c.sub ? `<small>${c.sub}</small>` : ''}${c.disabled && c.reason ? `<small class="reason">${c.reason}</small>` : ''}`;
+    const text = `<b>${c.label}</b>${c.sub ? `<small>${c.sub}</small>` : ''}${c.disabled && c.reason ? `<small class="reason">${c.reason}</small>` : ''}`;
+    if (c.icon) {
+      b.classList.add('has-icon');
+      b.innerHTML = `<img class="choice-icon" src="${c.icon}" alt="" onerror="this.style.visibility='hidden'"><span class="choice-text">${text}</span>`;
+    } else b.innerHTML = text;
     b.onclick = onClick;
     return b;
   }

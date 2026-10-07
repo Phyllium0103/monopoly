@@ -29,6 +29,7 @@ import {
 import { bagHtml } from './ItemUI';
 import { LORDS, originKingdom } from '../faction/Faction';
 import type { Choice, Dialog } from './Dialog';
+import { equipIconUrl } from './Icons';
 
 const SECTIONS: { status: General['status']; title: string }[] = [
   { status: 'free', title: '隨行' },
@@ -214,6 +215,7 @@ export class GeneralsView {
       rowBtn(kind, g[kind] ? '更換／卸下' : '裝備', away || (!pool.length && !g[kind]), async () => {
         const choices: Choice<Equipment | 'off'>[] = pool.map((x) => ({
           label: x.name,
+          icon: equipIconUrl(x),
           sub: equipDesc(x),
           value: x,
           disabled: g.realm < equipRealm(x.tier),

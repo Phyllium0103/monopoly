@@ -14,6 +14,7 @@ import { CharacterSprite } from '../character/CharacterSprite';
 import { LORDS, LORD_IDS, originCss, ownerCss, ownerName } from '../faction/Faction';
 import { GameUI, type ActionButton } from '../ui/GameUI';
 import { Dialog, facts, type Choice } from '../ui/Dialog';
+import { portraitUrl } from '../ui/Icons';
 import { GeneralsView } from '../ui/GeneralsView';
 import { BattleView } from '../ui/BattleView';
 import { openShop } from '../ui/ShopView';
@@ -665,7 +666,7 @@ export class Game {
           color: LORDS[lord.id].css,
         })),
         ...party.map((g) => ({
-          label: `🧑 ${g.name}（${REALMS[g.realm]}）`,
+          label: `🧑 ${g.name}（${REALMS[g.realm]}）`, icon: portraitUrl(g),
           sub: `戰力 ${power(g)}｜身價 ${fmtStones(generalSaleValue(g))}｜賣出後自動卸下裝備，離開進入聽風樓${pv(g)}`,
           value: { kind: 'general', general: g } as Sale,
           color: '#c99a2e',
@@ -755,7 +756,7 @@ export class Game {
   private async playerOccupy(lord: Lord, city: City) {
     const inc = cityIncome(city);
     const free = deployable(this.state, lord.id);
-    const choices: Choice<string>[] = free.map((g) => ({ label: g.name, sub: `${generalInfo(g)}・戰力 ${power(g)}${pv(g)}`, value: g.id, color: originCss(g.origin) }));
+    const choices: Choice<string>[] = free.map((g) => ({ label: g.name, icon: portraitUrl(g), sub: `${generalInfo(g)}・戰力 ${power(g)}${pv(g)}`, value: g.id, color: originCss(g.origin) }));
     for (;;) {
       const gids = await this.dialog.pickMany(
         `抵達${city.name}・是否佔領？`,
@@ -970,7 +971,7 @@ export class Game {
         const picked = await this.dialog.pickMany(
           `攻打${city.name}・選擇出征武將`,
           `最多派遣三名武將；選好武將後，可自行決定出兵數量。\n戰敗則出征的士兵全滅；勝方也會折損，雙方越接近折損越多。\n一名守軍約等於十五名隨行士兵；武將武力越高，統率加成越大。守方約 ${garrisonPower(this.state, city)}。`,
-          pool.map((g) => ({ label: g.name, sub: `${generalInfo(g)}・戰力 ${power(g)}${pv(g)}`, value: g })),
+          pool.map((g) => ({ label: g.name, icon: portraitUrl(g), sub: `${generalInfo(g)}・戰力 ${power(g)}${pv(g)}`, value: g })),
           1,
           3,
           '出征',
@@ -1027,7 +1028,7 @@ export class Game {
     if (this.human(attacker)) {
       const cand = deployable(this.state, attacker.id);
       if (cand.length) {
-        const picked = await this.dialog.pickMany(`攻下${city.name}！派誰駐守？`, `最多 ${GARRISON_LIMIT} 人，駐將越多守城越強。（主公本人不能駐守）`, cand.map((x) => ({ label: x.name, sub: `${generalInfo(x)}・戰力 ${power(x)}${pv(x)}`, value: x.id })), 1, Math.min(GARRISON_LIMIT, cand.length), '駐守');
+        const picked = await this.dialog.pickMany(`攻下${city.name}！派誰駐守？`, `最多 ${GARRISON_LIMIT} 人，駐將越多守城越強。（主公本人不能駐守）`, cand.map((x) => ({ label: x.name, icon: portraitUrl(x), sub: `${generalInfo(x)}・戰力 ${power(x)}${pv(x)}`, value: x.id })), 1, Math.min(GARRISON_LIMIT, cand.length), '駐守');
         if (picked) gids = picked;
       } else gids = [];
       if (attacker.soldiers > 0) {
@@ -1071,7 +1072,7 @@ export class Game {
       title,
       '',
       pool.map((g) => ({
-        label: g.name,
+        label: g.name, icon: portraitUrl(g),
         sub: `${stat ? `<b>${STAT_NAMES[stat]} ${craft(g, stat)}</b><br>` : ''}${generalInfo(g)}・戰力 ${power(g)}${risky(g)}${g.technique ? `・${g.technique.name}` : ''}${pv(g)}`,
         value: g,
         color: originCss(g.origin),
@@ -1099,7 +1100,7 @@ export class Game {
         '使用物品會消耗該武將的體力，能力值須達到門檻。',
         users.map((g) => {
           const c = canUse(item, g);
-          return { label: g.name, sub: `使用門檻：${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}・體力 ${g.stamina}/${maxStamina(g)}<br>${itemTargetInfo(g.id === fighter.id ? {...g, hp: duel.fighter(side).hp} : g, item.defId)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
+          return { label: g.name, icon: portraitUrl(g), sub: `使用門檻：${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}・體力 ${g.stamina}/${maxStamina(g)}<br>${itemTargetInfo(g.id === fighter.id ? {...g, hp: duel.fighter(side).hp} : g, item.defId)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
         }),
       );
       if (!user) continue;
@@ -1140,7 +1141,7 @@ export class Game {
           chosen = await this.dialog.pickMany(
             `🌀 ${realmName}（${L.name}秘境）・選擇武將`,
             `選 ${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人；歷時依隊伍平均境界而定，人越多個別隕落率越低，四人以上多得一份寶物。按取消可回到難度選擇。`,
-            free.map((g) => ({ label: g.name, sub: `${REALMS[g.realm]}・單獨隕落率約 ${Math.round(deathChance(g, [g], level) * 100)}%${pv(g)}`, value: g })),
+            free.map((g) => ({ label: g.name, icon: portraitUrl(g), sub: `${REALMS[g.realm]}・單獨隕落率約 ${Math.round(deathChance(g, [g], level) * 100)}%${pv(g)}`, value: g })),
             REALM_MIN_PARTY,
             REALM_MAX_PARTY,
             '下一步',
@@ -1258,7 +1259,7 @@ export class Game {
           '只有隨行武將可以使用物品；取消返回物品清單。',
           freeGenerals(this.state, lord.id).map((g) => {
             const c = canUse(item, g);
-            return { label: g.name, sub: `使用門檻：${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}・體力 ${g.stamina}/${maxStamina(g)}<br>${itemTargetInfo(g, item.defId)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
+            return { label: g.name, icon: portraitUrl(g), sub: `使用門檻：${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}・體力 ${g.stamina}/${maxStamina(g)}<br>${itemTargetInfo(g, item.defId)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
           }),
         );
         if (!user) break;
@@ -1285,7 +1286,7 @@ export class Game {
           : others.flatMap(l => generalsOf(this.state, l.id).filter(g => g.status !== 'realm'));
         const eligible = pool.filter(g => defId !== 'five' || !['waste','heaven'].includes(g.aptitude));
         if (!eligible.length) { this.ui.toast('沒有符合條件的目標武將'); return null; }
-        const g = await this.dialog.choose('選擇生效的武將', defId === 'five' ? '僅能選擇五行靈根武將。' : '', eligible.map(x => ({ label: x.name, sub: itemTargetInfo(x, defId), value: x, color: originCss(x.origin) })));
+        const g = await this.dialog.choose('選擇生效的武將', defId === 'five' ? '僅能選擇五行靈根武將。' : '', eligible.map(x => ({ label: x.name, icon: portraitUrl(x), sub: itemTargetInfo(x, defId), value: x, color: originCss(x.origin) })));
         if (!g) return null;
         if (defId === 'five') {
           const element = await this.dialog.choose('選擇新的靈根', '不相容功法會卸回原主公行囊。', (['metal','wood','water','fire','earth'] as const).map(value => ({ label: ELEMENT_NAMES[value] + '靈根', value })), '返回選武將');
@@ -1471,8 +1472,8 @@ export class Game {
               `🏯 ${city.name}・調整駐將（${on.length}/${GARRISON_LIMIT}）`,
               '點選駐將可撤回，點選隨行武將可派駐。',
               [
-                ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, sub: `駐守中｜${generalInfo(x)}・戰力 ${power(x)}${pv(x)}`, value: x, color: '#c99a2e', disabled: on.length <= 1, reason: '城池至少要有一名駐將' })),
-                ...party.map((x) => ({ label: `▲ 派駐 ${x.name}`, sub: `隨行｜${generalInfo(x)}・戰力 ${power(x)}${pv(x)}`, value: x, disabled: on.length >= GARRISON_LIMIT, reason: `已滿 ${GARRISON_LIMIT} 人`, color: '#5aa8ec' })),
+                ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, icon: portraitUrl(x), sub: `駐守中｜${generalInfo(x)}・戰力 ${power(x)}${pv(x)}`, value: x, color: '#c99a2e', disabled: on.length <= 1, reason: '城池至少要有一名駐將' })),
+                ...party.map((x) => ({ label: `▲ 派駐 ${x.name}`, icon: portraitUrl(x), sub: `隨行｜${generalInfo(x)}・戰力 ${power(x)}${pv(x)}`, value: x, disabled: on.length >= GARRISON_LIMIT, reason: `已滿 ${GARRISON_LIMIT} 人`, color: '#5aa8ec' })),
               ],
               '完成',
             );
@@ -1694,9 +1695,9 @@ export class Game {
       const party = allFree.filter((g) => !g.isLord && !fx(g).fixedParty && !g.ghostSourceId);
       const sect = sectGenerals(this.state, lord.id);
       const choices: Choice<General>[] = [
-        ...party.map((g) => ({ label: `▼ ${g.name}`, sub: `隨行 → 留守宗門｜${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`, value: g, color: '#c99a2e' })),
+        ...party.map((g) => ({ label: `▼ ${g.name}`, icon: portraitUrl(g), sub: `隨行 → 留守宗門｜${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`, value: g, color: '#c99a2e' })),
         ...sect.map((g) => ({
-          label: `▲ ${g.name}`,
+          label: `▲ ${g.name}`, icon: portraitUrl(g),
           sub: `宗門 → 隨行｜${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`,
           value: g,
           disabled: allFree.length >= PARTY_LIMIT,

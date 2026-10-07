@@ -418,22 +418,29 @@ export class HelpView {
     this.el.classList.add('hidden');
   }
 
+  /** 外框與分頁列只建立一次；切換分頁只換右邊內容，不重建整個視窗 */
   private render() {
+    if (!this.el.querySelector('.help-card')) {
+      this.el.innerHTML = `
+        <div class="help-card scroll-card">
+          <div class="help-head"><h2>📖 遊戲說明</h2><button class="btn close">關閉 ✕</button></div>
+          <div class="help-main">
+            <nav class="help-tabs">${PAGES.map((x, i) => `<button class="help-tab" data-i="${i}">${x.title}</button>`).join('')}</nav>
+            <article class="help-body"></article>
+          </div>
+        </div>`;
+      (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
+      this.el.querySelectorAll<HTMLButtonElement>('.help-tab').forEach((b) => {
+        b.onclick = () => {
+          this.page = Number(b.dataset.i);
+          this.render();
+        };
+      });
+    }
     const p = PAGES[this.page];
-    this.el.innerHTML = `
-      <div class="help-card scroll-card">
-        <div class="help-head"><h2>📖 遊戲說明</h2><button class="btn close">關閉 ✕</button></div>
-        <div class="help-main">
-          <nav class="help-tabs">${PAGES.map((x, i) => `<button class="help-tab ${i === this.page ? 'on' : ''}" data-i="${i}">${x.title}</button>`).join('')}</nav>
-          <article class="help-body"><h3>${p.title}</h3>${p.html()}</article>
-        </div>
-      </div>`;
-    (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
-    this.el.querySelectorAll<HTMLButtonElement>('.help-tab').forEach((b) => {
-      b.onclick = () => {
-        this.page = Number(b.dataset.i);
-        this.render();
-      };
-    });
+    this.el.querySelectorAll<HTMLButtonElement>('.help-tab').forEach((b) => b.classList.toggle('on', Number(b.dataset.i) === this.page));
+    const body = this.el.querySelector('.help-body') as HTMLElement;
+    body.innerHTML = `<h3>${p.title}</h3>${p.html()}`;
+    body.scrollTop = 0;
   }
 }

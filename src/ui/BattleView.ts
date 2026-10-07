@@ -57,6 +57,25 @@ export class BattleView {
       </div>`;
   }
 
+  /** 出手特效：攻擊者衝向對手，被打的一方出現揮刀斬擊；功法技能與暴擊用更大的雙斬 */
+  private slash(target: Side, heavy: boolean, color?: string) {
+    const attacker: Side = target === 'a' ? 'b' : 'a';
+    const atkImg = this.el.querySelector(`.fighter[data-side="${attacker}"] .f-portrait img`) as HTMLElement | null;
+    if (atkImg) {
+      atkImg.classList.remove('lunge');
+      void atkImg.offsetWidth;
+      atkImg.classList.add('lunge');
+    }
+    const box = this.el.querySelector(`.fighter[data-side="${target}"] .f-portrait`) as HTMLElement | null;
+    if (!box) return;
+    const fx = document.createElement('div');
+    fx.className = `slash ${heavy ? 'heavy' : ''} from-${attacker}`;
+    if (color) fx.style.setProperty('--sc', color);
+    fx.innerHTML = '<i class="s1"></i><i class="s2"></i>';
+    box.appendChild(fx);
+    setTimeout(() => fx.remove(), 520);
+  }
+
   private float(side: Side, text: string, cls: string) {
     const card = this.el.querySelector(`.fighter[data-side="${side}"]`);
     if (!card) return;
@@ -108,6 +127,11 @@ export class BattleView {
         for (const e of events) {
           logLines.push(e.text);
           render();
+          if (e.target && e.damage && e.kind !== 'item') {
+            const atk = duel.fighter(e.target === 'a' ? 'b' : 'a');
+            const el = atk.general.technique ? ELEMENT_CSS[atk.general.technique.element] : undefined;
+            this.slash(e.target, e.kind === 'skill' || !!e.crit, e.kind === 'skill' ? el : undefined);
+          }
           if (e.target && e.damage) this.float(e.target, `${e.crit ? '暴擊 ' : ''}-${e.damage}`, e.kind === 'skill' || e.crit ? 'dmg crit' : 'dmg');
           if (e.target && e.heal) this.float(e.target, `+${e.heal}`, 'heal');
           await sleep(420 / speed());

@@ -2264,3 +2264,36 @@ body {
 .f-portrait { display: grid; place-items: center; height: 150px; margin: -2px 0 4px; border-radius: 8px; background: radial-gradient(ellipse at 50% 70%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 70%); }
 .f-portrait img { height: 146px; width: auto; max-width: 100%; object-fit: contain; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5)); }
 .f-portrait.flip img { transform: scaleX(-1); }
+
+/* 揮刀特效 */
+.f-portrait { position: relative; overflow: visible; }
+.f-portrait img.lunge { animation: lungeA 0.34s ease-out; }
+.fighter[data-side="b"] .f-portrait.flip img.lunge { animation: lungeB 0.34s ease-out; }
+@keyframes lungeA { 0% { transform: translateX(0); } 35% { transform: translateX(46px) rotate(5deg); } 100% { transform: translateX(0); } }
+@keyframes lungeB { 0% { transform: scaleX(-1) translateX(0); } 35% { transform: scaleX(-1) translateX(46px) rotate(5deg); } 100% { transform: scaleX(-1) translateX(0); } }
+.slash { position: absolute; inset: 0; pointer-events: none; z-index: 5; --sc: #ffffff; }
+.slash i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 190px;
+  height: 9px;
+  margin: -4px 0 0 -95px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), var(--sc) 30%, #fff 55%, rgba(255, 255, 255, 0));
+  box-shadow: 0 0 14px var(--sc), 0 0 28px rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  transform: rotate(-38deg) scaleX(0.1);
+  animation: slashCut 0.36s ease-out forwards;
+}
+.slash.from-b i { transform: rotate(38deg) scaleX(0.1); animation-name: slashCutR; }
+.slash i.s2 { display: none; }
+.slash.heavy i { height: 14px; width: 240px; margin-left: -120px; }
+.slash.heavy i.s2 { display: block; animation-delay: 0.09s; }
+.slash.heavy i.s2 { --rot: 38deg; }
+@keyframes slashCut { 0% { opacity: 0; transform: rotate(-38deg) scaleX(0.1) translateX(-40px); } 25% { opacity: 1; } 100% { opacity: 0; transform: rotate(-38deg) scaleX(1.25) translateX(40px); } }
+@keyframes slashCutR { 0% { opacity: 0; transform: rotate(38deg) scaleX(0.1) translateX(40px); } 25% { opacity: 1; } 100% { opacity: 0; transform: rotate(38deg) scaleX(1.25) translateX(-40px); } }
+.slash.heavy i.s2 { animation-name: slashCut2; }
+.slash.heavy.from-b i.s2 { animation-name: slashCut2R; }
+@keyframes slashCut2 { 0% { opacity: 0; transform: rotate(38deg) scaleX(0.1); } 25% { opacity: 1; } 100% { opacity: 0; transform: rotate(38deg) scaleX(1.2); } }
+@keyframes slashCut2R { 0% { opacity: 0; transform: rotate(-38deg) scaleX(0.1); } 25% { opacity: 1; } 100% { opacity: 0; transform: rotate(-38deg) scaleX(1.2); } }

@@ -742,11 +742,15 @@ export class Game {
       ...(['alchemy', 'forging', 'talisman', 'formation'] as const).map((k) => ({ value: k as ContestKind, label: `🔥 ${STAT_NAMES[k]}比試`, sub: `比拼${STAT_NAMES[k]}能力值；適合${STAT_NAMES[k]}高的駐將` })),
     ];
     const gens = garrisonOf(this.state, city);
+    // 推薦：駐將中最擅長的那一項技藝，排在最前面
+    const best = (k: CraftStat) => Math.max(0, ...gens.map((g) => craft(g, k)));
+    const recommended = gens.length ? (['alchemy', 'forging', 'talisman', 'formation'] as const).reduce((a, b) => (best(b) > best(a) ? b : a)) : null;
+    kinds.sort((x, y) => Number(y.value === recommended) - Number(x.value === recommended));
     const picked = await this.dialog.choose(
       `🏯 ${city.name}・指定技藝比試`,
       `擂台戰固定開放。請從煉丹、煉器、畫符、佈陣中指定一種比試，供之後的挑戰者選擇。` +
         facts(gens.length ? gens.map((g) => [g.name, `武力 ${attack(g)}｜煉丹 ${craft(g, 'alchemy')}｜煉器 ${craft(g, 'forging')}｜畫符 ${craft(g, 'talisman')}｜佈陣 ${craft(g, 'formation')}`] as [string, string]) : [['駐將', '無']]),
-      kinds.map((k) => ({ label: k.label + (city.contest === k.value ? '（目前）' : ''), sub: k.sub, value: k.value })),
+      kinds.map((k) => ({ label: k.label + (k.value === recommended ? '（推薦）' : ''), sub: k.sub, value: k.value })),
       null,
       '🏯',
     );

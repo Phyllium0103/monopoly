@@ -4,7 +4,7 @@ import { fxText, passiveOf } from '../data/passives';
 import { REALMS } from '../data/generals';
 import { generalInfo } from './GeneralInfo';
 import { ELEMENT_CSS, ELEMENT_NAMES, STAT_NAMES } from '../data/items';
-import { TRIBULATION_BOLTS, craft, power, type TribulationResult } from '../systems/GeneralSystem';
+import { TRIBULATION_BOLTS, craft, type TribulationResult } from '../systems/GeneralSystem';
 import { WOUNDED_HP, WOUNDED_REDUCE, type ContestResult, type Duel, type DuelEvent, type Fighter, type SiegeResult, type Side } from '../systems/BattleSystem';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -247,14 +247,14 @@ export class BattleView {
         <div class="siege">
           <div class="siege-side" style="--fc:${LORDS[attackerLord].css}">
             <h3>攻方・${LORDS[attackerLord].name}</h3>
-            ${attackers.map((g) => `<div><b>${g.name}</b><br><small>${generalInfo(g)}・戰力 ${power(g)}</small></div>`).join('')}
+            ${attackers.map((g) => `<div><b>${g.name}</b><br><small>${generalInfo(g)}</small></div>`).join('')}
             <div class="siege-power">${r.attack}</div>
             <small>士兵損失 ${r.attackerLoss}</small>
           </div>
           <div class="vs">VS</div>
           <div class="siege-side" style="--fc:${city.owner === 'neutral' ? '#999' : LORDS[city.owner].css}">
             <h3>守方・${city.name}</h3>
-            ${defenders.length ? defenders.map((d) => `<div><b>${d.name}</b><br><small>${generalInfo(d)}・戰力 ${power(d)}</small></div>`).join('') : '<div>無駐將</div>'}
+            ${defenders.length ? defenders.map((d) => `<div><b>${d.name}</b><br><small>${generalInfo(d)}</small></div>`).join('') : '<div>無駐將</div>'}
             <div>城池駐軍加成 ×1.5${city.shieldTurns > 0 ? '・護城大陣 ×1.5' : ''}</div>
             <div class="siege-power">${r.defense}</div>
             <small>守軍損失 ${r.defenderLoss}</small>

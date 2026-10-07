@@ -1,11 +1,11 @@
 import type { General } from '../game/types';
 import { APTITUDE_NAMES, REALMS } from '../data/generals';
-import { attack, defense, craft, expCap, maxHp, maxStamina } from '../systems/GeneralSystem';
+import { attack, defense, craft, expCap, maxHp, maxStamina, power } from '../systems/GeneralSystem';
 
 /** 選將時顯示目前有效能力，包含境界、裝備與被動。 */
 export function generalInfo(g: General): string {
-  return `${REALMS[g.realm]}・武力 ${attack(g)}・防禦 ${defense(g)}・血量 ${g.hp}/${maxHp(g)}<br>` +
-    `煉丹 ${craft(g, 'alchemy')}・煉器 ${craft(g, 'forging')}・畫符 ${craft(g, 'talisman')}・佈陣 ${craft(g, 'formation')}・體力 ${g.stamina}/${maxStamina(g)}`;
+  return `血量 ${g.hp}/${maxHp(g)}・體力 ${g.stamina}/${maxStamina(g)}・戰力 ${power(g)}<br>` +
+    `${REALMS[g.realm]}・武力 ${attack(g)}・防禦 ${defense(g)}・煉丹 ${craft(g, 'alchemy')}・煉器 ${craft(g, 'forging')}・畫符 ${craft(g, 'talisman')}・佈陣 ${craft(g, 'formation')}`;
 }
 
 /** 依物品用途顯示生效目標的現況。 */

@@ -108,7 +108,21 @@ export class Game {
       this.mouse = { x: e.clientX, y: e.clientY };
       this.handleHover(o);
     };
-    this.sm.renderer.domElement.addEventListener('contextmenu', () => this.tileResolver?.(null));
+    // 右鍵拖曳是平移視角；只有「沒有拖曳的右鍵點擊」才算取消選格
+    const canvas = this.sm.renderer.domElement;
+    let rightDown: { x: number; y: number } | null = null;
+    let rightDragged = false;
+    canvas.addEventListener('pointerdown', (e) => {
+      if (e.button === 2) { rightDown = { x: e.clientX, y: e.clientY }; rightDragged = false; }
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      if (rightDown && Math.hypot(e.clientX - rightDown.x, e.clientY - rightDown.y) > 5) rightDragged = true;
+    });
+    canvas.addEventListener('contextmenu', () => {
+      if (!rightDragged) this.tileResolver?.(null);
+      rightDown = null;
+      rightDragged = false;
+    });
     this.ui.onSpeed = (s) => (this.sm.timeScale = this.garrisonTask ? 0 : s);
 
     window.addEventListener('keydown', (e) => {

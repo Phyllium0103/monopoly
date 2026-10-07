@@ -136,7 +136,6 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
         });
         if (!visibleOffers.length) list.innerHTML = `<p class="muted">${mode === 'sell' ? '行囊中沒有本店可收購的物品。' : '目前沒有可購買的項目。'}</p>`;
         body.appendChild(list);
-        list.scrollTop = keepScroll;
         const row = document.createElement('div');
         row.className = 'dialog-buttons';
         const cost=SHOP_REFRESH_COSTS[visit.refreshes];
@@ -167,6 +166,10 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
         leave.onclick = () => done();
         row.appendChild(leave);
         body.appendChild(row);
+        // 按鈕列都加進去、版面確定後才還原捲動位置（太早設定會被截成 0 或中間）
+        const restore = keepScroll;
+        list.scrollTop = restore;
+        requestAnimationFrame(() => { list.scrollTop = restore; });
       };
       render();
     },

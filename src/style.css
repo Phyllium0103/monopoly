@@ -2193,3 +2193,11 @@ body {
 .gc-slot b { font-size: 13.5px !important; flex: none !important; line-height: 1.25; text-align: center; }
 .gc-slot .slot-tier { font-style: normal; font-size: 12px; color: var(--gold-light); }
 .gc-table { align-self: stretch; }
+
+/* 數值表格：第一列武力／戰力／防禦／修為，第二列四項技藝 */
+.gc-table { table-layout: fixed; }
+.gc-table td { text-align: center !important; padding: 6px 4px !important; vertical-align: middle; }
+.gc-table td small { display: block; color: var(--muted); font-size: 12.5px; font-weight: 400; white-space: nowrap; }
+.gc-table td b { display: block; font-size: 20px; line-height: 1.25; }
+.gc-table .gc-row-main { background: rgba(255, 255, 255, 0.07); }
+.gc-table .gc-row-main td b { color: var(--gold-light); }

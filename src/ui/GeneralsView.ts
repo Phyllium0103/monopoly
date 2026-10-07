@@ -161,10 +161,18 @@ export class GeneralsView {
           <div class="gc-slot eq-row" data-slot="armor" ${g.armor ? `title="${tip(equipDesc(g.armor))}"` : ''}><small>寶衣</small>${g.armor ? `<img class="slot-icon" src="${equipIconUrl(g.armor)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.armor.name.split('・').pop()}</b><em class="slot-tier">${g.armor.name.split('・')[0]}</em>` : '<b><span class="muted">無</span></b>'}</div>
         </div>
         <table class="gc-table">
-          <tr><th>武力</th><td>${attack(g)}</td><th>防禦</th><td>${defense(g)}</td></tr>
-          <tr><th>戰力</th><td>${power(g)}</td><th>佈陣</th><td>${craft(g, 'formation')}</td></tr>
-          <tr><th>煉丹</th><td>${craft(g, 'alchemy')}</td><th>煉器</th><td>${craft(g, 'forging')}</td></tr>
-          <tr><th>畫符</th><td>${craft(g, 'talisman')}</td><th>修為／回合</th><td>+${Math.round(passiveExp(g, city) * expMultiplier(g))}</td></tr>
+          <tr class="gc-row-main">
+            <td><small>武力</small><b>${attack(g)}</b></td>
+            <td><small>戰力</small><b>${power(g)}</b></td>
+            <td><small>防禦</small><b>${defense(g)}</b></td>
+            <td><small>修為／回合</small><b>+${Math.round(passiveExp(g, city) * expMultiplier(g))}</b></td>
+          </tr>
+          <tr class="gc-row-craft">
+            <td><small>煉丹</small><b>${craft(g, 'alchemy')}</b></td>
+            <td><small>煉器</small><b>${craft(g, 'forging')}</b></td>
+            <td><small>畫符</small><b>${craft(g, 'talisman')}</b></td>
+            <td><small>佈陣</small><b>${craft(g, 'formation')}</b></td>
+          </tr>
         </table>
       </div>
       <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（化神圓滿）'}${bottleneck ? '・瓶頸' : ''}</span></div>

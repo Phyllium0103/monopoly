@@ -863,7 +863,9 @@ export class Game {
     const attackScore = kind === 'duel' ? power(atkGen) : craft(atkGen,kind as CraftStat);
     const defenseScore = best ? (kind === 'duel' ? power(best) : craft(best,kind as CraftStat)) : 0;
     let flee = false;
-    if (this.human(defender)) {
+    let defGen: General | null = null;
+    let defPicked = false;
+    if (this.human(defender)) for (;;) {
       const decision = await this.dialog.choose(
         `${LORDS[attacker.id].name}挑戰${city.name}【${BATTLE_NAMES[kind]}】`,
         `敵將 ${atkGen.name}：${generalInfo(atkGen)}<br><br>臨陣脫逃會直接判負，保留城池、駐將與其餘守軍。守軍四分之一（${Math.floor(city.garrisonSoldiers/4)} 人）加入敵方，對方免繳過路費。`,
@@ -873,6 +875,11 @@ export class Game {
         ], null, '⚔️',
       );
       flee = decision === 'flee';
+      if (flee) break;
+      // 選擇應戰武將；按「返回」回到迎戰／脫逃的選擇
+      if (!defensePool.length) { defPicked = true; break; }
+      const picked = await this.pickGeneral(`${LORDS[attacker.id].name}的${atkGen.name}挑戰${city.name}【${BATTLE_NAMES[kind]}】，派誰應戰？`, defensePool, kind, true, '返回');
+      if (picked) { defGen = picked; defPicked = true; break; }
     } else flee = attackScore > defenseScore*1.8 && Math.random()<0.5;
     if (flee) {
       const joined = Math.floor(city.garrisonSoldiers/4);
@@ -884,14 +891,8 @@ export class Game {
       return true;
     }
 
-    // 守方武將
-    let defGen: General | null;
-    if (this.human(defender)) {
-      const pool = defenderPool(this.state, city).filter((g) => kind !== 'duel' || canDuel(g));
-      defGen = pool.length ? ((await this.pickGeneral(`${LORDS[attacker.id].name}的${atkGen.name}挑戰${city.name}【${BATTLE_NAMES[kind]}】，派誰應戰？`, pool, kind, false)) ?? pool[0]) : null;
-    } else {
-      defGen = aiDefender(this.state, city, kind);
-    }
+    // 守方武將（玩家已在上面選好）
+    if (!defPicked) defGen = aiDefender(this.state, city, kind);
     if (!defGen) {
       this.ui.log(`${city.name}無人應戰，${atkGen.name}不戰而勝。`, 'info');
       return true;
@@ -1065,7 +1066,7 @@ export class Game {
     return true;
   }
 
-  private pickGeneral(title: string, pool: General[], kind: BattleKind, cancelable = true): Promise<General | null> {
+  private pickGeneral(title: string, pool: General[], kind: BattleKind, cancelable = true, cancelLabel = '取消'): Promise<General | null> {
     const risky = (g: General) => (kind === 'duel' && g.isLord ? '・⚠️主公戰死即敗北' : '') + (kind === 'duel' && g.hp < maxHp(g) * WOUNDED_HP ? '・⚠️血量偏低，易戰死' : '');
     const stat = kind === 'duel' || kind === 'siege' ? null : (kind as CraftStat);
     return this.dialog.choose(
@@ -1077,7 +1078,7 @@ export class Game {
         value: g,
         color: originCss(g.origin),
       })),
-      cancelable ? '取消' : null,
+      cancelable ? cancelLabel : null,
     );
   }
 

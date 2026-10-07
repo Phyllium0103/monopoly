@@ -2207,3 +2207,6 @@ body {
 .end-screen .rc-head { flex: none; padding: 16px 30px 8px; border-bottom: 1px solid rgba(138, 106, 58, 0.35); }
 .end-screen .rc-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 10px 30px; }
 .end-screen .rc-foot { flex: none; padding: 12px 30px 16px; border-top: 1px solid rgba(138, 106, 58, 0.35); text-align: center; }
+
+/* 標題過長時自動換行，不固定高度 */
+.dialog > h2 { height: auto !important; min-height: 56px; padding-top: 10px !important; padding-bottom: 8px !important; line-height: 1.35; font-size: clamp(19px, 2.4vw, 25px); }

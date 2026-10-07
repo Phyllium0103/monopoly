@@ -28,10 +28,10 @@ import { ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeIte
 import { TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
 import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, canOccupy, cityIncome, cityIncomeOf, cityRanks, cityToll, visitingToll, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll } from '../systems/CitySystem';
-import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, craft, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
+import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, craft, inBottleneck, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
-import { generalInfo, itemTargetInfo } from '../ui/GeneralInfo';
+import { generalInfo, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
 import { canUse, consumeItem, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
 import { buy, makeStock, beginShopVisit, refreshShop, SHOP_REFRESH_COSTS, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, partyRealm, realmRolls, realmTurns } from '../systems/RealmSystem';
@@ -1099,9 +1099,9 @@ export class Game {
       const user = await this.dialog.choose(
         `由誰使用${nameOf(item)}？`,
         '使用物品會消耗該武將的體力，能力值須達到門檻。',
-        users.map((g) => {
+        sortUsers(users, item).map((g) => {
           const c = canUse(item, g);
-          return { label: g.name, icon: portraitUrl(g), sub: `使用門檻：${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}・體力 ${g.stamina}/${maxStamina(g)}<br>${itemTargetInfo(g.id === fighter.id ? {...g, hp: duel.fighter(side).hp} : g, item.defId)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
+          return { label: g.name, icon: portraitUrl(g), sub: itemUserInfo(g, item), value: g, disabled: !c.ok, reason: c.reason };
         }),
       );
       if (!user) continue;
@@ -1258,9 +1258,9 @@ export class Game {
         const user = await this.dialog.choose(
           `由誰使用${nameOf(item)}？`,
           '只有隨行武將可以使用物品；取消返回物品清單。',
-          freeGenerals(this.state, lord.id).map((g) => {
+          sortUsers(freeGenerals(this.state, lord.id), item).map((g) => {
             const c = canUse(item, g);
-            return { label: g.name, icon: portraitUrl(g), sub: `使用門檻：${STAT_NAMES[def(item).stat]} ${craft(g, def(item).stat)}・體力 ${g.stamina}/${maxStamina(g)}<br>${itemTargetInfo(g, item.defId)}${pv(g)}`, value: g, disabled: !c.ok, reason: c.reason };
+            return { label: g.name, icon: portraitUrl(g), sub: itemUserInfo(g, item), value: g, disabled: !c.ok, reason: c.reason };
           }),
         );
         if (!user) break;
@@ -1286,6 +1286,18 @@ export class Game {
           : d.target === 'ownGeneral' ? generalsOf(this.state, lord.id).filter(g => g.status !== 'realm')
           : others.flatMap(l => generalsOf(this.state, l.id).filter(g => g.status !== 'realm'));
         const eligible = pool.filter(g => defId !== 'five' || !['waste','heaven'].includes(g.aptitude));
+        // 這個物品真的派得上用場的武將排前面（例如療傷丹先列出受傷的人）
+        const useful = (g: General): boolean => {
+          if (['heal', 'mend'].includes(defId)) return g.hp < maxHp(g);
+          if (['qi', 'essence'].includes(defId)) return !inBottleneck(g);
+          if (defId === 'clearmind') return g.demon > 0;
+          if (['demon', 'illusion'].includes(defId)) return inBottleneck(g) && !g.demon;
+          if (defId === 'foundation') return !g.foundation;
+          if (defId === 'vigor') return g.stamina < maxStamina(g);
+          if (['rootup1', 'rootup2'].includes(defId)) return g.aptitude !== 'heaven';
+          return true;
+        };
+        eligible.sort((x, y) => Number(useful(y)) - Number(useful(x)) || power(y) - power(x));
         if (!eligible.length) { this.ui.toast('沒有符合條件的目標武將'); return null; }
         const g = await this.dialog.choose('選擇生效的武將', defId === 'five' ? '僅能選擇五行靈根武將。' : '', eligible.map(x => ({ label: x.name, icon: portraitUrl(x), sub: itemTargetInfo(x, defId), value: x, color: originCss(x.origin) })));
         if (!g) return null;

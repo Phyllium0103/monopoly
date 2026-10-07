@@ -1,4 +1,6 @@
-import type { General } from '../game/types';
+import type { General, Item } from '../game/types';
+import { STAT_NAMES } from '../data/items';
+import { canUse, requirement } from '../systems/ItemSystem';
 import { APTITUDE_NAMES, REALMS } from '../data/generals';
 import { attack, defense, craft, expCap, maxHp, maxStamina, power } from '../systems/GeneralSystem';
 
@@ -23,5 +25,22 @@ export function itemTargetInfo(g: General, defId: string): string {
   else if (defId === 'seven') context = `七星續命：${g.sevenLife ? '已生效' : '未生效'}`;
   else if (defId === 'reset') context = `功法：${g.technique?.name ?? '未修習'}・靈根：${APTITUDE_NAMES[g.aptitude]}`;
   else if (defId === 'revive') context = `狀態：已死亡・修為：${g.exp}`;
-  return `${context ? `<b>${context}</b><br>` : ''}${generalInfo(g)}`;
+  // 沒有特別的欄位時，只顯示最基本的狀態
+  if (!context) context = `${REALMS[g.realm]}｜血量 ${g.hp}/${maxHp(g)}・體力 ${g.stamina}/${maxStamina(g)}`;
+  return `<b>${context}</b>`;
+}
+
+/** 選使用者：只顯示這個物品用得到的能力值（含門檻）與體力（含消耗） */
+export function itemUserInfo(g: General, item: Item): string {
+  const r = requirement(item, g);
+  const own = craft(g, r.stat);
+  const enough = own >= r.min, rested = g.stamina >= r.stamina;
+  const mark = (ok: boolean, text: string) => (ok ? text : `<span style="color:#b33a2a">${text}</span>`);
+  return `${mark(enough, `${STAT_NAMES[r.stat]} <b>${own}</b>／需 ${r.min}`)}・${mark(rested, `體力 <b>${g.stamina}</b>／需 ${r.stamina}`)}`;
+}
+
+/** 使用者排序：能用的排前面，其次依該能力值由高到低 */
+export function sortUsers(users: General[], item: Item): General[] {
+  const r = requirement(item);
+  return [...users].sort((a, b) => Number(canUse(item, b).ok) - Number(canUse(item, a).ok) || craft(b, r.stat) - craft(a, r.stat));
 }

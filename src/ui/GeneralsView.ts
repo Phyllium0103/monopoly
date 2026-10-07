@@ -38,6 +38,9 @@ const SECTIONS: { status: General['status']; title: string }[] = [
 ];
 
 /** 武將名冊：查看能力、裝備、學功法、突破渡劫、閉關 */
+/** 武將頭像資料夾 */
+const ART = `${import.meta.env.BASE_URL}art/generals/`;
+
 /** 提示文字：去掉 HTML 標籤並跳脫引號，才能放進 title 屬性 */
 const tip = (html: string) => html.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;');
 
@@ -143,24 +146,31 @@ export class GeneralsView {
 
     card.innerHTML = `
       ${ready ? `<div class="ready-banner">✨ 修為圓滿，可以${needsTribulation(g) ? '渡劫' : '突破'}了！</div>` : ''}
-      <div class="gc-head"><b>${g.name}</b><small>${originKingdom(g.origin)}</small><span class="realm">${REALMS[g.realm]}</span>${g.isLord ? '<span class="lord-tag">主公</span>' : ''}<span class="st">${status}</span></div>
-      <div class="tags">
+      <div class="gc-head">
+        <b>${g.name}</b><small>${originKingdom(g.origin)}</small><span class="realm">${REALMS[g.realm]}</span>${g.isLord ? '<span class="lord-tag">主公</span>' : ''}
         <span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span>
-        <span class="chip trait" title="${passiveOf(g).flavor}">【${passiveOf(g).name}】</span>
+        <span class="chip trait" title="【${passiveOf(g).name}】${tip(fxText(passiveOf(g).fx))}${generalCooldownText(lord, g) ? `｜${tip(generalCooldownText(lord, g))}` : ''}｜${tip(passiveOf(g).flavor)}">【${passiveOf(g).name}】</span>
         ${buffs ? `<span class="chip buff">${buffs}</span>` : ''}
+        <span class="st">${status}</span>
       </div>
-      <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（化神圓滿）'}・每回合 +${Math.round(passiveExp(g, city)*expMultiplier(g))}${bottleneck ? '・瓶頸' : ''}</span></div>
-      <div class="passive" title="【${passiveOf(g).name}】${tip(fxText(passiveOf(g).fx))}${generalCooldownText(lord,g) ? `｜${tip(generalCooldownText(lord,g))}` : ''}｜${tip(passiveOf(g).flavor)}"><b>【${passiveOf(g).name}】</b>${fxText(passiveOf(g).fx)}</div>
+      <div class="gc-body">
+        <div class="gc-portrait"><img src="${ART}${g.id}.png" alt="${g.name}" onerror="this.style.visibility='hidden'"></div>
+        <div class="gc-slots">
+          <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(equipDesc(g.weapon))}"` : ''}><small>神器</small><b>${g.weapon ? g.weapon.name : '<span class="muted">無</span>'}</b></div>
+          <div class="gc-slot eq-row" data-slot="armor" ${g.armor ? `title="${tip(equipDesc(g.armor))}"` : ''}><small>寶衣</small><b>${g.armor ? g.armor.name : '<span class="muted">無</span>'}</b></div>
+        </div>
+        <table class="gc-table">
+          <tr><th>武力</th><td>${attack(g)}</td><th>防禦</th><td>${defense(g)}</td></tr>
+          <tr><th>戰力</th><td>${power(g)}</td><th>佈陣</th><td>${craft(g, 'formation')}</td></tr>
+          <tr><th>煉丹</th><td>${craft(g, 'alchemy')}</td><th>煉器</th><td>${craft(g, 'forging')}</td></tr>
+          <tr><th>畫符</th><td>${craft(g, 'talisman')}</td><th>修為／回合</th><td>+${Math.round(passiveExp(g, city) * expMultiplier(g))}</td></tr>
+        </table>
+      </div>
+      <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（化神圓滿）'}${bottleneck ? '・瓶頸' : ''}</span></div>
       ${breakInfo ? `<div class="break-info">${breakInfo}</div>` : ''}
       <div class="bar hp"><i style="width:${(g.hp / maxHp(g)) * 100}%"></i><span>血量 ${g.hp} / ${maxHp(g)}</span></div>
-      <div class="bar sta"><i style="width:${g.stamina/maxStamina(g)*100}%"></i><span>體力 ${g.stamina} / ${maxStamina(g)}</span></div>
-      <div class="stats">
-        <span>武力 <b>${attack(g)}</b></span><span>防禦 <b>${defense(g)}</b></span><span>戰力 <b>${power(g)}</b></span>
-        <span>煉丹 <b>${craft(g, 'alchemy')}</b></span><span>煉器 <b>${craft(g, 'forging')}</b></span><span>畫符 <b>${craft(g, 'talisman')}</b></span><span>佈陣 <b>${craft(g, 'formation')}</b></span>
-      </div>
+      <div class="bar sta"><i style="width:${g.stamina / maxStamina(g) * 100}%"></i><span>體力 ${g.stamina} / ${maxStamina(g)}</span></div>
       <div class="equip">
-        <div class="eq-row" data-slot="weapon"><span class="eq-info" ${g.weapon ? `title="${tip(equipDesc(g.weapon))}"` : ''}>神器：${g.weapon ? g.weapon.name : '<span class="muted">無</span>'}</span></div>
-        <div class="eq-row" data-slot="armor"><span class="eq-info" ${g.armor ? `title="${tip(equipDesc(g.armor))}"` : ''}>寶衣：${g.armor ? g.armor.name : '<span class="muted">無</span>'}</span></div>
         <div class="eq-row" data-slot="technique"><span class="eq-info" ${t ? `title="${tip(`${t.name.split('・')[0]}｜${techniqueDesc(t)}`)}"` : ''}>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name.split('・').slice(1).join('・')}</span>` : '<span class="muted">未修習</span>'}</span></div>
       </div>
       <div class="gc-actions"></div>`;

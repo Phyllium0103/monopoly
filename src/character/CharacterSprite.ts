@@ -210,7 +210,7 @@ export class CharacterSprite {
     this.sprite.userData = { pick: true, lordId: character.lord };
     const art = LORD_ART[character.id];
     if (art) {
-      new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}art/generals/${art}.png`, (t) => {
+      new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}art/generals/${art}.webp`, (t) => {
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = 4;
         const mat = this.sprite.material as THREE.SpriteMaterial;

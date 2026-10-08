@@ -14,7 +14,7 @@ import { CharacterSprite } from '../character/CharacterSprite';
 import { LORDS, LORD_IDS, originCss, ownerCss, ownerName } from '../faction/Faction';
 import { GameUI, type ActionButton } from '../ui/GameUI';
 import { Dialog, facts, type Choice } from '../ui/Dialog';
-import { portraitUrl } from '../ui/Icons';
+import { portraitUrl, preloadArt } from '../ui/Icons';
 import { GeneralsView } from '../ui/GeneralsView';
 import { BattleView } from '../ui/BattleView';
 import { openShop } from '../ui/ShopView';
@@ -243,6 +243,11 @@ export class Game {
     this.sm.setPickables([...this.world.pickables, ...[...this.sprites.values()].map((s) => s.group)]);
     this.ui.reset();
     this.ui.show();
+    // 背景預先載入圖片，避免之後打開名冊、商店時圖片才一張張慢慢冒出來
+    preloadArt(
+      Object.values(this.state.generals).filter((g) => g.owner === player).map((g) => g.id),
+      Object.keys(this.state.generals),
+    );
     this.ui.log(`天地靈氣復甦，${LORDS[player].name}起兵逐鹿天下！${maxRounds === null ? '（無盡模式：主公真仙或最後存活者獲勝）' : `（${maxRounds} 輪後比總資產）`}`, 'turn');
     this.ui.log('擲骰沿道路前進，岔路依箭頭走並換方向；逆向停在岔路，下回合返回，途經岔路則隨機轉向：停在無主城池才能派將佔領，踏入他人城池須繳過路費或開戰。', 'info');
     void this.loop(this.token);

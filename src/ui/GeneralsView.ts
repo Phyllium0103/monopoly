@@ -179,7 +179,7 @@ export class GeneralsView {
         <span class="st">${status}</span>
       </div>
       <div class="gc-body">
-        <div class="gc-portrait"><img src="${ART}${g.id}.webp" alt="${g.name}" onerror="this.style.visibility='hidden'"></div>
+        <div class="gc-portrait"><img src="${ART}t/${g.id}.webp" alt="${g.name}" onerror="this.style.visibility='hidden'"></div>
         <div class="gc-slots">
           <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(equipDesc(g.weapon))}"` : ''}><small>神器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.weapon.name.split('・').pop()}</b><em class="slot-tier">${g.weapon.name.split('・')[0]}</em>` : '<b><span class="muted">無</span></b>'}</div>
           <div class="gc-slot eq-row" data-slot="armor" ${g.armor ? `title="${tip(equipDesc(g.armor))}"` : ''}><small>寶衣</small>${g.armor ? `<img class="slot-icon" src="${equipIconUrl(g.armor)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.armor.name.split('・').pop()}</b><em class="slot-tier">${g.armor.name.split('・')[0]}</em>` : '<b><span class="muted">無</span></b>'}</div>

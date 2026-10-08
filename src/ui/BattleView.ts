@@ -3,7 +3,7 @@ import { LORDS } from '../faction/Faction';
 import { fxText, passiveOf } from '../data/passives';
 import { REALMS } from '../data/generals';
 import { generalInfo } from './GeneralInfo';
-import { portraitUrl } from './Icons';
+import { portraitBigUrl, portraitUrl } from './Icons';
 import { ELEMENT_CSS, ELEMENT_NAMES, STAT_NAMES } from '../data/items';
 import { TRIBULATION_BOLTS, craft, type TribulationResult } from '../systems/GeneralSystem';
 import { WOUNDED_HP, WOUNDED_REDUCE, type ContestResult, type Duel, type DuelEvent, type Fighter, type SiegeResult, type Side } from '../systems/BattleSystem';
@@ -45,7 +45,7 @@ export class BattleView {
     ].join('');
     return `
       <div class="fighter ${active ? 'active' : ''}" data-side="${f.side}" style="--fc:${LORDS[f.lord].css}">
-        <div class="f-portrait ${f.side === 'b' ? 'flip' : ''}"><img src="${portraitUrl(f.general)}" alt="" onerror="this.style.visibility='hidden'"></div>
+        <div class="f-portrait ${f.side === 'b' ? 'flip' : ''}"><img src="${portraitBigUrl(f.general)}" alt="" onerror="this.style.visibility='hidden'"></div>
         <div class="f-lord">${LORDS[f.lord].name}</div>
         <div class="f-name">${f.general.name}<small>${REALMS[f.general.realm]}</small></div>
         <div class="f-elem">${t ? `<span style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】${t.skillName}</span>` : '<span class="muted">無功法</span>'}</div>

@@ -29,7 +29,7 @@ import {
 import { bagHtml } from './ItemUI';
 import { LORDS, originKingdom } from '../faction/Faction';
 import type { Choice, Dialog } from './Dialog';
-import { equipIconUrl } from './Icons';
+import { equipIconUrl, portraitUrl } from './Icons';
 
 const SECTIONS: { status: General['status']; title: string }[] = [
   { status: 'free', title: '隨行' },
@@ -39,9 +39,6 @@ const SECTIONS: { status: General['status']; title: string }[] = [
 ];
 
 /** 武將名冊：查看能力、裝備、學功法、突破渡劫、閉關 */
-/** 武將頭像資料夾 */
-const ART = `${import.meta.env.BASE_URL}art/generals/`;
-
 /** 提示文字：去掉 HTML 標籤並跳脫引號，才能放進 title 屬性 */
 const tip = (html: string) => html.replace(/<br\s*\/?>/g, '｜').replace(/<[^>]+>/g, '').replace(/"/g, '&quot;');
 
@@ -179,7 +176,7 @@ export class GeneralsView {
         <span class="st">${status}</span>
       </div>
       <div class="gc-body">
-        <div class="gc-portrait"><img src="${ART}t/${g.id}.webp" alt="${g.name}" onerror="this.style.visibility='hidden'"></div>
+        <div class="gc-portrait"><img src="${portraitUrl(g)}" alt="${g.name}" onerror="this.style.visibility='hidden'"></div>
         <div class="gc-slots">
           <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(equipDesc(g.weapon))}"` : ''}><small>神器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.weapon.name.split('・').pop()}</b><em class="slot-tier">${g.weapon.name.split('・')[0]}</em>` : '<b><span class="muted">無</span></b>'}</div>
           <div class="gc-slot eq-row" data-slot="armor" ${g.armor ? `title="${tip(equipDesc(g.armor))}"` : ''}><small>寶衣</small>${g.armor ? `<img class="slot-icon" src="${equipIconUrl(g.armor)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.armor.name.split('・').pop()}</b><em class="slot-tier">${g.armor.name.split('・')[0]}</em>` : '<b><span class="muted">無</span></b>'}</div>

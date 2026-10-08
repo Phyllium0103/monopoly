@@ -4,7 +4,7 @@ import { citiesOf, generalsOf } from './GameState';
 import { cityIncomeOf } from '../systems/CitySystem';
 import { terrainOf } from '../data/terrain';
 import { addExp, inBottleneck, passiveExp, recover } from '../systems/GeneralSystem';
-import { advanceExpeditions, type RealmOutcome } from '../systems/RealmSystem';
+import { advanceExpeditions, type RealmOutcome, type RealmEscapeDecision } from '../systems/RealmSystem';
 import { ITEM_DEFS, PILL_IDS, beastPower, rollItemId } from '../data/items';
 import { nextUid } from './GameState';
 import { fmtStones } from './Currency';
@@ -18,7 +18,7 @@ export interface TurnReport {
 }
 
 /** 主公回合開始：城池收入、繁榮成長、將領修煉與回復、秘境結算、靈獸尋寶 */
-export async function startTurn(state: GameState, lord: Lord, protect?: (g: General) => Promise<boolean>): Promise<TurnReport> {
+export async function startTurn(state: GameState, lord: Lord, protect?: (g: General) => Promise<boolean>, escape?: RealmEscapeDecision): Promise<TurnReport> {
   const report: TurnReport = { lines: [], realms: [], bottlenecks: [] };
   for (const text of tickGeneralAbilities(state,lord)) report.lines.push({text,kind:'info'});
   let stones = 0;
@@ -58,7 +58,7 @@ export async function startTurn(state: GameState, lord: Lord, protect?: (g: Gene
   if (gained) report.lines.push({ text: `眾將周天吐納，修為共 +${gained}`, kind: 'info' });
   for (const id of report.bottlenecks) report.lines.push({ text: `${state.generals[id].name}修為圓滿，進入瓶頸，可在武將名冊嘗試突破。`, kind: 'good' });
 
-  report.realms = await advanceExpeditions(state, lord, protect);
+  report.realms = await advanceExpeditions(state, lord, protect, escape);
   lord.tollFree = lord.tollFreeTurns > 0;
   lord.moveMultiplier = 1;
   lord.siegeBoost = 1;

@@ -323,10 +323,6 @@ export class Duel {
         me.hp += recovered;
         if (recovered) events.push({ text: '嗜血珠吸血 +' + recovered, target: me.side, heal: recovered, kind: 'item' });
         events.push({ text: `靈獸${me.beast.name.split('・')[1]}追擊，造成 ${dmg} 傷害`, target: foe.side, damage: dmg, kind: 'beast' });
-      } else if (me.beast.skill === 'heal' && me.hp < me.maxHp) {
-        const h = Math.min(me.maxHp - me.hp, Math.round(me.maxHp * p.heal));
-        me.hp += h;
-        events.push({ text: `靈獸${me.beast.name.split('・')[1]}為${me.general.name}療傷 +${h}`, target: me.side, heal: h, kind: 'beast' });
       }
     }
     if (me.poison) {

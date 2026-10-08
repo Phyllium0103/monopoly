@@ -1,0 +1,54 @@
+[
+  {
+    "id": "realmkey",
+    "name": "秘境遺鑰",
+    "category": "法器",
+    "stat": "forging",
+    "timing": "event",
+    "target": "none",
+    "battleTarget": "none",
+    "min": [
+      0
+    ],
+    "stamina": [
+      0
+    ],
+    "price": [
+      3000
+    ],
+    "sellPrice": [
+      1500
+    ],
+    "effects": [
+      "進入秘境時選擇消耗一把，全隊共用；不需主動使用"
+    ],
+    "noUser": true,
+    "weight": 2
+  },
+  {
+    "id": "realmescape",
+    "name": "破界遁空符",
+    "category": "符籙",
+    "stat": "talisman",
+    "timing": "event",
+    "target": "none",
+    "battleTarget": "none",
+    "min": [
+      0
+    ],
+    "stamina": [
+      0
+    ],
+    "price": [
+      5000
+    ],
+    "sellPrice": [
+      2500
+    ],
+    "effects": [
+      "本次秘境有人隕落時，可消耗一張讓全隊撤離；境界、修為不變，整趟不獲獎勵"
+    ],
+    "noUser": true,
+    "weight": 1
+  }
+]

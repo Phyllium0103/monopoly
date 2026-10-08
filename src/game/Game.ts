@@ -349,7 +349,12 @@ export class Game {
       clearThisTurn=this.human(lord) ? await this.dialog.confirm('管寧：全隊清修？','啟動當回合放棄全部主動行動，隨行隊伍（含主公）修為獲得 +100%，持續五個自身回合；使用後冷卻十個自身回合。','開始清修','正常行動') : Math.random()<.15;
       if (clearThisTurn) startSeclusion(lord,seclusion);
     }
-    const report = await startTurn(this.state, lord, (g) => this.protectDeath(g));
+    const report = await startTurn(this.state, lord, (g) => this.protectDeath(g), async (owner, ex, team, endangered) => {
+      if (!this.human(owner)) return true;
+      return this.dialog.confirm('破界遁空符：全隊撤離？',
+        `${ex.realmName}中，${endangered.map(g => g.name).join('、')}觸發隕落風險。\n消耗一張符可讓本次 ${team.length} 名武將全部平安撤離；境界與修為不變，整趟無獎勵。若不使用，按原規則結算死亡與獎勵（不死圖騰仍可另行選擇）。`,
+        '消耗一張・全隊撤離', '不使用・繼續結算', '🌀');
+    });
     this.ui.log(`<b style="color:${LORDS[lord.id].css}">【${name}】</b>的回合`, 'turn');
     for (const l of report.lines) this.ui.log(`${name}：${l.text}`, this.human(lord) ? l.kind : 'ai');
     if (this.human(lord)) this.pendingBreak = report.bottlenecks;
@@ -1140,6 +1145,10 @@ export class Game {
   // ───────────────────────── 秘境、商店、驛道 ─────────────────────────
 
   private async landRealm(lord: Lord, realmName: string) {
+    if (!lord.items.some(i => i.defId === 'realmkey') || lord.itemsLocked > 0) {
+      if (this.human(lord)) await this.dialog.message('秘境入口', lord.itemsLocked > 0 ? '目前不能使用物品，無法消耗秘境遺鑰。' : `探索${realmName}需消耗一把秘境遺鑰，可在天寶商行購買（3000 下品靈石）。`, '🌀');
+      return;
+    }
     const free = deployable(this.state, lord.id);
     if (!free.length) {
       if (this.human(lord)) this.ui.toast(`探索${realmName}需要至少一名隨行武將`);
@@ -1159,6 +1168,8 @@ export class Game {
             ['比隊伍低', '歷時越短（最短 1 回合）、越安全'],
             ['境界相同', '歷時 3 回合'],
             ['獎勵', '2～5 份寶物'],
+            ['入場', '出發時消耗一把秘境遺鑰，全隊共用'],
+            ['保命', '有人隕落時，可消耗一張破界遁空符讓全隊無獎勵撤離'],
           ]) + `以下依你境界最高的三人估計。接著選擇派遣人數（${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人）。`,
           REALM_LEVELS.map((l, i) => ({
             label: `${l.icon} ${l.name}秘境`,
@@ -1185,7 +1196,7 @@ export class Game {
           const ok = await this.dialog.confirm(
             `🌀 確認進入${realmName}（${L.name}秘境）`,
             `隊伍：${chosen.map((g) => `${g.name}（${REALMS[g.realm]}，隕落率約 ${Math.round(deathChance(g, chosen!, level) * 100)}%）`).join('、')}\n歷時 <b>${realmTurns(level, chosen)}</b> 回合（隊伍平均境界：${REALMS[partyRealm(chosen)]}）・寶物 <b>${realmRolls(level, chosen.length)}</b> 份。`,
-            '出發',
+            '消耗一把遺鑰・出發',
             '重新選人',
             '🌀',
           );
@@ -1203,7 +1214,7 @@ export class Game {
     }
     if (!team) return;
     dispatch(lord, team, realmName, level);
-    this.ui.log(`${LORDS[lord.id].name}派遣${team.map((g) => g.name).join('、')}進入${realmName}（${REALM_LEVELS[level].name}秘境，${realmTurns(level, team)} 回合）。`, this.human(lord) ? 'good' : 'ai');
+    this.ui.log(`${LORDS[lord.id].name}消耗一把秘境遺鑰，派遣${team.map((g) => g.name).join('、')}進入${realmName}（${REALM_LEVELS[level].name}秘境，${realmTurns(level, team)} 回合）。`, this.human(lord) ? 'good' : 'ai');
     this.refresh();
   }
 

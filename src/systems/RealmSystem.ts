@@ -7,6 +7,9 @@ import { PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, 
 import { fx } from '../data/passives';
 import { traitOf } from '../faction/Faction';
 import type { Expedition } from '../game/types';
+import { consumeItem } from './ItemSystem';
+
+export type RealmEscapeDecision = (lord: Lord, ex: Expedition, team: General[], endangered: General[]) => Promise<boolean>;
 
 export interface RealmLevel {
   name: string;
@@ -66,6 +69,10 @@ export function deathChance(g: General, team: General[], level = 1): number {
 
 export function dispatch(lord: Lord, team: General[], realmName: string, level = 1) {
   if (team.some(g=>g.ghostSourceId || fx(g).fixedParty)) throw Error('固定隨行人物與冤魂不能派入秘境');
+  if (team.length < REALM_MIN_PARTY || team.length > REALM_MAX_PARTY || team.some(g => g.owner !== lord.id || g.status !== 'free' || g.isLord)) throw Error('秘境派遣隊伍無效');
+  const key = lord.items.find(i => i.defId === 'realmkey');
+  if (!key || lord.itemsLocked > 0) throw Error('進入秘境需要可使用的秘境遺鑰');
+  consumeItem(lord, key);
   for (const g of team) g.status = 'realm';
   lord.expeditions.push({ generalIds: team.map((g) => g.id), turnsLeft: realmTurns(level, team), realmName, level, blessed: WORLD.realmBlessed });
 }
@@ -134,14 +141,22 @@ function grantReward(state: GameState, lord: Lord, team: General[], all: General
 }
 
 /** 秘境：逐人判定生死，生還者得修為與寶物 */
-async function resolveExploration(state: GameState, lord: Lord, ex: Expedition, team: General[], protect?: (g: General) => Promise<boolean>): Promise<RealmOutcome> {
+async function resolveExploration(state: GameState, lord: Lord, ex: Expedition, team: General[], protect?: (g: General) => Promise<boolean>, escape?: RealmEscapeDecision): Promise<RealmOutcome> {
   const dead: General[] = [];
   const survivors: General[] = [];
   const insights: string[] = [];
   const score = team.reduce((s, g) => s + power(g), 0);
+  // 先判定全隊風險，再作撤離選擇；決定之前不改動境界、修為或發獎勵。
+  const endangered = team.filter(g => Math.random() < deathChance(g, team, ex.level) * (ex.blessed ? 0.5 : 1));
+  const card = lord.items.find(i => i.defId === 'realmescape');
+  if (endangered.length && card && lord.itemsLocked === 0 && (!escape || await escape(lord, ex, team, endangered))) {
+    consumeItem(lord, card);
+    for (const g of team) joinLord(state, lord.id, g);
+    return { realmName: ex.realmName, icon: '🌀', dead: [], survivors: team, reward: null, insights: [],
+      summary: `${ex.realmName}（${REALM_LEVELS[ex.level].name}）觸發隕落風險，消耗一張破界遁空符，全隊平安撤離；境界與修為不變，未帶回獎勵。` };
+  }
   for (const g of team) {
-    const risk = deathChance(g, team, ex.level) * (ex.blessed ? 0.5 : 1);
-    if (Math.random() < risk && !(protect && await protect(g))) {
+    if (endangered.includes(g) && !(protect && await protect(g))) {
       killGeneral(state, g);
       dead.push(g);
       continue;
@@ -162,14 +177,14 @@ async function resolveExploration(state: GameState, lord: Lord, ex: Expedition, 
 }
 
 /** 回合開始時推進秘境倒數，時間到就結算 */
-export async function advanceExpeditions(state: GameState, lord: Lord, protect?: (g: General) => Promise<boolean>): Promise<RealmOutcome[]> {
+export async function advanceExpeditions(state: GameState, lord: Lord, protect?: (g: General) => Promise<boolean>, escape?: RealmEscapeDecision): Promise<RealmOutcome[]> {
   const outcomes: RealmOutcome[] = [];
   for (const ex of lord.expeditions) ex.turnsLeft--;
   const done = lord.expeditions.filter((e) => e.turnsLeft <= 0);
   lord.expeditions = lord.expeditions.filter((e) => e.turnsLeft > 0);
   for (const ex of done) {
     const team = ex.generalIds.map((id) => state.generals[id]);
-    outcomes.push(await resolveExploration(state, lord, ex, team, protect));
+    outcomes.push(await resolveExploration(state, lord, ex, team, protect, escape));
   }
   return outcomes;
 }

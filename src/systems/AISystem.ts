@@ -336,6 +336,7 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
   const want = affordable.filter((o) => {
     if (o.kind === 'beast') return !lord.beast || lord.beast.tier < o.beast.tier;
     if (o.kind === 'item') {
+      if (['realmkey', 'realmescape'].includes(o.item.defId)) return deployable(state, lord.id).length > 0 && !lord.items.some(i => i.defId === o.item.defId);
       // 有將領快要渡劫時，優先買護法陣
       if (['thunderward', 'fiveward'].includes(o.item.defId)) return generalsOf(state, lord.id).some((g) => g.realm >= 2 && g.exp >= expCap(g) * 0.6);
       return def(o.item).category === '丹藥' || ['cushion', 'prison', 'stride', 'truce', 'citadel', 'siegebreak', 'demon', 'mend', 'vein', 'soldiers', 'shuttle'].includes(o.item.defId);
@@ -350,6 +351,7 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
 
 /** 秘境：有空閒武將時，挑風險可接受的最高難度派遣 */
 export function aiRealm(state: GameState, lord: Lord): { team: General[]; level: number } | null {
+  if (lord.itemsLocked > 0 || !lord.items.some(i => i.defId === 'realmkey')) return null;
   const free = deployable(state, lord.id).sort((a, b) => b.realm - a.realm || power(b) - power(a));
   const style = AI_STYLES[lord.id];
   if (!free.length || Math.random() > style.realmChance) return null;

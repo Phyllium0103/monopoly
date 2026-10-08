@@ -53,7 +53,7 @@ export interface Technique extends PurchasedAsset {
   price: number;
 }
 
-export type BeastSkill = 'attack' | 'shield' | 'heal' | 'treasure' | 'buff';
+export type BeastSkill = 'attack' | 'shield' | 'treasure' | 'buff';
 
 export interface Beast extends PurchasedAsset {
   uid: string;

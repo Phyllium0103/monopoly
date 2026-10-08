@@ -246,8 +246,6 @@ export const BEASTS: { name: string; skill: BeastSkill }[] = [
   { name: '雷鷹', skill: 'attack' },
   { name: '玄武靈龜', skill: 'shield' },
   { name: '石甲犀', skill: 'shield' },
-  { name: '青鸞', skill: 'heal' },
-  { name: '九色靈鹿', skill: 'heal' },
   { name: '尋寶鼠', skill: 'treasure' },
   { name: '吞金蟾', skill: 'treasure' },
   { name: '九尾狐', skill: 'treasure' },
@@ -260,7 +258,6 @@ export function beastPower(b: Beast) {
   return {
     attack: 30 + t * 12,
     shield: 80 + t * 40,
-    heal: 0.03 + t * 0.006,
     treasure: 100 + t * 60,
     buff: 1.1 + t * 0.02,
     siege: 150 + t * 80,
@@ -274,8 +271,6 @@ export function describeBeast(skill: BeastSkill, tier: Tier): string {
       return `戰鬥：每回合追擊 ${p.attack} 傷害`;
     case 'shield':
       return `戰鬥：開場護盾 ${p.shield}`;
-    case 'heal':
-      return `戰鬥：每回合回復 ${Math.round(p.heal * 100)}% 血量`;
     case 'treasure':
       return `尋寶：每回合尋得 ${p.treasure} 下品靈石`;
     case 'buff':

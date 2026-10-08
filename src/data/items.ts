@@ -40,42 +40,22 @@ export function elementMod(a: Element | null, b: Element | null): { mult: number
   return { mult: 1, text: '' };
 }
 
-// ───────────────────────── 神器、寶衣 ─────────────────────────
+// ───────────────────────── 寶衣 ─────────────────────────
 
 type StatKey = 'force' | 'defense' | 'hp' | CraftStat;
 
 export interface EquipDesign {
   id: string;
-  kind: 'weapon' | 'armor';
+  kind: 'armor';
   name: string;
   /** 各項能力占一階基準值的比例 */
   w: Partial<Record<StatKey, number>>;
 }
 
-const D = (kind: 'weapon' | 'armor', name: string, w: EquipDesign['w']): EquipDesign => ({ id: `${kind}-${name}`, kind, name, w });
+const D = (kind: 'armor', name: string, w: EquipDesign['w']): EquipDesign => ({ id: `${kind}-${name}`, kind, name, w });
 
-/** 20 種神器與 20 種寶衣：除了武力、防禦、血量，也有煉丹、煉器、畫符、佈陣的加成 */
+/** 20 種寶衣：除了武力、防禦、血量，也有煉丹、煉器、畫符、佈陣的加成 */
 export const EQUIP_DESIGNS: EquipDesign[] = [
-  D('weapon', '青鋒劍', { force: 1 }),
-  D('weapon', '寒鐵槍', { force: 1, defense: 0.4 }),
-  D('weapon', '赤焰刀', { force: 1, forging: 0.5 }),
-  D('weapon', '雷霆戟', { force: 1.1 }),
-  D('weapon', '玄冰弓', { force: 0.9, talisman: 0.5 }),
-  D('weapon', '斬龍劍', { force: 1.15 }),
-  D('weapon', '落日弓', { force: 1, defense: 0.3 }),
-  D('weapon', '破軍戟', { force: 0.9, formation: 0.5 }),
-  D('weapon', '流雲刀', { force: 1, hp: 0.4 }),
-  D('weapon', '紫電劍', { force: 0.9, talisman: 0.5 }),
-  D('weapon', '玄武盾劍', { defense: 1, force: 0.5 }),
-  D('weapon', '鎮岳錘', { force: 0.8, defense: 0.7 }),
-  D('weapon', '丹霞鼎', { alchemy: 1.2 }),
-  D('weapon', '百草杖', { alchemy: 1, hp: 0.6 }),
-  D('weapon', '八陣旗', { formation: 1.2 }),
-  D('weapon', '鑄魂錘', { forging: 1.2, force: 0.3 }),
-  D('weapon', '天工鑿', { forging: 1.2 }),
-  D('weapon', '赤霄爐', { forging: 0.8, alchemy: 0.6 }),
-  D('weapon', '神符筆', { talisman: 1.2 }),
-  D('weapon', '太極羅盤', { formation: 0.9, talisman: 0.5 }),
   D('armor', '雲紋袍', { defense: 1, hp: 0.6 }),
   D('armor', '玄武鎧', { defense: 1.2, hp: 0.8 }),
   D('armor', '鱗甲衣', { defense: 1.1, force: 0.3 }),
@@ -101,14 +81,14 @@ export const EQUIP_DESIGNS: EquipDesign[] = [
 /** 一階的基準值：隨品階成長 */
 const unit = (t: Tier) => ({ force: 4 + 4.5 * t, defense: 3 + 3.5 * t, hp: 40 + 40 * t, craft: 3 + 2.8 * t });
 
-export function makeEquipment(uid: string, kind: 'weapon' | 'armor', tier: Tier, designId?: string): Equipment {
+export function makeEquipment(uid: string, kind: 'armor', tier: Tier, designId?: string): Equipment {
   const pool = EQUIP_DESIGNS.filter((d) => d.kind === kind);
   const d = (designId && pool.find((x) => x.id === designId)) || pick(pool);
   const u = unit(tier);
   const craft: Equipment['craft'] = {};
   for (const k of ['alchemy', 'forging', 'talisman', 'formation'] as const) if (d.w[k]) craft[k] = Math.max(1, Math.round((d.w[k] ?? 0) * u.craft));
-  // 每件裝備都附帶血量：神器至少 0.4、寶衣至少 0.6 倍的基準血量
-  const hpW = Math.max(d.w.hp ?? 0, kind === 'weapon' ? 0.4 : 0.6);
+  // 每件裝備都附帶血量：寶衣至少 0.6 倍的基準血量
+  const hpW = Math.max(d.w.hp ?? 0, 0.6);
   const weight = Object.values({ ...d.w, hp: hpW }).reduce((s, v) => s + (v ?? 0), 0);
   return {
     uid,
@@ -149,7 +129,8 @@ export function equipStats(e: Equipment): string {
 /** 裝備說明：種類、品階、數值、需要境界與價值 */
 /** withValue 為 false 時不顯示價值（商店另有標價，不必重複） */
 export function equipDesc(e: Equipment, withValue = true): string {
-  return `${e.kind === 'weapon' ? '神器' : '寶衣'}｜${tierName(e.tier)}｜${equipStats(e)}<br>需要${REALMS[equipRealm(e.tier)]}以上${withValue ? `｜價值 ${e.price}下品` : ''}`;
+  if (e.fixedGeneralId) return `專屬武器｜${e.name.split('・')[0]}｜無視防禦 ${Math.round((e.penetration ?? 0) * 100)}%<br>固定持有，可使用材料升階至天階。`;
+  return `寶衣｜${tierName(e.tier)}｜${equipStats(e)}<br>需要${REALMS[equipRealm(e.tier)]}以上${withValue ? `｜價值 ${e.price}下品` : ''}`;
 }
 
 // ───────────────────────── 功法 ─────────────────────────

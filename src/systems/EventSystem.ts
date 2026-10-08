@@ -48,7 +48,7 @@ export const WORLD_EVENTS: WorldEventDef[] = [
   { id: 'shuffle', name: '乾坤大挪移', icon: '☯', category: 'disaster', desc: '天機錯亂，所有主公的位置隨機互換。' },
   { id: 'demonTrial', name: '心魔劫', icon: '😈', category: 'disaster', desc: '心魔劫降臨，所有處於瓶頸的武將都染上一層心魔。' },
   { id: 'tradeBoom', name: '商路暢通', icon: '🛒', category: 'economy', duration: 5, desc: '接下來 5 輪，所有商店商品購買價格七折（不含招募、復活與拍賣），可與旅行商人五折疊加。' },
-  { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件玄階至地階的神器或寶衣。' },
+  { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件玄階至地階的寶衣。' },
   { id: 'spiritTide', name: '靈潮湧動', icon: '🌊', category: 'cultivation', duration: 5, desc: '地底靈脈潮汐翻湧，接下來 5 輪駐守城池閉關修煉的武將，修為再 ×1.5。' },
   { id: 'meteor', name: '隕星墜落', icon: '☄️', category: 'cultivation', desc: '流星墜入人間，星髓入藥：每位主公得到兩顆玄品至地品的丹藥。' },
   { id: 'debate', name: '論道大會', icon: '☯️', category: 'cultivation', desc: '各路修士雲集論道，每位主公所有隨行武將獲得目前境界修為上限的 10% 修為（再套用人物修為加成，不超過瓶頸）。' },
@@ -63,7 +63,7 @@ export const WORLD_EVENTS: WorldEventDef[] = [
 
 export const FIXED_WORLD_EVENTS: WorldEventDef[] = [
   {id:'immortals',name:'仙人出世',icon:'🧙',category:'cultivation',desc:'第 15 輪起每 15 輪固定有兩位尚未出世的方外人物現身，不占九州風雲抽選。'},
-  {id:'tournament',name:'九州比武大會',icon:'🏆',category:'politics',desc:'每完成 20 輪固定舉辦隨行武將 1v1 晉級賽，隨機分組，冠軍獲得一件天階上品功法、神器或寶衣。'},
+  {id:'tournament',name:'九州比武大會',icon:'🏆',category:'politics',desc:'每完成 20 輪固定舉辦隨行武將 1v1 晉級賽，隨機分組，冠軍獲得一件天階上品功法或寶衣。'},
 ];
 
 export function eventDef(id: string): WorldEventDef {
@@ -228,9 +228,9 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
     }
     case 'armory':
       for (const l of alive) {
-        const e = makeEquipment(nextUid(state, 'e'), Math.random() < 0.5 ? 'weapon' : 'armor', 3 + Math.floor(Math.random() * 6));
+        const e = makeEquipment(nextUid(state, 'e'), 'armor', 3 + Math.floor(Math.random() * 6));
         l.gear.push(e);
-        lines.push(`${LORDS[l.id].name} 得 ${e.kind === 'weapon' ? '神器' : '寶衣'}「${e.name}」`);
+        lines.push(`${LORDS[l.id].name} 得 寶衣「${e.name}」`);
       }
       break;
     case 'meteor':
@@ -322,7 +322,7 @@ export function merchantStock(state: GameState): Offer[] {
   const off = (n: number) => Math.round(n * 0.5);
   const out: Offer[] = [];
   for (let i = 0; i < 2; i++) {
-    const e = makeEquipment(uid('e'), i === 0 ? 'weapon' : 'armor', high());
+    const e = makeEquipment(uid('e'), 'armor', high());
     out.push({ kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e, false), price: off(e.price) });
   }
   const t = makeTechnique(uid('t'), high());
@@ -354,7 +354,7 @@ export function auctionLot(state: GameState): Offer {
   const tier = 9 + Math.floor(Math.random() * 3);
   const r = Math.random();
   if (r < 0.3) {
-    const e = makeEquipment(uid('e'), Math.random() < 0.5 ? 'weapon' : 'armor', tier);
+    const e = makeEquipment(uid('e'), 'armor', tier);
     return { kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e, false), price: e.price };
   }
   if (r < 0.65) {

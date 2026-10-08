@@ -244,7 +244,7 @@ const DEFS: Def[] = [
       apply: () => `獲贈「${giveItem(c, rollItemId(ARTIFACTS), rand(0, 1))}」。`,
     }),
   },
-  // ───── 黃、玄階的功法與神器 ─────
+  // ───── 黃、玄階的功法與寶衣 ─────
   {
     weight: 3,
     build: (c) => {
@@ -257,22 +257,6 @@ const DEFS: Def[] = [
         apply: () => {
           c.lord.scrolls.push(t);
           return `命書吏抄錄成冊，得功法「${t.name}」。`;
-        },
-      };
-    },
-  },
-  {
-    weight: 3,
-    build: (c) => {
-      const e = makeEquipment(nextUid(c.state, 'e'), 'weapon', rand(0, 5));
-      return {
-        icon: '⚔️',
-        title: '古戰場兵刃',
-        tone: 'good',
-        story: `${c.place}曾是前朝的古戰場，秋風一吹，荒草下露出半截鏽跡斑斑的兵刃。你命人挖開浮土，一柄尚未完全朽壞的寶兵靜靜躺在白骨之間。`,
-        apply: () => {
-          c.lord.gear.push(e);
-          return `清理後得神器「${e.name}」。`;
         },
       };
     },

@@ -1,3 +1,4 @@
+import { aiUpgradeWeapons } from './MaterialSystem';
 import { fx } from '../data/passives';
 import { immortalWinner } from './VictorySystem';
 import type { City, CraftStat, GameState, General, Item, Lord } from '../game/types';
@@ -51,19 +52,20 @@ export const AI_STYLES: Record<Lord['id'], AiStyle> = {
 export interface ItemHooks { use?: (lord: Lord, item: Item, user: General, target: PrerollTarget) => Promise<string>; protect?: (g: General) => Promise<boolean>; }
 /** 擲骰前：療傷、換裝、學功法、補兵 */
 export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks = {}): Promise<string[]> {
-  if (lord.itemsLocked) return [];
+  const upgrades = aiUpgradeWeapons(state, lord);
+  if (lord.itemsLocked) return upgrades;
   const apply = (item: Item, user: General, target: PrerollTarget) => hooks.use ? hooks.use(lord,item,user,target) : Promise.resolve(usePreroll(state,lord,item,user,target));
-  const logs: string[] = [];
+  const logs: string[] = [...upgrades];
   const gens = generalsOf(state, lord.id).filter((g) => g.status !== 'realm' && !g.ghostSourceId);
   const style = AI_STYLES[lord.id];
 
-  // 自動裝備最好的神器、寶衣
-  for (const kind of ['weapon', 'armor'] as const) {
+  // 自動裝備最好的寶衣
+  for (const kind of ['armor'] as const) {
     const pool = lord.gear.filter((e) => e.kind === kind).sort((a, b) => equipScore(b) - equipScore(a));
     for (const e of pool) {
       const candidates = gens
         .filter((g) => g.realm >= equipRealm(e.tier) && (g[kind] ? equipScore(g[kind]!) : -1) < equipScore(e))
-        .sort((a, b) => (kind === 'weapon' ? b.base.force - a.base.force : b.base.defense - a.base.defense));
+        .sort((a, b) => b.base.defense - a.base.defense);
       const g = candidates[0];
       if (!g) continue;
       const old = g[kind];

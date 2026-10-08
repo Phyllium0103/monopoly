@@ -5,7 +5,6 @@ import { REALMS } from '../data/generals';
 import { WORLD } from './WorldMods';
 import { PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, rollItemId, tierName } from '../data/items';
 import { fx } from '../data/passives';
-import { traitOf } from '../faction/Faction';
 import type { Expedition } from '../game/types';
 import { consumeItem } from './ItemSystem';
 
@@ -64,7 +63,7 @@ export function deathChance(g: General, team: General[], level = 1): number {
   const gap = levelRealm(level) - g.realm;
   const base = { '-3': 0.02, '-2': 0.03, '-1': 0.05, '0': 0.1, '1': 0.22, '2': 0.38, '3': 0.55, '4': 0.75 }[String(Math.max(-3, Math.min(4, gap))) as '0'];
   const sizeFactor = 1.25 - 0.1 * team.length;
-  return Math.max(0.01, Math.min(0.9, base * sizeFactor * (1 - (fx(g).realmSafety ?? 0) - (traitOf(g.owner).realmSafety ?? 0))));
+  return Math.max(0.01, Math.min(0.9, base * sizeFactor * (1 - (fx(g).realmSafety ?? 0))));
 }
 
 export function dispatch(lord: Lord, team: General[], realmName: string, level = 1) {
@@ -95,7 +94,6 @@ function grantReward(state: GameState, lord: Lord, team: General[], all: General
   const tier = Math.max(0, Math.min(11, Math.floor(score / 450) + Math.floor(Math.random() * 3) - 1 + bonus));
   const sum = (f: (g: General) => number) => team.reduce((s, g) => s + f(g), 0);
   const weights: [string, number][] = [
-    ['weapon', sum((g) => g.base.force)],
     ['armor', sum((g) => g.base.defense)],
     ['pill', sum((g) => craft(g, 'alchemy')) * 1.2],
     ['technique', sum((g) => craft(g, 'talisman') + craft(g, 'formation')) * 0.6],
@@ -112,11 +110,10 @@ function grantReward(state: GameState, lord: Lord, team: General[], all: General
   }
   const uid = (p: string) => nextUid(state, p);
   switch (kind) {
-    case 'weapon':
     case 'armor': {
       const e = makeEquipment(uid('e'), kind, tier);
       lord.gear.push(e);
-      return `${kind === 'weapon' ? '神器' : '寶衣'}「${e.name}」`;
+      return `寶衣「${e.name}」`;
     }
     case 'pill': {
       const defId = rollItemId(PILL_IDS);

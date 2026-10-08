@@ -10,7 +10,7 @@ import { beastIconUrl, equipIconUrl, itemIconUrl, portraitUrl } from './Icons';
 const SHOP_DESC: Record<ShopKind, string> = {
   treasure: '法器、陣法、符籙，可在擲骰前或戰鬥中使用。',
   herb: '丹藥、靈根丹與還魂丹。丹師也能讓亡者還陽：自己麾下的亡將便宜一半、境界降一階；其他主公的亡將境界降兩階，且一次只能復活一人。',
-  forge: '神器加武力、寶衣加防禦與血量。品階越高越強，也需要越高境界。',
+  forge: '販售寶衣，增加防禦與血量，部分款式提升武力或技藝；品階越高，所需境界越高。',
   library: '每位武將只能修習一種功法；五行靈根只可學對應功法，天靈根不限，廢靈根不能學。',
   beast: '每位主公只能擁有一隻靈獸，新購入的會取代舊的。',
   tavern: '每次只能招募一位。本國將領價格較低。',
@@ -58,7 +58,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
         if (mode === 'sell') {
           const note = document.createElement('p');
           note.className = 'muted';
-          note.textContent = '僅收購本店對應物品；已裝備的神器、寶衣請先卸下。靈獸出售後會離隊。';
+          note.textContent = '僅收購本店對應物品；已裝備的寶衣請先卸下。靈獸出售後會離隊。';
           body.appendChild(note);
         }
         if (mode === 'buy' && groups.length > 1) {

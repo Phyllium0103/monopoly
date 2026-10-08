@@ -2,9 +2,11 @@ import { bindPassiveState, fx } from '../data/passives';
 import type { City, General, GameState, Lord, LordId } from './types';
 import { BOARD } from '../data/board';
 import { GENERAL_SEEDS, type GeneralSeed } from '../data/generals';
-import { LORDS, LORD_IDS, TRAITS } from '../faction/Faction';
+import { LORDS, LORD_IDS } from '../faction/Faction';
 import { maxHp, maxStamina } from '../systems/GeneralSystem';
 import { bestContest } from '../systems/CitySystem';
+import { makePersonalWeapon } from '../data/weaponCatalog';
+import { emptyMaterials } from '../systems/MaterialSystem';
 import { createForkDirections } from '../systems/MovementSystem';
 
 /** 開局可選的最大回合數；無盡模式為 null */
@@ -52,7 +54,7 @@ export function newGeneral(
     stamina: 100,
     bonusForce: 0,
     bonusDefense: 0,
-    weapon: null,
+    weapon: makePersonalWeapon(seed.id),
     armor: null,
     technique: null,
     status,
@@ -77,6 +79,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       garrisonSoldiers: s.owner ? 1000 : 0,
       shieldTurns: 0,
       contest: 'alchemy',
+      mining: null,
     };
   }
 
@@ -106,8 +109,8 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       id,
       isPlayer: id === player,
       alive: true,
-      stones: Math.round(START_STONES * (1 + (TRAITS[id].startStones ?? 0))),
-      soldiers: Math.round(START_SOLDIERS * (1 + (TRAITS[id].startSoldiers ?? 0))),
+      stones: START_STONES,
+      soldiers: START_SOLDIERS,
       position: cities[LORDS[id].capital].tile,
       lastTile: null,
       forkExit: null,
@@ -123,6 +126,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       doubleDice: false,
       fixedDice: null,
       bonusSteps: 0,
+      materials: emptyMaterials(),
       items: [],
       gear: [],
       scrolls: [],
@@ -223,6 +227,7 @@ export function abandonIfEmpty(state: GameState, cityId: string | null): boolean
   state.lords[c.owner].soldiers += c.garrisonSoldiers;
   c.garrisonSoldiers = 0;
   c.owner = 'neutral';
+  c.mining = null;
   c.shieldTurns = 0;
   return true;
 }

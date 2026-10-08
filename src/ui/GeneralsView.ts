@@ -1,3 +1,5 @@
+import { MATERIAL_NAMES, WEAPON_CATALOG, WEAPON_GRADES, WEAPON_PENETRATION } from '../data/weaponCatalog';
+import { upgradeRequirement, upgradeWeapon } from '../systems/MaterialSystem';
 import { generalCooldownText } from '../systems/GeneralAbilities';
 import type { Equipment, GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
@@ -106,7 +108,7 @@ export class GeneralsView {
       <div class="ready-section"></div>
       <div class="bag">
         <div><b>行囊</b>${bag}</div>
-        <div><b>神器寶衣</b>${gear}</div>
+        <div><b>行囊寶衣</b>${gear}</div>
         <div><b>功法秘笈</b>${scrolls}</div>
         <div><b>靈獸</b>${lord.beast ? `<span class="chip" title="${tip(lord.beast.desc)}">${lord.beast.name}</span>` : '<span class="muted">無</span>'}</div>
       </div>
@@ -178,7 +180,7 @@ export class GeneralsView {
       <div class="gc-body">
         <div class="gc-portrait"><img src="${portraitUrl(g)}" alt="${g.name}" onerror="this.style.visibility='hidden'"></div>
         <div class="gc-slots">
-          <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(equipDesc(g.weapon))}"` : ''}><small>神器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.weapon.name.split('・').pop()}</b><em class="slot-tier">${g.weapon.name.split('・')[0]}</em>` : '<b><span class="muted">無</span></b>'}</div>
+          <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(equipDesc(g.weapon))}"` : ''}><small>武器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.weapon.name.split('・').pop()}</b><em class="slot-tier">${g.weapon.name.split('・')[0]}・破防 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</em>` : '<b><span class="muted">無</span></b>'}</div>
           <div class="gc-slot eq-row" data-slot="armor" ${g.armor ? `title="${tip(equipDesc(g.armor))}"` : ''}><small>寶衣</small>${g.armor ? `<img class="slot-icon" src="${equipIconUrl(g.armor)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.armor.name.split('・').pop()}</b><em class="slot-tier">${g.armor.name.split('・')[0]}</em>` : '<b><span class="muted">無</span></b>'}</div>
         </div>
         <table class="gc-table">
@@ -238,10 +240,25 @@ export class GeneralsView {
         this.render(state, lord);
       });
     }
-    for (const kind of ['weapon', 'armor'] as const) {
+    const req = upgradeRequirement(lord, g);
+    rowBtn('weapon', req.reason === '已達天階' ? '已達天階' : (g.weapon ? '武器升階' : '無專屬武器'), !manage || away || !req.ok, async () => {
+      const r = upgradeRequirement(lord, g);
+      if (!r.ok || r.stage === undefined || !r.group || !r.cost) return;
+      const name = WEAPON_CATALOG[g.id].names[r.stage + 1];
+      const ok = await this.dialog.confirm(`${g.name}・武器升階`,
+        `${g.weapon!.name} → ${WEAPON_GRADES[r.stage + 1]}・${name}。\n消耗 ${r.cost} 顆${MATERIAL_NAMES[r.group][r.stage]}；無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage] * 100)}% → ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%。`,
+        '消耗材料・升階', '返回名冊', '⚔️');
+      if (ok && this.canManage() && upgradeRequirement(lord, g).ok) {
+        await this.dialog.message('武器升階完成', upgradeWeapon(lord, g), '⚔️');
+      }
+      this.render(state, lord);
+    });
+    const weaponButton = card.querySelector<HTMLButtonElement>('.eq-row[data-slot="weapon"] button');
+    if (weaponButton) weaponButton.title = req.reason;
+    for (const kind of ['armor'] as const) {
       const pool = lord.gear.filter((e) => e.kind === kind);
-      const name = kind === 'weapon' ? '神器' : '寶衣';
-      rowBtn(kind, g[kind] ? '更換／卸下' : '裝備', away || (!pool.length && !g[kind]), async () => {
+      const name = '寶衣';
+      rowBtn(kind, g[kind] ? '更換／卸下' : '裝備', !manage || away || (!pool.length && !g[kind]), async () => {
         const choices: Choice<Equipment | 'off'>[] = pool.map((x) => ({
           label: x.name,
           icon: equipIconUrl(x),

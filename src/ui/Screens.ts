@@ -1,5 +1,6 @@
 import type { GameState, LordId } from '../game/types';
-import { LORDS, LORD_IDS, TRAITS } from '../faction/Faction';
+import { materialsText } from '../systems/MaterialSystem';
+import { LORDS, LORD_IDS } from '../faction/Faction';
 import { GENERAL_SEEDS } from '../data/generals';
 import { citiesOf, generalsOf } from '../game/GameState';
 import { nameOf } from '../systems/ItemSystem';
@@ -55,7 +56,6 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
       <div class="fc-name">${d.kingdom}</div>
       <div class="fc-sect">${d.name}</div>
       <p class="fc-motto">${d.desc}</p>
-      <div class="fc-trait"><b>【${TRAITS[id].title}】</b>${TRAITS[id].pros.map((x) => `<span class="pro">＋${x}</span>`).join('')}${TRAITS[id].cons.map((x) => `<span class="con">－${x}</span>`).join('')}</div>
       <p class="fc-bonus">開局麾下<br>${gens
         .filter((g) => g.start && !g.lord)
         .map((g) => g.name)
@@ -118,7 +118,7 @@ export function showEndScreen(root: HTMLElement, state: GameState, reason: strin
           .join('')}
       </ol>
       <h3>全部資產明細</h3>
-      <p class="muted">估值以此表計入總資產：士兵每名 ${SOLDIER_PRICE} 下品、城池繁榮每點 100 下品、物品市價五折；已裝備的神器、寶衣及功法包含在武將估值內。</p>
+      <p class="muted">估值以此表計入總資產：士兵每名 ${SOLDIER_PRICE} 下品、城池繁榮每點 100 下品、物品市價五折；已裝備的寶衣及功法包含在武將估值內；專屬武器與材料無售價。</p>
       ${rows.map(r => assetDetails(state, r.id)).join('')}
       </div>
       <div class="rc-foot"><button class="btn primary big">重新開始</button></div>
@@ -150,10 +150,11 @@ function assetDetails(state: GameState, id: LordId): string {
       ${row('總資產', a.total)}
     </table>
     ${list('城池與守軍', cities.map(c => row(`${c.name}・繁榮 ${c.prosperity}・守軍 ${c.garrisonSoldiers} 名・駐將 ${c.garrisonGenerals.map(g => state.generals[g].name).join('、') || '無'}`, c.prosperity * 100 + c.garrisonSoldiers * SOLDIER_PRICE)))}
-    ${list('武將（含裝備與功法）', gens.map(g => row(`${g.name}・${REALMS[g.realm]}・${statuses[g.status]}${g.cityId ? '／' + state.cities[g.cityId].name : ''}<br><small>神器：${g.weapon?.name ?? '無'}／寶衣：${g.armor?.name ?? '無'}／功法：${g.technique?.name ?? '無'}</small>`, generalValue(g))))}
+    ${list('武將（含裝備與功法）', gens.map(g => row(`${g.name}・${REALMS[g.realm]}・${statuses[g.status]}${g.cityId ? '／' + state.cities[g.cityId].name : ''}<br><small>武器：${g.weapon?.name ?? '無'}／寶衣：${g.armor?.name ?? '無'}／功法：${g.technique?.name ?? '無'}</small>`, generalValue(g))))}
     ${list('丹藥、陣法、符籙與法器', lord.items.map(i => row(`${nameOf(i)}`, i.price * .5)))}
-    ${list('行囊神器與寶衣', lord.gear.map(i => row(i.name, i.price * .5)))}
+    ${list('行囊寶衣', lord.gear.map(i => row(i.name, i.price * .5)))}
     ${list('功法秘笈', lord.scrolls.map(i => row(i.name, i.price * .5)))}
+    <h4>升階材料（不計入靈石估值）</h4><p>${materialsText(lord)}</p>
     ${list('靈獸', lord.beast ? [row(lord.beast.name, lord.beast.price * .5)] : [])}
   </details>`;
 }

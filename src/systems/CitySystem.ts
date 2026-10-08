@@ -6,7 +6,7 @@ import { fmtProsperity, fmtStones } from '../game/Currency';
 import { WORLD } from './WorldMods';
 import { terrainOf } from '../data/terrain';
 import { fx, lordAura, passiveState } from '../data/passives';
-import { traitOf } from '../faction/Faction';
+import { preferredMining } from './MaterialSystem';
 
 /** 靈脈路過獎勵：基礎 400 靈石 ×（1＋主公境界） */
 export const VEIN_STONES = 400;
@@ -16,10 +16,10 @@ export function veinStones(lordRealm: number): number {
 
 export const SOLDIER_PRICE = 2;
 
-/** 徵兵花費：陣營特色可打折 */
+/** 徵兵花費：保留主公個人技能的折扣。 */
 export function recruitCost(lord: LordId, n: number): number {
   const ruler=Object.values(passiveState()?.generals??{}).find(g=>g.owner===lord&&g.isLord);
-  return Math.round(n * Math.max(0, SOLDIER_PRICE * (1 + (traitOf(lord).soldierPrice ?? 0)) - (ruler ? fx(ruler).soldierDiscount??0 : 0)));
+  return Math.round(n * Math.max(0, SOLDIER_PRICE - (ruler ? fx(ruler).soldierDiscount??0 : 0)));
 }
 export const MIN_GARRISON = 300;
 /** 一名城池守軍約等於十五名隨行士兵 */
@@ -35,7 +35,7 @@ export function cityToll(state: GameState, city: City): number {
   const count=citiesOf(state,city.owner).length;
   const ruler=generalsOf(state,city.owner).find(g=>g.isLord);
   const bonus=garrisonOf(state,city).reduce((sum,g)=>sum+(fx(g).cityToll??0),0)+(ruler?(fx(ruler).cityCountToll??0)*count:0);
-  return Math.round(toll(city,count)*(1+(traitOf(city.owner).tollMult??0))*(1+bonus));
+  return Math.round(toll(city,count)*(1+bonus));
 }
 
 /** 城池收入，受地貌與駐將被動增減 */
@@ -43,7 +43,6 @@ export function visitingToll(state: GameState, city: City, visitor: Lord): numbe
 
 export function cityIncome(city: City, garrison: General[] = []) {
   const t = terrainOf(city);
-  const tr = traitOf(city.owner);
   // 多名駐將的收入加成相加
   const f = { cityStones: 0, citySoldiers: 0 };
   for (const g of garrison) {
@@ -51,8 +50,8 @@ export function cityIncome(city: City, garrison: General[] = []) {
     f.citySoldiers += fx(g).citySoldiers ?? 0;
   }
   return {
-    stones: Math.round(city.prosperity * 3 * (1 + t.stones) * (1 + (f.cityStones ?? 0)) * WORLD.incomeMult * (1 + (tr.stonesMult ?? 0))),
-    soldiers: Math.round(city.prosperity * 2 * (1 + t.soldiers) * (1 + (f.citySoldiers ?? 0)) * (1 + (tr.soldiersMult ?? 0))),
+    stones: Math.round(city.prosperity * 3 * (1 + t.stones) * (1 + (f.cityStones ?? 0)) * WORLD.incomeMult),
+    soldiers: Math.round(city.prosperity * 2 * (1 + t.soldiers) * (1 + (f.citySoldiers ?? 0))),
   };
 }
 
@@ -67,7 +66,7 @@ export function garrisonPower(state: GameState, city: City): number {
   const command = 1 + gens.reduce((sum, g) => sum + defense(g), 0) / 450;
   const f = { troops: Math.max(0, ...gens.map((g) => fx(g).troops ?? 0)), garrisonDef: Math.max(0,...gens.map(g=>fx(g).garrisonDef??0)) + gens.reduce((sum,g)=>sum+Math.min(0,fx(g).garrisonDef??0),0) };
   const base = city.garrisonSoldiers * GARRISON_STRENGTH * (1 + f.troops) * command + gens.reduce((sum, g) => sum + power(g) * 2, 0);
-  return Math.round(base * (1 + terrainOf(city).defense) * Math.max(0,1 + f.garrisonDef) * (1 + (traitOf(city.owner).garrisonDef ?? 0)) * (city.shieldTurns > 0 ? 1.5 : 1));
+  return Math.round(base * (1 + terrainOf(city).defense) * Math.max(0,1 + f.garrisonDef) * (city.shieldTurns > 0 ? 1.5 : 1));
 }
 
 /** 依駐將的專長挑一種對自己最有利的鬥法（電腦佔領時使用） */
@@ -100,6 +99,7 @@ export function occupy(state: GameState, lord: Lord, city: City, generalIds: str
   }
   lord.soldiers -= soldiers;
   city.owner = lord.id;
+  city.mining = preferredMining(state, lord, city);
   city.garrisonGenerals = ids;
   city.garrisonSoldiers = soldiers;
   // 預設選最有利的鬥法；玩家佔領後可自己改選
@@ -110,6 +110,7 @@ export function occupy(state: GameState, lord: Lord, city: City, generalIds: str
 export function releaseCity(state: GameState, city: City) {
   for (const g of garrisonOf(state, city)) if (g.status === 'garrison' && g.owner) joinLord(state, g.owner, g);
   city.owner = 'neutral';
+  city.mining = null;
   city.garrisonGenerals = [];
   city.garrisonSoldiers = 0;
   city.shieldTurns = 0;
@@ -126,11 +127,10 @@ export function citySaleValue(city: City): number {
   return Math.round(city.prosperity * 150);
 }
 
-/** 變賣一名隨行武將：自動卸下裝備放回行囊，武將離開進入聽風樓，換得靈石 */
+/** 變賣一名隨行武將：寶衣卸回行囊、專屬武器隨身保留，武將離開進入聽風樓，換得靈石 */
 export function sellGeneral(lord: Lord, g: General): number {
   if (g.ghostSourceId || fx(g).fixedParty || g.isLord) return 0;
   const value = generalSaleValue(g);
-  unequip(lord, g, 'weapon');
   unequip(lord, g, 'armor');
   g.owner = null;
   g.status = 'free';

@@ -1,3 +1,5 @@
+import type { MaterialGroup } from '../data/weaponCatalog';
+
 export type LordId = 'cao' | 'sun' | 'liu' | 'dong';
 export type Owner = LordId | 'neutral';
 export type Element = 'metal' | 'wood' | 'water' | 'fire' | 'earth';
@@ -33,6 +35,9 @@ export interface Equipment extends PurchasedAsset {
   tier: Tier;
   /** 款式編號（見 EQUIP_DESIGNS） */
   designId: string;
+  /** 專屬武器不可卸下、更換或出售。 */
+  fixedGeneralId?: string;
+  penetration?: number;
   force: number;
   defense: number;
   hp: number;
@@ -171,6 +176,7 @@ export interface Lord {
   fixedDice: number | null;
   /** 遁地梭：本回合移動點數加成 */
   bonusSteps: number;
+  materials: Record<MaterialGroup, [number, number, number]>;
   items: Item[];
   gear: Equipment[];
   scrolls: Technique[];
@@ -189,6 +195,8 @@ export interface City {
   owner: Owner;
   prosperity: number;
   capital: boolean;
+  /** 每回合挖掘的最低階材料；佔領時選擇。 */
+  mining: MaterialGroup | null;
   /** 駐守的武將（最多 3 人） */
   garrisonGenerals: string[];
   garrisonSoldiers: number;

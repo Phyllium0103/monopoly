@@ -2297,3 +2297,5 @@ body {
 .slash.heavy.from-b i.s2 { animation-name: slashCut2R; }
 @keyframes slashCut2 { 0% { opacity: 0; transform: rotate(38deg) scaleX(0.1); } 25% { opacity: 1; } 100% { opacity: 0; transform: rotate(38deg) scaleX(1.2); } }
 @keyframes slashCut2R { 0% { opacity: 0; transform: rotate(-38deg) scaleX(0.1); } 25% { opacity: 1; } 100% { opacity: 0; transform: rotate(-38deg) scaleX(1.2); } }
+
+.f-weapon { font-size: 12px; color: var(--gold-light); line-height: 1.4; margin: 5px 0; }

@@ -23,13 +23,13 @@ export function tournamentWinner(duel: Duel): Side {
   return Math.random()<0.5?'a':'b';
 }
 
-/** Champion receives exactly one top heavenly technique, weapon or armor, equally likely. */
+/** Champion receives exactly one top heavenly technique or armor, equally likely. */
 export function grantTournamentPrize(state: GameState,lord: Lord): Offer {
-  const kind=Math.floor(Math.random()*3);
+  const kind=Math.floor(Math.random()*2);
   if (kind===0) {
     const t=makeTechnique(nextUid(state,'t'),11);lord.scrolls.push(t);
     return {kind:'technique',technique:t,label:t.name,sub:techniqueDesc(t),price:0};
   }
-  const e=makeEquipment(nextUid(state,'e'),kind===1?'weapon':'armor',11);lord.gear.push(e);
+  const e=makeEquipment(nextUid(state,'e'),'armor',11);lord.gear.push(e);
   return {kind:'equipment',equipment:e,label:e.name,sub: equipDesc(e, false),price:0};
 }

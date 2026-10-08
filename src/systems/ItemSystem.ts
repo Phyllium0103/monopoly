@@ -4,7 +4,7 @@ import { freeGenerals, killGeneral, nextUid, reviveGeneral } from '../game/GameS
 import { addExp, craft, expCap, maxHp, maxStamina } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
 import { fmtStones } from '../game/Currency';
-import { LORDS, traitOf } from '../faction/Faction';
+import { LORDS } from '../faction/Faction';
 import { fx } from '../data/passives';
 import { APTITUDE_NAMES } from '../data/generals';
 import { eliminate } from './CitySystem';
@@ -14,7 +14,7 @@ export const nameOf = (item: Item): string => itemName(item.defId, item.tier);
 export const ITEM_USE_EXP = 3;
 export function requirement(item: Item, user?: General) {
  const d=def(item),i=Math.min(item.tier,d.min.length-1);
- return {stat:d.stat,min:d.min[i],stamina:d.noUser?0:Math.max(0,Math.round(d.stamina[i]*(1-(user?(fx(user).itemStamina??0)+(traitOf(user.owner).itemStamina??0):0))))};
+ return {stat:d.stat,min:d.min[i],stamina:d.noUser?0:Math.max(0,Math.round(d.stamina[i]*(1-(user?(fx(user).itemStamina??0):0))))};
 }
 export function requirementText(item: Item): string {const r=requirement(item);return def(item).noUser?'事件觸發，直接使用':STAT_NAMES[r.stat]+' ≥ '+r.min+'・體力 '+r.stamina;}
 export function canUse(item: Item,user: General): {ok:boolean;reason:string} {

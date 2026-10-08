@@ -91,12 +91,12 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
       });
     }
     case 'forge': {
-      // 神器與寶衣各 10 件
+      // 寶衣 10 件；武器固定由武將持有。
       const out: Offer[] = [];
-      for (const kindE of ['weapon', 'armor'] as const) {
+      for (const kindE of ['armor'] as const) {
         for (let i = 0; i < 10; i++) {
           const e = makeEquipment(uid('e'), kindE, rollTier(bias));
-          out.push({ kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e, false), price: e.price, group: kindE === 'weapon' ? '神器' : '寶衣' });
+          out.push({ kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e, false), price: e.price, group: '寶衣' });
         }
       }
       return out;
@@ -204,7 +204,7 @@ export function makeSellStock(lord: Lord, kind: ShopKind): SaleOffer[] {
     if (!all && !(kind === 'herb' && d.category === '丹藥') && !(kind === 'treasure' && ['法器', '陣法', '符籙'].includes(d.category))) continue;
     stock.push({ kind: 'item', item, label: itemName(item.defId, item.tier), sub: d.desc(item.tier), price: price(saleBasis(item)) });
   }
-  if (all || kind === 'forge') for (const equipment of lord.gear)
+  if (all || kind === 'forge') for (const equipment of lord.gear.filter(e => e.kind === 'armor' && !e.fixedGeneralId))
     stock.push({ kind: 'equipment', equipment, label: equipment.name, sub: equipDesc(equipment, false), price: price(saleBasis(equipment)) });
   if (all || kind === 'library') for (const technique of lord.scrolls)
     stock.push({ kind: 'technique', technique, label: technique.name, sub: techniqueDesc(technique), price: price(saleBasis(technique)) });

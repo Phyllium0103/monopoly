@@ -6,9 +6,10 @@ import { terrainOf } from '../data/terrain';
 import { addExp, inBottleneck, passiveExp, recover } from '../systems/GeneralSystem';
 import { advanceExpeditions, type RealmOutcome, type RealmEscapeDecision } from '../systems/RealmSystem';
 import { ITEM_DEFS, PILL_IDS, beastPower, rollItemId } from '../data/items';
+import { MATERIAL_NAMES } from '../data/weaponCatalog';
+import { materialIncome, preferredMining } from '../systems/MaterialSystem';
 import { nextUid } from './GameState';
 import { fmtStones } from './Currency';
-import { traitOf } from '../faction/Faction';
 
 export interface TurnReport {
   lines: { text: string; kind: 'good' | 'bad' | 'info' }[];
@@ -25,10 +26,14 @@ export async function startTurn(state: GameState, lord: Lord, protect?: (g: Gene
   let soldiers = 0;
   for (const city of citiesOf(state, lord.id)) {
     const inc = cityIncomeOf(state, city);
+    city.mining ??= preferredMining(state, lord, city);
+    const mined = materialIncome(city);
+    lord.materials[city.mining][0] += mined;
+    report.lines.push({ text: `${city.name}挖掘 ${MATERIAL_NAMES[city.mining][0]} +${mined} 顆`, kind: 'good' });
     stones += inc.stones;
     soldiers += inc.soldiers;
     // 每回合成長：+0.5（平原、盆地、水鄉）、+0.4、+0.3
-    city.prosperity = Math.min(200, Math.round((city.prosperity + Math.max(0, 0.4 + terrainOf(city).growth * 0.1 + (traitOf(lord.id).growth ?? 0))) * 100) / 100);
+    city.prosperity = Math.min(200, Math.round((city.prosperity + Math.max(0, 0.4 + terrainOf(city).growth * 0.1)) * 100) / 100);
     if (city.shieldTurns > 0) city.shieldTurns--;
   }
   lord.stones += stones;

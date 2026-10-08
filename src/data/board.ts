@@ -200,7 +200,7 @@ export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
   realm: { icon: '🌀', desc: '秘境：位於要道之上，只有六處。每次入場需消耗一把秘境遺鑰；破界遁空符可在隕落風險發生時保全隊撤離，整趟無獎勵。可選擇難度（煉氣到渡劫共九級）與派遣人數探索，難度越高越危險，獎勵也越好' },
   treasure: { icon: '💰', desc: '天寶商行：販售法器、陣法、符籙' },
   herb: { icon: '🌿', desc: '百草堂：販售各種丹藥' },
-  forge: { icon: '🔨', desc: '天工坊：販售神器、寶衣' },
+  forge: { icon: '🔨', desc: '天工坊：販售寶衣' },
   library: { icon: '📜', desc: '藏經閣：販售功法' },
   beast: { icon: '🐉', desc: '萬獸園：販售靈獸，每位主公限一隻' },
   tavern: { icon: '🏮', desc: '聽風樓：招募各國尚未出仕的將領' },

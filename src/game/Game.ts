@@ -1,3 +1,5 @@
+import { MATERIAL_GROUPS, MATERIAL_NAMES, type MaterialGroup } from '../data/weaponCatalog';
+import { materialIncome, materialsText, synthesize } from '../systems/MaterialSystem';
 import { tournamentBracket, tournamentWinner, grantTournamentPrize } from '../systems/TournamentSystem';
 import { abilityUsers, abilityReady, abilityTargets, useGeneralAbility, seclusionUser, startSeclusion, itemBlockUser, triggerItemBlock } from '../systems/GeneralAbilities';
 import { garrisonDispatch } from '../systems/GarrisonSystem';
@@ -148,9 +150,10 @@ export class Game {
     if (!lord.alive) return;
     lord.stones += 100_000_000;
     lord.soldiers += 100_000;
+    for (const k of MATERIAL_GROUPS) lord.materials[k] = lord.materials[k].map(n => n + 1000) as [number, number, number];
     for (const [defId, d] of Object.entries(ITEM_DEFS)) for (let t = 0; t < d.price.length; t++) lord.items.push(makeItem(nextUid(this.state, 'i'), defId, t));
     for (let tier = 0; tier < 12; tier++) {
-      lord.gear.push(makeEquipment(nextUid(this.state, 'e'), 'weapon', tier), makeEquipment(nextUid(this.state, 'e'), 'armor', tier));
+      lord.gear.push(makeEquipment(nextUid(this.state, 'e'), 'armor', tier));
       lord.scrolls.push(makeTechnique(nextUid(this.state, 't'), tier));
     }
     lord.beast = makeBeast(nextUid(this.state, 'b'), 11);
@@ -158,7 +161,7 @@ export class Game {
       g.hp = maxHp(g);
       g.stamina = maxStamina(g);
     }
-    this.ui.log('🧪 測試：獲得 100 極品靈石、10 萬士兵，以及所有丹藥、陣法、符籙、法器（各階）、各階神器寶衣與功法、天階靈獸。', 'good');
+    this.ui.log('🧪 測試：獲得 100 極品靈石、10 萬士兵，以及所有丹藥、陣法、符籙、法器（各階）、各階寶衣與功法、天階靈獸，以及十八種升階材料各 1000 顆。', 'good');
     this.ui.toast('🧪 測試：已獲得大量靈石與所有物品');
     this.refresh();
   }
@@ -343,6 +346,10 @@ export class Game {
     this.sm.cameraController.focus(sprite.group.position);
     this.refresh();
 
+    // 首都在首次收入前選定；託管與電腦由 startTurn 自動安排。
+    if (this.human(lord)) for (const city of citiesOf(this.state, lord.id)) {
+      if (!city.mining) await this.chooseMining(lord, city, true);
+    }
     let clearThisTurn=false;
     const seclusion=seclusionUser(this.state,lord);
     if (!lord.stunned && lord.forcedTile===null && seclusion && !(lord.clearCultivationTurns??0)) {
@@ -822,6 +829,7 @@ export class Game {
       this.ui.log(`支付 ${fmtStones(occupyCost(city))}，派${gids.map((id) => this.state.generals[id].name).join('、')}率 ${soldiers} 兵佔領${city.name}！`, 'good');
       this.ui.toast(`佔領${city.name}！`);
       await this.chooseContest(city);
+      await this.chooseMining(lord, city, true);
       this.refresh();
       return;
     }
@@ -1088,7 +1096,10 @@ export class Game {
     }
     this.world.syncCities(this.state);
     this.world.captureEffect(city.tile, LORDS[attacker.id].color);
-    if (this.human(attacker)) await this.chooseContest(city);
+    if (this.human(attacker)) {
+      await this.chooseContest(city);
+      await this.chooseMining(attacker, city, true);
+    }
     this.ui.log(`${LORDS[attacker.id].name}奪下${city.name}，由${gids.length ? gids.map((id) => this.state.generals[id].name).join('、') : '（無駐將）'}駐守。`, this.human(attacker) ? 'good' : this.human(defender) ? 'bad' : 'ai');
     this.refresh();
     return true;
@@ -1476,6 +1487,46 @@ export class Game {
     this.refresh();
   }
 
+  /** 挖掘設定在佔領時免費指定，之後由已付費的城池調度視窗更換。 */
+  private async chooseMining(lord: Lord, city: City, required = false) {
+    if (city.owner !== lord.id) return;
+    const group = await this.dialog.choose<MaterialGroup>(
+      `${city.name}・挖掘材料`,
+      `每個自身回合收入 ${materialIncome(city)} 顆（繁榮度 ${fmtProsperity(city.prosperity)} ÷ 20，四捨五入）。只能挖掘基礎材料；高階材料需在擲骰前以 10：1 合成。`,
+      MATERIAL_GROUPS.map(k => ({ label: MATERIAL_NAMES[k][0] + (city.mining === k ? '（目前）' : ''), sub: `進化：${MATERIAL_NAMES[k][1]} → ${MATERIAL_NAMES[k][2]}`, value: k })),
+      required ? null : '返回調度', '⛏️',
+    );
+    if (!group || city.owner !== lord.id) return;
+    city.mining = group;
+    this.ui.log(`⛏️ ${city.name}改為挖掘${MATERIAL_NAMES[group][0]}，每個自身回合收入 ${materialIncome(city)} 顆。`, this.human(lord) ? 'good' : 'ai');
+    this.refresh();
+  }
+
+  private async materialsFlow(lord: Lord) {
+    if (!this.canManage() || this.dialog.isOpen) return;
+    for (;;) {
+      const selected = await this.dialog.choose(
+        '⛏️ 材料與合成',
+        materialsText(lord) + '<br><br>城池挖掘提供基礎材料；更換種類請使用「調度駐軍」。每 10 顆合成下一階 1 顆；武器在「武將」名冊升階。',
+        MATERIAL_GROUPS.flatMap(group => [0, 1].map(stage => ({
+          label: `${MATERIAL_NAMES[group][stage]} → ${MATERIAL_NAMES[group][stage + 1]}`,
+          sub: `10：1・可合成 ${Math.floor(lord.materials[group][stage] / 10)} 顆`,
+          disabled: lord.materials[group][stage] < 10, reason: '材料不足 10 顆', value: { group, stage },
+        }))), '關閉', '⛏️',
+      );
+      if (!selected) return;
+      const {group, stage} = selected;
+      const count = await this.dialog.slider('合成多少顆？', `每顆消耗 10 顆${MATERIAL_NAMES[group][stage]}，獲得${MATERIAL_NAMES[group][stage + 1]}。`, {
+        min: 1, max: Math.floor(lord.materials[group][stage] / 10), step: 1, initial: 1, unit: ' 顆', confirm: '合成',
+        preview: n => `消耗 ${n * 10} 顆，獲得 ${n} 顆；剩餘 ${lord.materials[group][stage] - n * 10} 顆原材料。`,
+      }, '⛏️');
+      if (count === null) continue;
+      if (!this.canManage()) return;
+      this.ui.log(synthesize(lord, group, stage, count), 'good');
+      this.refresh();
+    }
+  }
+
   private async manageGarrison(lord: Lord, selectedCity?: City, freeDispatch = false) {
     const cities = citiesOf(this.state, lord.id);
     if (!cities.length) {
@@ -1500,6 +1551,7 @@ export class Game {
         const action = await this.dialog.choose(`調度${city.name}`, `已付費 ${fmtStones(fee)}・本次操作不再收費。守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`, [
           { label: '增派士兵', sub: `從隨行士兵調入（目前 ${lord.soldiers}）`, value: 'add', disabled: lord.soldiers < 100, reason: '士兵不足' },
           { label: '撤回士兵', sub: `至少保留 ${MIN_GARRISON} 守軍`, value: 'remove', disabled: city.garrisonSoldiers - MIN_GARRISON < 100, reason: '守軍已達下限' },
+          { label: '更換挖掘材料', sub: `${city.mining ? MATERIAL_NAMES[city.mining][0] : '尚未指定'}・每個自身回合 ${materialIncome(city)} 顆`, value: 'mining' },
           { label: '調整駐將', sub: `最多 ${GARRISON_LIMIT} 人：從隨行武將派駐，或撤回駐將`, value: 'swap', disabled: !free.length && !city.garrisonGenerals.length, reason: '沒有隨行武將，也沒有駐將' },
         ], '關閉調度');
         if (!action) break;
@@ -1522,6 +1574,8 @@ export class Game {
           const sign = action === 'add' ? 1 : -1;
           city.garrisonSoldiers += n * sign;
           lord.soldiers -= n * sign;
+        } else if (action === 'mining') {
+          await this.chooseMining(lord, city);
         } else if (action === 'swap') {
           for (;;) {
             const on = garrisonOf(this.state, city);
@@ -1890,6 +1944,7 @@ export class Game {
         <tr><td>繁榮度</td><td title="全圖第 ${ranks.prosperity} / ${Object.keys(this.state.cities).length} 名">${fmtProsperity(c.prosperity)}<small class="terrain-fx">第 ${ranks.prosperity} 名</small></td></tr>
         <tr><td>過路費</td><td>${c.owner === 'neutral' ? `佔領後約 ${fmtStones(toll(c))}` : fmtStones(cityToll(this.state, c))}</td></tr>
         <tr><td>每回合</td><td title="${RANK_METRICS.filter((m) => m.id === 'stones' || m.id === 'soldiers').map((m) => `${m.name}第 ${ranks[m.id]} 名`).join('・')}">${fmtStones(inc.stones)}・兵 +${inc.soldiers}</td></tr>
+        <tr><td>挖掘</td><td>${c.mining ? `${MATERIAL_NAMES[c.mining][0]}・每個自身回合 ${materialIncome(c)} 顆` : '佔領時指定基礎材料'}</td></tr>
         <tr><td>駐將</td><td>${gens.length ? gens.map((g) => `${g.name}（${REALMS[g.realm]}・戰力 ${power(g)}）`).join('<br>') : '無'}</td></tr>
         <tr><td>比試</td><td>擂台戰（固定）＋${STAT_NAMES[c.contest]}比試</td></tr>
         <tr><td>守軍</td><td>${c.garrisonSoldiers}${c.shieldTurns ? `・護城大陣 ${c.shieldTurns}` : ''}</td></tr>
@@ -1927,10 +1982,11 @@ export class Game {
       buttons.push(roster);
     } else if (this.phase === 'preroll') {
       hint = '擲骰前可先整備；擲完骰、處理完事件，回合自動結束';
-      fullHint = '擲骰前可先使用物品、徵兵或整備武將（調度駐軍與宗門要站在自己的城池）；擲完骰、處理完落地事件，回合就會自動結束';
+      fullHint = '擲骰前可先使用物品、合成材料、徵兵或整備武將（宗門需站在自己的城池；調度駐軍可遠端付費開啟）；擲完骰、處理完落地事件，回合就會自動結束';
       buttons.push(
         { label: '✨ 方外神通', sub: '製物・起死回生・冤魂召喚', disabled: !abilityUsers(this.state,player).length, onClick: () => void this.generalAbilities(player) },
         { label: '🎒 使用物品', sub: `${player.items.length} 件`, onClick: () => void this.useItemPreroll(player) },
+        { label: '⛏️ 材料合成', sub: `${MATERIAL_GROUPS.reduce((n, k) => n + player.materials[k].reduce((a, b) => a + b, 0), 0)} 顆`, onClick: () => void this.materialsFlow(player) },
         { label: '⚔️ 徵兵', sub: `${(recruitCost(player.id, 100) / 100).toFixed(2).replace(/\.?0+$/, '')}/名`, onClick: () => void this.recruitSoldiers(player) },
         { label: '🏯 調度駐軍', sub: '依距離收費・一次付費可操作到關閉', disabled: !citiesOf(this.state, player.id).length, onClick: () => void this.openGarrison() },
         { label: '🏛️ 宗門', sub: this.canSwapSect(player) ? `隨行 ${freeGenerals(this.state, player.id).length}/${PARTY_LIMIT}` : '需在自己的城池', disabled: !this.canSwapSect(player), onClick: () => void this.manageSect(player) },

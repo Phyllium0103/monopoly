@@ -52,6 +52,7 @@ export class BattleView {
         <div class="bar hp big"><i style="width:${hpPct}%"></i><em style="width:${shieldPct}%"></em><span>${Math.round(f.hp)} / ${f.maxHp}</span></div>
         <div class="bar energy ${f.energy >= 100 ? 'full' : ''}"><i style="width:${f.energy}%"></i><span>能量 ${f.energy}%</span></div>
         <div class="f-stats">武 ${f.atk} · 防 ${f.def}${f.beast ? ` · 🐾${f.beast.name.split('・')[1]}` : ''}</div>
+        ${f.general.weapon ? `<div class="f-weapon">${f.general.weapon.name}・無視防禦 ${Math.round((f.general.weapon.penetration ?? 0) * 100)}%</div>` : ''}
         <div class="f-passive" title="${fxText(passiveOf(f.general).fx)}">【${passiveOf(f.general).name}】${fxText(passiveOf(f.general).fx)}</div>
         <div class="f-tags">${tags}</div>
       </div>`;

@@ -1,3 +1,4 @@
+import { WEAPON_CATALOG } from '../data/weaponCatalog';
 import { BEASTS, EQUIP_DESIGNS, ITEM_DEFS } from '../data/items';
 import type { Beast, Equipment, General } from '../game/types';
 
@@ -6,7 +7,7 @@ const BASE = import.meta.env.BASE_URL;
 const baseName = (name: string) => name.split('・').pop() ?? name;
 
 // ───────────────────────── 圖片包 ─────────────────────────
-// 287 張小圖（武將縮圖與物品圖示）合成一個 pack.bin（約 1.6MB），只要 1 次網路請求；
+// 武將縮圖與物品圖示合成一個 pack.bin，只要 1 次網路請求；
 // 載入後轉成瀏覽器內部的 blob 網址，之後顯示圖片完全不用再連網。
 // 圖片包還沒載好（或載入失敗）時，退回逐張下載，所以不會出現空白。
 
@@ -40,8 +41,8 @@ const url = (dir: string, name: string) => packUrls.get(`${dir}/${name}`) ?? `${
 export const itemIconUrl = (defId: string) => ['realmkey', 'realmescape'].includes(defId)
   ? `${BASE}art/icons/realm/${defId}.svg`
   : url(`icons/${ITEM_DEFS[defId].category}`, ITEM_DEFS[defId].name);
-/** 神器、寶衣 */
-export const equipIconUrl = (e: Equipment) => url(`icons/${e.kind === 'weapon' ? '神器' : '寶衣'}`, baseName(e.name));
+/** 專屬武器與寶衣 */
+export const equipIconUrl = (e: Equipment) => e.fixedGeneralId ? `${BASE}art/icons/weapons/${WEAPON_CATALOG[e.fixedGeneralId].material}.svg` : url('icons/寶衣', baseName(e.name));
 /** 靈獸 */
 export const beastIconUrl = (b: Beast) => url('icons/靈獸', baseName(b.name));
 /** 武將頭像（小圖 128px，名冊、清單、商店用） */
@@ -84,7 +85,7 @@ export function preloadArt(firstGeneralIds: string[], allGeneralIds: string[]) {
       const files = [...firstGeneralIds, ...allGeneralIds].map((id) => `${BASE}art/generals/t/${id}.webp`);
       const dirs = (d: string, n: string) => `${BASE}art/icons/${d}/${encodeURIComponent(n)}.webp`;
       for (const d of Object.values(ITEM_DEFS)) files.push(dirs(d.category, d.name));
-      for (const e of EQUIP_DESIGNS) files.push(dirs(e.kind === 'weapon' ? '神器' : '寶衣', e.name));
+      for (const e of EQUIP_DESIGNS) files.push(dirs('寶衣', e.name));
       for (const b of BEASTS) files.push(dirs('靈獸', b.name));
       preload(files);
     }

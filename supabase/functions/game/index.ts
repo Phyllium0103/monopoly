@@ -182,6 +182,29 @@ async function commit(admin: SupabaseClient, roomId: string, expected: number, r
   });
   timing.commit = Math.round(performance.now() - t3);
   if (error) return json({ error: error.message.includes('VERSION_CONFLICT') ? 'VERSION_CONFLICT' : error.message }, 409);
+  const update = { version, state: withoutTiles(r.state), pending: r.pending, over: r.over, paused: r.paused, events: r.events };
+  // 同時推送給房間裡的其他玩家（私有頻道，只有成員收得到）；不等推送完成就先回應
+  const pushed = broadcast(roomId, update);
+  const runtime = (globalThis as { EdgeRuntime?: { waitUntil(p: Promise<unknown>): void } }).EdgeRuntime;
+  if (runtime) runtime.waitUntil(pushed);
+  else await pushed;
   // 直接回傳新狀態與事件，呼叫的玩家不必再向資料庫讀取一次
-  return json({ ok: true, version, state: withoutTiles(r.state), pending: r.pending, over: r.over, paused: r.paused, events: r.events, timing });
+  return json({ ok: true, ...update, timing });
+}
+
+/** Realtime 單則訊息上限約 256KB；太大時只推送版本號，玩家改從資料庫讀取 */
+const BROADCAST_LIMIT = 230_000;
+
+async function broadcast(roomId: string, update: { version: number }) {
+  const full = JSON.stringify(update);
+  const payload = full.length < BROADCAST_LIMIT ? update : { version: update.version, partial: true };
+  try {
+    await fetch(`${SUPABASE_URL}/realtime/v1/api/broadcast`, {
+      method: 'POST',
+      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: [{ topic: `game:${roomId}`, event: 'update', payload, private: true }] }),
+    });
+  } catch (e) {
+    console.error('broadcast failed', e);
+  }
 }

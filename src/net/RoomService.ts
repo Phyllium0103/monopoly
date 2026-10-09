@@ -198,10 +198,18 @@ export class RoomService {
       .subscribe((status) => onStatus(status === 'SUBSCRIBED'));
   }
 
-  /** 訂閱對局事件（每次權威端寫入新版本都會插入一列） */
-  watchGame(roomId: string, onEvent: (row: EventRow) => void, onStatus: (online: boolean) => void): RealtimeChannel {
+  /**
+   * 訂閱對局：權威端寫入後會直接推送新狀態（私有頻道，只有房間成員收得到）；
+   * 另外也收資料庫的事件通知作為備援（推送內容過大或漏接時）。
+   */
+  watchGame(roomId: string, onEvent: (row: EventRow) => void, onStatus: (online: boolean) => void, onUpdate: (u: GameResponse & { partial?: boolean }) => void): RealtimeChannel {
     return this.sb
-      .channel(`game:${roomId}`)
+      .channel(`game:${roomId}`, { config: { private: true } })
+      .on('broadcast', { event: 'update' }, (msg) => {
+        const u = msg.payload as GameResponse & { partial?: boolean };
+        if (u?.state) withTiles(u.state);
+        onUpdate(u);
+      })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'game_events', filter: `room_id=eq.${roomId}` }, (p) => onEvent(p.new as EventRow))
       .subscribe((status) => onStatus(status === 'SUBSCRIBED'));
   }

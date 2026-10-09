@@ -254,6 +254,10 @@ export class OnlineSession {
       this.online = online;
       if (online && !was) this.catchUp();
       this.updateBar();
+    }, (update) => {
+      // 伺服器直接推送的新狀態：與自己送出回答後的回應用同一套方式套用（重複的版本會略過）
+      if (update.partial || !update.state) this.catchUp();
+      else this.applyResponse(update);
     });
     // 房主剛按開始時，遊戲資料可能還在建立中
     let pub: GamePublic | null = null;

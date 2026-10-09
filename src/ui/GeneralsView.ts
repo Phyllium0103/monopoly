@@ -170,15 +170,17 @@ export class GeneralsView {
 
     const req = upgradeRequirement(lord, g);
     card.innerHTML = `
-      <div class="gc-portrait"><img src="${portraitUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></div>
       <div class="gc-details">
       ${ready ? `<div class="ready-banner">✨ 修為圓滿，可以${needsTribulation(g) ? '渡劫' : '突破'}了！</div>` : ''}
+      <div class="gc-top">
+      <div class="gc-portrait"><img src="${portraitUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></div>
       <div class="gc-head">
         <b>${g.name}</b><small>${originKingdom(g.origin)}</small><span class="realm">${REALMS[g.realm]}</span>${g.isLord ? '<span class="lord-tag">主公</span>' : ''}
         <span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span>
         <span class="chip trait" title="【${passiveOf(g).name}】${tip(fxText(passiveOf(g).fx))}${generalCooldownText(lord, g) ? `｜${tip(generalCooldownText(lord, g))}` : ''}｜${tip(passiveOf(g).flavor)}">【${passiveOf(g).name}】</span>
         ${buffs ? `<span class="chip buff">${buffs}</span>` : ''}
         <span class="st">${status}</span>
+      </div>
       </div>
       <div class="gc-body">
         <div class="gc-slots">

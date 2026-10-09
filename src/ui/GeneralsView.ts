@@ -1,27 +1,21 @@
-import { MATERIAL_NAMES, WEAPON_CATALOG, WEAPON_GRADES, WEAPON_PENETRATION } from '../data/weaponCatalog';
-import { upgradeRequirement, upgradeWeapon, weaponUpgradeTip } from '../systems/MaterialSystem';
+import { upgradeRequirement, weaponUpgradeTip } from '../systems/MaterialSystem';
 import { generalCooldownText } from '../systems/GeneralAbilities';
-import type { Equipment, GameState, General, Lord } from '../game/types';
+import type { GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
-import { APTITUDE_DESC, APTITUDE_NAMES, REALMS } from '../data/generals';
+import { APTITUDE_DESC, APTITUDE_NAMES } from '../data/generals';
 import { realmTag } from './GeneralInfo';
 import { fxText, passiveOf, fx } from '../data/passives';
-import { ELEMENT_CSS, equipDesc, equipRealm, techniqueDesc } from '../data/items';
+import { ELEMENT_CSS, equipDesc, techniqueDesc } from '../data/items';
 import {
-  abolish,
   attack,
   boltCount,
   boltDamage,
   breakChance,
   canAttemptBreak,
-  canLearn,
   craft,
   defense,
-  equip,
-  unequip,
   expCap,
   inBottleneck,
-  learn,
   maxHp,
   maxStamina,
   expMultiplier,
@@ -31,8 +25,8 @@ import {
 } from '../systems/GeneralSystem';
 import { bagHtml } from './ItemUI';
 import { LORDS, originKingdom } from '../faction/Faction';
-import type { Choice, Dialog } from './Dialog';
 import { equipIconUrl, portraitUrl } from './Icons';
+import type { RosterAction } from '../engine/prompts';
 
 const SECTIONS: { status: General['status']; title: string }[] = [
   { status: 'free', title: '隨行' },
@@ -59,40 +53,91 @@ const SORTS: { id: string; name: string; value: (g: General) => number }[] = [
   { id: 'realm', name: '境界', value: (g) => g.realm * 1e6 + g.exp },
 ];
 
+export interface RosterMode {
+  /** 自己的整備階段：可突破、閉關、升階、換裝 */
+  manage: boolean;
+  /** 不在整備階段時仍可學功法、自廢修為（單機） */
+  free: boolean;
+}
+
 export class GeneralsView {
   /** 目前的排序項目，預設戰力 */
   private sortId = 'power';
   private el: HTMLDivElement;
   private resolve: (() => void) | null = null;
+  private mode: RosterMode = { manage: false, free: false };
+  private onAction: ((a: RosterAction) => void) | null = null;
+  private current: { state: GameState; lord: Lord } | null = null;
 
-  constructor(
-    root: HTMLElement,
-    private dialog: Dialog,
-    private onBreak: (g: General) => Promise<void>,
-    private canManage: () => boolean,
-  ) {
+  constructor(root: HTMLElement) {
     this.el = document.createElement('div');
     this.el.className = 'drawer hidden';
     root.appendChild(this.el);
   }
 
-  open(state: GameState, lord: Lord): Promise<void> {
+  get isOpen() {
+    return !this.el.classList.contains('hidden');
+  }
+
+  /** 開啟名冊；onAction 收到按鈕動作（關閉時收到 close） */
+  open(state: GameState, lord: Lord, mode: RosterMode = { manage: false, free: false }, onAction: ((a: RosterAction) => void) | null = null): Promise<void> {
+    this.mode = mode;
+    this.onAction = onAction;
+    this.current = { state, lord };
+    this.el.classList.remove('hidden');
+    this.render(state, lord);
     return new Promise((resolve) => {
+      const prev = this.resolve;
       this.resolve = resolve;
-      this.el.classList.remove('hidden');
-      this.render(state, lord);
+      prev?.();
     });
   }
 
+  /** 整備階段的名冊：等待下一個動作 */
+  ask(state: GameState, lord: Lord): Promise<RosterAction> {
+    return new Promise((resolve) => {
+      let answered = false;
+      const once = (a: RosterAction) => {
+        if (answered) return;
+        answered = true;
+        // 動作處理中暫時停用按鈕，避免連按
+        this.mode = { manage: false, free: false };
+        if (this.current) this.render(this.current.state, this.current.lord);
+        resolve(a);
+      };
+      if (this.isOpen) {
+        this.mode = { manage: true, free: true };
+        this.onAction = once;
+        this.current = { state, lord };
+        this.render(state, lord);
+      } else void this.open(state, lord, { manage: true, free: true }, once);
+    });
+  }
+
+  /** 重新繪製（狀態更新後） */
+  refresh(state: GameState, lord: Lord) {
+    if (!this.isOpen) return;
+    this.current = { state, lord };
+    this.render(state, lord);
+  }
+
   close() {
+    if (!this.isOpen) return;
     this.el.classList.add('hidden');
+    const action = this.onAction;
+    this.onAction = null;
+    action?.({ type: 'close' });
     this.resolve?.();
     this.resolve = null;
   }
 
+  private emit(a: RosterAction) {
+    this.onAction?.(a);
+  }
+
   private render(state: GameState, lord: Lord) {
     const gens = generalsOf(state, lord.id);
-    const manage = this.canManage();
+    const manage = this.mode.manage;
 
     const bag = bagHtml(lord.items);
     const gear = lord.gear.map((e) => `<span class="chip" title="${tip(equipDesc(e))}">${e.name}</span>`).join('') || '<span class="muted">無</span>';
@@ -153,6 +198,7 @@ export class GeneralsView {
   }
 
   private card(state: GameState, lord: Lord, g: General, manage: boolean): HTMLDivElement {
+    const free = manage || this.mode.free;
     const card = document.createElement('div');
     const ready = canAttemptBreak(g, state.round).ok;
     card.className = `general-card s-${g.status}${ready ? ' ready' : ''}`;
@@ -234,73 +280,19 @@ export class GeneralsView {
 
     if (bottleneck) {
       const can = canAttemptBreak(g, state.round);
-      btn(needsTribulation(g) ? '⚡ 渡劫' : '🧘 突破', !manage || !can.ok, async () => {
-        await this.onBreak(g);
-        if (state.over) this.close();
-        else this.render(state, lord);
-      }, 'danger');
+      btn(needsTribulation(g) ? '⚡ 渡劫' : '🧘 突破', !manage || !can.ok, () => this.emit({ type: 'break', generalId: g.id }), 'danger');
     }
     if (g.status === 'garrison') {
-      btn(g.secluded ? '出關' : '閉關修煉', !manage, () => {
-        g.secluded = !g.secluded;
-        this.render(state, lord);
-      });
+      btn(g.secluded ? '出關' : '閉關修煉', !manage, () => this.emit({ type: 'seclude', generalId: g.id }));
     }
-    rowBtn('weapon', req.reason === '已達天階' ? '已達天階' : (g.weapon ? '武器升階' : '無專屬武器'), !manage || away || !req.ok, async () => {
-      const r = upgradeRequirement(lord, g);
-      if (!r.ok || r.stage === undefined || !r.group || !r.cost) return;
-      const name = WEAPON_CATALOG[g.id].names[r.stage + 1];
-      const ok = await this.dialog.confirm(`${g.name}・武器升階`,
-        `${g.weapon!.name} → ${WEAPON_GRADES[r.stage + 1]}・${name}。\n消耗 ${r.cost} 顆${MATERIAL_NAMES[r.group][r.stage]}；無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage] * 100)}% → ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%。`,
-        '消耗材料・升階', '返回名冊', '⚔️');
-      if (ok && this.canManage() && upgradeRequirement(lord, g).ok) {
-        await this.dialog.message('武器升階完成', upgradeWeapon(lord, g), '⚔️');
-      }
-      this.render(state, lord);
-    });
+    rowBtn('weapon', req.reason === '已達天階' ? '已達天階' : (g.weapon ? '武器升階' : '無專屬武器'), !manage || away || !req.ok, () => this.emit({ type: 'upgrade', generalId: g.id }));
     const weaponButton = card.querySelector<HTMLButtonElement>('.eq-row[data-slot="weapon"] button');
     if (weaponButton) weaponButton.title = req.reason;
-    for (const kind of ['armor'] as const) {
-      const pool = lord.gear.filter((e) => e.kind === kind);
-      const name = '寶衣';
-      rowBtn(kind, g[kind] ? '更換／卸下' : '裝備', !manage || away || (!pool.length && !g[kind]), async () => {
-        const choices: Choice<Equipment | 'off'>[] = pool.map((x) => ({
-          label: x.name,
-          icon: equipIconUrl(x),
-          sub: equipDesc(x),
-          value: x,
-          disabled: g.realm < equipRealm(x.tier),
-          reason: `需達${REALMS[equipRealm(x.tier)]}`,
-        }));
-        if (g[kind]) choices.unshift({ label: `卸下${g[kind]!.name}`, sub: `取下${name}放回行囊`, value: 'off' });
-        const e = await this.dialog.choose(`${g.name}・${name}`, '', choices);
-        if (e === 'off') unequip(lord, g, kind);
-        else if (e) equip(lord, g, e);
-        this.render(state, lord);
-      });
-    }
+    const pool = lord.gear.filter((e) => e.kind === 'armor');
+    rowBtn('armor', g.armor ? '更換／卸下' : '裝備', !manage || away || (!pool.length && !g.armor), () => this.emit({ type: 'equip', generalId: g.id }));
     // 已經修習功法就不再顯示學習按鈕
-    if (!t) rowBtn('technique', g.aptitude === 'waste' ? '廢靈根' : '學習功法', away || !lord.scrolls.length || g.aptitude === 'waste', async () => {
-      const s = await this.dialog.choose(
-        `${g.name}・學習功法`,
-        '每位武將只能修習一種功法；五行靈根須與功法屬性相符，天靈根不限屬性，廢靈根無法修習。學會後不可更換，除非自廢修為。',
-        lord.scrolls.map((x) => ({
-          label: x.name,
-          sub: techniqueDesc(x),
-          value: x,
-          color: ELEMENT_CSS[x.element],
-          disabled: !canLearn(g, x).ok,
-          reason: canLearn(g, x).reason,
-        })),
-      );
-      if (s) learn(lord, g, s);
-      this.render(state, lord);
-    });
-    btn('自廢修為', away || !t, async () => {
-      const ok = await this.dialog.confirm('自廢修為', `${g.name}將散去「${t!.name}」，境界跌回凡人，修為歸零。\n此後可改修其他功法。確定嗎？`, '自廢', '取消', '⚠️');
-      if (ok) abolish(g);
-      this.render(state, lord);
-    });
+    if (!t) rowBtn('technique', g.aptitude === 'waste' ? '廢靈根' : '學習功法', !free || away || !lord.scrolls.length || g.aptitude === 'waste', () => this.emit({ type: 'learn', generalId: g.id }));
+    btn('自廢修為', !free || away || !t, () => this.emit({ type: 'abolish', generalId: g.id }));
     return card;
   }
 }

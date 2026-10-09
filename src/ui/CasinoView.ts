@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { Lord } from '../game/types';
 import { fmtStones } from '../game/Currency';
-import { CASINO_MIN_BET, CASINO_NAME, PAYOUT, diceTotal, isTriple, maxBet, playCasino, type CasinoResult, type Dice } from '../systems/CasinoSystem';
+import { CASINO_MIN_BET, CASINO_NAME, PAYOUT, diceTotal, isTriple, maxBet, type CasinoResult, type Dice } from '../systems/CasinoSystem';
 import type { Dialog } from './Dialog';
 
 // ───────────────────────── 骰子貼圖 ─────────────────────────
@@ -250,113 +250,155 @@ const OUTCOME_TEXT: Record<CasinoResult['outcome'], string> = {
 
 const diceText = (d: Dice) => `${d.join('・')}＝${diceTotal(d)}${isTriple(d) ? '（豹子）' : ''}`;
 
-/** 乾坤骰閣：每次造訪只能賭一把；離開或未下注回傳 null。 */
-export function openCasino(dialog: Dialog, lord: Lord, speed: () => number): Promise<CasinoResult | null> {
-  let result: CasinoResult | null = null;
-  let table: DiceTable | null = null;
-  const cleanup = () => {
-    table?.dispose();
-    table = null;
-  };
-  return dialog.custom<CasinoResult | null>(
-    `🎲 ${CASINO_NAME}・骰盅比大小`,
-    (body, done) => {
-      const top = maxBet(lord);
-      body.innerHTML = `
-        <ul class="cz-rules">
-          <li>與荷官各搖三顆骰子，比<b>總點數</b>。</li>
-          <li>點數大：<b>1 賠 1</b></li>
-          <li><b>豹子</b>（三顆相同）勝過任何點數：<b>1 賠 3</b>；雙方都是豹子時比點數</li>
-          <li>點數相同：和局，退還賭注</li>
-          <li>每次只能賭一把；離開後會被送往地圖上的隨機地點</li>
-        </ul>
-        <div class="wallet">持有靈石：<b class="cz-wallet">${fmtStones(lord.stones)}</b></div>
-        <div class="casino-stage">
-          <div class="cz-canvas"></div>
-          <div class="cz-label dealer">莊家<b>？</b></div>
-          <div class="cz-label player">你<b>？</b></div>
-        </div>
-        <div class="casino-bet"></div>
-        <div class="cz-result"></div>
-        <div class="dialog-buttons"></div>`;
-      table = new DiceTable(body.querySelector('.cz-canvas') as HTMLElement);
-      const betBox = body.querySelector('.casino-bet') as HTMLElement;
-      const buttons = body.querySelector('.dialog-buttons') as HTMLElement;
-      const leave = document.createElement('button');
-      leave.className = 'btn';
-      leave.textContent = '離開';
-      leave.onclick = () => {
-        cleanup();
-        done(result);
-      };
+/**
+ * 乾坤骰閣：先下注（回傳賭注給引擎，或 null 表示不賭），
+ * 引擎結算後再呼叫 reveal 播放開盅動畫；按「離開」才關閉視窗。
+ */
+export class CasinoPanel {
+  private session: {
+    body: HTMLDivElement;
+    table: DiceTable;
+    done: () => void;
+    leave: HTMLButtonElement;
+    afterReveal: (() => void) | null;
+    wallet: number;
+  } | null = null;
 
-      if (top < CASINO_MIN_BET) {
-        betBox.innerHTML = `<p class="muted">囊中羞澀，至少要有 ${fmtStones(CASINO_MIN_BET)} 才能下注。</p>`;
-        buttons.appendChild(leave);
-        return;
-      }
+  constructor(private dialog: Dialog) {}
 
-      let bet = Math.min(top, Math.max(CASINO_MIN_BET, Math.round(top / 10 / CASINO_MIN_BET) * CASINO_MIN_BET));
-      betBox.innerHTML = `
-        <div class="slider-value"></div>
-        <input type="range" min="${CASINO_MIN_BET}" max="${top}" step="${CASINO_MIN_BET}">
-        <div class="slider-quick"></div>
-        <div class="slider-preview"></div>`;
-      const input = betBox.querySelector('input') as HTMLInputElement;
-      const value = betBox.querySelector('.slider-value') as HTMLElement;
-      const preview = betBox.querySelector('.slider-preview') as HTMLElement;
-      const roll = document.createElement('button');
-      roll.className = 'btn primary';
-      const render = () => {
-        input.value = String(bet);
-        value.innerHTML = `下注 <b>${fmtStones(bet)}</b>`;
-        preview.innerHTML = `贏得 +${fmtStones(bet * PAYOUT.win)}・豹子 +${fmtStones(bet * PAYOUT.triple)}・輸掉 −${fmtStones(bet)}`;
-        roll.textContent = `🎲 開骰（${fmtStones(bet)}）`;
-      };
-      const set = (v: number) => {
-        bet = Math.max(CASINO_MIN_BET, Math.min(top, Math.round(v / CASINO_MIN_BET) * CASINO_MIN_BET));
-        render();
-      };
-      input.oninput = () => set(Number(input.value));
-      const quick = betBox.querySelector('.slider-quick') as HTMLElement;
-      for (const [label, ratio] of [['最少', 0], ['¼', 0.25], ['½', 0.5], ['全部', 1]] as const) {
-        const b = document.createElement('button');
-        b.className = 'btn mini';
-        b.textContent = label;
-        b.onclick = () => set(ratio === 0 ? CASINO_MIN_BET : top * ratio);
-        quick.appendChild(b);
-      }
+  private cleanup() {
+    const s = this.session;
+    if (!s) return;
+    this.session = null;
+    s.table.dispose();
+    s.done();
+    s.afterReveal?.();
+  }
 
-      roll.onclick = async () => {
-        if (result) return;
-        // 先結算再播動畫；中途關掉視窗也不會重賭
-        result = playCasino(lord, bet);
-        betBox.remove();
-        roll.remove();
-        leave.disabled = true;
-        const r = result;
+  close() {
+    this.cleanup();
+  }
+
+  /** 下注：回傳賭注；不賭直接離開回傳 null */
+  bet(lord: Lord): Promise<number | null> {
+    this.cleanup();
+    return new Promise((resolve) => {
+      let answered = false;
+      const answer = (v: number | null) => {
+        if (answered) return;
+        answered = true;
+        resolve(v);
+      };
+      void this.dialog.custom<void>(
+        `🎲 ${CASINO_NAME}・骰盅比大小`,
+        (body, done) => {
+          const top = maxBet(lord);
+          body.innerHTML = `
+            <ul class="cz-rules">
+              <li>與荷官各搖三顆骰子，比<b>總點數</b>。</li>
+              <li>點數大：<b>1 賠 1</b></li>
+              <li><b>豹子</b>（三顆相同）勝過任何點數：<b>1 賠 3</b>；雙方都是豹子時比點數</li>
+              <li>點數相同：和局，退還賭注</li>
+              <li>每次只能賭一把；離開後會被送往地圖上的隨機地點</li>
+            </ul>
+            <div class="wallet">持有靈石：<b class="cz-wallet">${fmtStones(lord.stones)}</b></div>
+            <div class="casino-stage">
+              <div class="cz-canvas"></div>
+              <div class="cz-label dealer">莊家<b>？</b></div>
+              <div class="cz-label player">你<b>？</b></div>
+            </div>
+            <div class="casino-bet"></div>
+            <div class="cz-result"></div>
+            <div class="dialog-buttons"></div>`;
+          const table = new DiceTable(body.querySelector('.cz-canvas') as HTMLElement);
+          const betBox = body.querySelector('.casino-bet') as HTMLElement;
+          const buttons = body.querySelector('.dialog-buttons') as HTMLElement;
+          const leave = document.createElement('button');
+          leave.className = 'btn';
+          leave.textContent = '離開';
+          this.session = { body, table, done: () => done(), leave, afterReveal: null, wallet: lord.stones };
+          leave.onclick = () => {
+            this.cleanup();
+            answer(null);
+          };
+
+          if (top < CASINO_MIN_BET) {
+            betBox.innerHTML = `<p class="muted">囊中羞澀，至少要有 ${fmtStones(CASINO_MIN_BET)} 才能下注。</p>`;
+            buttons.appendChild(leave);
+            return;
+          }
+
+          let bet = Math.min(top, Math.max(CASINO_MIN_BET, Math.round(top / 10 / CASINO_MIN_BET) * CASINO_MIN_BET));
+          betBox.innerHTML = `
+            <div class="slider-value"></div>
+            <input type="range" min="${CASINO_MIN_BET}" max="${top}" step="${CASINO_MIN_BET}">
+            <div class="slider-quick"></div>
+            <div class="slider-preview"></div>`;
+          const input = betBox.querySelector('input') as HTMLInputElement;
+          const value = betBox.querySelector('.slider-value') as HTMLElement;
+          const preview = betBox.querySelector('.slider-preview') as HTMLElement;
+          const roll = document.createElement('button');
+          roll.className = 'btn primary';
+          const render = () => {
+            input.value = String(bet);
+            value.innerHTML = `下注 <b>${fmtStones(bet)}</b>`;
+            preview.innerHTML = `贏得 +${fmtStones(bet * PAYOUT.win)}・豹子 +${fmtStones(bet * PAYOUT.triple)}・輸掉 −${fmtStones(bet)}`;
+            roll.textContent = `🎲 開骰（${fmtStones(bet)}）`;
+          };
+          const set = (v: number) => {
+            bet = Math.max(CASINO_MIN_BET, Math.min(top, Math.round(v / CASINO_MIN_BET) * CASINO_MIN_BET));
+            render();
+          };
+          input.oninput = () => set(Number(input.value));
+          const quick = betBox.querySelector('.slider-quick') as HTMLElement;
+          for (const [label, ratio] of [['最少', 0], ['¼', 0.25], ['½', 0.5], ['全部', 1]] as const) {
+            const b = document.createElement('button');
+            b.className = 'btn mini';
+            b.textContent = label;
+            b.onclick = () => set(ratio === 0 ? CASINO_MIN_BET : top * ratio);
+            quick.appendChild(b);
+          }
+          roll.onclick = () => {
+            // 交給引擎結算；動畫播完前不能離開
+            betBox.remove();
+            roll.remove();
+            leave.disabled = true;
+            answer(bet);
+          };
+          buttons.append(roll, leave);
+          render();
+        },
+        true,
+        () => {
+          this.cleanup();
+          answer(null);
+        },
+      );
+    });
+  }
+
+  /** 播放開盅動畫與結果；按「離開」後才結束 */
+  reveal(r: CasinoResult, wallet: number, speed: () => number): Promise<void> {
+    const s = this.session;
+    if (!s) return Promise.resolve();
+    return new Promise((resolve) => {
+      s.afterReveal = resolve;
+      void (async () => {
         const sp = Math.max(1, speed());
         const show = (who: 'dealer' | 'player', d: Dice) => {
-          (body.querySelector(`.cz-label.${who} b`) as HTMLElement).textContent = diceText(d);
+          (s.body.querySelector(`.cz-label.${who} b`) as HTMLElement).textContent = diceText(d);
         };
-        await table?.shake(r.player, r.dealer, sp);
-        await table?.reveal('dealer', sp);
+        await s.table.shake(r.player, r.dealer, sp);
+        await s.table.reveal('dealer', sp);
         show('dealer', r.dealer);
-        await table?.reveal('player', sp);
+        await s.table.reveal('player', sp);
         show('player', r.player);
-        const res = body.querySelector('.cz-result') as HTMLElement;
+        const res = s.body.querySelector('.cz-result') as HTMLElement;
         res.className = `cz-result ${r.net > 0 ? 'win' : r.net < 0 ? 'lose' : 'push'}`;
         res.innerHTML = `${OUTCOME_TEXT[r.outcome]}　${r.net > 0 ? '+' : r.net < 0 ? '−' : '±'}${fmtStones(Math.abs(r.net))}`;
-        (body.querySelector('.cz-wallet') as HTMLElement).textContent = fmtStones(lord.stones);
-        leave.disabled = false;
-      };
-      buttons.append(roll, leave);
-      render();
-    },
-    true,
-    () => {
-      cleanup();
-      return result;
-    },
-  );
+        (s.body.querySelector('.cz-wallet') as HTMLElement).textContent = fmtStones(wallet);
+        s.leave.disabled = false;
+      })();
+    });
+  }
 }

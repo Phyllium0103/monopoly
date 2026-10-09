@@ -85,7 +85,7 @@ export function itemChoices(items: Item[]): Choice<Item>[] {
 }
 
 /** 分類與清單之間逐層返回；保留上次分類供使用者返回物品清單。 */
-export async function chooseCategorizedItem(dialog: import('./Dialog').Dialog, items: Item[], selection: { category: string | null }): Promise<Item | null> {
+export async function chooseCategorizedItem(dialog: Pick<import('./Dialog').Dialog, 'choose'>, items: Item[], selection: { category: string | null }): Promise<Item | null> {
   for (;;) {
     if (!selection.category) {
       const category = await dialog.choose('使用物品・選擇分類', '選擇分類後查看物品。',

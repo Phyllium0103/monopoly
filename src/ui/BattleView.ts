@@ -6,7 +6,9 @@ import { generalBrief, realmTag, statCells } from './GeneralInfo';
 import { portraitBigUrl, portraitUrl } from './Icons';
 import { ELEMENT_CSS, ELEMENT_NAMES, STAT_NAMES } from '../data/items';
 import { TRIBULATION_BOLTS, attack, craft, defense, power, type TribulationResult } from '../systems/GeneralSystem';
-import { WOUNDED_HP, WOUNDED_REDUCE, type ContestResult, type Duel, type DuelEvent, type Fighter, type SiegeResult, type Side } from '../systems/BattleSystem';
+import { WOUNDED_HP, WOUNDED_REDUCE, type ContestResult, type DuelEvent, type SiegeResult, type Side } from '../systems/BattleSystem';
+import type { DuelSnapshot, FighterSnapshot } from '../engine/snapshots';
+import type { DuelAction } from '../engine/prompts';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -33,8 +35,8 @@ export class BattleView {
     this.el.innerHTML = '';
   }
 
-  private fighterHtml(f: Fighter, active: boolean) {
-    const t = f.general.technique;
+  private fighterHtml(f: FighterSnapshot, g: General, active: boolean) {
+    const t = g.technique;
     const hpPct = (f.hp / f.maxHp) * 100;
     const shieldPct = Math.min(100, (f.shield / f.maxHp) * 100);
     const tags = [
@@ -45,15 +47,15 @@ export class BattleView {
     ].join('');
     return `
       <div class="fighter ${active ? 'active' : ''}" data-side="${f.side}" style="--fc:${LORDS[f.lord].css}">
-        <div class="f-portrait ${f.side === 'b' ? 'flip' : ''}"><img src="${portraitBigUrl(f.general)}" alt="" onerror="this.style.visibility='hidden'"></div>
+        <div class="f-portrait ${f.side === 'b' ? 'flip' : ''}"><img src="${portraitBigUrl(g)}" alt="" onerror="this.style.visibility='hidden'"></div>
         <div class="f-lord">${LORDS[f.lord].name}</div>
-        <div class="f-name">${f.general.name} ${realmTag(f.general.realm)}</div>
+        <div class="f-name">${g.name} ${realmTag(g.realm)}</div>
         <div class="f-elem">${t ? `<span style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】${t.skillName}</span>` : '<span class="muted">無功法</span>'}</div>
         <div class="bar hp big"><i style="width:${hpPct}%"></i><em style="width:${shieldPct}%"></em><span>${Math.round(f.hp)} / ${f.maxHp}</span></div>
         <div class="bar energy ${f.energy >= 100 ? 'full' : ''}"><i style="width:${f.energy}%"></i><span>能量 ${f.energy}%</span></div>
         <div class="f-stats">武 ${f.atk} · 防 ${f.def}${f.beast ? ` · 🐾${f.beast.name.split('・')[1]}` : ''}</div>
-        ${f.general.weapon ? `<div class="f-weapon">${f.general.weapon.name}・無視防禦 ${Math.round((f.general.weapon.penetration ?? 0) * 100)}%</div>` : ''}
-        <div class="f-passive" title="${fxText(passiveOf(f.general).fx)}">【${passiveOf(f.general).name}】${fxText(passiveOf(f.general).fx)}</div>
+        ${g.weapon ? `<div class="f-weapon">${g.weapon.name}・無視防禦 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</div>` : ''}
+        <div class="f-passive" title="${fxText(passiveOf(g).fx)}">【${passiveOf(g).name}】${fxText(passiveOf(g).fx)}</div>
         <div class="f-tags">${tags}</div>
       </div>`;
   }
@@ -91,95 +93,135 @@ export class BattleView {
     }, 900);
   }
 
-  /** 擂台戰；playerSide 為玩家操作的一方。每回合雙方同時出手，回傳勝方或 'draw'（平手） */
-  runDuel(duel: Duel, playerSide: Side, speed: () => number, useItem: (side: Side) => Promise<DuelEvent[] | null>, aiItem?: (side: Side) => DuelEvent[] | null, title='⚔️ 擂台戰'): Promise<Side | 'draw'> {
+  /** 進行中的擂台畫面 */
+  private duel: {
+    body: HTMLDivElement;
+    snap: DuelSnapshot;
+    gens: Record<Side, General>;
+    /** 本機玩家操作的一方；觀戰為 null */
+    viewer: Side | null;
+    log: string[];
+    waiting: ((a: DuelAction) => void) | null;
+    asking: Side | null;
+  } | null = null;
+
+  get duelActive() {
+    return !!this.duel;
+  }
+
+  /** 開啟擂台畫面：畫面依引擎送來的快照繪製 */
+  duelOpen(snap: DuelSnapshot, gens: Record<Side, General>, title: string, viewer: Side | null) {
+    const body = this.open(title);
+    this.duel = { body, snap, gens, viewer, log: [], waiting: null, asking: null };
+    this.duelRender();
+  }
+
+  private duelRender() {
+    const d = this.duel;
+    if (!d) return;
+    const { snap, gens, body } = d;
+    body.innerHTML = `
+      <div class="arena">${this.fighterHtml(snap.a, gens.a, false)}<div class="vs">VS</div>${this.fighterHtml(snap.b, gens.b, false)}</div>
+      <div class="battle-log">${d.log.slice(-7).map((l) => `<div>${l}</div>`).join('')}</div>
+      <div class="battle-actions"></div>`;
+    const actions = body.querySelector('.battle-actions')!;
+    if (snap.over) return;
+    const side = d.asking;
+    const hint = document.createElement('div');
+    hint.className = 'muted duel-hint';
+    const note = (s: Side | null) => (snap.first ? (snap.first === s ? '你有先手，每回合先出手' : '對方有先手，每回合先出手') : '雙方同時出手');
+    hint.textContent = `第 ${snap.rounds + 1} 回合・${d.viewer ? note(d.viewer) : '觀戰中'}`;
+    actions.appendChild(hint);
+    if (!side || !d.waiting) {
+      if (d.viewer) {
+        const wait = document.createElement('div');
+        wait.className = 'muted';
+        wait.textContent = '等待對手出招……';
+        actions.appendChild(wait);
+      }
+      return;
+    }
+    const add = (label: string, a: DuelAction, cls: string, disabled = false) => {
+      const b = document.createElement('button');
+      b.className = `btn ${cls}`;
+      b.innerHTML = label;
+      b.disabled = disabled;
+      b.onclick = () => {
+        const w = d.waiting;
+        d.waiting = null;
+        d.asking = null;
+        this.duelRender();
+        w?.(a);
+      };
+      actions.appendChild(b);
+    };
+    const me = snap[side];
+    const g = gens[side];
+    add('🗡️ 攻擊', 'attack', 'primary');
+    add(g.technique ? `✨ ${g.technique.skillName}` : '✨ 功法（未修習）', 'skill', 'danger', !snap.canSkill[side]);
+    add('🎒 使用物品', 'item', 'free', me.itemsSealed);
+  }
+
+  /** 詢問本回合的出招 */
+  duelAsk(snap: DuelSnapshot, side: Side): Promise<DuelAction> {
+    const d = this.duel;
+    if (!d) return Promise.resolve('attack');
+    d.snap = snap;
     return new Promise((resolve) => {
-      const body = this.open(title);
-      const logLines: string[] = [];
-      let waiting: ((a: 'attack' | 'skill' | 'item') => void) | null = null;
-
-      const render = () => {
-        body.innerHTML = `
-          <div class="arena">${this.fighterHtml(duel.a, false)}<div class="vs">VS</div>${this.fighterHtml(duel.b, false)}</div>
-          <div class="battle-log">${logLines.slice(-7).map((l) => `<div>${l}</div>`).join('')}</div>
-          <div class="battle-actions"></div>`;
-        const actions = body.querySelector('.battle-actions')!;
-        if (duel.over) return;
-        const add = (label: string, a: 'attack' | 'skill' | 'item', cls: string, disabled = false) => {
-          const b = document.createElement('button');
-          b.className = `btn ${cls}`;
-          b.innerHTML = label;
-          b.disabled = disabled;
-          b.onclick = () => waiting?.(a);
-          actions.appendChild(b);
-        };
-        const me = duel.fighter(playerSide);
-        const note = duel.first ? (duel.first === playerSide ? '你有先手，每回合先出手' : '對方有先手，每回合先出手') : '雙方同時出手';
-        const hint = document.createElement('div');
-        hint.className = 'muted duel-hint';
-        hint.textContent = `第 ${duel.rounds + 1} 回合・${note}`;
-        actions.appendChild(hint);
-        add('🗡️ 攻擊', 'attack', 'primary');
-        add(me.general.technique ? `✨ ${me.general.technique.skillName}` : '✨ 功法（未修習）', 'skill', 'danger', !duel.canSkill(playerSide));
-        add('🎒 使用物品', 'item', 'free', me.itemsSealed);
-      };
-
-      const show = async (events: DuelEvent[]) => {
-        for (const e of events) {
-          logLines.push(e.text);
-          render();
-          if (e.target && e.damage && e.kind !== 'item') {
-            const atk = duel.fighter(e.target === 'a' ? 'b' : 'a');
-            const el = atk.general.technique ? ELEMENT_CSS[atk.general.technique.element] : undefined;
-            this.slash(e.target, e.kind === 'skill' || !!e.crit, e.kind === 'skill' ? el : undefined);
-          }
-          if (e.target && e.damage) this.float(e.target, `${e.crit ? '暴擊 ' : ''}-${e.damage}`, e.kind === 'skill' || e.crit ? 'dmg crit' : 'dmg');
-          if (e.target && e.heal) this.float(e.target, `+${e.heal}`, 'heal');
-          await sleep(420 / speed());
-        }
-      };
-
-      const loop = async () => {
-        render();
-        while (!duel.over) {
-          const action = await new Promise<'attack' | 'skill' | 'item'>((r) => (waiting = r));
-          waiting = null;
-          let events: DuelEvent[] = [];
-          if (action === 'item') {
-            const ev = await useItem(playerSide);
-            if (!ev) {
-              render();
-              continue;
-            }
-            events = duel.afterItem(ev);
-          }
-          if (!duel.over) {
-            const foe: Side = playerSide === 'a' ? 'b' : 'a';
-            const enemyItem = aiItem?.(foe);
-            if (enemyItem) events = events.concat(duel.afterItem(enemyItem));
-            const acts = { [playerSide]: action === 'item' ? 'none' : action, [foe]: enemyItem ? 'none' : duel.aiAction(foe) } as Record<Side, 'attack' | 'skill' | 'none'>;
-            events = events.concat(duel.round(acts));
-          }
-          await show(events);
-        }
-        await show(duel.verdict());
-        duel.finish();
-        const win = duel.winner;
-        logLines.push(duel.draw ? '<b>平手！</b>' : `<b>${duel.fighter(win!).general.name}勝出！</b>`);
-        render();
-        const actions = body.querySelector('.battle-actions')!;
-        actions.innerHTML = `<div class="result ${duel.draw ? '' : win === playerSide ? 'win' : 'lose'}">${duel.draw ? '平手！' : win === playerSide ? '勝利！' : '落敗……'}</div>`;
-        const ok = document.createElement('button');
-        ok.className = 'btn primary';
-        ok.textContent = '確定';
-        ok.onclick = () => {
-          this.close();
-          resolve(duel.draw ? 'draw' : win!);
-        };
-        actions.appendChild(ok);
-      };
-      void loop();
+      d.waiting = resolve;
+      d.asking = side;
+      this.duelRender();
     });
+  }
+
+  /** 逐條播放本回合的戰況 */
+  async duelPlay(snap: DuelSnapshot, events: DuelEvent[], speed: () => number) {
+    const d = this.duel;
+    if (!d) return;
+    d.snap = snap;
+    for (const e of events) {
+      d.log.push(e.text);
+      this.duelRender();
+      if (e.target && e.damage && e.kind !== 'item') {
+        const atk = d.gens[e.target === 'a' ? 'b' : 'a'];
+        const el = atk.technique ? ELEMENT_CSS[atk.technique.element] : undefined;
+        this.slash(e.target, e.kind === 'skill' || !!e.crit, e.kind === 'skill' ? el : undefined);
+      }
+      if (e.target && e.damage) this.float(e.target, `${e.crit ? '暴擊 ' : ''}-${e.damage}`, e.kind === 'skill' || e.crit ? 'dmg crit' : 'dmg');
+      if (e.target && e.heal) this.float(e.target, `+${e.heal}`, 'heal');
+      await sleep(420 / speed());
+    }
+    this.duelRender();
+  }
+
+  /** 勝負已分：顯示結果，按確定關閉 */
+  duelFinish(snap: DuelSnapshot): Promise<void> {
+    const d = this.duel;
+    if (!d) return Promise.resolve();
+    d.snap = snap;
+    d.log.push(snap.draw ? '<b>平手！</b>' : `<b>${d.gens[snap.winner!].name}勝出！</b>`);
+    this.duelRender();
+    return new Promise((resolve) => {
+      const actions = d.body.querySelector('.battle-actions')!;
+      const v = d.viewer;
+      actions.innerHTML = `<div class="result ${snap.draw || !v ? '' : snap.winner === v ? 'win' : 'lose'}">${snap.draw ? '平手！' : v ? (snap.winner === v ? '勝利！' : '落敗……') : `${d.gens[snap.winner!].name}勝出！`}</div>`;
+      const ok = document.createElement('button');
+      ok.className = 'btn primary';
+      ok.textContent = '確定';
+      ok.onclick = () => {
+        this.duel = null;
+        this.close();
+        resolve();
+      };
+      actions.appendChild(ok);
+    });
+  }
+
+  /** 強制關閉（例如重新開局） */
+  closeAll() {
+    this.duel?.waiting?.('attack');
+    this.duel = null;
+    this.close();
   }
 
   /** 技藝比試：能力值對決（之後換成小遊戲） */

@@ -74,7 +74,7 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
 }
 
 /** 結算：真仙主公優先，其餘依存活、出局順序與總資產排名。 */
-export function showEndScreen(root: HTMLElement, state: GameState, reason: string, onRestart: () => void) {
+export function showEndScreen(root: HTMLElement, state: GameState, reason: string, onRestart: () => void, restartLabel = '重新開始', me: LordId = state.player) {
   const rows = LORD_IDS.map((id) => ({ id, a: totalAssets(state, id), l: state.lords[id] }));
   rows.sort((x, y) => {
     if (x.id === y.id) return 0;
@@ -84,9 +84,9 @@ export function showEndScreen(root: HTMLElement, state: GameState, reason: strin
     if (!x.l.alive) return x.l.rank - y.l.rank;
     return y.a.total - x.a.total;
   });
-  const myRank = rows.findIndex((r) => r.id === state.player) + 1;
+  const myRank = rows.findIndex((r) => r.id === me) + 1;
   const titles = ['一統天下・仙朝之主', '雄踞一方', '偏安一隅', '道途坎坷'];
-  const me = rows.find((r) => r.id === state.player)!;
+  const mine = rows.find((r) => r.id === me)!;
 
   const el = document.createElement('div');
   el.className = 'screen end-screen';
@@ -100,12 +100,12 @@ export function showEndScreen(root: HTMLElement, state: GameState, reason: strin
       </div>
       <div class="rc-body">
       <table class="result-table">
-        <tr><td>主公</td><td style="color:${LORDS[state.player].css}">${LORDS[state.player].name}</td></tr>
-        <tr><td>靈石</td><td>${fmtStones(me.a.stones)}</td></tr>
-        <tr><td>士兵</td><td>${me.a.soldiers}</td></tr>
-        <tr><td>城池</td><td>${me.a.cities} 座</td></tr>
-        <tr><td>將領</td><td>${me.a.generals} 名</td></tr>
-        <tr class="total"><td>總資產</td><td>${fmtStones(me.a.total, true)}</td></tr>
+        <tr><td>主公</td><td style="color:${LORDS[me].css}">${LORDS[me].name}</td></tr>
+        <tr><td>靈石</td><td>${fmtStones(mine.a.stones)}</td></tr>
+        <tr><td>士兵</td><td>${mine.a.soldiers}</td></tr>
+        <tr><td>城池</td><td>${mine.a.cities} 座</td></tr>
+        <tr><td>將領</td><td>${mine.a.generals} 名</td></tr>
+        <tr class="total"><td>總資產</td><td>${fmtStones(mine.a.total, true)}</td></tr>
       </table>
       <div class="divider">════════════════════</div>
       <h3>群雄排名</h3>
@@ -113,15 +113,15 @@ export function showEndScreen(root: HTMLElement, state: GameState, reason: strin
         ${rows
           .map(
             (r) =>
-              `<li class="${r.id === state.player ? 'me' : ''}"><span style="color:${LORDS[r.id].css}">${LORDS[r.id].name}</span><span>${r.l.alive ? `${r.a.cities} 城` : '破產出局'}</span><b>${r.l.alive ? fmtStones(r.a.total, true) : '—'}</b></li>`,
+              `<li class="${r.id === me ? 'me' : ''}"><span style="color:${LORDS[r.id].css}">${LORDS[r.id].name}</span><span>${r.l.alive ? `${r.a.cities} 城` : '破產出局'}</span><b>${r.l.alive ? fmtStones(r.a.total, true) : '—'}</b></li>`,
           )
           .join('')}
       </ol>
       <h3>全部資產明細</h3>
       <p class="muted">估值以此表計入總資產：士兵每名 ${SOLDIER_PRICE} 下品、城池繁榮每點 100 下品、物品市價五折；已裝備的寶衣及功法包含在武將估值內；專屬武器與材料無售價。</p>
-      ${rows.map(r => assetDetails(state, r.id)).join('')}
+      ${rows.map(r => assetDetails(state, r.id, me)).join('')}
       </div>
-      <div class="rc-foot"><button class="btn primary big">重新開始</button></div>
+      <div class="rc-foot"><button class="btn primary big">${restartLabel}</button></div>
     </div>`;
   el.querySelector('button')!.onclick = () => {
     el.remove();
@@ -131,7 +131,7 @@ export function showEndScreen(root: HTMLElement, state: GameState, reason: strin
 }
 
 /** 各家現有資產逐項展開，裝備不重複計入行囊。 */
-function assetDetails(state: GameState, id: LordId): string {
+function assetDetails(state: GameState, id: LordId, me: LordId): string {
   const lord = state.lords[id];
   const a = totalAssets(state, id);
   const cities = citiesOf(state, id);
@@ -139,7 +139,7 @@ function assetDetails(state: GameState, id: LordId): string {
   const row = (label: string, value: number) => `<tr><td>${label}</td><td>${fmtStones(value)}</td></tr>`;
   const list = (title: string, entries: string[]) => `<h4>${title}</h4><table class="result-table">${entries.length ? entries.join('') : '<tr><td colspan="2">無</td></tr>'}</table>`;
   const statuses = { free: '隨行', sect: '宗門', garrison: '駐城', realm: '秘境', dead: '陣亡' };
-  return `<details class="asset-details" ${id === state.player ? 'open' : ''}>
+  return `<details class="asset-details" ${id === me ? 'open' : ''}>
     <summary style="color:${LORDS[id].css}">${LORDS[id].name}・總資產 ${fmtStones(a.total, true)}${id === state.winner ? '・真仙勝利' : ''}</summary>
     <table class="result-table">
       ${row('持有靈石', a.stones)}

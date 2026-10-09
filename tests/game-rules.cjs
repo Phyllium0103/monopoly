@@ -28,7 +28,7 @@ const { generalInfo } = require('../src/ui/GeneralInfo.ts');
 const { aiManageSect } = require('../src/systems/AISystem.ts');
 let passed = 0;
 function test(name, fn) { fn(); passed++; console.log(`PASS ${name}`); }
-test('All 175 selected base PNGs match the name mapping, dimensions and source SHA', () => {
+test('All 175 source PNGs match the name mapping, dimensions and SHA; full and head WebPs exist', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/base-general-art.json')));
   const seeds = [...GENERAL_SEEDS, ...HIDDEN_SEEDS];
   assert.equal(manifest.count, 175);
@@ -38,12 +38,17 @@ test('All 175 selected base PNGs match the name mapping, dimensions and source S
     const r = manifest.images.find(r => r.id === g.id);
     assert.equal(r.name, g.name);
     assert.equal(r.weapon, WEAPON_CATALOG[g.id].names[3]);
-    const bytes = fs.readFileSync(path.join(__dirname, '../public', r.file));
+    const bytes = fs.readFileSync(path.join(__dirname, '..', r.file));
     assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'), r.sha256);
     assert.equal(bytes.readUInt32BE(16), r.width);
     assert.equal(bytes.readUInt32BE(20), r.height);
     assert.ok(r.width <= 1145 && r.height <= 1536);
     assert.equal(bytes[25], 6, `${g.name} must retain RGBA`);
+    // 遊戲實際載入的全身圖與頭像（WebP）
+    for (const dir of ['full', 'head']) {
+      const webp = fs.readFileSync(path.join(__dirname, '../public/art/generals', dir, `${g.id}.webp`));
+      assert.equal(webp.toString('ascii', 8, 12), 'WEBP', `${g.name} ${dir} must be WebP`);
+    }
   }
 });
 test('Dispatch at the lord current city costs zero; distance still charges remotely', () => {

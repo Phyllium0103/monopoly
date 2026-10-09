@@ -3,3 +3,9 @@ dist
 *.log
 .DS_Store
 .claude/
+.env
+.env.local
+.env.*.local
+supabase/.temp/
+supabase/.branches/
+supabase/functions/game/_engine/

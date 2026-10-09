@@ -68,8 +68,11 @@
    ```
    VITE_SUPABASE_URL=https://your-project-ref.supabase.co
    VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
+   # 選填但建議設定：讓 Edge Function 在資料庫所在區域執行（Project Settings → General → Region）
+   VITE_SUPABASE_REGION=ap-northeast-1
    ```
-6. **GitHub Pages**：repo 的 Settings → Secrets and variables → Actions → **Variables** 新增 `VITE_SUPABASE_URL` 與 `VITE_SUPABASE_PUBLISHABLE_KEY`。部署流程建置時會讀取；沒設定時多人按鈕停用，單人照常。
+   專案區域會直接影響反應速度：在台灣遊玩時，東京（ap-northeast-1）的專案每次操作約 0.5 秒，孟買（ap-south-1）約 0.7 秒以上。
+6. **GitHub Pages**：repo 的 Settings → Secrets and variables → Actions → **Variables** 新增 `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY` 與 `VITE_SUPABASE_REGION`。部署流程建置時會讀取；沒設定時多人按鈕停用，單人照常。
 
 ## 本機測試
 

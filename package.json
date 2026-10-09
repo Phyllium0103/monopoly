@@ -10,7 +10,7 @@
     "test": "node tests/game-rules.cjs && node tests/multiplayer.cjs",
     "test:e2e": "node tests/e2e-supabase.mjs",
     "build:engine": "vite build --config vite.engine.config.ts",
-    "deploy:functions": "npm run build:engine && npx -y supabase@latest functions deploy game --project-ref oyvwdjvssuyebwktpsug --no-verify-jwt --use-api"
+    "deploy:functions": "npm run build:engine && npx -y supabase@latest functions deploy game --project-ref jmesntwspqdpkesmcjea --no-verify-jwt --use-api"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",

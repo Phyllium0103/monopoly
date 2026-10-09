@@ -2250,13 +2250,13 @@ img {
 
 /* 淺色底的商店裡，靈根標籤用對應顏色的框 */
 .shop-row .chip { margin: 0 2px; padding: 0 8px; font-size: 13.5px; font-weight: 700; vertical-align: 1px; }
-.shop-row .chip.apt-metal { color: #8a6a00; border-color: #c9a21e; background: rgba(232, 210, 122, 0.35); }
-.shop-row .chip.apt-wood { color: #1f7a2e; border-color: #3fa04b; background: rgba(95, 196, 106, 0.25); }
-.shop-row .chip.apt-water { color: #1c5f9e; border-color: #3f8ad0; background: rgba(90, 168, 236, 0.25); }
-.shop-row .chip.apt-fire { color: #b33a1f; border-color: #d4552f; background: rgba(236, 106, 74, 0.22); }
-.shop-row .chip.apt-earth { color: #7a5420; border-color: #a77c3a; background: rgba(196, 154, 90, 0.3); }
-.shop-row .chip.apt-waste { color: #666; border-color: #999; background: rgba(140, 140, 140, 0.18); }
-.shop-row .chip.apt-heaven { color: #2a1a06; border-color: transparent; background: linear-gradient(100deg, #6ec8ff 0%, #a9dcff 38%, #f6d56a 72%, #f1b93a 100%); box-shadow: 0 0 4px rgba(241, 185, 58, 0.6); }
+.shop-row .chip.apt-metal, .gb-tag.apt-metal { color: #8a6a00; border-color: #c9a21e; background: rgba(232, 210, 122, 0.35); }
+.shop-row .chip.apt-wood, .gb-tag.apt-wood { color: #1f7a2e; border-color: #3fa04b; background: rgba(95, 196, 106, 0.25); }
+.shop-row .chip.apt-water, .gb-tag.apt-water { color: #1c5f9e; border-color: #3f8ad0; background: rgba(90, 168, 236, 0.25); }
+.shop-row .chip.apt-fire, .gb-tag.apt-fire { color: #b33a1f; border-color: #d4552f; background: rgba(236, 106, 74, 0.22); }
+.shop-row .chip.apt-earth, .gb-tag.apt-earth { color: #7a5420; border-color: #a77c3a; background: rgba(196, 154, 90, 0.3); }
+.shop-row .chip.apt-waste, .gb-tag.apt-waste { color: #666; border-color: #999; background: rgba(140, 140, 140, 0.18); }
+.shop-row .chip.apt-heaven, .gb-tag.apt-heaven { color: #2a1a06; border-color: transparent; background: linear-gradient(100deg, #6ec8ff 0%, #a9dcff 38%, #f6d56a 72%, #f1b93a 100%); box-shadow: 0 0 4px rgba(241, 185, 58, 0.6); }
 .tavern-perk { color: #2a7a3a; font-weight: 700; }
 .shop-row .chip.trait { color: #1b6a86; border-color: #3a9bbf; background: rgba(143, 228, 255, 0.28); cursor: help; }
 
@@ -2389,10 +2389,14 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .gb { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
 .gb-tags { display: flex; flex-wrap: wrap; gap: 4px; }
 .gb-tag { padding: 0 8px; border-radius: 10px; border: 1px solid #c8b088; background: #f3e9d2; font-size: 13px; line-height: 1.6; color: #5a4020; }
-.gb-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid #d6c39a; border-radius: 6px; overflow: hidden; background: #fffaf0; }
+.gb-stats { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid #d6c39a; border-radius: 6px; overflow: hidden; background: #fffaf0; }
 .gb-cell { display: flex; flex-direction: column; align-items: center; padding: 2px 2px 3px; border-right: 1px solid #e6d8b8; border-bottom: 1px solid #e6d8b8; min-width: 0; }
-.gb-cell:nth-child(5n) { border-right: 0; }
-.gb-cell:nth-child(n + 6) { border-bottom: 0; }
+.gb-cell { border-bottom: 0; }
+.gb-cell:last-child { border-right: 0; }
+.gb-cell:nth-child(4) { border-left: 1px solid #d6c39a; }
+.gb-tag.apt-heaven, .gb-tag[class*="apt-"] { font-weight: 700; }
+.gb-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.gb-bars .bar { display: block; margin: 0; height: 18px; background: rgba(60, 40, 20, 0.28); }
 .gb-cell i { font-style: normal; font-size: 12px; color: #8a7050; }
 .gb-cell em { font-style: normal; font-weight: 700; font-size: 15px; color: #3a2810; white-space: nowrap; }
 .gb-line { display: block; font-size: 13.5px; line-height: 1.5; }

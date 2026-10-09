@@ -14,11 +14,13 @@ export function generalInfo(g: General): string {
 /** 選將清單用：標籤、能力格、武器與被動分區顯示。tags 會排在境界、靈根前面（例如「駐守中」）。 */
 export function generalBlock(g: General, ...tags: string[]): string {
   const cell = (k: string, v: string | number) => `<span class="gb-cell"><i>${k}</i><em>${v}</em></span>`;
+  const bar = (cls: string, k: string, v: number, max: number) => `<span class="bar ${cls}"><i style="width:${Math.min(100, (v / Math.max(1, max)) * 100)}%"></i><span>${k} ${v} / ${max}</span></span>`;
   const p = passiveOf(g);
   return `<span class="gb">` +
-    `<span class="gb-tags">${[...tags, REALMS[g.realm], APTITUDE_NAMES[g.aptitude]].map((t) => `<span class="gb-tag">${t}</span>`).join('')}</span>` +
-    `<span class="gb-stats">${cell('戰力', power(g))}${cell('武力', attack(g))}${cell('防禦', defense(g))}${cell('血量', `${g.hp}/${maxHp(g)}`)}${cell('體力', `${g.stamina}/${maxStamina(g)}`)}` +
+    `<span class="gb-tags">${[...tags, REALMS[g.realm]].map((t) => `<span class="gb-tag">${t}</span>`).join('')}<span class="gb-tag apt-${g.aptitude}">${APTITUDE_NAMES[g.aptitude]}</span></span>` +
+    `<span class="gb-stats">${cell('戰力', power(g))}${cell('武力', attack(g))}${cell('防禦', defense(g))}` +
     `${cell('煉丹', craft(g, 'alchemy'))}${cell('煉器', craft(g, 'forging'))}${cell('畫符', craft(g, 'talisman'))}${cell('佈陣', craft(g, 'formation'))}</span>` +
+    `<span class="gb-bars">${bar('hp', '血量', g.hp, maxHp(g))}${bar('sta', '體力', g.stamina, maxStamina(g))}</span>` +
     (g.weapon ? `<span class="gb-line">武器：${g.weapon.name}・無視防禦 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</span>` : '') +
     `<span class="gb-line gb-passive"><strong>【${p.name}】</strong>${fxText(p.fx)}</span>` +
     `</span>`;

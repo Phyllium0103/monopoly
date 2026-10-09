@@ -2443,3 +2443,6 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 /* 狀態標籤列預留一行高度，出現「瀕危」等標籤時不會撐高 */
 .f-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 0; min-height: 24px; }
 .f-tags .ftag { line-height: 20px; }
+
+/* 多選清單：已選取的項目 hover 時改為深黃，不會變回白色 */
+.choice.picked:hover:not(:disabled) { background: #e6bd4e; border-color: #7a5a10; }

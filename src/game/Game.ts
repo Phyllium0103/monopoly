@@ -154,9 +154,12 @@ export class Game {
     return !this.online && this.autoPlay;
   }
 
+  /** 多人模式入口（有設定連線伺服器時才有） */
+  onMultiplayer: (() => void) | null = null;
+
   showStart() {
     this.ui.hide();
-    showStartScreen(this.uiRoot, (id, rounds) => this.start(id, rounds), () => this.help.open());
+    showStartScreen(this.uiRoot, (id, rounds) => this.start(id, rounds), () => this.help.open(), this.onMultiplayer ?? undefined);
   }
 
   // ───────────────────────── 開局 ─────────────────────────
@@ -243,16 +246,15 @@ export class Game {
     this.setupBoard(state);
   }
 
-  /** 換上伺服器最新的完整狀態（重連或補資料時）；棋子直接放到正確位置 */
-  syncOnlineState(state: GameState) {
+  /** 換上伺服器最新的完整狀態；placeSprites 為 false 時棋子留在原地（接著要播放移動動畫） */
+  syncOnlineState(state: GameState, placeSprites = true) {
     if (!this.online) return;
-    const prev = this.state;
     this.state = state;
     bindPassiveState(state);
-    for (const id of LORD_IDS) {
+    if (placeSprites) for (const id of LORD_IDS) {
       const s = this.sprites.get(id);
       if (!s) continue;
-      if (!prev || prev.lords[id].position !== state.lords[id].position) s.setGroundPosition(this.slotPosition(id, state.lords[id].position));
+      s.setGroundPosition(this.slotPosition(id, state.lords[id].position));
       s.group.visible = state.lords[id].alive;
     }
     this.world.syncCities(state);
@@ -282,7 +284,9 @@ export class Game {
     }
     this.shop.close();
     this.casino.close();
-    this.refresh();
+    this.dialog.close();
+    this.generalsView.close();
+    if (this.state) this.refresh();
   }
 
   /** 多人：顯示等待誰行動 */
@@ -661,7 +665,7 @@ export class Game {
 
   private refresh() {
     if (!this.state) return;
-    this.ui.renderTop(this.state);
+    this.ui.renderTop(this.state, this.me);
     this.world.syncForkArrows(this.state);
     this.updateFacing();
     const player = this.state.lords[this.me];

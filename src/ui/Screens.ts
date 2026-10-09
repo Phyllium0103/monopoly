@@ -10,8 +10,8 @@ import { SOLDIER_PRICE, totalAssets } from '../systems/CitySystem';
 import { fmtStones } from '../game/Currency';
 import { DEFAULT_ROUNDS, ROUND_OPTIONS } from '../game/GameState';
 
-/** 開始畫面：選擇主公 */
-export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRounds: number | null) => void, onHelp: () => void) {
+/** 開始畫面：先選單人或多人；單人再選回合數與主公 */
+export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRounds: number | null) => void, onHelp: () => void, onMultiplayer?: () => void) {
   let rounds: number | null = DEFAULT_ROUNDS;
   const el = document.createElement('div');
   el.className = 'screen start-screen';
@@ -21,11 +21,31 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
       <p class="title-en">Chancellor, This Toll is Worse Than Heavenly Tribulation!</p>
       <p class="subtitle">靈氣復甦，群雄修仙・擲骰爭天下</p>
     </div>
-    <div class="mode-row"><span>遊戲模式</span><div class="mode-options"></div></div>
-    <div class="faction-cards"></div>
-    <p class="hint"></p>
+    <div class="play-modes">
+      <button class="play-mode solo"><b>🧘 單人遊戲</b><small>與三位電腦主公逐鹿天下</small></button>
+      <button class="play-mode multi"><b>⚔️ 多人遊戲</b><small>建立或加入房間，與好友連線對戰</small></button>
+    </div>
+    <div class="solo-setup">
+      <div class="mode-row"><span>遊戲模式</span><div class="mode-options"></div></div>
+      <div class="faction-cards"></div>
+      <p class="hint"></p>
+      <button class="btn back-modes">← 返回</button>
+    </div>
     <button class="btn help-start">📖 遊戲說明</button>`;
   (el.querySelector('.help-start') as HTMLButtonElement).onclick = onHelp;
+  const setStage = (stage: 'modes' | 'solo') => el.classList.toggle('stage-solo', stage === 'solo');
+  setStage('modes');
+  (el.querySelector('.play-mode.solo') as HTMLButtonElement).onclick = () => setStage('solo');
+  (el.querySelector('.back-modes') as HTMLButtonElement).onclick = () => setStage('modes');
+  const multi = el.querySelector('.play-mode.multi') as HTMLButtonElement;
+  if (onMultiplayer) multi.onclick = () => {
+    el.remove();
+    onMultiplayer();
+  };
+  else {
+    multi.disabled = true;
+    (multi.querySelector('small') as HTMLElement).textContent = '尚未設定連線伺服器';
+  }
   const hint = el.querySelector('.hint') as HTMLElement;
   const options = el.querySelector('.mode-options')!;
   const renderMode = () => {
@@ -75,7 +95,7 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
 
 /** 結算：真仙主公優先，其餘依存活、出局順序與總資產排名。 */
 export function showEndScreen(root: HTMLElement, state: GameState, reason: string, onRestart: () => void, restartLabel = '重新開始', me: LordId = state.player) {
-  const rows = LORD_IDS.map((id) => ({ id, a: totalAssets(state, id), l: state.lords[id] }));
+  const rows = LORD_IDS.filter((id) => !state.lords[id].absent).map((id) => ({ id, a: totalAssets(state, id), l: state.lords[id] }));
   rows.sort((x, y) => {
     if (x.id === y.id) return 0;
     if (x.id === state.winner) return -1;

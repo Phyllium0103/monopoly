@@ -7,9 +7,12 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "node tests/game-rules.cjs"
+    "test": "node tests/game-rules.cjs && node tests/multiplayer.cjs",
+    "build:engine": "vite build --config vite.engine.config.ts",
+    "deploy:functions": "npm run build:engine && npx -y supabase@latest functions deploy game --project-ref oyvwdjvssuyebwktpsug --no-verify-jwt --use-api"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
     "three": "^0.186.1"
   },
   "devDependencies": {

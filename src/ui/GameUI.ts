@@ -280,8 +280,39 @@ export class GameUI {
   }
 
   /** 擲骰動畫 */
+  private spin: { timer: number; safety: number } | null = null;
+
+  /** 先讓骰子轉起來（多人模式等伺服器結果時），之後 rollDice 再停在結果上 */
+  startRolling(count = 1) {
+    if (this.spin) return;
+    this.dice.classList.remove('hidden');
+    this.dice.classList.add('rolling');
+    const timer = window.setInterval(() => {
+      this.dice.textContent = Array.from({ length: count }, () => DICE[Math.floor(Math.random() * 6)]).join('');
+    }, 60);
+    // 結果一直沒來（例如回答被拒）就收起來
+    const safety = window.setTimeout(() => this.stopRolling(), 10000);
+    this.spin = { timer, safety };
+  }
+
+  stopRolling() {
+    if (!this.spin) return;
+    clearInterval(this.spin.timer);
+    clearTimeout(this.spin.safety);
+    this.spin = null;
+    this.dice.classList.remove('rolling');
+    this.dice.classList.add('hidden');
+  }
+
   rollDice(values: number[], bonus = 0, multiplier = 1): Promise<void> {
-    const flicker = 10;
+    // 已經在轉：直接收尾，只再閃幾下
+    const spinning = !!this.spin;
+    if (this.spin) {
+      clearInterval(this.spin.timer);
+      clearTimeout(this.spin.safety);
+      this.spin = null;
+    }
+    const flicker = spinning ? 3 : 10;
     const interval = 60 / this.speed;
     return new Promise((resolve) => {
       this.dice.classList.remove('hidden');

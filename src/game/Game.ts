@@ -291,6 +291,7 @@ export class Game {
     this.casino.close();
     this.dialog.close();
     this.generalsView.close();
+    this.ui.stopRolling();
     if (this.state) this.refresh();
   }
 
@@ -449,6 +450,10 @@ export class Game {
     if (!act) return;
     this.active = null;
     this.world.clearHighlights();
+    // 多人：擲骰要等伺服器回覆，先讓骰子轉起來，結果到了再停下
+    if (this.online && act.prompt.kind === 'preroll' && (a as PrerollAction | null)?.type === 'roll') {
+      this.ui.startRolling(this.state.lords[act.lord].doubleDice ? 2 : 1);
+    }
     act.resolve(a);
     this.refresh();
   }

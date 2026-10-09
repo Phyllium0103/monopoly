@@ -1,4 +1,4 @@
-import { generalArtUrl } from '../data/generalArt';
+import { generalArtUrl, generalHeadUrl } from '../data/generalArt';
 import { WEAPON_CATALOG } from '../data/weaponCatalog';
 import { BEASTS, EQUIP_DESIGNS, ITEM_DEFS } from '../data/items';
 import type { Beast, Equipment } from '../game/types';
@@ -47,13 +47,13 @@ export const itemIconUrl = (defId: string) => ['realmkey', 'realmescape'].includ
 export const equipIconUrl = (e: Equipment) => e.fixedGeneralId ? `${BASE}art/icons/weapons/${WEAPON_CATALOG[e.fixedGeneralId].material}.svg` : url('icons/寶衣', baseName(e.name));
 /** 靈獸 */
 export const beastIconUrl = (b: Beast) => url('icons/靈獸', baseName(b.name));
-/** 名冊、清單、商店統一使用已選基礎原圖。 */
-export const portraitUrl = generalArtUrl;
-/** 戰鬥立繪使用同一張透明基礎圖。 */
+/** 名冊、清單、商店統一使用頭像；點頭像可看全身圖。 */
+export const portraitUrl = generalHeadUrl;
+/** 鬥法與地圖棋子使用透明全身圖。 */
 export const portraitBigUrl = generalArtUrl;
 
 // ───────────────────────── 預先載入 ─────────────────────────
-// 優先預載主公與開局武將，其餘完整 PNG 在需要時載入，避免一次下載全部原圖。
+// 優先預載主公全身圖（地圖棋子）與開局武將頭像，其餘在需要時才載入。
 // 圖片包失敗時，縮圖與圖示也由這裡逐張補載。
 
 const queued = new Set<string>();
@@ -92,5 +92,5 @@ export function preloadArt(firstGeneralIds: string[]) {
       preload(files);
     }
   });
-  preload(['liubei', 'caocao', 'sunquan', 'dongzhuo', ...firstGeneralIds].map(big));
+  preload([...['liubei', 'caocao', 'sunquan', 'dongzhuo'].map(big), ...firstGeneralIds.map((id) => generalHeadUrl({ id }))]);
 }

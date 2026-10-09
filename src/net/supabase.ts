@@ -9,11 +9,17 @@ const key = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VI
 
 let client: SupabaseClient | null = null;
 
+/** 依專案區分本機儲存的名稱：換專案時不會沿用舊專案的登入資料或房間 */
+export const projectKey = (name: string) => {
+  const ref = url ? new URL(url).hostname.split('.')[0] : 'none';
+  return `${name}-${ref}`;
+};
+
 /** 沒有設定環境變數時回傳 null（多人模式停用，單人照常） */
 export function supabase(): SupabaseClient | null {
   if (!url || !key) return null;
   client ??= createClient(url, key, {
-    auth: { persistSession: true, autoRefreshToken: true, storageKey: 'xiantu-auth' },
+    auth: { persistSession: true, autoRefreshToken: true, storageKey: projectKey('xiantu-auth') },
     realtime: { params: { eventsPerSecond: 20 } },
   });
   return client;

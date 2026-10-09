@@ -3,9 +3,10 @@ import type { LordId } from '../game/types';
 import type { Game } from '../game/Game';
 import { LORDS } from '../faction/Faction';
 import { LobbyView } from '../ui/LobbyView';
+import { projectKey } from './supabase';
 import { RoomError, RoomService, isOnline, type EventRow, type GamePublic, type GameResponse, type Member, type Room } from './RoomService';
 
-const ROOM_KEY = 'xiantu-room';
+const ROOM_KEY = projectKey('xiantu-room');
 const NICK_KEY = 'xiantu-nickname';
 const HEARTBEAT_MS = 15_000;
 

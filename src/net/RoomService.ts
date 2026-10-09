@@ -116,7 +116,12 @@ export class RoomService {
   /** 匿名登入：同一個瀏覽器會沿用同一個身分，重新整理後仍能回到原本的房間 */
   async signIn(): Promise<string> {
     const { data } = await this.sb.auth.getSession();
-    if (data.session?.user) return (this.userId = data.session.user.id);
+    if (data.session?.user) {
+      // 確認本機的登入資料仍然有效（例如專案換過金鑰）；失效就丟掉重新登入
+      const { data: check, error } = await this.sb.auth.getUser();
+      if (!error && check.user) return (this.userId = check.user.id);
+      await this.sb.auth.signOut({ scope: 'local' }).catch(() => {});
+    }
     const { data: signed, error } = await this.sb.auth.signInAnonymously();
     if (error || !signed.user) throw new RoomError(error?.message.includes('Anonymous') ? '伺服器尚未開啟匿名登入（Authentication → Anonymous sign-ins）' : codeOf(error));
     return (this.userId = signed.user.id);

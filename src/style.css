@@ -32,6 +32,14 @@ body {
   display: block;
 }
 
+/* 圖片不可選取、拖曳 */
+img {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}
+
 #ui {
   position: relative;
   z-index: 10;

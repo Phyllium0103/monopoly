@@ -11,7 +11,7 @@
       "name": "劉備",
       "weapon": "昭烈天命雙劍",
       "source": "001-劉備-昭烈天命雙劍-無特效-v5.png",
-      "file": "art/generals/base/liubei.png",
+      "file": "art-src/generals/base/liubei.png",
       "width": 1024,
       "height": 1536,
       "sha256": "da4757276d85ad6aacb937f91a65a3694e9055f43ba270680139ec691724ca07"
@@ -22,7 +22,7 @@
       "name": "劉禪",
       "weapon": "福澤天命安樂劍",
       "source": "002-劉禪-福澤天命安樂劍-無特效-v5.png",
-      "file": "art/generals/base/liushan.png",
+      "file": "art-src/generals/base/liushan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "bbfdce54c719f70225ce57df5d1c909dff9456303814a298ff507a98e7266e63"
@@ -33,7 +33,7 @@
       "name": "關羽",
       "weapon": "武聖青龍斬天刀",
       "source": "003-關羽-武聖青龍斬天刀-無特效-v5.png",
-      "file": "art/generals/base/guanyu.png",
+      "file": "art-src/generals/base/guanyu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "2de0cc712ac22c2268a4325d2a50015108ab391adf595209b2223a0baf9c371d"
@@ -44,7 +44,7 @@
       "name": "張飛",
       "weapon": "洪荒九幽滅世蛇矛",
       "source": "004-張飛-洪荒九幽滅世蛇矛-無特效-v5.png",
-      "file": "art/generals/base/zhangfei.png",
+      "file": "art-src/generals/base/zhangfei.png",
       "width": 1024,
       "height": 1536,
       "sha256": "95a435d9525560cda3ef5feefe86a65103a61370e670fd8de2a766aa5ea05ad3"
@@ -55,7 +55,7 @@
       "name": "趙雲",
       "weapon": "九天龍膽破虛槍",
       "source": "005-趙雲-九天龍膽破虛槍-無特效.png",
-      "file": "art/generals/base/zhaoyun.png",
+      "file": "art-src/generals/base/zhaoyun.png",
       "width": 1024,
       "height": 1536,
       "sha256": "84f5d871d952b818d1d6ad5c3a4bb7a003f764bb99ccb49de289b7f56b7a6c7f"
@@ -66,7 +66,7 @@
       "name": "諸葛亮",
       "weapon": "七星八陣陰陽扇",
       "source": "006-諸葛亮-七星八陣陰陽扇-無特效-v4.png",
-      "file": "art/generals/base/zhugeliang.png",
+      "file": "art-src/generals/base/zhugeliang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "643a63208c5cd47cd619d5e1acd26000304e67b6265fe944f780e7ff13cca758"
@@ -77,7 +77,7 @@
       "name": "黃忠",
       "weapon": "落日射月神弓",
       "source": "007-黃忠-落日射月神弓-無特效.png",
-      "file": "art/generals/base/huangzhong.png",
+      "file": "art-src/generals/base/huangzhong.png",
       "width": 1083,
       "height": 1453,
       "sha256": "9cef0282a7397c5515944cd55702f3a849be2dd38827f2ea2e6c8d8099e82859"
@@ -88,7 +88,7 @@
       "name": "馬超",
       "weapon": "九天御雷天威槍",
       "source": "008-馬超-九天御雷天威槍-無特效.png",
-      "file": "art/generals/base/machao.png",
+      "file": "art-src/generals/base/machao.png",
       "width": 1083,
       "height": 1452,
       "sha256": "daa29f9357a5a210012cef458a8ade59ee1abaad5465a753ca5bec3e26042454"
@@ -99,7 +99,7 @@
       "name": "魏延",
       "weapon": "刑天噬魂碎滅刀",
       "source": "009-魏延-刑天噬魂碎滅刀-無特效.png",
-      "file": "art/generals/base/weiyan.png",
+      "file": "art-src/generals/base/weiyan.png",
       "width": 1083,
       "height": 1453,
       "sha256": "93f81fd980504b5eb550fcb31c06b10503497aba23f86c5b4c63b68f3022b49a"
@@ -110,7 +110,7 @@
       "name": "龐統",
       "weapon": "鳳舞九天連環杖",
       "source": "010-龐統-鳳舞九天連環杖-無特效.png",
-      "file": "art/generals/base/pangtong.png",
+      "file": "art-src/generals/base/pangtong.png",
       "width": 1083,
       "height": 1453,
       "sha256": "5f799e55e8441b3eea652e7b1b8dd364705e15fb5512b80b6e9a0535af74d3e5"
@@ -121,7 +121,7 @@
       "name": "姜維",
       "weapon": "九轉碧落蒼穹槍",
       "source": "011-姜維-九轉碧落蒼穹槍-無特效-v5.png",
-      "file": "art/generals/base/jiangwei.png",
+      "file": "art-src/generals/base/jiangwei.png",
       "width": 1024,
       "height": 1536,
       "sha256": "2144d393038b4610cd18295664272910b67ef2e71fa0e2324f636f23f770c9c3"
@@ -132,7 +132,7 @@
       "name": "馬岱",
       "weapon": "追魂奪命九霄弓",
       "source": "012-馬岱-追魂奪命九霄弓-無特效-動作-v1.png",
-      "file": "art/generals/base/madai.png",
+      "file": "art-src/generals/base/madai.png",
       "width": 1024,
       "height": 1536,
       "sha256": "dce8ac9ea4bb4c77a129a342331ed0c31b600a346adc2bc04ad0d7a1d20f23e2"
@@ -143,7 +143,7 @@
       "name": "關平",
       "weapon": "護主凌霄偃月刀",
       "source": "013-關平-護主凌霄偃月刀-無特效-v2.png",
-      "file": "art/generals/base/guanping.png",
+      "file": "art-src/generals/base/guanping.png",
       "width": 1024,
       "height": 1536,
       "sha256": "44cc6b7c2f6c27b8ee1021e13acbf0f2ab2805761a39a288069f6c3ae78d122b"
@@ -154,7 +154,7 @@
       "name": "馬良",
       "weapon": "白眉經世點星筆",
       "source": "014-馬良-白眉經世點星筆-無特效-v4.png",
-      "file": "art/generals/base/maliang.png",
+      "file": "art-src/generals/base/maliang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "f3d8e4996b21bfdbbdbb0734a2b52b8e76667d55a30d7cfadec5ca3a0ae960ca"
@@ -165,7 +165,7 @@
       "name": "簡雍",
       "weapon": "逍遙無極游天劍",
       "source": "015-簡雍-逍遙無極游天劍-無特效-動作-v1.png",
-      "file": "art/generals/base/jianyong.png",
+      "file": "art-src/generals/base/jianyong.png",
       "width": 1024,
       "height": 1536,
       "sha256": "3832b489a2fe04704d901b9a1e71eb769796ca9c2d615eaf1e05d8c5a81a5509"
@@ -176,7 +176,7 @@
       "name": "法正",
       "weapon": "奇策決勝定軍劍",
       "source": "016-法正-奇策決勝定軍劍-無特效-v4.png",
-      "file": "art/generals/base/fazheng.png",
+      "file": "art-src/generals/base/fazheng.png",
       "width": 1024,
       "height": 1536,
       "sha256": "ca389a0544a47416f74f5a1cc801f121748951e4b6b471963d15ef8202af8b03"
@@ -187,7 +187,7 @@
       "name": "糜竺",
       "weapon": "萬象通財天籌",
       "source": "017-糜竺-萬象通財天籌-無特效-v2.png",
-      "file": "art/generals/base/mizhu.png",
+      "file": "art-src/generals/base/mizhu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "f9cde82700f209c93ffe65e2c3784234d80e0537abd9e737d1bdcf7ebc837e4a"
@@ -198,7 +198,7 @@
       "name": "關興",
       "weapon": "青龍繼志斬天刀",
       "source": "018-關興-青龍繼志斬天刀-無特效-v4.png",
-      "file": "art/generals/base/guanxing.png",
+      "file": "art-src/generals/base/guanxing.png",
       "width": 1024,
       "height": 1536,
       "sha256": "7d9092e81b14f8d91f92939ac427d0573cdf94bff57c13d38233ac6a83af2067"
@@ -209,7 +209,7 @@
       "name": "張苞",
       "weapon": "震天雷霆蛇矛",
       "source": "019-張苞-震天雷霆蛇矛-無特效-v3.png",
-      "file": "art/generals/base/zhangbao.png",
+      "file": "art-src/generals/base/zhangbao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "a79eb6dc29ed59b9f5b4183ddccd580ca144013e3b35de32b3dae287aefe023b"
@@ -220,7 +220,7 @@
       "name": "王平",
       "weapon": "劈天裂地玄冥斧",
       "source": "020-王平-劈天裂地玄冥斧-無特效.png",
-      "file": "art/generals/base/wangping.png",
+      "file": "art-src/generals/base/wangping.png",
       "width": 1083,
       "height": 1453,
       "sha256": "8a7c0ac7221faa2eeb2cdf2fb813360ac2fe01b8203402059eacfd79c17f1580"
@@ -231,7 +231,7 @@
       "name": "廖化",
       "weapon": "歲月長青續命槍",
       "source": "021-廖化-歲月長青續命槍-無特效.png",
-      "file": "art/generals/base/liaohua.png",
+      "file": "art-src/generals/base/liaohua.png",
       "width": 1083,
       "height": 1452,
       "sha256": "d4c7d879844bd691f39b5a7437fd3ac93f8cd6323899366a6c106e7087872917"
@@ -242,7 +242,7 @@
       "name": "嚴顏",
       "weapon": "不屈烈陽開天刀",
       "source": "022-嚴顏-不屈烈陽開天刀-無特效.png",
-      "file": "art/generals/base/yanyan.png",
+      "file": "art-src/generals/base/yanyan.png",
       "width": 1083,
       "height": 1452,
       "sha256": "0ef6f82bda85a5b1673341a701e49f827971d028be2064f9380e0939f20d2cf9"
@@ -253,7 +253,7 @@
       "name": "黃權",
       "weapon": "忠魂不滅傲天劍",
       "source": "023-黃權-忠魂不滅傲天劍-無特效-註記-v1.png",
-      "file": "art/generals/base/huangquan.png",
+      "file": "art-src/generals/base/huangquan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "9968757d49813c4f764939082e370326d82139c40b0a161d00ff7bc813164384"
@@ -264,7 +264,7 @@
       "name": "李嚴",
       "weapon": "督星斷獄伏魔戟",
       "source": "024-李嚴-督星斷獄伏魔戟-無特效-v4.png",
-      "file": "art/generals/base/liyan.png",
+      "file": "art-src/generals/base/liyan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "724a15b6eff6ad44cdd0fa0f3109f41676db04ef3685851842f0a4631c6b347f"
@@ -275,7 +275,7 @@
       "name": "馬謖",
       "weapon": "虛空幻滅天書簡",
       "source": "025-馬謖-虛空幻滅天書簡-無特效-v2.png",
-      "file": "art/generals/base/masu.png",
+      "file": "art-src/generals/base/masu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "2594c69a4d3120497a15696ec82100741aeadeef5e9bcc97f9d10b03500d3e7c"
@@ -286,7 +286,7 @@
       "name": "蔣琬",
       "weapon": "定鼎九州天地劍",
       "source": "026-蔣琬-定鼎九州天地劍-無特效-v6.png",
-      "file": "art/generals/base/jiangwan.png",
+      "file": "art-src/generals/base/jiangwan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "f3497dc7790dc09acdaac5670319ccc2de77e1bfa8ca56a7d1b2ab0a0fc87766"
@@ -297,7 +297,7 @@
       "name": "費禕",
       "weapon": "息爭安邦太平笏",
       "source": "027-費禕-息爭安邦太平笏-無特效-v2.png",
-      "file": "art/generals/base/feiyi.png",
+      "file": "art-src/generals/base/feiyi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "567813873f952e4362c68833d91844c1ac9314f2b3245d95c7ddace54bf1e01e"
@@ -308,7 +308,7 @@
       "name": "孫乾",
       "weapon": "穿梭兩儀化雨杖",
       "source": "028-孫乾-穿梭兩儀化雨杖-無特效-動作-v1.png",
-      "file": "art/generals/base/sunqian.png",
+      "file": "art-src/generals/base/sunqian.png",
       "width": 1024,
       "height": 1536,
       "sha256": "c9d63a03cb114e0c397cbe05115508aabe18bc809aff9eb0f30e50508de3ef9d"
@@ -319,7 +319,7 @@
       "name": "伊籍",
       "weapon": "逍遙穿雲神行劍",
       "source": "029-伊籍-逍遙穿雲神行劍-無特效-v4.png",
-      "file": "art/generals/base/yiji.png",
+      "file": "art-src/generals/base/yiji.png",
       "width": 1024,
       "height": 1536,
       "sha256": "72874bd3051deb1aa33acd7da6ca68cc68d288ff3215577b8f2d5686000b26ef"
@@ -330,7 +330,7 @@
       "name": "周倉",
       "weapon": "擎天負嶽巨靈刀",
       "source": "030-周倉-擎天負嶽巨靈刀-無特效.png",
-      "file": "art/generals/base/zhoucang.png",
+      "file": "art-src/generals/base/zhoucang.png",
       "width": 1083,
       "height": 1452,
       "sha256": "8a157ed70fbc58041b649448a50242b16c0848865bc99ba2106e2cf66fd17277"
@@ -341,7 +341,7 @@
       "name": "陳到",
       "weapon": "極光白毦護天槍",
       "source": "031-陳到-極光白毦護天槍-無特效-v4.png",
-      "file": "art/generals/base/chendao.png",
+      "file": "art-src/generals/base/chendao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "620d3a543d9fca21886ed5243119364501600c7899437b0b0c6636368146a69c"
@@ -352,7 +352,7 @@
       "name": "劉封",
       "weapon": "螟蛉吞日滅絕刀",
       "source": "032-劉封-螟蛉吞日滅絕刀-無特效-v4.png",
-      "file": "art/generals/base/liufeng.png",
+      "file": "art-src/generals/base/liufeng.png",
       "width": 1024,
       "height": 1536,
       "sha256": "cf7b6c85957f2ec01360125251d6c5826aa37f81494415be16b6f9286b251da9"
@@ -363,7 +363,7 @@
       "name": "孟達",
       "weapon": "反覆無常逆天矛",
       "source": "033-孟達-反覆無常逆天矛-無特效-註記-v2.png",
-      "file": "art/generals/base/mengda.png",
+      "file": "art-src/generals/base/mengda.png",
       "width": 1024,
       "height": 1536,
       "sha256": "26edccadac510616e24cc4b63214193ca798f6d799ff8596c97829f096f48196"
@@ -374,7 +374,7 @@
       "name": "鄧芝",
       "weapon": "縱橫四海天平劍",
       "source": "034-鄧芝-縱橫四海天平劍-無特效-v5.png",
-      "file": "art/generals/base/dengzhi.png",
+      "file": "art-src/generals/base/dengzhi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "8ccb979891ae29d073556ddd7036b185c29baa8ff9124687297cc2b122f92353"
@@ -385,7 +385,7 @@
       "name": "孟獲",
       "weapon": "洪荒百獸萬鈞棒",
       "source": "035-孟獲-洪荒百獸萬鈞棒-無特效.png",
-      "file": "art/generals/base/menghuo.png",
+      "file": "art-src/generals/base/menghuo.png",
       "width": 1083,
       "height": 1453,
       "sha256": "201a1aa4125fc020c5d6051c4a5c57c3b5fbf10bfcb574b9c9bb8c0a07be5b51"
@@ -396,7 +396,7 @@
       "name": "祝融夫人",
       "weapon": "九幽業火流星刀",
       "source": "036-祝融夫人-九幽業火流星刀-無特效-註記-v1.png",
-      "file": "art/generals/base/zhurongfuren.png",
+      "file": "art-src/generals/base/zhurongfuren.png",
       "width": 1024,
       "height": 1536,
       "sha256": "b4340b35e1acc0f7410c81b5ceb5fa3fd0027983444f222f38b7a89f5ddbe1a9"
@@ -407,7 +407,7 @@
       "name": "黃月英",
       "weapon": "萬華天機滅世弩",
       "source": "037-黃月英-萬華天機滅世弩-無特效-註記-v2.png",
-      "file": "art/generals/base/huangyueying.png",
+      "file": "art-src/generals/base/huangyueying.png",
       "width": 1024,
       "height": 1536,
       "sha256": "052f2f376cbe29ca564d93efad7866f77a10ecd4d531c28936f9ad964cb8a8e5"
@@ -418,7 +418,7 @@
       "name": "沙摩柯",
       "weapon": "萬瘴蒺藜骨朵",
       "source": "038-沙摩柯-萬瘴蒺藜骨朵-無特效-註記-v2.png",
-      "file": "art/generals/base/shamoke.png",
+      "file": "art-src/generals/base/shamoke.png",
       "width": 1024,
       "height": 1536,
       "sha256": "6a4747412b888c7caf37bab0d0374957f97edb1df38c4ea0cde921b243e81a01"
@@ -429,7 +429,7 @@
       "name": "關索",
       "weapon": "飛花逐月絕情劍",
       "source": "039-關索-飛花逐月絕情劍-無特效-動作-v1.png",
-      "file": "art/generals/base/guansuo.png",
+      "file": "art-src/generals/base/guansuo.png",
       "width": 1024,
       "height": 1536,
       "sha256": "180bcb31be65c49addad6582d64a348123c1cb3940fb4f01f56fad5a9dd4a194"
@@ -440,7 +440,7 @@
       "name": "糜芳",
       "weapon": "乾坤無影逃遁刀",
       "source": "040-糜芳-乾坤無影逃遁刀-無特效-註記-v1.png",
-      "file": "art/generals/base/mifang.png",
+      "file": "art-src/generals/base/mifang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "5247a037b69c0de865350b2e67141bfe81222c2ef33980b9fb8ac8ba80f38246"
@@ -451,7 +451,7 @@
       "name": "諸葛瞻",
       "weapon": "碧血丹心殉天劍",
       "source": "041-諸葛瞻-碧血丹心殉天劍-無特效-v4.png",
-      "file": "art/generals/base/zhugezhan.png",
+      "file": "art-src/generals/base/zhugezhan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "7b82e45378f02d974f63cd51f870bf3ac0fee51182c3d9745075ce776e4afa58"
@@ -462,7 +462,7 @@
       "name": "張星彩",
       "weapon": "銀河破滅隕星矛",
       "source": "042-張星彩-銀河破滅隕星矛-無特效.png",
-      "file": "art/generals/base/zhangxingcai.png",
+      "file": "art-src/generals/base/zhangxingcai.png",
       "width": 1083,
       "height": 1453,
       "sha256": "043cab9dbe3f9176834a927b4d9448f4a671f23460c6d1cdf3c1bfdfee3e6f4e"
@@ -473,7 +473,7 @@
       "name": "孫權",
       "weapon": "皇極天威雙龍劍",
       "source": "043-孫權-皇極天威雙龍劍-無特效.png",
-      "file": "art/generals/base/sunquan.png",
+      "file": "art-src/generals/base/sunquan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "9f464ecd066200471b5f1c9a22ced71bd51e241fa5818816b95ba20fb21f9d73"
@@ -484,7 +484,7 @@
       "name": "周瑜",
       "weapon": "周郎紅蓮劫火琴",
       "source": "044-周瑜-周郎紅蓮劫火琴-無特效.png",
-      "file": "art/generals/base/zhouyu.png",
+      "file": "art-src/generals/base/zhouyu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "40e0171b385fe75af2ee373e1bd1b168eabf42518b26de134182869bdab8f445"
@@ -495,7 +495,7 @@
       "name": "魯肅",
       "weapon": "三分定鼎弭兵劍",
       "source": "045-魯肅-三分定鼎弭兵劍-無特效-註記-v1.png",
-      "file": "art/generals/base/lusu.png",
+      "file": "art-src/generals/base/lusu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "c25294f7cf46fdc58fd0769c52419e39e23541b3d808c4fdaac41094f7ff563b"
@@ -506,7 +506,7 @@
       "name": "呂蒙",
       "weapon": "無相無我奪命刀",
       "source": "046-呂蒙-無相無我奪命刀-無特效.png",
-      "file": "art/generals/base/lvmeng.png",
+      "file": "art-src/generals/base/lvmeng.png",
       "width": 1024,
       "height": 1536,
       "sha256": "559c5c9d9e27a291c6f6ef5613ae194fff08f42d6bfca83ba3fa5129469114b8"
@@ -517,7 +517,7 @@
       "name": "陸遜",
       "weapon": "朱雀焚世寂滅劍",
       "source": "047-陸遜-朱雀焚世寂滅劍-無特效.png",
-      "file": "art/generals/base/luxun.png",
+      "file": "art-src/generals/base/luxun.png",
       "width": 1024,
       "height": 1536,
       "sha256": "ac30853118964cc5f0d2e1de7949fc55bc1c1d1b82bd3701ff5aec1cfee16b0e"
@@ -528,7 +528,7 @@
       "name": "甘寧",
       "weapon": "百騎劫天奪魂戟",
       "source": "048-甘寧-百騎劫天奪魂戟-無特效.png",
-      "file": "art/generals/base/ganning.png",
+      "file": "art-src/generals/base/ganning.png",
       "width": 1024,
       "height": 1536,
       "sha256": "43cb63b39478d3ce31c7e961c8c423458b686b81409124e2a1fa6ac327163014"
@@ -539,7 +539,7 @@
       "name": "太史慈",
       "weapon": "戰神無雙天刑戟",
       "source": "049-太史慈-戰神無雙天刑戟-無特效-註記-v4.png",
-      "file": "art/generals/base/taishici.png",
+      "file": "art-src/generals/base/taishici.png",
       "width": 1024,
       "height": 1536,
       "sha256": "1511911059f02f0635281bc550375d2be0556bfd87d8f9cc92db9dd029cc47e7"
@@ -550,7 +550,7 @@
       "name": "黃蓋",
       "weapon": "業火連天碎嶽鞭",
       "source": "050-黃蓋-業火連天碎嶽鞭-無特效.png",
-      "file": "art/generals/base/huanggai.png",
+      "file": "art-src/generals/base/huanggai.png",
       "width": 1024,
       "height": 1536,
       "sha256": "746c49967051de9257754a3273932b0c18fa7e70aa81275ece9a8c18ff57335f"
@@ -561,7 +561,7 @@
       "name": "周泰",
       "weapon": "九命金剛不壞刀",
       "source": "051-周泰-九命金剛不壞刀-無特效-註記-v1.png",
-      "file": "art/generals/base/zhoutai.png",
+      "file": "art-src/generals/base/zhoutai.png",
       "width": 1024,
       "height": 1536,
       "sha256": "00b507eb04aaa5e25ebe3b1ebc958bf5c8d21b81448c603f787d61476a9de4c6"
@@ -572,7 +572,7 @@
       "name": "程普",
       "weapon": "滄浪定海翻江矛",
       "source": "052-程普-滄浪定海翻江矛-無特效.png",
-      "file": "art/generals/base/chengpu.png",
+      "file": "art-src/generals/base/chengpu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "48850a66b8a6de3a6d2d563101efc6c6e343b4d2b827f457eba4d75de3cf133d"
@@ -583,7 +583,7 @@
       "name": "凌統",
       "weapon": "踏罡步斗斬風刀",
       "source": "053-凌統-踏罡步斗斬風刀-無特效.png",
-      "file": "art/generals/base/lingtong.png",
+      "file": "art-src/generals/base/lingtong.png",
       "width": 1024,
       "height": 1536,
       "sha256": "cd4c4fa3f611eb4879218297b305511382b3b5481ceb9950bf67010f5fe540d6"
@@ -594,7 +594,7 @@
       "name": "韓當",
       "weapon": "不動明王伏波刀",
       "source": "054-韓當-不動明王伏波刀-無特效.png",
-      "file": "art/generals/base/handang.png",
+      "file": "art-src/generals/base/handang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "80fe3c91fe2e264c9134a108d553f74473654426b25a7cfe397d870720b4f818"
@@ -605,7 +605,7 @@
       "name": "張昭",
       "weapon": "托天理政玄玉杖",
       "source": "055-張昭-托天理政玄玉杖-無特效.png",
-      "file": "art/generals/base/zhangzhao.png",
+      "file": "art-src/generals/base/zhangzhao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "466cd92a7e2fb6b1daf694a7f0335bae34468d0d5d53e607191bfb42ff7dd8b3"
@@ -616,7 +616,7 @@
       "name": "諸葛瑾",
       "weapon": "萬里無雲清平扇",
       "source": "056-諸葛瑾-萬里無雲清平扇-無特效.png",
-      "file": "art/generals/base/zhugejin.png",
+      "file": "art-src/generals/base/zhugejin.png",
       "width": 1024,
       "height": 1536,
       "sha256": "b4b62b4549c2dd5cf0f21c0124c0993369511e08078113bbc0ea6c783aaf249f"
@@ -627,7 +627,7 @@
       "name": "徐盛",
       "weapon": "銅牆鐵壁擎天盾",
       "source": "057-徐盛-銅牆鐵壁擎天盾-無特效.png",
-      "file": "art/generals/base/xusheng.png",
+      "file": "art-src/generals/base/xusheng.png",
       "width": 1024,
       "height": 1536,
       "sha256": "47726e070efe24538fe32b6a4f44c452002881cee4379f259f904e5e4602a095"
@@ -638,7 +638,7 @@
       "name": "朱然",
       "weapon": "九陽焚天射日弓",
       "source": "058-朱然-九陽焚天射日弓-無特效.png",
-      "file": "art/generals/base/zhuran.png",
+      "file": "art-src/generals/base/zhuran.png",
       "width": 1024,
       "height": 1536,
       "sha256": "530c2d12ec74df5e664f45dd21e303d4349888d4c84b33df9c3630294a9f4e98"
@@ -649,7 +649,7 @@
       "name": "蔣欽",
       "weapon": "蒼龍穿雲隕星弓",
       "source": "059-蔣欽-蒼龍穿雲隕星弓-無特效.png",
-      "file": "art/generals/base/jiangqin.png",
+      "file": "art-src/generals/base/jiangqin.png",
       "width": 1024,
       "height": 1536,
       "sha256": "c02378c2a1d2ef5165f2000be602bce1e4fc004c1a53e843a05389332ca1d24a"
@@ -660,7 +660,7 @@
       "name": "丁奉",
       "weapon": "飛雪連天絕殺刀",
       "source": "060-丁奉-飛雪連天絕殺刀-無特效.png",
-      "file": "art/generals/base/dingfeng.png",
+      "file": "art-src/generals/base/dingfeng.png",
       "width": 1024,
       "height": 1536,
       "sha256": "20e024e76a5474b0b33cda796ebbf2709f2d985cc5b4e7cb16ce5a2e29ef4734"
@@ -671,7 +671,7 @@
       "name": "潘璋",
       "weapon": "天羅地網奪魄刀",
       "source": "061-潘璋-天羅地網奪魄刀-無特效.png",
-      "file": "art/generals/base/panzhang.png",
+      "file": "art-src/generals/base/panzhang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "a841a07b00ebf9c434e05449cf368aeb34060adcfb784a66922b507f8d6efc7c"
@@ -682,7 +682,7 @@
       "name": "朱桓",
       "weapon": "不落要塞擎天戟",
       "source": "062-朱桓-不落要塞擎天戟-無特效-註記-v4.png",
-      "file": "art/generals/base/zhuhuan.png",
+      "file": "art-src/generals/base/zhuhuan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "db7fef04dbb546ec0deaf20db88687940b44cd7384d6fbdff68c72c3e66d5205"
@@ -693,7 +693,7 @@
       "name": "虞翻",
       "weapon": "易理窮微問卦籌",
       "source": "063-虞翻-易理窮微問卦籌-無特效-v2.png",
-      "file": "art/generals/base/yufan.png",
+      "file": "art-src/generals/base/yufan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "e0cb20b26ee94a6f5b32b3ae72e373069aa452eedb25dcfc96b3147f9d178f80"
@@ -704,7 +704,7 @@
       "name": "顧雍",
       "weapon": "忘言弈世山河盤",
       "source": "064-顧雍-忘言弈世山河盤-無特效-v2.png",
-      "file": "art/generals/base/guyong.png",
+      "file": "art-src/generals/base/guyong.png",
       "width": 1024,
       "height": 1536,
       "sha256": "f1375fda671708f92b0458b6c51d6af5cedcf45820d3da9a13fd352a8798ea86"
@@ -715,7 +715,7 @@
       "name": "陸抗",
       "weapon": "太平天下無極劍",
       "source": "065-陸抗-太平天下無極劍-無特效.png",
-      "file": "art/generals/base/lukang.png",
+      "file": "art-src/generals/base/lukang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "4a8c703fd900ad9ad615454934985ce723a747b4b3a8542691944e4cfd5354f8"
@@ -726,7 +726,7 @@
       "name": "孫策",
       "weapon": "九天雷霆霸王槍",
       "source": "066-孫策-九天雷霆霸王槍-無特效-v2.png",
-      "file": "art/generals/base/sunce.png",
+      "file": "art-src/generals/base/sunce.png",
       "width": 1024,
       "height": 1536,
       "sha256": "efa3fef9f48214ff209eecc458c1f44471360adb18a127dced7722470bc2ef5f"
@@ -737,7 +737,7 @@
       "name": "孫尚香",
       "weapon": "陰陽流光星月刀",
       "source": "067-孫尚香-陰陽流光星月刀-無特效.png",
-      "file": "art/generals/base/sunshangxiang.png",
+      "file": "art-src/generals/base/sunshangxiang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "adfaa7af01fd49f972574ae887356051fa2ee732bfaf64383dec9b06e99b4c44"
@@ -748,7 +748,7 @@
       "name": "呂範",
       "weapon": "萬界通財乾坤盤",
       "source": "068-呂範-萬界通財乾坤盤-無特效-v2.png",
-      "file": "art/generals/base/lvfan.png",
+      "file": "art-src/generals/base/lvfan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "6a7ccc1d1169cd5110c873124b6c6558ab4865dff471e9ce34c2310ba1feb434"
@@ -759,7 +759,7 @@
       "name": "賀齊",
       "weapon": "萬壑千峰碎星刀",
       "source": "069-賀齊-萬壑千峰碎星刀-無特效-註記-v2.png",
-      "file": "art/generals/base/heqi.png",
+      "file": "art-src/generals/base/heqi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "b45903cf6d11a5c04e8f4f80a0d4f152e5694f4d914723afbcb3bd570cb77dc2"
@@ -770,7 +770,7 @@
       "name": "孫堅",
       "weapon": "江東帝王破天刀",
       "source": "070-孫堅-江東帝王破天刀-無特效-註記-v7.png",
-      "file": "art/generals/base/sunjian.png",
+      "file": "art-src/generals/base/sunjian.png",
       "width": 1024,
       "height": 1536,
       "sha256": "518a906b4155de525c9d02d0d1cb51eb5e70575fa6c1fd734c3423824b514f7d"
@@ -781,7 +781,7 @@
       "name": "步練師",
       "weapon": "慈航普渡淨世傘",
       "source": "071-步練師-慈航普渡淨世傘-無特效.png",
-      "file": "art/generals/base/bulianshi.png",
+      "file": "art-src/generals/base/bulianshi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "d5a76dfc6aa2adfe40665d914263120852200ac91356d8db77484e3d2e2b338b"
@@ -792,7 +792,7 @@
       "name": "大喬",
       "weapon": "國色天香迷魂扇",
       "source": "072-大喬-國色天香迷魂扇-無特效.png",
-      "file": "art/generals/base/daqiao.png",
+      "file": "art-src/generals/base/daqiao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "0bd3df654b8425ff24390b4a93b82a3e5fbccd5d8d0c698c743086ee9e03613b"
@@ -803,7 +803,7 @@
       "name": "小喬",
       "weapon": "焚天鳳舞九霄扇",
       "source": "073-小喬-焚天鳳舞九霄扇-無特效.png",
-      "file": "art/generals/base/xiaoqiao.png",
+      "file": "art-src/generals/base/xiaoqiao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "3c603156e9fe0fbd556b37c23734c6e343f57b87f2eb3da59b450f64fe3b2011"
@@ -814,7 +814,7 @@
       "name": "諸葛恪",
       "weapon": "呼風喚雨狂傲劍",
       "source": "074-諸葛恪-呼風喚雨狂傲劍-無特效-註記-v1.png",
-      "file": "art/generals/base/zhugeke.png",
+      "file": "art-src/generals/base/zhugeke.png",
       "width": 1024,
       "height": 1536,
       "sha256": "4d744a0de6f3eb6d25bcce18844392672bbb617c61796b8e4d872762b786c858"
@@ -825,7 +825,7 @@
       "name": "孫皎",
       "weapon": "銀龍鎮江定海槍",
       "source": "075-孫皎-銀龍鎮江定海槍-無特效-註記-v2.png",
-      "file": "art/generals/base/sunjiao.png",
+      "file": "art-src/generals/base/sunjiao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "195de4789d036ea88674dd2447e83534b35ab147697b48afc26ff90e1bf9c7fc"
@@ -836,7 +836,7 @@
       "name": "周魴",
       "weapon": "絕殺千機奪命刀",
       "source": "076-周魴-絕殺千機奪命刀-無特效.png",
-      "file": "art/generals/base/zhoufang.png",
+      "file": "art-src/generals/base/zhoufang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "f51aa973a974250ba9bfc8493a8ce0f5e5b0725b569cfc2c9142369bbd45237c"
@@ -847,7 +847,7 @@
       "name": "陸凱",
       "weapon": "浩然正氣破邪劍",
       "source": "077-陸凱-浩然正氣破邪劍-無特效.png",
-      "file": "art/generals/base/lukai.png",
+      "file": "art-src/generals/base/lukai.png",
       "width": 1024,
       "height": 1536,
       "sha256": "bf6fe53c824583589a8ede07c7b00cc40d64486588add3685b2e406113ec0bbf"
@@ -858,7 +858,7 @@
       "name": "吳國太",
       "weapon": "皇極天母盤龍杖",
       "source": "078-吳國太-皇極天母盤龍杖-無特效.png",
-      "file": "art/generals/base/wuguotai.png",
+      "file": "art-src/generals/base/wuguotai.png",
       "width": 1024,
       "height": 1536,
       "sha256": "abcc417d71deb6a34760cf1a204543910951c1f8fec3f17579798a2a5368ec32"
@@ -869,7 +869,7 @@
       "name": "孫魯班",
       "weapon": "暗無天日滅魂簪",
       "source": "079-孫魯班-暗無天日滅魂簪-無特效-註記-v1.png",
-      "file": "art/generals/base/sunluban.png",
+      "file": "art-src/generals/base/sunluban.png",
       "width": 1024,
       "height": 1536,
       "sha256": "a03ffc2843e45ee0e8e928f7bacfcead21e6b541721e161140dfaa663ef62c69"
@@ -880,7 +880,7 @@
       "name": "朱治",
       "weapon": "鎮國擎天不朽劍",
       "source": "080-朱治-鎮國擎天不朽劍-無特效-註記-v1.png",
-      "file": "art/generals/base/zhuzhi.png",
+      "file": "art-src/generals/base/zhuzhi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "812a75f5bf85bbb3ed2797918529a35cfb7279e74eac132213c61b1076c17c0b"
@@ -891,7 +891,7 @@
       "name": "孫登",
       "weapon": "東宮天命賜福劍",
       "source": "081-孫登-東宮天命賜福劍-無特效-註記-v1.png",
-      "file": "art/generals/base/sundeng.png",
+      "file": "art-src/generals/base/sundeng.png",
       "width": 1024,
       "height": 1536,
       "sha256": "92d4967420363d5654abeab4945d9b8016d9589d2d8d1fbee2404c77cfce3c8d"
@@ -902,7 +902,7 @@
       "name": "留贊",
       "weapon": "驚天動地雷音刀",
       "source": "082-留贊-驚天動地雷音刀-無特效.png",
-      "file": "art/generals/base/liuzan.png",
+      "file": "art-src/generals/base/liuzan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "ce195ece199d8f9364b2c3131c08426994f9595095a6a66607f7665ed8f1e938"
@@ -913,7 +913,7 @@
       "name": "曹操",
       "weapon": "九五至尊天帝劍",
       "source": "083-曹操-九五至尊天帝劍-無特效-v2.png",
-      "file": "art/generals/base/caocao.png",
+      "file": "art-src/generals/base/caocao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "496276b19ccf2dfb69f38a4340c241cecc93c790d722005820f13c2919c31375"
@@ -924,7 +924,7 @@
       "name": "夏侯惇",
       "weapon": "獨目啖睛怒戰刀",
       "source": "084-夏侯惇-獨目啖睛怒戰刀-無特效.png",
-      "file": "art/generals/base/xiahoudun.png",
+      "file": "art-src/generals/base/xiahoudun.png",
       "width": 1024,
       "height": 1536,
       "sha256": "bc93f43ba1bb655c27931c22952607a1e7cface7ef39afddfdf762a3b58c9aa7"
@@ -935,7 +935,7 @@
       "name": "夏侯淵",
       "weapon": "御風追電射日弓",
       "source": "085-夏侯淵-御風追電射日弓-無特效-註記-v3.png",
-      "file": "art/generals/base/xiahouyuan.png",
+      "file": "art-src/generals/base/xiahouyuan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "af3117a4d02df74e7c7fc8d5f2c679f1d382c9f4af78912bbf660bff9c179a29"
@@ -946,7 +946,7 @@
       "name": "張遼",
       "weapon": "破空止啼天威鉞",
       "source": "086-張遼-破空止啼天威鉞-無特效-註記-v4.png",
-      "file": "art/generals/base/zhangliao.png",
+      "file": "art-src/generals/base/zhangliao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "f4950d35db3da7f4143346335969090a9cb1daaeb70b20932cbcc7bcca5bc9a5"
@@ -957,7 +957,7 @@
       "name": "許褚",
       "weapon": "破天裂地巨靈錘",
       "source": "087-許褚-破天裂地巨靈錘-無特效-註記-v1.png",
-      "file": "art/generals/base/xuchu.png",
+      "file": "art-src/generals/base/xuchu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "c8e2714416634178c0c158e24c024310db96c3312289e2915bf42fb7f70b7742"
@@ -968,7 +968,7 @@
       "name": "典韋",
       "weapon": "萬鈞護主天魔戟",
       "source": "088-典韋-萬鈞護主天魔戟-無特效.png",
-      "file": "art/generals/base/dianwei.png",
+      "file": "art-src/generals/base/dianwei.png",
       "width": 1024,
       "height": 1536,
       "sha256": "8a74fef531bfaa6bc1a8e896925f02c03f45fd93f69edbcb2759ef5f36af97cd"
@@ -979,7 +979,7 @@
       "name": "郭嘉",
       "weapon": "鬼才算盡風雲扇",
       "source": "089-郭嘉-鬼才算盡風雲扇-無特效.png",
-      "file": "art/generals/base/guojia.png",
+      "file": "art-src/generals/base/guojia.png",
       "width": 1024,
       "height": 1536,
       "sha256": "b14b3a275cbf08d7e61a1623dc7b908bba34b6402d6106911ce962ab888fc72c"
@@ -990,7 +990,7 @@
       "name": "荀彧",
       "weapon": "王佐定鼎王道劍",
       "source": "090-荀彧-王佐定鼎王道劍-無特效.png",
-      "file": "art/generals/base/xunyu.png",
+      "file": "art-src/generals/base/xunyu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "a8454af5bef497eebbd309087665b6115b71ce6083cf135174b11cb20c8053ca"
@@ -1001,7 +1001,7 @@
       "name": "徐晃",
       "weapon": "開天闢地刑天斧",
       "source": "091-徐晃-開天闢地刑天斧-無特效-註記-v4.png",
-      "file": "art/generals/base/xuhuang.png",
+      "file": "art-src/generals/base/xuhuang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "71b964d4536546d2f835ef414255fcaea1620584352e261cba856396438fb28b"
@@ -1012,7 +1012,7 @@
       "name": "曹仁",
       "weapon": "不動如山鎮天盾",
       "source": "092-曹仁-不動如山鎮天盾-無特效.png",
-      "file": "art/generals/base/caoren.png",
+      "file": "art-src/generals/base/caoren.png",
       "width": 1024,
       "height": 1536,
       "sha256": "8b18d0b09319e02ecd274c873e682dcf12277857303e264ab4be4825ee9cef02"
@@ -1023,7 +1023,7 @@
       "name": "張郃",
       "weapon": "百變流光雙鉤",
       "source": "093-張郃-百變流光雙鉤-無特效-註記-v3.png",
-      "file": "art/generals/base/zhanghe.png",
+      "file": "art-src/generals/base/zhanghe.png",
       "width": 1024,
       "height": 1536,
       "sha256": "80b1e96bc95dbe82331bd9a3ea3c77e4c7c77fc8c6fbbd47bd01991f535747f7"
@@ -1034,7 +1034,7 @@
       "name": "程昱",
       "weapon": "森羅萬象血肉劍",
       "source": "094-程昱-森羅萬象血肉劍-無特效.png",
-      "file": "art/generals/base/chengyu.png",
+      "file": "art-src/generals/base/chengyu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "da3c5ecbca06460bf3f01c3bf55702027cb152111888a5a0ee33ace5450caef7"
@@ -1045,7 +1045,7 @@
       "name": "荀攸",
       "weapon": "算盡蒼生造化簡",
       "source": "095-荀攸-算盡蒼生造化簡-無特效-v2.png",
-      "file": "art/generals/base/xunyou.png",
+      "file": "art-src/generals/base/xunyou.png",
       "width": 1024,
       "height": 1536,
       "sha256": "13d83d031a3511ffa417d57641fb1595edcdf1e3d1d3bb2d0e0a9d4ac9a470fe"
@@ -1056,7 +1056,7 @@
       "name": "于禁",
       "weapon": "鐵面無私裁決刀",
       "source": "096-于禁-鐵面無私裁決刀-無特效.png",
-      "file": "art/generals/base/yujin.png",
+      "file": "art-src/generals/base/yujin.png",
       "width": 1024,
       "height": 1536,
       "sha256": "4996115bed480032a8bacaecbf6221512626e0fe6e9757912ecd0b9396f510e7"
@@ -1067,7 +1067,7 @@
       "name": "樂進",
       "weapon": "勇往直前裂天鉤",
       "source": "097-樂進-勇往直前裂天鉤-無特效.png",
-      "file": "art/generals/base/yuejin.png",
+      "file": "art-src/generals/base/yuejin.png",
       "width": 1024,
       "height": 1536,
       "sha256": "403dd8c21b43b4c4c5aa39735f343343330ffccd5deadf6957ddd9f729586acd"
@@ -1078,7 +1078,7 @@
       "name": "曹洪",
       "weapon": "捨命救主黃金刀",
       "source": "098-曹洪-捨命救主黃金刀-無特效.png",
-      "file": "art/generals/base/caohong.png",
+      "file": "art-src/generals/base/caohong.png",
       "width": 1024,
       "height": 1536,
       "sha256": "63f637eac54ba15c0308825dcb58ed257bfb1ab1e53854881dbad5d2ffc7932e"
@@ -1089,7 +1089,7 @@
       "name": "司馬懿",
       "weapon": "隻手遮天篡命扇",
       "source": "099-司馬懿-隻手遮天篡命扇-無特效-註記-v1.png",
-      "file": "art/generals/base/simayi.png",
+      "file": "art-src/generals/base/simayi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "024afdd0d656d953e285cb0b66631817e888ddb5cc404f5febc511566464dae3"
@@ -1100,7 +1100,7 @@
       "name": "曹真",
       "weapon": "威鎮八方護國刀",
       "source": "100-曹真-威鎮八方護國刀-無特效-v2.png",
-      "file": "art/generals/base/caozhen.png",
+      "file": "art-src/generals/base/caozhen.png",
       "width": 1024,
       "height": 1536,
       "sha256": "88d9dfdd95f226fbe9265cb9ffc5002ac95c4c9cf5c15647381ac09d709cb6e7"
@@ -1111,7 +1111,7 @@
       "name": "李典",
       "weapon": "萬卷書山破邪戟",
       "source": "101-李典-萬卷書山破邪戟-無特效-註記-v10.png",
-      "file": "art/generals/base/lidian.png",
+      "file": "art-src/generals/base/lidian.png",
       "width": 1024,
       "height": 1536,
       "sha256": "d3c235d55e06ee9f211824b7a67d84bc01904cb935722552053e17e4a227a44b"
@@ -1122,7 +1122,7 @@
       "name": "龐德",
       "weapon": "視死如歸修羅刀",
       "source": "102-龐德-視死如歸修羅刀-無特效.png",
-      "file": "art/generals/base/pangde.png",
+      "file": "art-src/generals/base/pangde.png",
       "width": 1024,
       "height": 1536,
       "sha256": "a7356bf30e7332eb7fa5a7c4a25bf131ba9e31fc3e5f9f934498cb89649b0ded"
@@ -1133,7 +1133,7 @@
       "name": "文聘",
       "weapon": "萬夫莫開擎天槍",
       "source": "103-文聘-萬夫莫開擎天槍-無特效-註記-v4.png",
-      "file": "art/generals/base/wenpin.png",
+      "file": "art-src/generals/base/wenpin.png",
       "width": 1024,
       "height": 1536,
       "sha256": "fa02c3c9da1774894822358461f42e4c802a482e1c86e2a10ddcd123e926d081"
@@ -1144,7 +1144,7 @@
       "name": "滿寵",
       "weapon": "固若金湯鎮天劍",
       "source": "104-滿寵-固若金湯鎮天劍-無特效-註記-v6.png",
-      "file": "art/generals/base/manchong.png",
+      "file": "art-src/generals/base/manchong.png",
       "width": 1024,
       "height": 1536,
       "sha256": "fbcc914deab7697ea204f4462f846d7d3035ec01f5184c24397ab037dd525643"
@@ -1155,7 +1155,7 @@
       "name": "鍾繇",
       "weapon": "楷書萬代點睛筆",
       "source": "105-鍾繇-楷書萬代點睛筆-無特效.png",
-      "file": "art/generals/base/zhongyao.png",
+      "file": "art-src/generals/base/zhongyao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "c8a631783f914018af7f9d3a63b4f4a7a79cfa77e4185ae26011bae5aa90154f"
@@ -1166,7 +1166,7 @@
       "name": "陳群",
       "weapon": "九品衡才秉正笏",
       "source": "106-陳群-九品衡才秉正笏-無特效.png",
-      "file": "art/generals/base/chenqun.png",
+      "file": "art-src/generals/base/chenqun.png",
       "width": 1024,
       "height": 1536,
       "sha256": "678e086acb16204ba2542c5b7fc679366219581eabdf51d81b7d077993e68ff0"
@@ -1177,7 +1177,7 @@
       "name": "鄧艾",
       "weapon": "穿梭虛空破界刀",
       "source": "107-鄧艾-穿梭虛空破界刀-無特效.png",
-      "file": "art/generals/base/dengai.png",
+      "file": "art-src/generals/base/dengai.png",
       "width": 1024,
       "height": 1536,
       "sha256": "174dcc455faaee75fae3d3c1e3548e76ee8985f33445532950e51bfd5d1cdb42"
@@ -1188,7 +1188,7 @@
       "name": "郝昭",
       "weapon": "陳倉不破御天盾",
       "source": "108-郝昭-陳倉不破御天盾-無特效.png",
-      "file": "art/generals/base/haozhao.png",
+      "file": "art-src/generals/base/haozhao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "395261bb6e02fd0939c867eefc016a2046f4f5c523c5f90bb842547a222c87bd"
@@ -1199,7 +1199,7 @@
       "name": "曹丕",
       "weapon": "承天受命帝王劍",
       "source": "109-曹丕-承天受命帝王劍-無特效.png",
-      "file": "art/generals/base/caopi.png",
+      "file": "art-src/generals/base/caopi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "51ecd9084ff7ae77baddf1d81e9a121c623fa52b1f986cf5e41856bd7c06f53d"
@@ -1210,7 +1210,7 @@
       "name": "曹彰",
       "weapon": "破嶽蕩魔狂獸戟",
       "source": "110-曹彰-破嶽蕩魔狂獸戟-無特效-註記-v3.png",
-      "file": "art/generals/base/caozhang.png",
+      "file": "art-src/generals/base/caozhang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "dd90200c7c7258b360a6e48ad985cdad45c981a6f7a956710a5d6cb354efb8e3"
@@ -1221,7 +1221,7 @@
       "name": "曹昂",
       "weapon": "忠孝兩全捨生劍",
       "source": "111-曹昂-忠孝兩全捨生劍-無特效.png",
-      "file": "art/generals/base/caoang.png",
+      "file": "art-src/generals/base/caoang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "502603e74beea0f915c5574176c8729ec1884576a9aefd358ae4eb3434a0500e"
@@ -1232,7 +1232,7 @@
       "name": "徐庶",
       "weapon": "飄渺無蹤飛仙劍",
       "source": "112-徐庶-飄渺無蹤飛仙劍-無特效.png",
-      "file": "art/generals/base/xushu.png",
+      "file": "art-src/generals/base/xushu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "b0125d205afb62dc4b1b56b5df19db9b2dcb04cb7e181c6825d6c3a942748d39"
@@ -1243,7 +1243,7 @@
       "name": "鍾會",
       "weapon": "顛覆乾坤叛逆劍",
       "source": "113-鍾會-顛覆乾坤叛逆劍-無特效.png",
-      "file": "art/generals/base/zhonghui.png",
+      "file": "art-src/generals/base/zhonghui.png",
       "width": 1024,
       "height": 1536,
       "sha256": "b4df15bc06c3da5a0eba6d7836261c9d80f06f3fdbcf715bd91f27be633c1b49"
@@ -1254,7 +1254,7 @@
       "name": "司馬昭",
       "weapon": "偷天換日篡道劍",
       "source": "114-司馬昭-偷天換日篡道劍-無特效-註記-v2.png",
-      "file": "art/generals/base/simazhao.png",
+      "file": "art-src/generals/base/simazhao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "18a51218a49e7dd75d0414813b160e1f2e8c336909626f0dc357882c82af942f"
@@ -1265,7 +1265,7 @@
       "name": "曹植",
       "weapon": "驚風泣雨洛神筆",
       "source": "115-曹植-驚風泣雨洛神筆-無特效-註記-v2.png",
-      "file": "art/generals/base/caozhi.png",
+      "file": "art-src/generals/base/caozhi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "d6731f6095bceb2dc29480b617af8e3dff50f55c70d97f20313c00b8bfdf5298"
@@ -1276,7 +1276,7 @@
       "name": "司馬師",
       "weapon": "權傾天下暗夜劍",
       "source": "116-司馬師-權傾天下暗夜劍-無特效-註記-v5.png",
-      "file": "art/generals/base/simashi.png",
+      "file": "art-src/generals/base/simashi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "44c9ed316379b355d50f9f9bbcfb3d703ff84803f248991180a2d2feae95e26f"
@@ -1287,7 +1287,7 @@
       "name": "蔡文姬",
       "weapon": "餘音繞樑絕世笳",
       "source": "117-蔡文姬-餘音繞樑絕世笳-無特效.png",
-      "file": "art/generals/base/caiwenji.png",
+      "file": "art-src/generals/base/caiwenji.png",
       "width": 1024,
       "height": 1536,
       "sha256": "c32a76feb2fe5c95dd5fc20ca3fa6a7912143811473723ac0a6858d45c66e6ea"
@@ -1298,7 +1298,7 @@
       "name": "甄姬",
       "weapon": "傾國傾城仙音笛",
       "source": "118-甄姬-傾國傾城仙音笛-無特效.png",
-      "file": "art/generals/base/zhenji.png",
+      "file": "art-src/generals/base/zhenji.png",
       "width": 1024,
       "height": 1536,
       "sha256": "aa195f05435473f340c61ef7410b76f23ea068b0f822897f8414eb48e291a0fb"
@@ -1309,7 +1309,7 @@
       "name": "許攸",
       "weapon": "燎原焚糧破軍簡",
       "source": "119-許攸-燎原焚糧破軍簡-無特效.png",
-      "file": "art/generals/base/xuyou.png",
+      "file": "art-src/generals/base/xuyou.png",
       "width": 1024,
       "height": 1536,
       "sha256": "9247056f23b8dd1d04963cf833f23a157fffb3d4b09df6caa489c39763ba3678"
@@ -1320,7 +1320,7 @@
       "name": "蔣幹",
       "weapon": "偷樑換柱無影簡",
       "source": "120-蔣幹-偷樑換柱無影簡-無特效.png",
-      "file": "art/generals/base/jianggan.png",
+      "file": "art-src/generals/base/jianggan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "63735fca7c57fa67a839bfc87704badc898344fef246ab64dac645b4de496b10"
@@ -1331,7 +1331,7 @@
       "name": "牛金",
       "weapon": "萬牛奔騰碎天斧",
       "source": "121-牛金-萬牛奔騰碎天斧-無特效.png",
-      "file": "art/generals/base/niujin.png",
+      "file": "art-src/generals/base/niujin.png",
       "width": 1024,
       "height": 1536,
       "sha256": "14a8437522bda01034cd99a854efd2ebf5911c1af28f809d8bc2b97fb5bb3ee1"
@@ -1342,7 +1342,7 @@
       "name": "王雙",
       "weapon": "毀天滅地末日錘",
       "source": "122-王雙-毀天滅地末日錘-無特效-註記-v1.png",
-      "file": "art/generals/base/wangshuang.png",
+      "file": "art-src/generals/base/wangshuang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "69872774e3519955ab9f3680d2d378f9ffdfdd5297642df8ffb792b4d33bff32"
@@ -1353,7 +1353,7 @@
       "name": "董卓",
       "weapon": "霸世裂天魔弓",
       "source": "123-董卓-霸世裂天魔弓-無特效.png",
-      "file": "art/generals/base/dongzhuo.png",
+      "file": "art-src/generals/base/dongzhuo.png",
       "width": 1024,
       "height": 1536,
       "sha256": "42c8a7e06bef5fc7083b098efb5e308ad5758438d97aeff67a61801d8c05bd2b"
@@ -1364,7 +1364,7 @@
       "name": "呂布",
       "weapon": "破碎虛空修羅戟",
       "source": "124-呂布-破碎虛空修羅戟-無特效.png",
-      "file": "art/generals/base/lvbu.png",
+      "file": "art-src/generals/base/lvbu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "d35a00d3c0957c02bd138f4d358e4fbe0ea7960f6a3de1a476db78440ccab510"
@@ -1375,7 +1375,7 @@
       "name": "華雄",
       "weapon": "傲視群雄狂魔刀",
       "source": "125-華雄-傲視群雄狂魔刀-無特效-註記-v1.png",
-      "file": "art/generals/base/huaxiong.png",
+      "file": "art-src/generals/base/huaxiong.png",
       "width": 1024,
       "height": 1536,
       "sha256": "7fc1f9a39151d67dee72a4b16bf3dfe833d0e6567d01fddfe65cf399ea7da536"
@@ -1386,7 +1386,7 @@
       "name": "李傕",
       "weapon": "劫駕亂政凶煞槍",
       "source": "126-李傕-劫駕亂政凶煞槍-無特效.png",
-      "file": "art/generals/base/lijue.png",
+      "file": "art-src/generals/base/lijue.png",
       "width": 1024,
       "height": 1536,
       "sha256": "d2663ea94a8fd2ef4921446fdb1082147a64ab852d15e6f2765919e960b1213e"
@@ -1397,7 +1397,7 @@
       "name": "郭汜",
       "weapon": "窮凶極惡吞天矛",
       "source": "127-郭汜-窮凶極惡吞天矛-無特效-註記-v1.png",
-      "file": "art/generals/base/guosi.png",
+      "file": "art-src/generals/base/guosi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "84dab23d6501bc9ae1e3f6e7538c5e563b0078bfcd962bee7782e03ad0dcf71e"
@@ -1408,7 +1408,7 @@
       "name": "李儒",
       "weapon": "萬毒歸宗滅世壺",
       "source": "128-李儒-萬毒歸宗滅世壺-無特效.png",
-      "file": "art/generals/base/liru.png",
+      "file": "art-src/generals/base/liru.png",
       "width": 1024,
       "height": 1536,
       "sha256": "bb7ffa479f852e1f72d05088fc6f68ab31d9167306bf221b26525521c8fd0886"
@@ -1419,7 +1419,7 @@
       "name": "賈詡",
       "weapon": "顛倒乾坤災厄簡",
       "source": "129-賈詡-顛倒乾坤災厄簡-無特效.png",
-      "file": "art/generals/base/jiaxu.png",
+      "file": "art-src/generals/base/jiaxu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "3d8b3986bd4220f4d29ab7cf836cb4fad27fe8418966cfb1fd01c0c44cab5f09"
@@ -1430,7 +1430,7 @@
       "name": "徐榮",
       "weapon": "暗影絕殺奪命弓",
       "source": "130-徐榮-暗影絕殺奪命弓-無特效-註記-v4.png",
-      "file": "art/generals/base/xurong.png",
+      "file": "art-src/generals/base/xurong.png",
       "width": 1024,
       "height": 1536,
       "sha256": "ae281e48885a5f17efa44f49af0e6fa2f847be68237fc82bcf34e98fed64f1ef"
@@ -1441,7 +1441,7 @@
       "name": "高順",
       "weapon": "攻無不克鎮天盾刀",
       "source": "131-高順-攻無不克鎮天盾刀-無特效.png",
-      "file": "art/generals/base/gaoshun.png",
+      "file": "art-src/generals/base/gaoshun.png",
       "width": 1024,
       "height": 1536,
       "sha256": "6201620b3034e51149ea2cc7c73fcaa4c60762ad65042b0e86cbd0e26a2a716e"
@@ -1452,7 +1452,7 @@
       "name": "陳宮",
       "weapon": "公台孤忠問心劍",
       "source": "132-陳宮-公台孤忠問心劍-無特效-註記-v2.png",
-      "file": "art/generals/base/chengong.png",
+      "file": "art-src/generals/base/chengong.png",
       "width": 1024,
       "height": 1536,
       "sha256": "038b95a5e45e556ba782db38966c619a415288a015a916e119b4728a9d435307"
@@ -1463,7 +1463,7 @@
       "name": "張濟",
       "weapon": "席捲八荒颶風槍",
       "source": "133-張濟-席捲八荒颶風槍-無特效-註記-v1.png",
-      "file": "art/generals/base/zhangji.png",
+      "file": "art-src/generals/base/zhangji.png",
       "width": 1024,
       "height": 1536,
       "sha256": "76ac30572e7468a8a06628fe17c63e3e519aa2d98baff18a247b10c80cb33984"
@@ -1474,7 +1474,7 @@
       "name": "張繡",
       "weapon": "鳳凰涅槃寂滅槍",
       "source": "134-張繡-鳳凰涅槃寂滅槍-無特效.png",
-      "file": "art/generals/base/zhangxiu.png",
+      "file": "art-src/generals/base/zhangxiu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "92dc3d50c4a50ca186445b94ad5db64b88f0cdde727c7c45d7c7722d37b6e146"
@@ -1485,7 +1485,7 @@
       "name": "胡車兒",
       "weapon": "探囊取物無影刀",
       "source": "135-胡車兒-探囊取物無影刀-無特效-註記-v4.png",
-      "file": "art/generals/base/hucheer.png",
+      "file": "art-src/generals/base/hucheer.png",
       "width": 1024,
       "height": 1536,
       "sha256": "2d6d47fd51220e39b021ad87b0745fd477d4988545bb0644f08aad6cbecd531c"
@@ -1496,7 +1496,7 @@
       "name": "貂蟬",
       "weapon": "傾國傾城魅魔鞭",
       "source": "136-貂蟬-傾國傾城魅魔鞭-無特效.png",
-      "file": "art/generals/base/diaochan.png",
+      "file": "art-src/generals/base/diaochan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "500260754769fe9fcdcf323e4637a98c8a081beafb6f254a9fc068b3b620f4e3"
@@ -1507,7 +1507,7 @@
       "name": "臧霸",
       "weapon": "劈山斷嶽鎮天刀",
       "source": "137-臧霸-劈山斷嶽鎮天刀-無特效.png",
-      "file": "art/generals/base/zangba.png",
+      "file": "art-src/generals/base/zangba.png",
       "width": 1024,
       "height": 1536,
       "sha256": "ed2a57d8a8522393b8bb6fe47c9e8cbaf3fc3719eeeefa9cbd569dbdd886759c"
@@ -1518,7 +1518,7 @@
       "name": "馬騰",
       "weapon": "威震邊疆破天槍",
       "source": "138-馬騰-威震邊疆破天槍-無特效-註記-v6.png",
-      "file": "art/generals/base/mateng.png",
+      "file": "art-src/generals/base/mateng.png",
       "width": 1024,
       "height": 1536,
       "sha256": "20945ec641ff9525ba3febcff44cec0dc4de2e03e443a5bc83e260d8770adef4"
@@ -1529,7 +1529,7 @@
       "name": "韓遂",
       "weapon": "千迴百轉亂世矛",
       "source": "139-韓遂-千迴百轉亂世矛-無特效.png",
-      "file": "art/generals/base/hansui.png",
+      "file": "art-src/generals/base/hansui.png",
       "width": 1024,
       "height": 1536,
       "sha256": "c86cf17bcd4c3e6abd9865b92c39ea2b5f2b7762f49cd1e338b76098c15218ad"
@@ -1540,7 +1540,7 @@
       "name": "李肅",
       "weapon": "金光破財穿心矛",
       "source": "140-李肅-金光破財穿心矛-無特效-註記-v3.png",
-      "file": "art/generals/base/lisu.png",
+      "file": "art-src/generals/base/lisu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "43c8d5fbb0031b9cb66e51d73c760167ac89b24ab65a1eab2af9bd905d2a95ba"
@@ -1551,7 +1551,7 @@
       "name": "閻行",
       "weapon": "破虛殞命刺天矛",
       "source": "141-閻行-破虛殞命刺天矛-無特效.png",
-      "file": "art/generals/base/yanxing.png",
+      "file": "art-src/generals/base/yanxing.png",
       "width": 1024,
       "height": 1536,
       "sha256": "7952ed437792881827cc15005fa3a9834346fc70433a8f43e646d690f522b686"
@@ -1562,7 +1562,7 @@
       "name": "成公英",
       "weapon": "忠勇斷後孤影弓",
       "source": "142-成公英-忠勇斷後孤影弓-無特效-註記-v6.png",
-      "file": "art/generals/base/chenggongying.png",
+      "file": "art-src/generals/base/chenggongying.png",
       "width": 1024,
       "height": 1536,
       "sha256": "ef00d3c5a0584a53674bdf9de3929e2f02b6411b1ba07969a00e4f245aca4c36"
@@ -1573,7 +1573,7 @@
       "name": "張魯",
       "weapon": "萬法歸一太上劍",
       "source": "143-張魯-萬法歸一太上劍-無特效-註記-v1.png",
-      "file": "art/generals/base/zhanglu.png",
+      "file": "art-src/generals/base/zhanglu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "a528f4bdfe2577982cd60e0a84b7fe8c1e26f1d3a9d49eb032e4daf355654a8a"
@@ -1584,7 +1584,7 @@
       "name": "顏良",
       "weapon": "威震華夏神魔刀",
       "source": "144-顏良-威震華夏神魔刀-無特效-註記-v1.png",
-      "file": "art/generals/base/yanliang.png",
+      "file": "art-src/generals/base/yanliang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "670fce35dcfde3a8ccafda25d37c22c0f5c125718c7367a45ede81ed3374dc6f"
@@ -1595,7 +1595,7 @@
       "name": "文丑",
       "weapon": "狂暴無雙碎天槍",
       "source": "145-文丑-狂暴無雙碎天槍-無特效-註記-v2.png",
-      "file": "art/generals/base/wenchou.png",
+      "file": "art-src/generals/base/wenchou.png",
       "width": 1024,
       "height": 1536,
       "sha256": "3efbb7ddc7c5d018993f8600f3ccb67aa76985790787cc173216a8e6ed8db8ba"
@@ -1606,7 +1606,7 @@
       "name": "紀靈",
       "weapon": "號令群雄霸天刀",
       "source": "146-紀靈-號令群雄霸天刀-無特效-註記-v2.png",
-      "file": "art/generals/base/jiling.png",
+      "file": "art-src/generals/base/jiling.png",
       "width": 1024,
       "height": 1536,
       "sha256": "d1574b662a3251426cfa92e66e743f6a36c6fc4e5be8b75badfd4a1886371326"
@@ -1617,7 +1617,7 @@
       "name": "鞠義",
       "weapon": "萬箭穿心射日弩",
       "source": "147-鞠義-萬箭穿心射日弩-無特效-註記-v1.png",
-      "file": "art/generals/base/juyi.png",
+      "file": "art-src/generals/base/juyi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "f8331076d9fd8b8b9a79a961f95dfa66f83c3935146f93c84a491c66e7d3b8e5"
@@ -1628,7 +1628,7 @@
       "name": "沮授",
       "weapon": "觀星明勢監軍劍",
       "source": "148-沮授-觀星明勢監軍劍-無特效-註記-v2.png",
-      "file": "art/generals/base/jushou.png",
+      "file": "art-src/generals/base/jushou.png",
       "width": 1024,
       "height": 1536,
       "sha256": "edaa7e6cdec8f0ca0992bbce01b59a2226a0ab0221aabd3f2e6c4b5f800a8cfb"
@@ -1639,7 +1639,7 @@
       "name": "田豐",
       "weapon": "寧死不屈浩然簡",
       "source": "149-田豐-寧死不屈浩然簡-無特效.png",
-      "file": "art/generals/base/tianfeng.png",
+      "file": "art-src/generals/base/tianfeng.png",
       "width": 1024,
       "height": 1536,
       "sha256": "bca453252e814b8170116917e3d258dca377df8af96f259296fbe9a127c0ed0b"
@@ -1650,7 +1650,7 @@
       "name": "呂玲綺",
       "weapon": "裂天碎地風神戟",
       "source": "150-呂玲綺-裂天碎地風神戟-無特效-註記-v3.png",
-      "file": "art/generals/base/lvlingqi.png",
+      "file": "art-src/generals/base/lvlingqi.png",
       "width": 1024,
       "height": 1536,
       "sha256": "2662d1f354cb8c08b2f0b120364ef28c291bde3844e85ee1b90369f83442befa"
@@ -1661,7 +1661,7 @@
       "name": "袁紹",
       "weapon": "號令天下皇極劍",
       "source": "151-袁紹-號令天下皇極劍-無特效.png",
-      "file": "art/generals/base/yuanshao.png",
+      "file": "art-src/generals/base/yuanshao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "9d02c232ad76fd3a2f945bc823c01c4dce8666d1051ed7ac5fda599ebe433411"
@@ -1672,7 +1672,7 @@
       "name": "袁術",
       "weapon": "逆天改命亂世璽",
       "source": "152-袁術-逆天改命亂世璽-無特效.png",
-      "file": "art/generals/base/yuanshu.png",
+      "file": "art-src/generals/base/yuanshu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "ea3bde4a73436f255794b29cac01e69f44d59ad8fc5766f4d7fa5e02e2bba016"
@@ -1683,7 +1683,7 @@
       "name": "張角",
       "weapon": "蒼天已死滅世杖",
       "source": "153-張角-蒼天已死滅世杖-無特效.png",
-      "file": "art/generals/base/zhangjiao.png",
+      "file": "art-src/generals/base/zhangjiao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "39230a54806c04d27b627c61bfee3085fd283cea0fa2acb284f2e6ae3ab2cb67"
@@ -1694,7 +1694,7 @@
       "name": "張寶",
       "weapon": "移山倒海地魔劍",
       "source": "154-張寶-移山倒海地魔劍-無特效.png",
-      "file": "art/generals/base/zhangbaoyj.png",
+      "file": "art-src/generals/base/zhangbaoyj.png",
       "width": 1024,
       "height": 1536,
       "sha256": "4d643a3c261ed8903ff2047803a51387412cd717e6b4ccf17ce47c45e43c65db"
@@ -1705,7 +1705,7 @@
       "name": "張梁",
       "weapon": "萬鬼噬心人魔刀",
       "source": "155-張梁-萬鬼噬心人魔刀-無特效-v2.png",
-      "file": "art/generals/base/zhangliang.png",
+      "file": "art-src/generals/base/zhangliang.png",
       "width": 1024,
       "height": 1536,
       "sha256": "97e4df040d954ef278bb462665ea58b727d76f2eba46c0017595591117b7fd19"
@@ -1716,7 +1716,7 @@
       "name": "公孫瓚",
       "weapon": "縱橫天下天馬槊",
       "source": "156-公孫瓚-縱橫天下天馬槊-無特效.png",
-      "file": "art/generals/base/gongsunzan.png",
+      "file": "art-src/generals/base/gongsunzan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "279fb565842e9b3e0b9d1446226bb7d7894f734040ba9a4f581059a746afd24c"
@@ -1727,7 +1727,7 @@
       "name": "劉表",
       "weapon": "偏安一隅護世劍",
       "source": "157-劉表-偏安一隅護世劍-無特效-註記-v4.png",
-      "file": "art/generals/base/liubiao.png",
+      "file": "art-src/generals/base/liubiao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "7b3dd396b330c4fccfadff287a3142a36233cea98c7e0065c3ff1c5677b5b765"
@@ -1738,7 +1738,7 @@
       "name": "審配",
       "weapon": "玉石俱焚滅世弩",
       "source": "158-審配-玉石俱焚滅世弩-無特效-註記-v1.png",
-      "file": "art/generals/base/shenpei.png",
+      "file": "art-src/generals/base/shenpei.png",
       "width": 1024,
       "height": 1536,
       "sha256": "31d87459e2fc94b0d585be6e098162a19c790d363676d408e136863d9ef12475"
@@ -1749,7 +1749,7 @@
       "name": "陶謙",
       "weapon": "厚德載物天地劍",
       "source": "159-陶謙-厚德載物天地劍-無特效-註記-v1.png",
-      "file": "art/generals/base/taoqian.png",
+      "file": "art-src/generals/base/taoqian.png",
       "width": 1024,
       "height": 1536,
       "sha256": "34c8ff88b348634b457ae3710cafadd1e4e47dc33f55e1faf5f58d727a0d4bd6"
@@ -1760,7 +1760,7 @@
       "name": "高覽",
       "weapon": "穩如泰山震天斧",
       "source": "160-高覽-穩如泰山震天斧-無特效-註記-v1.png",
-      "file": "art/generals/base/gaolan.png",
+      "file": "art-src/generals/base/gaolan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "684d4fe912286dd22a0103e7d2b5ea62034ed093bdd7fae83f232ed4c8eec76d"
@@ -1771,7 +1771,7 @@
       "name": "兀突骨",
       "weapon": "烏鱗蠻荒骨朵",
       "source": "161-兀突骨-烏鱗蠻荒骨朵-無特效.png",
-      "file": "art/generals/base/wutugu.png",
+      "file": "art-src/generals/base/wutugu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "2ce15959400a80e5973a3e4de3c343731dfe79a7f9b500ebc982ddedaa35eaf3"
@@ -1782,7 +1782,7 @@
       "name": "木鹿大王",
       "weapon": "萬獸無疆洪荒杖",
       "source": "162-木鹿大王-萬獸無疆洪荒杖-無特效.png",
-      "file": "art/generals/base/mulu.png",
+      "file": "art-src/generals/base/mulu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "12b26e5d7020aab1707e349b6f1ad8b944848062511de096b6995e83306e3d91"
@@ -1793,7 +1793,7 @@
       "name": "左慈",
       "weapon": "萬象森羅化境拂塵",
       "source": "163-左慈-萬象森羅化境拂塵-無特效-註記-v1.png",
-      "file": "art/generals/base/zuoci.png",
+      "file": "art-src/generals/base/zuoci.png",
       "width": 1024,
       "height": 1536,
       "sha256": "b30cd55b63181bc6336e91f56e12dbd533d9b5e9afa37c2a00e6e39ed39b6b10"
@@ -1804,7 +1804,7 @@
       "name": "于吉",
       "weapon": "咒怨纏身奪命幡",
       "source": "164-于吉-咒怨纏身奪命幡-無特效-註記-v1.png",
-      "file": "art/generals/base/yuji.png",
+      "file": "art-src/generals/base/yuji.png",
       "width": 1024,
       "height": 1536,
       "sha256": "6ce260f98fa1dd13b95068a623027eb2725da082062307a29d60225485130c66"
@@ -1815,7 +1815,7 @@
       "name": "華佗",
       "weapon": "起死回生造化針",
       "source": "165-華佗-起死回生造化針-無特效-註記-v2.png",
-      "file": "art/generals/base/huatuo.png",
+      "file": "art-src/generals/base/huatuo.png",
       "width": 1024,
       "height": 1536,
       "sha256": "b12f34b9f242570e44964397e45b92fac1e39f1138d1e009742520ffbdebd17d"
@@ -1826,7 +1826,7 @@
       "name": "管輅",
       "weapon": "洞悉天道知命甲",
       "source": "166-管輅-洞悉天道知命甲-無特效-註記-v2.png",
-      "file": "art/generals/base/guanlu.png",
+      "file": "art-src/generals/base/guanlu.png",
       "width": 1024,
       "height": 1536,
       "sha256": "ceb9ff8dae8e4de25847bcf8c513f09959ba7b78517c3e7b129ff5f924cf9475"
@@ -1837,7 +1837,7 @@
       "name": "水鏡先生",
       "weapon": "倒映乾坤明鏡扇",
       "source": "167-水鏡先生-倒映乾坤明鏡扇-無特效-註記-v1.png",
-      "file": "art/generals/base/shuijing.png",
+      "file": "art-src/generals/base/shuijing.png",
       "width": 1024,
       "height": 1536,
       "sha256": "82726e35a2b83d069b987a0d43a1d50ffcf3a5196335a17167050ff8b0955f05"
@@ -1848,7 +1848,7 @@
       "name": "龐德公",
       "weapon": "超脫三界仙人杖",
       "source": "168-龐德公-超脫三界仙人杖-無特效-註記-v1.png",
-      "file": "art/generals/base/pangdegong.png",
+      "file": "art-src/generals/base/pangdegong.png",
       "width": 1024,
       "height": 1536,
       "sha256": "6ac71c02eebf4d7547727aad3dfabfcafe770e6eaa281db9e7e6bccea171b621"
@@ -1859,7 +1859,7 @@
       "name": "黃承彥",
       "weapon": "奇門解陣引路杖",
       "source": "169-黃承彥-奇門解陣引路杖-無特效-註記-v1.png",
-      "file": "art/generals/base/huangchengyan.png",
+      "file": "art-src/generals/base/huangchengyan.png",
       "width": 1024,
       "height": 1536,
       "sha256": "421c97c05ca94c3f40dc27b1e97ce84101c9532cfa403d1b3883afec1b7f0542"
@@ -1870,7 +1870,7 @@
       "name": "許劭",
       "weapon": "一語成讖春秋簡",
       "source": "170-許劭-一語成讖春秋簡-無特效-註記-v2.png",
-      "file": "art/generals/base/xushao.png",
+      "file": "art-src/generals/base/xushao.png",
       "width": 1024,
       "height": 1536,
       "sha256": "50c55db63c861e9cce8edc14341802cddaf4a5ac6a55c43c81e261ce9d4fc4d6"
@@ -1881,7 +1881,7 @@
       "name": "張仲景",
       "weapon": "醫統天下濟世葫蘆",
       "source": "171-張仲景-醫統天下濟世葫蘆-無特效-註記-v1.png",
-      "file": "art/generals/base/zhangzhongjing.png",
+      "file": "art-src/generals/base/zhangzhongjing.png",
       "width": 1024,
       "height": 1536,
       "sha256": "6dd4d3369059a85c7cbb2cf5f6efcd7c6180038b8d266e6daddfcbd2475a0a03"
@@ -1892,7 +1892,7 @@
       "name": "董奉",
       "weapon": "萬物復甦仙醫箱",
       "source": "172-董奉-萬物復甦仙醫箱-無特效-註記-v1.png",
-      "file": "art/generals/base/dongfeng.png",
+      "file": "art-src/generals/base/dongfeng.png",
       "width": 1024,
       "height": 1536,
       "sha256": "d5eeea211faff3202e91c08e3f9015b6867159e42286c8edd25ee185050adb05"
@@ -1903,7 +1903,7 @@
       "name": "管寧",
       "weapon": "清節無塵問道尺",
       "source": "173-管寧-清節無塵問道尺-無特效-註記-v1.png",
-      "file": "art/generals/base/guanning.png",
+      "file": "art-src/generals/base/guanning.png",
       "width": 1024,
       "height": 1536,
       "sha256": "72807460cb375722ebea2c20c8e00713aae976475c89c0e60c527c50ae41bbcc"
@@ -1914,7 +1914,7 @@
       "name": "南華老仙",
       "weapon": "執掌天道造化杖",
       "source": "174-南華老仙-執掌天道造化杖-無特效-註記-v2.png",
-      "file": "art/generals/base/nanhua.png",
+      "file": "art-src/generals/base/nanhua.png",
       "width": 1024,
       "height": 1536,
       "sha256": "6e0b2b595b859ed967565910582b128c7704607127a9caffe5c954f956e7117d"
@@ -1925,7 +1925,7 @@
       "name": "普靜禪師",
       "weapon": "普渡眾生大悲珠",
       "source": "175-普靜禪師-普渡眾生大悲珠-無特效-註記-v1.png",
-      "file": "art/generals/base/pujing.png",
+      "file": "art-src/generals/base/pujing.png",
       "width": 1024,
       "height": 1536,
       "sha256": "8b4a4be109ead62cf7c5c1d839f46606babf4a41fe97e19089bfa0bfd66c63b5"

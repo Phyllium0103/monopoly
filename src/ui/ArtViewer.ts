@@ -22,7 +22,7 @@ export function installArtViewer() {
       overlay = document.createElement('div');
       overlay.className = 'art-viewer';
       const full = document.createElement('img');
-      full.src = img.src.replace('/generals/head/', '/generals/base/').replace(/\.webp$/, '.png');
+      full.src = img.src.replace('/generals/head/', '/generals/full/');
       full.alt = img.alt;
       overlay.appendChild(full);
       document.body.appendChild(overlay);

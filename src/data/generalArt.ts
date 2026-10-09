@@ -1,6 +1,6 @@
 import type { General } from '../game/types';
 
-/** 已選無特效原圖；檔案與來源 SHA 記錄於 docs/base-general-art.json。 */
+/** 全身圖尺寸（比例用）；原始 PNG 在 art-src/generals/base/，來源與 SHA 記錄於 docs/base-general-art.json。 */
 export const GENERAL_ART: Record<string, { width: number; height: number }> = {
   "liubei": {
     "width": 1024,
@@ -706,7 +706,7 @@ export const GENERAL_ART: Record<string, { width: number; height: number }> = {
 
 export const generalArtId = (g: Pick<General, 'id' | 'ghostSourceId'>) => g.ghostSourceId ?? g.id;
 export const generalArtUrl = (g: Pick<General, 'id' | 'ghostSourceId'>) =>
-  `${import.meta.env.BASE_URL}art/generals/base/${encodeURIComponent(generalArtId(g))}.png`;
+  `${import.meta.env.BASE_URL}art/generals/full/${encodeURIComponent(generalArtId(g))}.webp`;
 /** 由全身圖裁出的 192px 頭像；裁切範圍記錄於 docs/general-head-crops.json。 */
 export const generalHeadUrl = (g: Pick<General, 'id' | 'ghostSourceId'>) =>
   `${import.meta.env.BASE_URL}art/generals/head/${encodeURIComponent(generalArtId(g))}.webp`;

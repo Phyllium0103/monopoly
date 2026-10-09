@@ -8,7 +8,7 @@ const BASE = import.meta.env.BASE_URL;
 const baseName = (name: string) => name.split('・').pop() ?? name;
 
 // ───────────────────────── 圖片包 ─────────────────────────
-// 物品圖示仍從 pack.bin 載入；舊武將圖索引不再使用。
+// 物品、寶衣、靈獸圖示從 pack.bin 載入；武將圖逐張載入。
 // 載入後轉成瀏覽器內部的 blob 網址，之後顯示圖片完全不用再連網。
 // 圖片包還沒載好（或載入失敗）時，退回逐張下載，所以不會出現空白。
 
@@ -25,7 +25,6 @@ export function loadArtPack(): Promise<void> {
         fetch(`${BASE}art/pack.bin`).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error('pack.bin')))),
       ]);
       for (const [key, [off, len]] of Object.entries(index)) {
-        if (key.startsWith('generals/')) continue;
         packUrls.set(key, URL.createObjectURL(new Blob([bin.slice(off, off + len)], { type: 'image/webp' })));
       }
     } catch {

@@ -34,7 +34,7 @@ import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, canOccupy, cityIncome, c
 import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, craft, defense, inBottleneck, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
-import { generalInfo, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
+import { generalBlock, generalInfo, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
 import { canUse, consumeItem, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
 import { buy, makeStock, beginShopVisit, refreshShop, SHOP_REFRESH_COSTS, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, partyRealm, realmRolls, realmTurns } from '../systems/RealmSystem';
@@ -48,7 +48,7 @@ type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
 /** 選將時顯示的被動效果 */
-const pv = (g: General) => `<br><span class="sub-passive">【${passiveOf(g).name}】${fxText(passiveOf(g).fx)}</span>`;
+const pv = (g: General) => `<span class="gb-line gb-passive"><strong>【${passiveOf(g).name}】</strong>${fxText(passiveOf(g).fx)}</span>`;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export class Game {
@@ -793,7 +793,7 @@ export class Game {
   private async playerOccupy(lord: Lord, city: City) {
     const inc = cityIncome(city);
     const free = deployable(this.state, lord.id);
-    const choices: Choice<string>[] = free.map((g) => ({ label: g.name, icon: portraitUrl(g), sub: `${generalInfo(g)}${pv(g)}`, value: g.id, color: originCss(g.origin) }));
+    const choices: Choice<string>[] = free.map((g) => ({ label: g.name, icon: portraitUrl(g), sub: generalBlock(g), value: g.id, color: originCss(g.origin) }));
     for (;;) {
       const gids = await this.dialog.pickMany(
         `抵達${city.name}・是否佔領？`,
@@ -1010,7 +1010,7 @@ export class Game {
         const picked = await this.dialog.pickMany(
           `攻打${city.name}・選擇出征武將`,
           `最多派遣三名武將；選好武將後，可自行決定出兵數量。\n戰敗則出征的士兵全滅；勝方也會折損，雙方越接近折損越多。\n一名守軍約等於十五名隨行士兵；武將武力越高，統率加成越大。守方約 ${garrisonPower(this.state, city)}。`,
-          pool.map((g) => ({ label: g.name, icon: portraitUrl(g), sub: `${generalInfo(g)}${pv(g)}`, value: g })),
+          pool.map((g) => ({ label: g.name, icon: portraitUrl(g), sub: generalBlock(g), value: g })),
           1,
           3,
           '出征',
@@ -1067,7 +1067,7 @@ export class Game {
     if (this.human(attacker)) {
       const cand = deployable(this.state, attacker.id);
       if (cand.length) {
-        const picked = await this.dialog.pickMany(`攻下${city.name}！派誰駐守？`, `最多 ${GARRISON_LIMIT} 人，駐將越多守城越強。（主公本人不能駐守）`, cand.map((x) => ({ label: x.name, icon: portraitUrl(x), sub: `${generalInfo(x)}${pv(x)}`, value: x.id })), 1, Math.min(GARRISON_LIMIT, cand.length), '駐守');
+        const picked = await this.dialog.pickMany(`攻下${city.name}！派誰駐守？`, `最多 ${GARRISON_LIMIT} 人，駐將越多守城越強。（主公本人不能駐守）`, cand.map((x) => ({ label: x.name, icon: portraitUrl(x), sub: generalBlock(x), value: x.id })), 1, Math.min(GARRISON_LIMIT, cand.length), '駐守');
         if (picked) gids = picked;
       } else gids = [];
       if (attacker.soldiers > 0) {
@@ -1586,8 +1586,8 @@ export class Game {
               `🏯 ${city.name}・調整駐將（${on.length}/${GARRISON_LIMIT}）`,
               '點選駐將可撤回，點選隨行武將可派駐。',
               [
-                ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, icon: portraitUrl(x), sub: `駐守中｜${generalInfo(x)}${pv(x)}`, value: x, color: '#c99a2e', disabled: on.length <= 1, reason: '城池至少要有一名駐將' })),
-                ...party.map((x) => ({ label: `▲ 派駐 ${x.name}`, icon: portraitUrl(x), sub: `隨行｜${generalInfo(x)}${pv(x)}`, value: x, disabled: on.length >= GARRISON_LIMIT, reason: `已滿 ${GARRISON_LIMIT} 人`, color: '#5aa8ec' })),
+                ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, icon: portraitUrl(x), sub: generalBlock(x, '駐守中'), value: x, color: '#c99a2e', disabled: on.length <= 1, reason: '城池至少要有一名駐將' })),
+                ...party.map((x) => ({ label: `▲ 派駐 ${x.name}`, icon: portraitUrl(x), sub: generalBlock(x, '隨行'), value: x, disabled: on.length >= GARRISON_LIMIT, reason: `已滿 ${GARRISON_LIMIT} 人`, color: '#5aa8ec' })),
               ],
               '完成',
             );
@@ -1684,7 +1684,7 @@ export class Game {
     const pool=freeGenerals(this.state,lord.id).filter(canDuel);
     if (!pool.length) return null;
     if (!this.human(lord)) return [...pool].sort((a,b)=>power(b)*(b.hp/maxHp(b))-power(a)*(a.hp/maxHp(a)))[0];
-    return this.dialog.choose(`九州比武大會・${stage}：派誰出戰？`,'可與上一場派同一人或換人。血量與體力沿用現況；不會戰死，取消視為棄權。',pool.map(g=>({label:g.name,sub:`${generalInfo(g)}${pv(g)}`,value:g})),'棄權');
+    return this.dialog.choose(`九州比武大會・${stage}：派誰出戰？`,'可與上一場派同一人或換人。血量與體力沿用現況；不會戰死，取消視為棄權。',pool.map(g=>({label:g.name,sub:generalBlock(g),value:g})),'棄權');
   }
 
   private async tournamentMatch(a:Lord,b:Lord,stage:string):Promise<Lord|null> {
@@ -1823,7 +1823,7 @@ export class Game {
       const choices: Choice<General>[] = candidates.map(g => {
         const r = sectTransferRequirement(this.state, lord, g);
         return { label: `${g.status === 'free' ? '▼' : '▲'} ${g.name}`, icon: portraitUrl(g),
-          sub: `${g.status === 'free' ? '隨行 → 留守宗門' : '宗門 → 隨行'}｜${generalInfo(g)}${pv(g)}`,
+          sub: generalBlock(g, g.status === 'free' ? '隨行 → 留守宗門' : '宗門 → 隨行'),
           value: g, disabled: !r.ok, reason: r.reason, color: g.status === 'free' ? '#c99a2e' : '#5aa8ec' };
       });
       const fee = sectDispatchFee(this.state, lord);

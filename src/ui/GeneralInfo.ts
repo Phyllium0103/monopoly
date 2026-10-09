@@ -3,11 +3,25 @@ import { STAT_NAMES } from '../data/items';
 import { canUse, requirement } from '../systems/ItemSystem';
 import { APTITUDE_NAMES, REALMS } from '../data/generals';
 import { attack, defense, craft, expCap, maxHp, maxStamina, power } from '../systems/GeneralSystem';
+import { fxText, passiveOf } from '../data/passives';
 
 /** 選將時顯示目前有效能力，包含境界、裝備與被動。 */
 export function generalInfo(g: General): string {
   return `${REALMS[g.realm]}・${APTITUDE_NAMES[g.aptitude]}｜血量 ${g.hp}/${maxHp(g)}・體力 ${g.stamina}/${maxStamina(g)}・戰力 ${power(g)}<br>` +
     `${g.weapon ? `武器：${g.weapon.name}・無視防禦 ${Math.round((g.weapon.penetration ?? 0) * 100)}%<br>` : ''}武力 ${attack(g)}・防禦 ${defense(g)}・煉丹 ${craft(g, 'alchemy')}・煉器 ${craft(g, 'forging')}・畫符 ${craft(g, 'talisman')}・佈陣 ${craft(g, 'formation')}`;
+}
+
+/** 選將清單用：標籤、能力格、武器與被動分區顯示。tags 會排在境界、靈根前面（例如「駐守中」）。 */
+export function generalBlock(g: General, ...tags: string[]): string {
+  const cell = (k: string, v: string | number) => `<span class="gb-cell"><i>${k}</i><em>${v}</em></span>`;
+  const p = passiveOf(g);
+  return `<span class="gb">` +
+    `<span class="gb-tags">${[...tags, REALMS[g.realm], APTITUDE_NAMES[g.aptitude]].map((t) => `<span class="gb-tag">${t}</span>`).join('')}</span>` +
+    `<span class="gb-stats">${cell('戰力', power(g))}${cell('武力', attack(g))}${cell('防禦', defense(g))}${cell('血量', `${g.hp}/${maxHp(g)}`)}${cell('體力', `${g.stamina}/${maxStamina(g)}`)}` +
+    `${cell('煉丹', craft(g, 'alchemy'))}${cell('煉器', craft(g, 'forging'))}${cell('畫符', craft(g, 'talisman'))}${cell('佈陣', craft(g, 'formation'))}</span>` +
+    (g.weapon ? `<span class="gb-line">武器：${g.weapon.name}・無視防禦 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</span>` : '') +
+    `<span class="gb-line gb-passive"><strong>【${p.name}】</strong>${fxText(p.fx)}</span>` +
+    `</span>`;
 }
 
 /** 依物品用途顯示生效目標的現況。 */

@@ -1199,7 +1199,8 @@ export class Game {
           chosen = await this.dialog.pickMany(
             `🌀 ${realmName}（${L.name}秘境）・選擇武將`,
             `選 ${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人；歷時依隊伍平均境界而定，人越多個別隕落率越低，四人以上多得一份寶物。按取消可回到難度選擇。`,
-            free.map((g) => ({ label: g.name, icon: portraitUrl(g), sub: generalBrief(g, statCells([['戰力', power(g)], ['單獨隕落率', `${Math.round(deathChance(g, [g], level) * 100)}%`]]) + vitalBars(g)), value: g })),
+            // 依境界由高到低，同境界比修為
+            [...free].sort((x, y) => y.realm - x.realm || y.exp - x.exp).map((g) => ({ label: g.name, icon: portraitUrl(g), sub: generalBrief(g, statCells([['戰力', power(g)], ['單獨隕落率', `${Math.round(deathChance(g, [g], level) * 100)}%`]]) + vitalBars(g)), value: g })),
             REALM_MIN_PARTY,
             REALM_MAX_PARTY,
             '下一步',

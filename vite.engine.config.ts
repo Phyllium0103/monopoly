@@ -7,7 +7,8 @@ export default defineConfig({
     lib: { entry: 'src/engine/server.ts', formats: ['es'], fileName: () => 'engine.js' },
     outDir: 'supabase/functions/game/_engine',
     emptyOutDir: true,
-    minify: false,
+    // 壓縮後檔案約小一半，冷啟動時載入較快
+    minify: true,
     target: 'es2022',
     rollupOptions: { external: [] },
   },

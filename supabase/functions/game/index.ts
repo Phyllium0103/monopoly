@@ -33,8 +33,10 @@ const PUBLIC_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? firstKey('SUPABASE_PUBLI
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-region',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  // 讓瀏覽器快取預檢結果，之後的呼叫不必每次多一趟 OPTIONS 往返
+  'Access-Control-Max-Age': '86400',
 };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
 
@@ -59,22 +61,33 @@ interface PublicRow {
   paused: boolean;
 }
 
+/** 各階段耗時（毫秒），方便診斷速度 */
+let timing: Record<string, number> = {};
+
 Deno.serve(async (req) => {
+  timing = { region: 0 };
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json({ error: 'METHOD_NOT_ALLOWED' }, 405);
   try {
     const authHeader = req.headers.get('Authorization') ?? '';
     const jwt = authHeader.replace(/^Bearer\s+/i, '');
-    const admin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
-    const { data: auth } = await admin.auth.getUser(jwt);
-    const user = auth?.user;
-    if (!user) return json({ error: 'UNAUTHORIZED' }, 401);
+    const t0 = performance.now();
+    const userId = await verify(jwt);
+    timing.verify = Math.round(performance.now() - t0);
+    if (!userId) return json({ error: 'UNAUTHORIZED' }, 401);
+    const user = { id: userId };
 
     const body = (await req.json()) as { action?: string; roomId?: string; seq?: string; answer?: unknown; opId?: string; lord?: string };
     const roomId = body.roomId;
     if (!roomId || typeof roomId !== 'string') return json({ error: 'BAD_REQUEST' }, 400);
-    const { data: member } = await admin.from('room_members').select('*').eq('room_id', roomId).eq('user_id', user.id).maybeSingle<Member>();
+    // 一次讀回成員、公開狀態、伺服器記錄與操作 ID（減少往返）
+    const t1 = performance.now();
+    const { data: bundle, error: loadError } = await admin.rpc('load_game', { p_room: roomId, p_user: userId, p_op: body.opId ?? null });
+    timing.load = Math.round(performance.now() - t1);
+    if (loadError) return json({ error: loadError.message }, 500);
+    const member = bundle?.member as Member | null;
     if (!member) return json({ error: 'NOT_MEMBER' }, 403);
+    const loaded = bundle.pub && bundle.record ? { pub: bundle.pub as PublicRow, record: bundle.record as GameRecord } : null;
 
     switch (body.action) {
       case 'start': {
@@ -87,12 +100,8 @@ Deno.serve(async (req) => {
         return commit(admin, roomId, 0, await advance(newRecord(state, seed)), null, user.id);
       }
       case 'answer': {
-        const loaded = await load(admin, roomId);
         if (!loaded) return json({ error: 'NO_GAME' }, 404);
-        if (body.opId) {
-          const { data: done } = await admin.from('game_ops').select('version').eq('room_id', roomId).eq('op_id', body.opId).maybeSingle();
-          if (done) return json({ ok: true, duplicate: true, version: done.version });
-        }
+        if (bundle.op_version != null) return json({ ok: true, duplicate: true, version: bundle.op_version });
         if (member.ai_control) return json({ error: 'AI_CONTROLLED' }, 409);
         let record: GameRecord;
         try {
@@ -100,10 +109,12 @@ Deno.serve(async (req) => {
         } catch {
           return json({ error: 'STALE_ANSWER', version: loaded.pub.version }, 409);
         }
-        return commit(admin, roomId, loaded.pub.version, await advance(record), body.opId ?? null, user.id);
+        const t2 = performance.now();
+        const result = await advance(record);
+        timing.advance = Math.round(performance.now() - t2);
+        return commit(admin, roomId, loaded.pub.version, result, body.opId ?? null, user.id);
       }
       case 'continue': {
-        const loaded = await load(admin, roomId);
         if (!loaded) return json({ error: 'NO_GAME' }, 404);
         if (loaded.pub.over || loaded.pub.pending) return json({ ok: true, version: loaded.pub.version });
         return commit(admin, roomId, loaded.pub.version, await advance(loaded.record), null, user.id);
@@ -111,7 +122,6 @@ Deno.serve(async (req) => {
       case 'takeover': {
         // 房主把斷線的玩家交給電腦代打
         if (!member.is_host) return json({ error: 'NOT_HOST' }, 403);
-        const loaded = await load(admin, roomId);
         if (!loaded) return json({ error: 'NO_GAME' }, 404);
         const { data: target } = await admin.from('room_members').select('*').eq('room_id', roomId).eq('lord_id', String(body.lord)).maybeSingle<Member>();
         if (!target || target.kind !== 'human' || target.ai_control) return json({ error: 'BAD_TARGET' }, 400);
@@ -124,7 +134,6 @@ Deno.serve(async (req) => {
       case 'reclaim': {
         // 被代打的玩家回來，下一位主公的回合開始時交還操作
         if (!member.ai_control) return json({ ok: true });
-        const loaded = await load(admin, roomId);
         if (!loaded) return json({ error: 'NO_GAME' }, 404);
         const result = await advance(reclaim(loaded.record, member.lord_id));
         const response = await commit(admin, roomId, loaded.pub.version, result, null, user.id);
@@ -140,22 +149,30 @@ Deno.serve(async (req) => {
   }
 });
 
-async function load(admin: SupabaseClient, roomId: string): Promise<{ pub: PublicRow; record: GameRecord } | null> {
-  const [{ data: pub }, { data: priv }] = await Promise.all([
-    admin.from('game_public').select('version, pending, over, paused').eq('room_id', roomId).maybeSingle<PublicRow>(),
-    admin.from('game_private').select('data').eq('room_id', roomId).maybeSingle<{ data: { record: GameRecord } }>(),
-  ]);
-  if (!pub || !priv) return null;
-  return { pub, record: priv.data.record };
+const admin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+
+/** 驗證玩家的登入憑證：優先在本地以公開金鑰驗簽（不需往返認證伺服器），不支援時退回查詢 */
+async function verify(jwt: string): Promise<string | null> {
+  if (!jwt) return null;
+  try {
+    const { data, error } = await admin.auth.getClaims(jwt);
+    if (!error && data?.claims?.sub) return data.claims.sub as string;
+  } catch { /* 舊版金鑰：改用 getUser */ }
+  const { data } = await admin.auth.getUser(jwt);
+  return data?.user?.id ?? null;
 }
+
+const withoutTiles = (state: unknown) => ({ ...(state as Record<string, unknown>), tiles: undefined });
 
 /** 以版本號寫入（樂觀鎖）：同時有兩個操作時只有一個成功，另一個回報衝突由前端重新讀取 */
 async function commit(admin: SupabaseClient, roomId: string, expected: number, r: StepResult, opId: string | null, userId: string) {
+  const t3 = performance.now();
   const { data: version, error } = await admin.rpc('commit_game', {
     p_room: roomId,
     p_expected: expected,
     p_private: { record: r.record },
-    p_state: r.state,
+    // 地圖格子是固定資料，玩家端自行補上，不必每次傳送
+    p_state: withoutTiles(r.state),
     p_pending: r.pending,
     p_over: r.over,
     p_paused: r.paused,
@@ -163,6 +180,8 @@ async function commit(admin: SupabaseClient, roomId: string, expected: number, r
     p_op: opId,
     p_user: userId,
   });
+  timing.commit = Math.round(performance.now() - t3);
   if (error) return json({ error: error.message.includes('VERSION_CONFLICT') ? 'VERSION_CONFLICT' : error.message }, 409);
-  return json({ ok: true, version, pending: r.pending, over: r.over, paused: r.paused });
+  // 直接回傳新狀態與事件，呼叫的玩家不必再向資料庫讀取一次
+  return json({ ok: true, version, state: withoutTiles(r.state), pending: r.pending, over: r.over, paused: r.paused, events: r.events, timing });
 }

@@ -3,7 +3,7 @@ import type { LordId } from '../game/types';
 import type { Game } from '../game/Game';
 import { LORDS } from '../faction/Faction';
 import { LobbyView } from '../ui/LobbyView';
-import { RoomError, RoomService, isOnline, type EventRow, type GamePublic, type Member, type Room } from './RoomService';
+import { RoomError, RoomService, isOnline, type EventRow, type GamePublic, type GameResponse, type Member, type Room } from './RoomService';
 
 const ROOM_KEY = 'xiantu-room';
 const NICK_KEY = 'xiantu-nickname';
@@ -289,23 +289,58 @@ export class OnlineSession {
 
   private async applyRow(row: EventRow, sync = true) {
     if (row.version <= this.version || !this.roomId) return;
+    let pub: GamePublic | null = null;
     if (row.version > this.version + 1) {
       // 中間漏掉的版本先補上
       const missing = await this.svc!.fetchEvents(this.roomId, this.version);
-      for (const r of missing) if (r.version < row.version) await this.playRow(r);
+      for (const r of missing) if (r.version < row.version) pub = await this.playRow(r, pub);
     }
-    await this.playRow(row);
-    if (sync) await this.syncPublic();
+    pub = await this.playRow(row, pub);
+    if (!sync) return;
+    // 播放前讀到的狀態若已是最新，直接使用，不再多讀一次
+    if (pub && pub.version >= this.version) this.handlePublic(pub);
+    else await this.syncPublic();
   }
 
-  private async playRow(row: EventRow) {
-    if (row.version <= this.version) return;
-    // 事件裡用到的武將可能是新招募的：先換上最新狀態（棋子不動），再播放動畫
-    const pub = await this.svc!.fetchGame(this.roomId!).catch(() => null);
-    if (pub) this.game.syncOnlineState(pub.state, false);
-    await this.game.playEvents(row.events);
+  /** 播放一個版本的事件；回傳播放前讀到的最新狀態（可沿用給下一個版本） */
+  private async playRow(row: EventRow, known: GamePublic | null): Promise<GamePublic | null> {
+    if (row.version <= this.version) return known;
+    // 一邊下載最新狀態、一邊播放動畫；只有事件用到本機還沒有的武將（例如剛招募）時才先等下載完成
+    const fetching = known && known.version >= row.version ? Promise.resolve(known) : this.svc!.fetchGame(this.roomId!).catch(() => null);
+    const ids = JSON.stringify(row.events).match(/"(?:generalId|[ab]General)":"[^"]+"/g) ?? [];
+    const unknown = ids.some((m) => !this.game.hasGeneral(m.split(':')[1].replace(/"/g, ''))) || row.events.some((e) => e.t === 'contest' || e.t === 'siege' || e.t === 'tribulation');
+    let pub: GamePublic | null = null;
+    if (unknown || known) {
+      pub = await fetching;
+      if (pub) this.game.syncOnlineState(pub.state, false);
+      await this.game.playEvents(row.events);
+    } else {
+      await this.game.playEvents(row.events);
+      pub = await fetching;
+      if (pub) this.game.syncOnlineState(pub.state, false);
+    }
     this.version = row.version;
     if (row.events.some((e) => e.t === 'gameOver')) this.endShown = true;
+    return pub;
+  }
+
+  /** 權威端的回應已附上新狀態與事件：直接套用，不必再向資料庫讀取 */
+  private applyResponse(res: GameResponse | null) {
+    if (!res?.state || res.version == null) {
+      this.catchUp();
+      return;
+    }
+    const version = res.version;
+    const pub: GamePublic = { version, state: res.state, pending: res.pending ?? null, over: !!res.over, paused: !!res.paused };
+    this.queue = this.queue.then(async () => {
+      if (version <= this.version || !this.roomId) return;
+      // 中間若漏掉其他版本（例如別人剛好也操作），先補上
+      if (version > this.version + 1) {
+        for (const r of await this.svc!.fetchEvents(this.roomId, this.version)) if (r.version < version) await this.playRow(r, null);
+      }
+      await this.playRow({ version, events: res.events ?? [] }, pub);
+      this.handlePublic(pub);
+    }).catch((e) => console.error(e));
   }
 
   private async syncPublic() {
@@ -359,8 +394,8 @@ export class OnlineSession {
     this.continuing = true;
     try {
       if (!iAmHost) await sleep(1500);
-      await this.svc!.game('continue', this.roomId).catch(() => {});
-      this.catchUp();
+      const res = await this.svc!.game('continue', this.roomId).catch(() => null);
+      this.applyResponse(res);
     } finally {
       this.continuing = false;
     }
@@ -372,9 +407,11 @@ export class OnlineSession {
     const value = await this.game.answerRemote(pending.lord, pending.prompt);
     if (this.promptSeq !== pending.seq || !this.roomId) return;
     const opId = newOpId();
+    this.game.setWaiting('伺服器處理中……');
+    let res: GameResponse | null = null;
     for (let attempt = 0; attempt < 4; attempt++) {
       try {
-        await this.svc!.game('answer', this.roomId, { seq: pending.seq, answer: value ?? null, opId });
+        res = await this.svc!.game('answer', this.roomId, { seq: pending.seq, answer: value ?? null, opId });
         break;
       } catch (e) {
         const code = e instanceof RoomError ? e.code : '';
@@ -383,9 +420,10 @@ export class OnlineSession {
         await sleep(800 * (attempt + 1));
       }
     }
-    // 不論成功與否都重新同步；若仍輪到自己，會重新顯示同一個抉擇
     if (this.promptSeq === pending.seq) this.promptSeq = null;
-    this.catchUp();
+    // 成功時直接套用回應；失敗或重複送出時重新同步（若仍輪到自己，會重新顯示同一個抉擇）
+    if (res && !res.duplicate) this.applyResponse(res);
+    else this.catchUp();
   }
 
   private updateBar() {

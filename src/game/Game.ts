@@ -271,6 +271,11 @@ export class Game {
     }
   }
 
+  /** 本機目前的狀態裡是否已有這位武將 */
+  hasGeneral(id: string) {
+    return !!this.state?.generals[id];
+  }
+
   /** 伺服器要本機玩家回答的抉擇 */
   answerRemote(lord: LordId, prompt: Prompt): Promise<unknown> {
     return this.promptUI(lord, prompt);

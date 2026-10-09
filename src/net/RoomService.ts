@@ -1,8 +1,15 @@
-import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
+import { FunctionRegion, type RealtimeChannel, type SupabaseClient } from '@supabase/supabase-js';
 import type { GameState, LordId } from '../game/types';
 import type { Prompt } from '../engine/prompts';
 import type { ViewEvent } from '../engine/view';
 import { supabase } from './supabase';
+import { BOARD } from '../data/board';
+
+/** 伺服器傳來的狀態不含固定的地圖格子，這裡補上 */
+export function withTiles(state: GameState): GameState {
+  if (!state.tiles?.length) state.tiles = structuredClone(BOARD.tiles);
+  return state;
+}
 
 export interface Room {
   id: string;
@@ -39,6 +46,21 @@ export interface EventRow {
   version: number;
   events: ViewEvent[];
 }
+
+/** 權威端回傳：新的版本、完整狀態與這次產生的畫面事件 */
+export interface GameResponse {
+  ok: boolean;
+  version?: number;
+  duplicate?: boolean;
+  state?: GameState;
+  pending?: GamePublic['pending'];
+  over?: boolean;
+  paused?: boolean;
+  events?: ViewEvent[];
+}
+
+/** 讓 Edge Function 在資料庫所在區域執行，減少跨區往返（例如 ap-south-1） */
+const FUNCTION_REGION = import.meta.env.VITE_SUPABASE_REGION as FunctionRegion | undefined;
 
 /** 超過這段時間沒有心跳就視為離線 */
 export const OFFLINE_MS = 45_000;
@@ -133,6 +155,7 @@ export class RoomService {
   async fetchGame(roomId: string): Promise<GamePublic | null> {
     const { data, error } = await this.sb.from('game_public').select('version, state, pending, over, paused').eq('room_id', roomId).maybeSingle<GamePublic>();
     if (error) throw new RoomError(codeOf(error));
+    if (data) withTiles(data.state);
     return data;
   }
 
@@ -144,7 +167,7 @@ export class RoomService {
 
   /** 呼叫權威端（Edge Function） */
   async game(action: 'start' | 'answer' | 'continue' | 'takeover' | 'reclaim', roomId: string, extra: Record<string, unknown> = {}) {
-    const { data, error } = await this.sb.functions.invoke('game', { body: { action, roomId, ...extra } });
+    const { data, error } = await this.sb.functions.invoke('game', { body: { action, roomId, ...extra }, ...(FUNCTION_REGION ? { region: FUNCTION_REGION } : {}) });
     if (error) {
       // 從錯誤回應中取出代碼
       let code = codeOf(error);
@@ -154,7 +177,9 @@ export class RoomService {
       } catch { /* 沒有回應內容 */ }
       throw new RoomError(code);
     }
-    return data as { ok: boolean; version?: number; duplicate?: boolean };
+    const res = data as GameResponse;
+    if (res?.state) withTiles(res.state);
+    return res;
   }
 
   /** 訂閱房間與成員變化 */

@@ -167,7 +167,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
     const victim=enemies.find(usable);if (!victim) continue;
     let target: PrerollTarget={};
     if (def(item).target==='lord') {
-      target={lord:victim,tile:Math.floor(Math.random()*state.tiles.length)};
+      const tiles=state.tiles.filter(t=>t.kind!=='casino');target={lord:victim,tile:tiles[Math.floor(Math.random()*tiles.length)].index};
     } else if (def(item).target==='enemyGeneral') {
       const g=generalsOf(state,victim.id).filter(g=>g.status!=='realm').sort((a,b)=>power(b)-power(a))[0];if(!g)continue;target={general:g};
     } else if (def(item).target==='enemyCity') {

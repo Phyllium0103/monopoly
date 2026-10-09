@@ -136,7 +136,7 @@ test('Dispatch selection includes every spiritual root name', () => {
     assert.ok(generalInfo(g).includes(APTITUDE_NAMES[aptitude]));
   }
 });
-test('Casino: higher total wins 1:1, triples beat totals and pay 3:1, ties push; one central casino tile', () => {
+test('Casino: higher total wins 1:1, triples beat totals and pay 3:1, ties push; one standalone central tile', () => {
   assert.equal(judge([6, 5, 4], [1, 2, 3]), 'win');
   assert.equal(judge([1, 2, 3], [6, 5, 4]), 'lose');
   assert.equal(judge([2, 2, 2], [6, 6, 5]), 'triple');
@@ -152,7 +152,8 @@ test('Casino: higher total wins 1:1, triples beat totals and pay 3:1, ties push;
   assert.throws(() => playCasino(lord, CASINO_MIN_BET - 1));
   const casinos = BOARD.tiles.filter(t => t.kind === 'casino');
   assert.equal(casinos.length, 1);
-  const names = casinos[0].links.map(i => BOARD.tiles[i].name).sort();
-  assert.deepEqual(names, ['宛城', '許昌'].sort());
+  // 不與道路相連，只能經由傳送陣抵達
+  assert.equal(casinos[0].links.length, 0);
+  assert.ok(!BOARD.edges.some(([a, b]) => a === casinos[0].index || b === casinos[0].index));
 });
 console.log(`${passed} verification groups passed.`);

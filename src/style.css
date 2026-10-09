@@ -2461,3 +2461,4 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .cz-result.win { color: #2a7a3a; }
 .cz-result.lose { color: var(--red); }
 .cz-result.push { color: #7a5a20; }
+.cz-rules { margin: 0 0 6px; padding-left: 22px; text-align: left; line-height: 1.75; font-size: 15.5px; }

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { Lord } from '../game/types';
 import { fmtStones } from '../game/Currency';
-import { CASINO_MIN_BET, PAYOUT, diceTotal, isTriple, maxBet, playCasino, type CasinoResult, type Dice } from '../systems/CasinoSystem';
+import { CASINO_MIN_BET, CASINO_NAME, PAYOUT, diceTotal, isTriple, maxBet, playCasino, type CasinoResult, type Dice } from '../systems/CasinoSystem';
 import type { Dialog } from './Dialog';
 
 // ───────────────────────── 骰子貼圖 ─────────────────────────
@@ -250,7 +250,7 @@ const OUTCOME_TEXT: Record<CasinoResult['outcome'], string> = {
 
 const diceText = (d: Dice) => `${d.join('・')}＝${diceTotal(d)}${isTriple(d) ? '（豹子）' : ''}`;
 
-/** 賭坊：每次造訪只能賭一把；離開或未下注回傳 null。 */
+/** 乾坤骰閣：每次造訪只能賭一把；離開或未下注回傳 null。 */
 export function openCasino(dialog: Dialog, lord: Lord, speed: () => number): Promise<CasinoResult | null> {
   let result: CasinoResult | null = null;
   let table: DiceTable | null = null;
@@ -259,11 +259,17 @@ export function openCasino(dialog: Dialog, lord: Lord, speed: () => number): Pro
     table = null;
   };
   return dialog.custom<CasinoResult | null>(
-    '🎲 賭坊・骰盅比大小',
+    `🎲 ${CASINO_NAME}・骰盅比大小`,
     (body, done) => {
       const top = maxBet(lord);
       body.innerHTML = `
-        <p class="dialog-text">與荷官各搖三顆骰子比總點數。<b>贏 1 賠 1</b>；<b>豹子</b>（三顆相同）勝過任何點數，<b>1 賠 3</b>；點數相同為和局，退還賭注。每次進門只能賭一把。</p>
+        <ul class="cz-rules">
+          <li>與荷官各搖三顆骰子，比<b>總點數</b>。</li>
+          <li>點數大：<b>1 賠 1</b></li>
+          <li><b>豹子</b>（三顆相同）勝過任何點數：<b>1 賠 3</b>；雙方都是豹子時比點數</li>
+          <li>點數相同：和局，退還賭注</li>
+          <li>每次只能賭一把；離開後會被送往地圖上的隨機地點</li>
+        </ul>
         <div class="wallet">持有靈石：<b class="cz-wallet">${fmtStones(lord.stones)}</b></div>
         <div class="casino-stage">
           <div class="cz-canvas"></div>

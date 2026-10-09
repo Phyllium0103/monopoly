@@ -19,7 +19,7 @@ import { GameUI, type ActionButton } from '../ui/GameUI';
 import { Dialog, facts, type Choice } from '../ui/Dialog';
 import { portraitUrl, preloadArt } from '../ui/Icons';
 import { openCasino } from '../ui/CasinoView';
-import { aiCasinoBet, diceTotal, playCasino, type CasinoResult } from '../systems/CasinoSystem';
+import { CASINO_NAME, aiCasinoBet, diceTotal, playCasino, type CasinoResult } from '../systems/CasinoSystem';
 import { GeneralsView } from '../ui/GeneralsView';
 import { BattleView } from '../ui/BattleView';
 import { openShop } from '../ui/ShopView';
@@ -70,6 +70,8 @@ export class Game {
   private hoverTile: number | null = null;
   private mouse = { x: 0, y: 0 };
   private rollResolver: ((c: RollChoice) => void) | null = null;
+  /** 選格子時可否選乾坤骰閣（迷魂指定對手落點時不行） */
+  private pickCasinoOk = true;
   private tileResolver: ((t: number | null) => void) | null = null;
   /** 本回合開始時新進入瓶頸的武將，玩家回合開始時提示 */
   private pendingBreak: string[] = [];
@@ -584,11 +586,16 @@ export class Game {
     await this.land(lord, tile);
   }
 
-  /** 踩到角落的傳送陣：隨機傳送到任一格（不會落在傳送陣上） */
+  /** 隨機傳送的落點：不含傳送陣、乾坤骰閣與目前所在格 */
+  private randomDestination(here: number) {
+    const dests = this.state.tiles.filter((t) => t.kind !== 'portal' && t.kind !== 'casino' && t.index !== here);
+    return dests[Math.floor(Math.random() * dests.length)];
+  }
+
+  /** 踩到角落的傳送陣：一半機率送往地圖正中的乾坤骰閣，否則隨機傳送到任一格 */
   private async landPortal(lord: Lord) {
-    const here = lord.position;
-    const dests = this.state.tiles.filter((t) => t.kind !== 'portal' && t.index !== here);
-    const dest = dests[Math.floor(Math.random() * dests.length)];
+    const casino = this.state.tiles.find((t) => t.kind === 'casino');
+    const dest = casino && Math.random() < 0.5 ? casino : this.randomDestination(lord.position);
     this.ui.log(`${LORDS[lord.id].name}踏入傳送陣，被送到「${dest.name}」！`, this.human(lord) ? 'good' : 'ai');
     if (this.human(lord)) this.ui.toast(`傳送陣！被送到「${dest.name}」`);
     await this.teleport(lord, dest.index);
@@ -1235,7 +1242,7 @@ export class Game {
     this.refresh();
   }
 
-  /** 賭坊：玩家自訂賭注開一把；電腦手頭寬裕時小賭 */
+  /** 乾坤骰閣：玩家自訂賭注開一把；電腦手頭寬裕時小賭 */
   private async landCasino(lord: Lord) {
     const human = this.human(lord);
     let r: CasinoResult | null = null;
@@ -1246,9 +1253,15 @@ export class Game {
     }
     if (r) {
       const tail = r.net > 0 ? `贏得 ${fmtStones(r.net)}` : r.net < 0 ? `輸掉 ${fmtStones(-r.net)}` : '和局，賭注退回';
-      this.ui.log(`${LORDS[lord.id].name}在賭坊押 ${fmtStones(r.bet)}：莊家 ${diceTotal(r.dealer)} 點、自己 ${diceTotal(r.player)} 點${r.outcome === 'triple' ? '（豹子）' : ''}，${tail}。`, human ? (r.net >= 0 ? 'good' : 'bad') : 'ai');
-    } else if (!human) this.ui.log(`${LORDS[lord.id].name}路過賭坊，沒有下注。`, 'ai');
+      this.ui.log(`${LORDS[lord.id].name}在${CASINO_NAME}押 ${fmtStones(r.bet)}：莊家 ${diceTotal(r.dealer)} 點、自己 ${diceTotal(r.player)} 點${r.outcome === 'triple' ? '（豹子）' : ''}，${tail}。`, human ? (r.net >= 0 ? 'good' : 'bad') : 'ai');
+    } else if (!human) this.ui.log(`${LORDS[lord.id].name}在${CASINO_NAME}沒有下注。`, 'ai');
     this.refresh();
+    // 離開後被隨機送往地圖其他地點，並觸發該地事件
+    if (this.state.over || !lord.alive) return;
+    const dest = this.randomDestination(lord.position);
+    this.ui.log(`${LORDS[lord.id].name}離開${CASINO_NAME}，被送到「${dest.name}」。`, human ? 'good' : 'ai');
+    if (human) this.ui.toast(`離開${CASINO_NAME}，被送到「${dest.name}」`);
+    await this.teleport(lord, dest.index);
   }
 
   private async landShop(lord: Lord, kind: ShopKind) {
@@ -1392,7 +1405,10 @@ export class Game {
         const victim = await this.dialog.choose('選擇目標主公', '', candidates.map(value => ({label:LORDS[value.id].name,sub:'靈石 '+fmtStones(value.stones,true),value,color:LORDS[value.id].css})));
         if (!victim) return null;
         if (['confuse','confusing'].includes(defId)) {
-          const destination = await this.pickItemTarget(lord,'teleport');
+          // 迷魂只能指定一般地點，乾坤骰閣只能自己傳送前往
+          this.pickCasinoOk = false;
+          let destination: { tile?: number } | null;
+          try { destination = await this.pickItemTarget(lord,'teleport'); } finally { this.pickCasinoOk = true; }
           if (!destination) continue;
           return {lord:victim,tile:destination.tile};
         }
@@ -1414,7 +1430,7 @@ export class Game {
       }
       if (d.target === 'dice') {const dice=await this.dialog.choose('控骰符：選擇點數','',[1,2,3,4,5,6].map(value=>({label:value+' 點',value})));return dice?{dice}:null;}
       if (d.target === 'tile') {
-        this.phase='pickTile';this.world.showHighlights(this.state.tiles.map(t=>t.index),0xc9a0ff);this.refresh();
+        this.phase='pickTile';this.world.showHighlights(this.state.tiles.filter(t=>this.pickCasinoOk||t.kind!=='casino').map(t=>t.index),0xc9a0ff);this.refresh();
         const tile=await new Promise<number|null>(resolve=>this.tileResolver=resolve);
         this.tileResolver=null;this.world.clearHighlights();this.phase='preroll';this.refresh();
         return tile === null ? null : {tile};
@@ -1928,7 +1944,9 @@ export class Game {
     const tile = this.tileOf(o);
     if (tile === null) return;
     if (this.phase === 'pickTile') {
-      this.tileResolver?.(tile);
+      // 迷魂不能把對手送進乾坤骰閣
+      if (!this.pickCasinoOk && this.state.tiles[tile].kind === 'casino') this.ui.toast('迷魂不能指定乾坤骰閣');
+      else this.tileResolver?.(tile);
       return;
     }
     this.hoverTile = tile;
@@ -1950,8 +1968,8 @@ export class Game {
       text += `（${ownerName(c.owner)}）<br>${terrainOf(c).icon} ${terrainOf(c).name}・${terrainEffects(terrainOf(c))}<br>繁榮 ${fmtProsperity(c.prosperity)}（第 ${cityRanks(this.state, c.id).prosperity} 名）${c.owner === 'neutral' ? '' : `・過路費 ${fmtStones(cityToll(this.state, c))}`}`;
     } else text += `<br>${TILE_INFO[t.kind].desc}`;
     if (t.links.length >= 3) text += `<br>➜ 岔路箭頭：往${this.state.tiles[this.state.forkDirections[tile]].name}`;
-    text += `<br><span class="tt-links">通往：${t.links.map((n) => this.state.tiles[n].name).join('、')}</span>`;
-    if (this.phase === 'pickTile') text += '<br><span class="tt-move">▶ 點擊傳送至此</span>';
+    text += `<br><span class="tt-links">通往：${t.links.map((n) => this.state.tiles[n].name).join('、') || '不與道路相連（經由傳送陣或指定傳送抵達）'}</span>`;
+    if (this.phase === 'pickTile') text += !this.pickCasinoOk && t.kind === 'casino' ? '<br><span class="tt-move">✖ 無法傳送至此</span>' : '<br><span class="tt-move">▶ 點擊傳送至此</span>';
     this.ui.showTooltip(text, this.mouse.x, this.mouse.y);
   }
 
@@ -1962,7 +1980,7 @@ export class Game {
     const here = LORD_IDS.filter((id) => this.state.lords[id].alive && this.state.lords[id].position === index);
     const fork = t.links.length >= 3 ? `<div class="ip-row">➜ 岔路箭頭：往${this.state.tiles[this.state.forkDirections[index]].name}</div>` : '';
     const people = here.length ? `<div class="ip-row">此地：${here.map((id) => `<span style="color:${LORDS[id].css}">${LORDS[id].name}</span><small>（${this.facingText(this.state.lords[id])}）</small>`).join('、')}</div>` : '';
-    const linkText = `${t.links.map((n) => `${TILE_INFO[this.state.tiles[n].kind].icon}${this.state.tiles[n].name}`).join('、')}${t.links.length >= 3 ? '（岔路口）' : ''}`;
+    const linkText = `${t.links.map((n) => `${TILE_INFO[this.state.tiles[n].kind].icon}${this.state.tiles[n].name}`).join('、') || '不與道路相連'}${t.links.length >= 3 ? '（岔路口）' : ''}`;
     const links = `<div class="ip-row ip-links" title="通往：${linkText}">通往：${linkText}</div>`;
     if (t.kind !== 'city') return `<div class="ip-head"><b>${TILE_INFO[t.kind].icon} ${t.name}</b></div><div class="ip-row">${TILE_INFO[t.kind].desc}</div>${links}${fork}${people}`;
     const c = this.state.cities[t.cityId!];

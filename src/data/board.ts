@@ -27,7 +27,6 @@ const realm = (name: string): Spec => ({ kind: 'realm', name });
 const vein = (): Spec => ({ kind: 'vein', name: '靈脈' });
 const portal = (): Spec => ({ kind: 'portal', name: '傳送陣' });
 const shop = (kind: Exclude<SpecialKind, 'road' | 'realm' | 'portal' | 'vein'>, name: string): Spec => ({ kind, name });
-const casino = (): Spec => ({ kind: 'casino', name: '賭坊' });
 
 /**
  * 城池：依真實地理座標（東為 +x、南為 +z）。繁榮度依東漢末年的實際盛衰，每座都不同：
@@ -71,6 +70,11 @@ const CITIES: NodeDef[] = [
   city('changan', '長安', -20, -13, 92, 'dong'),
 ];
 
+/** 不與道路相連的獨立地點：位於地圖正中的平原，經由傳送陣或指定傳送抵達 */
+const STANDALONE: { kind: SpecialKind; name: string; pos: Vec2 }[] = [
+  { kind: 'casino', name: '乾坤骰閣', pos: { x: 8, z: 15 } },
+];
+
 /** 道路：每條由定點串到定點，中間的驛站、關隘與商店依序平均分布 */
 const PATHS: PathItem[][] = [
   // 中原：洛陽居天下之中，四通八達
@@ -82,8 +86,6 @@ const PATHS: PathItem[][] = [
   ['chenliu', shop('treasure', '天寶商行'), 'puyang'],
   ['chenliu', shop('tavern', '聽風樓'), 'xiaopei'],
   ['xuchang', shop('beast', '萬獸園'), 'runan'],
-  // 天下之中：宛城與許昌之間的賭坊
-  ['wancheng', casino(), 'xuchang'],
   ['runan', shop('treasure', '天寶商行'), 'shouchun'],
   // 河北
   ['henei', road('壺關'), vein(), 'jinyang'],
@@ -193,6 +195,7 @@ function buildBoard() {
       pending = [];
     }
   }
+  for (const s of STANDALONE) addTile(s.kind, s.name, s.pos, null);
   return { tiles, cities, edges };
 }
 
@@ -207,8 +210,8 @@ export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
   library: { icon: '📜', desc: '藏經閣：販售功法' },
   beast: { icon: '🐉', desc: '萬獸園：販售靈獸，每位主公限一隻' },
   tavern: { icon: '🏮', desc: '聽風樓：招募各國尚未出仕的將領' },
-  casino: { icon: '🎲', desc: '賭坊：與荷官骰盅比大小，自訂賭注，每次停留只能賭一把' },
-  portal: { icon: '🌌', desc: '傳送陣：位於四個角落的路上，踩到會被隨機傳送到地圖上的另一格' },
+  casino: { icon: '🎲', desc: '乾坤骰閣：位於地圖正中，不與道路相連，經由傳送陣或指定傳送（傳送陣、筋斗雲物品）抵達。與荷官骰盅比大小，自訂賭注，每次只能賭一把，離開後被隨機送往地圖其他地點' },
+  portal: { icon: '🌌', desc: '傳送陣：位於四個角落的路上，踩到有一半機率被送往地圖正中的乾坤骰閣，否則隨機傳送到地圖上的另一格' },
   vein: { icon: '💎', desc: '靈脈：路過就能獲得靈石（不用停下），依主公本人的境界計算，每輪每位主公只領一次' },
   road: { icon: '🛤️', desc: '驛道：可能遇到奇遇。岔路依箭頭行走，每次經過後箭頭換方向；逆向停在岔路，下回合返回，途經岔路則隨機選出口' },
 };

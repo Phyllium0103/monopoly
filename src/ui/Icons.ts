@@ -1,13 +1,14 @@
+import { generalArtUrl } from '../data/generalArt';
 import { WEAPON_CATALOG } from '../data/weaponCatalog';
 import { BEASTS, EQUIP_DESIGNS, ITEM_DEFS } from '../data/items';
-import type { Beast, Equipment, General } from '../game/types';
+import type { Beast, Equipment } from '../game/types';
 
 const BASE = import.meta.env.BASE_URL;
 /** 名稱前面有「黃品下・」這類品階前綴，圖示以去掉前綴的名稱命名 */
 const baseName = (name: string) => name.split('・').pop() ?? name;
 
 // ───────────────────────── 圖片包 ─────────────────────────
-// 武將縮圖與物品圖示合成一個 pack.bin，只要 1 次網路請求；
+// 物品圖示仍從 pack.bin 載入；舊武將圖索引不再使用。
 // 載入後轉成瀏覽器內部的 blob 網址，之後顯示圖片完全不用再連網。
 // 圖片包還沒載好（或載入失敗）時，退回逐張下載，所以不會出現空白。
 
@@ -24,6 +25,7 @@ export function loadArtPack(): Promise<void> {
         fetch(`${BASE}art/pack.bin`).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error('pack.bin')))),
       ]);
       for (const [key, [off, len]] of Object.entries(index)) {
+        if (key.startsWith('generals/')) continue;
         packUrls.set(key, URL.createObjectURL(new Blob([bin.slice(off, off + len)], { type: 'image/webp' })));
       }
     } catch {
@@ -45,13 +47,13 @@ export const itemIconUrl = (defId: string) => ['realmkey', 'realmescape'].includ
 export const equipIconUrl = (e: Equipment) => e.fixedGeneralId ? `${BASE}art/icons/weapons/${WEAPON_CATALOG[e.fixedGeneralId].material}.svg` : url('icons/寶衣', baseName(e.name));
 /** 靈獸 */
 export const beastIconUrl = (b: Beast) => url('icons/靈獸', baseName(b.name));
-/** 武將頭像（小圖 128px，名冊、清單、商店用） */
-export const portraitUrl = (g: Pick<General, 'id'>) => url('generals/t', g.id);
-/** 武將立繪（大圖 256px，擂台戰與地圖棋子用） */
-export const portraitBigUrl = (g: Pick<General, 'id'>) => `${BASE}art/generals/${g.id}.webp`;
+/** 名冊、清單、商店統一使用已選基礎原圖。 */
+export const portraitUrl = generalArtUrl;
+/** 戰鬥立繪使用同一張透明基礎圖。 */
+export const portraitBigUrl = generalArtUrl;
 
 // ───────────────────────── 預先載入 ─────────────────────────
-// 大圖（擂台戰、地圖棋子）不在圖片包裡，遊戲開始後在背景載入；
+// 優先預載主公與開局武將，其餘完整 PNG 在需要時載入，避免一次下載全部原圖。
 // 圖片包失敗時，縮圖與圖示也由這裡逐張補載。
 
 const queued = new Set<string>();
@@ -77,12 +79,12 @@ function preload(urls: string[]) {
   else setTimeout(start, 300);
 }
 
-export function preloadArt(firstGeneralIds: string[], allGeneralIds: string[]) {
-  const big = (id: string) => `${BASE}art/generals/${id}.webp`;
+export function preloadArt(firstGeneralIds: string[]) {
+  const big = (id: string) => generalArtUrl({ id });
   void loadArtPack().then(() => {
     // 圖片包沒載成功時才逐張補載
     if (packUrls.size === 0) {
-      const files = [...firstGeneralIds, ...allGeneralIds].map((id) => `${BASE}art/generals/t/${id}.webp`);
+      const files: string[] = [];
       const dirs = (d: string, n: string) => `${BASE}art/icons/${d}/${encodeURIComponent(n)}.webp`;
       for (const d of Object.values(ITEM_DEFS)) files.push(dirs(d.category, d.name));
       for (const e of EQUIP_DESIGNS) files.push(dirs('寶衣', e.name));

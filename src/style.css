@@ -2299,3 +2299,41 @@ body {
 @keyframes slashCut2R { 0% { opacity: 0; transform: rotate(-38deg) scaleX(0.1); } 25% { opacity: 1; } 100% { opacity: 0; transform: rotate(-38deg) scaleX(1.2); } }
 
 .f-weapon { font-size: 12px; color: var(--gold-light); line-height: 1.4; margin: 5px 0; }
+
+
+/* 已選基礎立繪：所有人物框統一 1145 × 1536，圖片完整顯示。 */
+:root { --general-ratio: 1145 / 1536; }
+.general-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 780px), 1fr)); }
+.general-card {
+  display: grid;
+  grid-template-columns: calc(418px * 1145 / 1536) minmax(0, 1fr);
+  height: 420px;
+  padding: 0;
+  overflow: hidden;
+}
+.gc-portrait {
+  width: 100%; height: 100%; aspect-ratio: var(--general-ratio);
+  border: 0; border-radius: 7px 0 0 7px;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,.08), transparent 75%);
+}
+.gc-portrait { position: relative; display: block; }
+.gc-portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: left center; }
+.gc-details .gc-slot { height: 166px !important; }
+.gc-details { display: flex; flex-direction: column; min-width: 0; padding: 10px 12px; overflow-y: auto; }
+.gc-details .gc-body { flex-wrap: wrap; }
+.gc-details .gc-table { min-width: 210px; }
+.gc-details .bar, .gc-details .equip { flex-shrink: 0; }
+.choice-icon.general-portrait, .sr-icon.general-portrait {
+  height: 96px; width: calc(96px * 1145 / 1536); aspect-ratio: var(--general-ratio);
+  object-fit: contain;
+}
+.cr-portrait { height: 88px; width: calc(88px * 1145 / 1536); aspect-ratio: var(--general-ratio); }
+.f-portrait {
+  width: calc(150px * 1145 / 1536); height: 150px; aspect-ratio: var(--general-ratio);
+  margin-left: auto; margin-right: auto;
+}
+.f-portrait img { width: 100%; height: 100%; object-fit: contain; }
+@media (max-width: 820px) {
+  .general-grid { grid-template-columns: minmax(740px, 1fr); overflow-x: auto; }
+  .general-card { min-width: 740px; }
+}

@@ -6,7 +6,7 @@ import { attack, defense, craft, expCap, maxHp, maxStamina, power } from '../sys
 
 /** 選將時顯示目前有效能力，包含境界、裝備與被動。 */
 export function generalInfo(g: General): string {
-  return `${REALMS[g.realm]}｜血量 ${g.hp}/${maxHp(g)}・體力 ${g.stamina}/${maxStamina(g)}・戰力 ${power(g)}<br>` +
+  return `${REALMS[g.realm]}・${APTITUDE_NAMES[g.aptitude]}｜血量 ${g.hp}/${maxHp(g)}・體力 ${g.stamina}/${maxStamina(g)}・戰力 ${power(g)}<br>` +
     `${g.weapon ? `武器：${g.weapon.name}・無視防禦 ${Math.round((g.weapon.penetration ?? 0) * 100)}%<br>` : ''}武力 ${attack(g)}・防禦 ${defense(g)}・煉丹 ${craft(g, 'alchemy')}・煉器 ${craft(g, 'forging')}・畫符 ${craft(g, 'talisman')}・佈陣 ${craft(g, 'formation')}`;
 }
 

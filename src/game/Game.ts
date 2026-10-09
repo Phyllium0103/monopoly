@@ -2,6 +2,7 @@ import { MATERIAL_GROUPS, MATERIAL_NAMES, type MaterialGroup } from '../data/wea
 import { materialIncome, materialsText, synthesize } from '../systems/MaterialSystem';
 import { tournamentBracket, tournamentWinner, grantTournamentPrize } from '../systems/TournamentSystem';
 import { abilityUsers, abilityReady, abilityTargets, useGeneralAbility, seclusionUser, startSeclusion, itemBlockUser, triggerItemBlock } from '../systems/GeneralAbilities';
+import { sectDispatchFee, sectTransferRequirement, transferSectGeneral } from '../systems/SectSystem';
 import { garrisonDispatch } from '../systems/GarrisonSystem';
 import { immortalWinner } from '../systems/VictorySystem';
 import * as THREE from 'three';
@@ -128,7 +129,7 @@ export class Game {
     this.ui.onSpeed = (s) => (this.sm.timeScale = this.garrisonTask ? 0 : s);
 
     window.addEventListener('keydown', (e) => {
-      if (!this.state || this.state.over || this.dialog.isOpen) return;
+      if (!this.state || this.state.over || this.dialog.isOpen || this.garrisonTask) return;
       if ((e.key === ' ' || e.key === 'Enter') && (e.target as HTMLElement)?.tagName === 'BUTTON') e.preventDefault();
       if (e.key === ' ' && this.phase === 'preroll') {
         e.preventDefault();
@@ -168,6 +169,7 @@ export class Game {
 
   /** 切換電腦託管：開啟後玩家的回合由電腦代打 */
   private async toggleAuto() {
+    if (this.garrisonTask) return;
     this.autoPlay = !this.autoPlay;
     this.ui.auto = this.autoPlay;
     this.ui.log(this.autoPlay ? '🤖 開啟電腦託管，由電腦代為行動。' : '🤖 取消託管，下一個回合起由你操作。', 'turn');
@@ -211,6 +213,7 @@ export class Game {
     this.sm.timeScale = 0;
     const task = this.manageGarrison(lord, selectedCity, free);
     this.garrisonTask = task;
+    this.refresh();
     try { await task; }
     finally {
       this.garrisonTask = null;
@@ -249,7 +252,6 @@ export class Game {
     // 背景預先載入圖片，避免之後打開名冊、商店時圖片才一張張慢慢冒出來
     preloadArt(
       Object.values(this.state.generals).filter((g) => g.owner === player).map((g) => g.id),
-      Object.keys(this.state.generals),
     );
     this.ui.log(`天地靈氣復甦，${LORDS[player].name}起兵逐鹿天下！${maxRounds === null ? '（無盡模式：主公真仙或最後存活者獲勝）' : `（${maxRounds} 輪後比總資產）`}`, 'turn');
     this.ui.log('擲骰沿道路前進，岔路依箭頭走並換方向；逆向停在岔路，下回合返回，途經岔路則隨機轉向：停在無主城池才能派將佔領，踏入他人城池須繳過路費或開戰。', 'info');
@@ -437,7 +439,7 @@ export class Game {
     }
     if (await this.checkEnd()) return;
     await this.resolveDiceMovement(lord);
-    if (lord.alive && this.canSwapSect(lord)) for (const msg of aiManageSect(this.state, lord)) this.ui.log(`${LORDS[lord.id].name}：${msg}`, 'ai');
+    if (lord.alive) for (const msg of aiManageSect(this.state, lord)) this.ui.log(`${LORDS[lord.id].name}：${msg}`, 'ai');
     await this.wait(300);
   }
 
@@ -1492,8 +1494,8 @@ export class Game {
     if (city.owner !== lord.id) return;
     const group = await this.dialog.choose<MaterialGroup>(
       `${city.name}・挖掘材料`,
-      `每個自身回合收入 ${materialIncome(city)} 顆（繁榮度 ${fmtProsperity(city.prosperity)} ÷ 20，四捨五入）。只能挖掘基礎材料；高階材料需在擲骰前以 10：1 合成。`,
-      MATERIAL_GROUPS.map(k => ({ label: MATERIAL_NAMES[k][0] + (city.mining === k ? '（目前）' : ''), sub: `進化：${MATERIAL_NAMES[k][1]} → ${MATERIAL_NAMES[k][2]}`, value: k })),
+      `每個自身回合收入 ${materialIncome(city)} 顆。選擇此城挖掘的材料。`,
+      MATERIAL_GROUPS.map(k => ({ label: MATERIAL_NAMES[k][0] + (city.mining === k ? '（目前）' : ''), value: k })),
       required ? null : '返回調度', '⛏️',
     );
     if (!group || city.owner !== lord.id) return;
@@ -1536,19 +1538,19 @@ export class Game {
     for (;;) {
       const city = selectedCity ?? await this.dialog.choose(
         '🏯 調度駐軍',
-        '依道路最短距離收費：10 下品～10 中品。付費後可不限次調整該城，直到關閉；操作期間遊戲暫停。',
+        '主公所在城池免費；其他城池依道路距離收費。開啟後可不限次調整該城，直到關閉；操作期間遊戲暫停。',
         cities.map((c) => ({ label: c.name, disabled: lord.stones < garrisonDispatch(this.state, lord, c).fee, reason: '靈石不足', sub: `距離 ${garrisonDispatch(this.state, lord, c).distance} 格・調遣費 ${fmtStones(garrisonDispatch(this.state, lord, c).fee)}・駐將 ${c.garrisonGenerals.length ? garrisonOf(this.state, c).map((g) => g.name).join('、') : '無'}（${c.garrisonGenerals.length}/${GARRISON_LIMIT}）・守軍 ${c.garrisonSoldiers}・繁榮 ${fmtProsperity(c.prosperity)}`, value: c })),
       );
       if (!city) return;
       const fee = freeDispatch ? 0 : garrisonDispatch(this.state, lord, city).fee;
-      if (!freeDispatch && !await this.dialog.confirm(`開啟${city.name}調度`, `支付 ${fmtStones(fee)}，即可不限次調整此城，直到關閉。關閉後重新開啟會再收費。`, '付費調度', '返回選城', '🏯')) continue;
+      if (fee > 0 && !await this.dialog.confirm(`開啟${city.name}調度`, `支付 ${fmtStones(fee)}，即可不限次調整此城，直到關閉。關閉後重新開啟會再收費。`, '付費調度', '返回選城', '🏯')) continue;
       if (city.owner !== lord.id || lord.stones < fee) return;
       lord.stones -= fee;
       this.ui.log(`🏯 ${city.name}調遣費：${fmtStones(fee)}；本次視窗不限次調整。`, 'info');
       this.refresh();
       for (;;) {
         const free = deployable(this.state, lord.id);
-        const action = await this.dialog.choose(`調度${city.name}`, `已付費 ${fmtStones(fee)}・本次操作不再收費。守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`, [
+        const action = await this.dialog.choose(`調度${city.name}`, `${fee === 0 ? '免費調度' : `已付費 ${fmtStones(fee)}`}・本次操作不再收費。守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`, [
           { label: '增派士兵', sub: `從隨行士兵調入（目前 ${lord.soldiers}）`, value: 'add', disabled: lord.soldiers < 100, reason: '士兵不足' },
           { label: '撤回士兵', sub: `至少保留 ${MIN_GARRISON} 守軍`, value: 'remove', disabled: city.garrisonSoldiers - MIN_GARRISON < 100, reason: '守軍已達下限' },
           { label: '更換挖掘材料', sub: `${city.mining ? MATERIAL_NAMES[city.mining][0] : '尚未指定'}・每個自身回合 ${materialIncome(city)} 顆`, value: 'mining' },
@@ -1789,10 +1791,23 @@ export class Game {
 
   // ───────────────────────── 宗門與突破 ─────────────────────────
 
-  /** 要走到自己的城池，才能調度宗門隨行武將 */
-  private canSwapSect(lord: Lord): boolean {
-    const t = this.state.tiles[lord.position];
-    return t.kind === 'city' && this.state.cities[t.cityId!].owner === lord.id;
+  /** 任意回合與位置皆可開啟；先完成戰鬥或其他必選視窗。 */
+  private async openSect(lord: Lord) {
+    if (this.state.over || !lord.alive || this.autoPlay || this.garrisonTask) return;
+    if (this.dialog.isOpen || this.battleView.isOpen) {
+      this.ui.toast('請先完成目前的視窗，再調度宗門');
+      return;
+    }
+    this.sm.timeScale = 0;
+    const task = this.manageSect(lord);
+    this.garrisonTask = task;
+    this.refresh();
+    try { await task; }
+    finally {
+      this.garrisonTask = null;
+      this.sm.timeScale = this.speed;
+      this.refresh();
+    }
   }
 
   /** 玩家回合內才能突破、閉關 */
@@ -1802,26 +1817,23 @@ export class Game {
   }
 
   private async manageSect(lord: Lord) {
-    for (;;) {
+    while (!this.state.over && lord.alive) {
       const allFree = freeGenerals(this.state, lord.id);
-      const party = allFree.filter((g) => !g.isLord && !fx(g).fixedParty && !g.ghostSourceId);
-      const sect = sectGenerals(this.state, lord.id);
-      const choices: Choice<General>[] = [
-        ...party.map((g) => ({ label: `▼ ${g.name}`, icon: portraitUrl(g), sub: `隨行 → 留守宗門｜${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`, value: g, color: '#c99a2e' })),
-        ...sect.map((g) => ({
-          label: `▲ ${g.name}`, icon: portraitUrl(g),
-          sub: `宗門 → 隨行｜${REALMS[g.realm]}・戰力 ${power(g)}${pv(g)}`,
-          value: g,
-          disabled: allFree.length >= PARTY_LIMIT,
-          reason: `隨行已滿 ${PARTY_LIMIT} 人`,
-          color: '#5aa8ec',
-        })),
-      ];
-      const g = await this.dialog.choose(`🏛️ 宗門調度（隨行 ${allFree.length}/${PARTY_LIMIT}）`, '隨行武將最多十名，其餘留在宗門。點選武將即可切換。', choices, '完成');
+      const candidates = [...allFree.filter(g => !g.isLord && !fx(g).fixedParty && !g.ghostSourceId), ...sectGenerals(this.state, lord.id)];
+      const choices: Choice<General>[] = candidates.map(g => {
+        const r = sectTransferRequirement(this.state, lord, g);
+        return { label: `${g.status === 'free' ? '▼' : '▲'} ${g.name}`, icon: portraitUrl(g),
+          sub: `${g.status === 'free' ? '隨行 → 留守宗門' : '宗門 → 隨行'}｜${generalInfo(g)}${pv(g)}`,
+          value: g, disabled: !r.ok, reason: r.reason, color: g.status === 'free' ? '#c99a2e' : '#5aa8ec' };
+      });
+      const fee = sectDispatchFee(this.state, lord);
+      const g = await this.dialog.choose(`🏛️ 宗門調度（隨行 ${allFree.length}/${PARTY_LIMIT}）`,
+        `${fee === 0 ? '目前所在城池免費調度' : '每人每次耗費 10 下品靈石'}・持有 ${fmtStones(lord.stones)}。隨行最多十名；自己的城池與空城免費。`, choices, '完成');
       if (!g) break;
-      g.status = g.status === 'free' ? 'sect' : 'free';
+      const r = sectTransferRequirement(this.state, lord, g);
+      if (!r.ok) { this.ui.toast(r.reason); continue; }
+      this.ui.log(transferSectGeneral(this.state, lord, g), 'good');
     }
-    this.refresh();
   }
 
   /** 從武將名冊發起突破：低階機率突破，金丹以上渡雷劫 */
@@ -1982,23 +1994,28 @@ export class Game {
       buttons.push(roster);
     } else if (this.phase === 'preroll') {
       hint = '擲骰前可先整備；擲完骰、處理完事件，回合自動結束';
-      fullHint = '擲骰前可先使用物品、合成材料、徵兵或整備武將（宗門需站在自己的城池；調度駐軍可遠端付費開啟）；擲完骰、處理完落地事件，回合就會自動結束';
+      fullHint = '擲骰前可先使用物品、合成材料、徵兵或整備武將（宗門每人 10 下品，自己的城池或空城免費；調度駐軍在主公所在城池免費）；擲完骰、處理完落地事件，回合就會自動結束';
       buttons.push(
         { label: '✨ 方外神通', sub: '製物・起死回生・冤魂召喚', disabled: !abilityUsers(this.state,player).length, onClick: () => void this.generalAbilities(player) },
         { label: '🎒 使用物品', sub: `${player.items.length} 件`, onClick: () => void this.useItemPreroll(player) },
         { label: '⛏️ 材料合成', sub: `${MATERIAL_GROUPS.reduce((n, k) => n + player.materials[k].reduce((a, b) => a + b, 0), 0)} 顆`, onClick: () => void this.materialsFlow(player) },
         { label: '⚔️ 徵兵', sub: `${(recruitCost(player.id, 100) / 100).toFixed(2).replace(/\.?0+$/, '')}/名`, onClick: () => void this.recruitSoldiers(player) },
         { label: '🏯 調度駐軍', sub: '依距離收費・一次付費可操作到關閉', disabled: !citiesOf(this.state, player.id).length, onClick: () => void this.openGarrison() },
-        { label: '🏛️ 宗門', sub: this.canSwapSect(player) ? `隨行 ${freeGenerals(this.state, player.id).length}/${PARTY_LIMIT}` : '需在自己的城池', disabled: !this.canSwapSect(player), onClick: () => void this.manageSect(player) },
         roster,
       );
     } else if (this.phase === 'pickTile') {
       hint = '傳送陣：點選地圖上任一格（右鍵或 Esc 取消）';
       buttons.push({ label: '✖ 取消', onClick: () => this.tileResolver?.(null) });
     } else hint = '……';
+    if (!this.state.over && player.alive && !this.autoPlay) buttons.push({
+      label: '🏛️ 宗門', sub: sectDispatchFee(this.state, player) === 0 ? '免費調度' : '10 下品／人',
+      disabled: !!this.garrisonTask || this.dialog.isOpen || this.battleView.isOpen,
+      onClick: () => void this.openSect(player),
+    });
+    if (this.garrisonTask) for (const button of buttons) button.disabled = true;
     this.ui.renderActions(buttons, hint, fullHint);
     // 擲骰：右側偏下的大圓鈕
-    if (!this.state.over && player.alive && myTurn && !this.autoPlay && this.phase === 'preroll') this.ui.showRoll(() => this.rollResolver?.({ type: 'roll' }));
+    if (!this.state.over && !this.garrisonTask && player.alive && myTurn && !this.autoPlay && this.phase === 'preroll') this.ui.showRoll(() => this.rollResolver?.({ type: 'roll' }));
     else this.ui.hideRoll();
 
     this.ui.renderInfo(this.tileInfoHtml(this.hoverTile ?? player.position));

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GENERAL_ART, generalArtUrl } from '../data/generalArt';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import type { LordId } from '../game/types';
 import { LORDS } from '../faction/Faction';
@@ -180,7 +181,7 @@ function drawFigure(c: Figure): HTMLCanvasElement {
 
 /** 主公代號 → 立繪檔名 */
 const LORD_ART: Record<string, string> = { cao: 'caocao', liu: 'liubei', sun: 'sunquan', dong: 'dongzhuo' };
-/** 立繪是正方形，棋子大小（世界座標） */
+/** 棋子高度（世界座標）；寬度按原圖比例設定。 */
 const ART_SIZE = 3.1;
 
 export class CharacterSprite {
@@ -210,15 +211,15 @@ export class CharacterSprite {
     this.sprite.userData = { pick: true, lordId: character.lord };
     const art = LORD_ART[character.id];
     if (art) {
-      new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}art/generals/${art}.webp`, (t) => {
+      new THREE.TextureLoader().load(generalArtUrl({ id: art }), (t) => {
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = 4;
         const mat = this.sprite.material as THREE.SpriteMaterial;
         mat.map?.dispose();
         mat.map = t;
         mat.needsUpdate = true;
-        this.w = ART_SIZE;
         this.h = ART_SIZE;
+        this.w = ART_SIZE * GENERAL_ART[art].width / GENERAL_ART[art].height;
         this.apply();
       });
     }

@@ -85,7 +85,7 @@ export class Dialog {
     const text = `<b>${c.label}</b>${c.sub ? `<small>${c.sub}</small>` : ''}${c.disabled && c.reason ? `<small class="reason">${c.reason}</small>` : ''}`;
     if (c.icon) {
       b.classList.add('has-icon');
-      b.innerHTML = `<img class="choice-icon" src="${c.icon}" alt="" onerror="this.style.visibility='hidden'"><span class="choice-text">${text}</span>`;
+      b.innerHTML = `<img class="choice-icon${c.icon.includes('/generals/base/') ? ' general-portrait' : ''}" src="${c.icon}" alt="" onerror="this.style.visibility='hidden'"><span class="choice-text">${text}</span>`;
     } else b.innerHTML = text;
     b.onclick = onClick;
     return b;

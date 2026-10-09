@@ -27,6 +27,14 @@ export function upgradeRequirement(lord: Lord, g: General): { ok: boolean; reaso
   return { group: d.material, stage, cost, ok: lord.materials[d.material][stage] >= cost,
     reason: `需要 ${cost} 顆${MATERIAL_NAMES[d.material][stage]}（持有 ${lord.materials[d.material][stage]}）` };
 }
+/** 即使武將暫不能升階，滑過武器仍能查看下一階的材料。 */
+export function weaponUpgradeTip(lord: Lord, g: General): string {
+  const d = WEAPON_CATALOG[g.id], e = g.weapon;
+  if (!d || e?.fixedGeneralId !== g.id) return '沒有專屬武器';
+  const stage = weaponGrade(e);
+  if (stage >= 3) return '已達天階，無需升階材料';
+  return `升階材料：${WEAPON_UPGRADE_COST[stage]} 顆${MATERIAL_NAMES[d.material][stage]}（持有 ${lord.materials[d.material][stage]}）`;
+}
 export function upgradeWeapon(lord: Lord, g: General): string {
   const r = upgradeRequirement(lord, g);
   if (!r.ok || r.group === undefined || r.stage === undefined || r.cost === undefined) throw Error(r.reason);

@@ -22,6 +22,6 @@ export function garrisonDispatch(state: GameState, lord: Lord, city: City) {
     diameters.set(state.tiles, diameter);
   }
   const distance = distances(state.tiles, lord.position)[city.tile];
-  const fee = Math.min(1000, Math.max(10, Math.round((10 + 990 * distance / diameter) / 10) * 10));
+  const fee = distance === 0 ? 0 : Math.min(1000, Math.max(10, Math.round((10 + 990 * distance / diameter) / 10) * 10));
   return { distance, fee };
 }

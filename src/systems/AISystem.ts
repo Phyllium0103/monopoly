@@ -2,6 +2,7 @@ import { aiUpgradeWeapons } from './MaterialSystem';
 import { fx } from '../data/passives';
 import { immortalWinner } from './VictorySystem';
 import type { City, CraftStat, GameState, General, Item, Lord } from '../game/types';
+import { sectTransferRequirement, transferSectGeneral } from './SectSystem';
 import { PARTY_LIMIT, abandonIfEmpty, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, canLearn, learn, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
 import { MIN_GARRISON, eliminate, recruitCost, visitingToll, garrisonPower, occupyCost, totalAssets } from './CitySystem';
@@ -243,14 +244,15 @@ export async function aiBreakthroughs(state: GameState, lord: Lord, hooks: ItemH
   return logs;
 }
 
-/** 在自己的城池：從宗門補滿隨行武將 */
+/** 從宗門補滿隨行武將，依所在地支付調度費。 */
 export function aiManageSect(state: GameState, lord: Lord): string[] {
   const party = freeGenerals(state, lord.id);
   const sect = sectGenerals(state, lord.id).sort((a, b) => power(b) - power(a));
   const moved: string[] = [];
   for (const g of sect) {
     if (party.length + moved.length >= PARTY_LIMIT) break;
-    g.status = 'free';
+    if (!sectTransferRequirement(state, lord, g).ok) continue;
+    transferSectGeneral(state, lord, g);
     moved.push(g.name);
   }
   return moved.length ? [`從宗門召回${moved.join('、')}隨行`] : [];

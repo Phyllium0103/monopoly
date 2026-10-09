@@ -85,7 +85,7 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
           row.className = `shop-row ${mode === 'buy' && sold.has(i) ? 'sold' : ''}`;
           const main = o.kind === 'item' ? `<div class="sr-main item-row"><div class="item-title">${itemLabel(o.item.defId, o.item.tier)}</div><small>${itemInfoHtml(o.item.defId, o.item.tier)}</small></div>` : `<div class="sr-main"><b>${o.label}</b><small>${o.sub}</small></div>`;
           const iconSrc = o.kind === 'item' ? itemIconUrl(o.item.defId) : o.kind === 'equipment' ? equipIconUrl(o.equipment) : o.kind === 'beast' ? beastIconUrl(o.beast) : o.kind === 'general' || o.kind === 'revive' ? portraitUrl(o.general) : '';
-          const iconHtml = iconSrc ? `<img class="sr-icon" src="${iconSrc}" alt="" onerror="this.style.visibility='hidden'">` : '';
+          const iconHtml = iconSrc ? `<img class="sr-icon${o.kind === 'general' || o.kind === 'revive' ? ' general-portrait' : ''}" src="${iconSrc}" alt="" onerror="this.style.visibility='hidden'">` : '';
           row.innerHTML = `${iconHtml}${main}<div class="sr-price">${mode === 'sell' ? '+' : ''}${fmtStones(o.price)}</div>`;
           const b = document.createElement('button');
           b.className = 'btn primary mini';

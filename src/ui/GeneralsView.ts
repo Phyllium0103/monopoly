@@ -1,5 +1,5 @@
 import { MATERIAL_NAMES, WEAPON_CATALOG, WEAPON_GRADES, WEAPON_PENETRATION } from '../data/weaponCatalog';
-import { upgradeRequirement, upgradeWeapon } from '../systems/MaterialSystem';
+import { upgradeRequirement, upgradeWeapon, weaponUpgradeTip } from '../systems/MaterialSystem';
 import { generalCooldownText } from '../systems/GeneralAbilities';
 import type { Equipment, GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
@@ -168,7 +168,10 @@ export class GeneralsView {
         : `突破成功率 ${Math.round(breakChance(g) * 100)}%`;
     const buffs = [g.foundation ? '已服築基丹' : '', g.sevenLife ? '七星續命護法' : '', g.breakBoost ? `引雷減傷 ${Math.round(g.breakBoost * 100)}%` : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? `心魔 ×${g.demon}` : ''].filter(Boolean).join('・');
 
+    const req = upgradeRequirement(lord, g);
     card.innerHTML = `
+      <div class="gc-portrait"><img src="${portraitUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></div>
+      <div class="gc-details">
       ${ready ? `<div class="ready-banner">✨ 修為圓滿，可以${needsTribulation(g) ? '渡劫' : '突破'}了！</div>` : ''}
       <div class="gc-head">
         <b>${g.name}</b><small>${originKingdom(g.origin)}</small><span class="realm">${REALMS[g.realm]}</span>${g.isLord ? '<span class="lord-tag">主公</span>' : ''}
@@ -178,9 +181,8 @@ export class GeneralsView {
         <span class="st">${status}</span>
       </div>
       <div class="gc-body">
-        <div class="gc-portrait"><img src="${portraitUrl(g)}" alt="${g.name}" onerror="this.style.visibility='hidden'"></div>
         <div class="gc-slots">
-          <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(equipDesc(g.weapon))}"` : ''}><small>武器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.weapon.name.split('・').pop()}</b><em class="slot-tier">${g.weapon.name.split('・')[0]}・破防 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</em>` : '<b><span class="muted">無</span></b>'}</div>
+          <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(`${equipDesc(g.weapon)}｜${weaponUpgradeTip(lord, g)}`)}"` : ''}><small>武器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.weapon.name.split('・').pop()}</b><em class="slot-tier">${g.weapon.name.split('・')[0]}・破防 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</em>` : '<b><span class="muted">無</span></b>'}</div>
           <div class="gc-slot eq-row" data-slot="armor" ${g.armor ? `title="${tip(equipDesc(g.armor))}"` : ''}><small>寶衣</small>${g.armor ? `<img class="slot-icon" src="${equipIconUrl(g.armor)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.armor.name.split('・').pop()}</b><em class="slot-tier">${g.armor.name.split('・')[0]}</em>` : '<b><span class="muted">無</span></b>'}</div>
         </div>
         <table class="gc-table">
@@ -205,7 +207,8 @@ export class GeneralsView {
       <div class="equip">
         <div class="eq-row" data-slot="technique"><span class="eq-info" ${t ? `title="${tip(`${t.name.split('・')[0]}｜${techniqueDesc(t)}`)}"` : ''}>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name.split('・').slice(1).join('・')}</span>` : '<span class="muted">未修習</span>'}</span></div>
       </div>
-      <div class="gc-actions"></div>`;
+      <div class="gc-actions"></div>
+      </div>`;
 
     const actions = card.querySelector('.gc-actions')!;
     const btn = (label: string, disabled: boolean, fn: () => void, cls = '') => {
@@ -240,7 +243,6 @@ export class GeneralsView {
         this.render(state, lord);
       });
     }
-    const req = upgradeRequirement(lord, g);
     rowBtn('weapon', req.reason === '已達天階' ? '已達天階' : (g.weapon ? '武器升階' : '無專屬武器'), !manage || away || !req.ok, async () => {
       const r = upgradeRequirement(lord, g);
       if (!r.ok || r.stage === undefined || !r.group || !r.cost) return;

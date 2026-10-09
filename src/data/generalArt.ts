@@ -706,7 +706,7 @@ export const GENERAL_ART: Record<string, { width: number; height: number }> = {
 
 export const generalArtId = (g: Pick<General, 'id' | 'ghostSourceId'>) => g.ghostSourceId ?? g.id;
 export const generalArtUrl = (g: Pick<General, 'id' | 'ghostSourceId'>) =>
-  `${import.meta.env.BASE_URL}art/generals/full/${encodeURIComponent(generalArtId(g))}.webp`;
+  `${import.meta.env?.BASE_URL ?? './'}art/generals/full/${encodeURIComponent(generalArtId(g))}.webp`;
 /** 由全身圖裁出的 192px 頭像；裁切範圍記錄於 docs/general-head-crops.json。 */
 export const generalHeadUrl = (g: Pick<General, 'id' | 'ghostSourceId'>) =>
-  `${import.meta.env.BASE_URL}art/generals/head/${encodeURIComponent(generalArtId(g))}.webp`;
+  `${import.meta.env?.BASE_URL ?? './'}art/generals/head/${encodeURIComponent(generalArtId(g))}.webp`;

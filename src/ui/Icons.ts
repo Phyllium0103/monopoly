@@ -3,7 +3,8 @@ import { WEAPON_CATALOG } from '../data/weaponCatalog';
 import { BEASTS, EQUIP_DESIGNS, ITEM_DEFS } from '../data/items';
 import type { Beast, Equipment } from '../game/types';
 
-const BASE = import.meta.env.BASE_URL;
+// 在 Node 測試或伺服器上沒有 Vite 的環境變數，改用相對路徑
+const BASE = import.meta.env?.BASE_URL ?? './';
 /** 名稱前面有「黃品下・」這類品階前綴，圖示以去掉前綴的名稱命名 */
 const baseName = (name: string) => name.split('・').pop() ?? name;
 

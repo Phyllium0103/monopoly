@@ -183,6 +183,10 @@ export interface Lord {
   beast: Beast | null;
   expeditions: Expedition[];
   rank: number;
+  /** 多人：開局時沒有人入座，不參與本局 */
+  absent?: boolean;
+  /** 多人：入座玩家的暱稱 */
+  seatName?: string;
 }
 
 /** 城池指定的技藝比試；每座城固定開放擂台戰 */

@@ -95,9 +95,10 @@ export class GameUI {
     this.collecting = null;
   }
 
-  renderTop(state: GameState) {
+  renderTop(state: GameState, me: LordId = state.player) {
     const current = state.order[state.turn];
     const lords = state.order
+      .filter((id) => !state.lords[id].absent)
       .map((id) => {
         const l = state.lords[id];
         const d = LORDS[id];
@@ -105,8 +106,8 @@ export class GameUI {
         const realm = l.expeditions.length ? `<span class="tag realm">🌀${l.expeditions.length}</span>` : '';
         const ready = l.alive && l.isPlayer ? generalsOf(state, id).filter((g) => canAttemptBreak(g, state.round).ok).length : 0;
         const breakTag = ready ? `<span class="tag ready" title="有武將修為圓滿，可到武將名冊突破">✨可突破 ${ready}</span>` : '';
-        return `<div class="lord-card clickable ${id === current ? 'current' : ''} ${l.alive ? '' : 'out'} ${l.isPlayer ? 'me' : ''}" data-lord="${id}" style="--fc:${d.css}">
-          <div class="lc-head"><b>${d.name}</b><small>${d.kingdom}${l.isPlayer ? '・你' : ''}</small>${status}${realm}${breakTag}</div>
+        return `<div class="lord-card clickable ${id === current ? 'current' : ''} ${l.alive ? '' : 'out'} ${id === me ? 'me' : ''}" data-lord="${id}" style="--fc:${d.css}">
+          <div class="lc-head"><b>${d.name}</b><small>${d.kingdom}${id === me ? '・你' : l.seatName ? `・${l.seatName}` : ''}</small>${status}${realm}${breakTag}</div>
           <div class="lc-row">💎 ${fmtStones(l.stones, true)}</div>
           <div class="lc-row">總資產 <b>${fmtStones(totalAssets(state, id).total, true)}</b></div>
           <div class="lc-more"><div>⚔️ 士兵 <b>${l.soldiers}</b></div><div>🏯 城池 <b>${citiesOf(state, id).length}</b> 座</div><div>👥 武將 <b>${generalsOf(state, id).length}</b> 名</div><small>點擊查看詳細資料</small></div>

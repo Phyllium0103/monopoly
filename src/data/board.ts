@@ -27,6 +27,7 @@ const realm = (name: string): Spec => ({ kind: 'realm', name });
 const vein = (): Spec => ({ kind: 'vein', name: '靈脈' });
 const portal = (): Spec => ({ kind: 'portal', name: '傳送陣' });
 const shop = (kind: Exclude<SpecialKind, 'road' | 'realm' | 'portal' | 'vein'>, name: string): Spec => ({ kind, name });
+const casino = (): Spec => ({ kind: 'casino', name: '賭坊' });
 
 /**
  * 城池：依真實地理座標（東為 +x、南為 +z）。繁榮度依東漢末年的實際盛衰，每座都不同：
@@ -81,6 +82,8 @@ const PATHS: PathItem[][] = [
   ['chenliu', shop('treasure', '天寶商行'), 'puyang'],
   ['chenliu', shop('tavern', '聽風樓'), 'xiaopei'],
   ['xuchang', shop('beast', '萬獸園'), 'runan'],
+  // 天下之中：宛城與許昌之間的賭坊
+  ['wancheng', casino(), 'xuchang'],
   ['runan', shop('treasure', '天寶商行'), 'shouchun'],
   // 河北
   ['henei', road('壺關'), vein(), 'jinyang'],
@@ -204,6 +207,7 @@ export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
   library: { icon: '📜', desc: '藏經閣：販售功法' },
   beast: { icon: '🐉', desc: '萬獸園：販售靈獸，每位主公限一隻' },
   tavern: { icon: '🏮', desc: '聽風樓：招募各國尚未出仕的將領' },
+  casino: { icon: '🎲', desc: '賭坊：與荷官骰盅比大小，自訂賭注，每次停留只能賭一把' },
   portal: { icon: '🌌', desc: '傳送陣：位於四個角落的路上，踩到會被隨機傳送到地圖上的另一格' },
   vein: { icon: '💎', desc: '靈脈：路過就能獲得靈石（不用停下），依主公本人的境界計算，每輪每位主公只領一次' },
   road: { icon: '🛤️', desc: '驛道：可能遇到奇遇。岔路依箭頭行走，每次經過後箭頭換方向；逆向停在岔路，下回合返回，途經岔路則隨機選出口' },

@@ -2446,3 +2446,18 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 
 /* 多選清單：已選取的項目 hover 時改為深黃，不會變回白色 */
 .choice.picked:hover:not(:disabled) { background: #e6bd4e; border-color: #7a5a10; }
+
+/* 賭坊：3D 骰盅舞台與結果 */
+.casino-stage { position: relative; height: 300px; margin: 8px 0; border-radius: 10px; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, #3a2a1a, #120c08 75%); }
+.cz-canvas { position: absolute; inset: 0; }
+.cz-canvas canvas { display: block; }
+.cz-label { position: absolute; left: 12px; padding: 2px 10px; border-radius: 8px; background: rgba(0, 0, 0, 0.55); color: #f2e6c8; font-size: 15px; pointer-events: none; }
+.cz-label b { margin-left: 8px; color: #ffd86a; }
+.cz-label.dealer { top: 10px; }
+.cz-label.player { bottom: 10px; }
+.casino-bet { margin: 4px 0; }
+.casino-bet input[type="range"] { width: 100%; }
+.cz-result { min-height: 34px; margin: 6px 0; text-align: center; font-size: 22px; font-weight: 900; }
+.cz-result.win { color: #2a7a3a; }
+.cz-result.lose { color: var(--red); }
+.cz-result.push { color: #7a5a20; }

@@ -11,7 +11,7 @@ import { originKingdom } from '../faction/Faction';
 import type { Beast, Equipment, General, Item, Technique } from '../game/types';
 
 /** 地圖上的商店，加上旅行商人事件的商隊 */
-export type ShopKind = Exclude<TileKind, 'city' | 'realm' | 'road' | 'portal' | 'vein'> | 'merchant';
+export type ShopKind = Exclude<TileKind, 'city' | 'realm' | 'road' | 'portal' | 'vein' | 'casino'> | 'merchant';
 
 export type Offer = (
   | { kind: 'item'; item: Item; label: string; sub: string; price: number }

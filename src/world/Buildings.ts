@@ -136,6 +136,23 @@ export function buildSpecial(kind: TileKind): BuildingVisual {
       g.add(banner);
       break;
     }
+    case 'casino': {
+      // 賭坊：朱紅樓閣 + 金頂，屋頂上一顆旋轉的大骰子
+      g.add(base(0x4a2a1a));
+      g.add(box(1.6, 1.4, 1.3, 0x9a1f1f, 0, 0.3, 0));
+      g.add(roof(2.3, 0.55, 0xd9a63a, 1.7));
+      g.add(box(0.5, 0.75, 0.05, 0x2a1408, 0, 0.3, 0.66));
+      for (const x of [-0.95, 0.95]) g.add(mesh(new THREE.SphereGeometry(0.16, 8, 6), m(0xffc040, 0xd08a10), x, 1.45, 0.55));
+      const die = mesh(new THREE.BoxGeometry(0.55, 0.55, 0.55), m(0xf7f1e3), 0, 2.75, 0);
+      const pip = m(0xc8202a);
+      for (const [x, y, z] of [[0, 0.28, 0], [0, 0, 0.28], [0.28, 0, 0]]) die.add(mesh(new THREE.SphereGeometry(0.07, 8, 6), pip, x, y, z));
+      die.rotation.set(0.6, 0, 0.6);
+      die.userData.spin = 1.2;
+      die.userData.bob = 2.75;
+      animated.push(die);
+      g.add(die);
+      break;
+    }
     case 'vein': {
       g.add(mesh(new THREE.CylinderGeometry(1.1, 1.3, 0.2, 8), m(0x2a4a5a), 0, 0.1, 0));
       for (let i = 0; i < 3; i++) {

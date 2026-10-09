@@ -26,6 +26,8 @@ const { weaponUpgradeTip, upgradeWeapon, upgradeRequirement } = require('../src/
 const { WEAPON_CATALOG, MATERIAL_NAMES, makePersonalWeapon } = require('../src/data/weaponCatalog.ts');
 const { generalInfo } = require('../src/ui/GeneralInfo.ts');
 const { aiManageSect } = require('../src/systems/AISystem.ts');
+const { judge, playCasino, CASINO_MIN_BET } = require('../src/systems/CasinoSystem.ts');
+const { BOARD } = require('../src/data/board.ts');
 let passed = 0;
 function test(name, fn) { fn(); passed++; console.log(`PASS ${name}`); }
 test('All 175 source PNGs match the name mapping, dimensions and SHA; full and head WebPs exist', () => {
@@ -133,5 +135,24 @@ test('Dispatch selection includes every spiritual root name', () => {
     g.aptitude = aptitude;
     assert.ok(generalInfo(g).includes(APTITUDE_NAMES[aptitude]));
   }
+});
+test('Casino: higher total wins 1:1, triples beat totals and pay 3:1, ties push; one central casino tile', () => {
+  assert.equal(judge([6, 5, 4], [1, 2, 3]), 'win');
+  assert.equal(judge([1, 2, 3], [6, 5, 4]), 'lose');
+  assert.equal(judge([2, 2, 2], [6, 6, 5]), 'triple');
+  assert.equal(judge([6, 6, 5], [1, 1, 1]), 'lose');
+  assert.equal(judge([3, 3, 3], [2, 2, 2]), 'triple');
+  assert.equal(judge([1, 3, 5], [2, 3, 4]), 'push');
+  const state = createGameState('liu'), lord = state.lords.liu;
+  const start = lord.stones;
+  const seq = [0.99, 0.99, 0.8, 0, 0, 0.2]; // 6+6+5 對 1+1+2
+  const r = playCasino(lord, 1000, () => seq.shift());
+  assert.equal(r.outcome, 'win'); assert.equal(lord.stones, start + 1000);
+  assert.throws(() => playCasino(lord, lord.stones + CASINO_MIN_BET));
+  assert.throws(() => playCasino(lord, CASINO_MIN_BET - 1));
+  const casinos = BOARD.tiles.filter(t => t.kind === 'casino');
+  assert.equal(casinos.length, 1);
+  const names = casinos[0].links.map(i => BOARD.tiles[i].name).sort();
+  assert.deepEqual(names, ['宛城', '許昌'].sort());
 });
 console.log(`${passed} verification groups passed.`);

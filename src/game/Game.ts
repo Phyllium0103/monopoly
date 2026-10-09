@@ -18,6 +18,8 @@ import { LORDS, LORD_IDS, originCss, ownerCss, ownerName } from '../faction/Fact
 import { GameUI, type ActionButton } from '../ui/GameUI';
 import { Dialog, facts, type Choice } from '../ui/Dialog';
 import { portraitUrl, preloadArt } from '../ui/Icons';
+import { openCasino } from '../ui/CasinoView';
+import { aiCasinoBet, diceTotal, playCasino, type CasinoResult } from '../systems/CasinoSystem';
 import { GeneralsView } from '../ui/GeneralsView';
 import { BattleView } from '../ui/BattleView';
 import { openShop } from '../ui/ShopView';
@@ -616,6 +618,8 @@ export class Game {
         return this.landPortal(lord);
       case 'road':
         return this.roadEvent(lord, t.name);
+      case 'casino':
+        return this.landCasino(lord);
       default:
         return this.landShop(lord, t.kind);
     }
@@ -1228,6 +1232,22 @@ export class Game {
     if (!team) return;
     dispatch(lord, team, realmName, level);
     this.ui.log(`${LORDS[lord.id].name}消耗一把秘境遺鑰，派遣${team.map((g) => g.name).join('、')}進入${realmName}（${REALM_LEVELS[level].name}秘境，${realmTurns(level, team)} 回合）。`, this.human(lord) ? 'good' : 'ai');
+    this.refresh();
+  }
+
+  /** 賭坊：玩家自訂賭注開一把；電腦手頭寬裕時小賭 */
+  private async landCasino(lord: Lord) {
+    const human = this.human(lord);
+    let r: CasinoResult | null = null;
+    if (human) r = await openCasino(this.dialog, lord, () => this.speed);
+    else {
+      const bet = aiCasinoBet(lord);
+      if (bet) r = playCasino(lord, bet);
+    }
+    if (r) {
+      const tail = r.net > 0 ? `贏得 ${fmtStones(r.net)}` : r.net < 0 ? `輸掉 ${fmtStones(-r.net)}` : '和局，賭注退回';
+      this.ui.log(`${LORDS[lord.id].name}在賭坊押 ${fmtStones(r.bet)}：莊家 ${diceTotal(r.dealer)} 點、自己 ${diceTotal(r.player)} 點${r.outcome === 'triple' ? '（豹子）' : ''}，${tail}。`, human ? (r.net >= 0 ? 'good' : 'bad') : 'ai');
+    } else if (!human) this.ui.log(`${LORDS[lord.id].name}路過賭坊，沒有下注。`, 'ai');
     this.refresh();
   }
 

@@ -2436,3 +2436,10 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 /* 商店右側按鈕欄：固定寬度，主要按鈕在上、鎖定在下 */
 .sr-actions { flex: none; width: 108px; display: flex; flex-direction: column; gap: 6px; }
 .sr-actions .btn { width: 100%; white-space: normal; }
+
+/* 對戰紀錄：固定 7 行高度，新訊息從下方出現，不會撐大視窗 */
+.battle-log { height: calc(7 * 1.7em + 16px); min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+.battle-log > div { flex: none; }
+/* 狀態標籤列預留一行高度，出現「瀕危」等標籤時不會撐高 */
+.f-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 0; min-height: 24px; }
+.f-tags .ftag { line-height: 20px; }

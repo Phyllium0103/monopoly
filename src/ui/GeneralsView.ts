@@ -54,8 +54,8 @@ const SORTS: { id: string; name: string; value: (g: General) => number }[] = [
   { id: 'forging', name: '煉器', value: (g) => craft(g, 'forging') },
   { id: 'talisman', name: '畫符', value: (g) => craft(g, 'talisman') },
   { id: 'formation', name: '佈陣', value: (g) => craft(g, 'formation') },
+  // 先比境界，同境界再比修為
   { id: 'realm', name: '境界', value: (g) => g.realm * 1e6 + g.exp },
-  { id: 'exp', name: '修為', value: (g) => g.exp },
 ];
 
 export class GeneralsView {

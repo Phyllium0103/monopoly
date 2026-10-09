@@ -2,12 +2,15 @@ import './style.css';
 import { Game } from './game/Game';
 import { LORD_IDS } from './faction/Faction';
 import type { LordId } from './game/types';
+import { installArtViewer } from './ui/ArtViewer';
 
 // 圖片一律不可拖曳、不可右鍵（含之後動態加入的圖片）
 for (const type of ['contextmenu', 'dragstart'] as const)
   document.addEventListener(type, (e) => {
     if (e.target instanceof HTMLImageElement) e.preventDefault();
   });
+
+installArtViewer();
 
 const game = new Game(document.getElementById('app')!, document.getElementById('ui')!);
 

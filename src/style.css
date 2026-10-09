@@ -2358,3 +2358,8 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
   border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; overflow: hidden;
 }
 .gc-portrait img { object-fit: cover; object-position: center; }
+.art-viewer {
+  position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;
+  background: rgba(0, 0, 0, 0.78); cursor: zoom-out;
+}
+.art-viewer img { max-width: 92vw; max-height: 92vh; object-fit: contain; filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6)); }

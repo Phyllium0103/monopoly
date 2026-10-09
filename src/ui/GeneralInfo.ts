@@ -11,18 +11,49 @@ export function generalInfo(g: General): string {
     `${g.weapon ? `武器：${g.weapon.name}・無視防禦 ${Math.round((g.weapon.penetration ?? 0) * 100)}%<br>` : ''}武力 ${attack(g)}・防禦 ${defense(g)}・煉丹 ${craft(g, 'alchemy')}・煉器 ${craft(g, 'forging')}・畫符 ${craft(g, 'talisman')}・佈陣 ${craft(g, 'formation')}`;
 }
 
-/** 選將清單用：標籤、能力格、武器與被動分區顯示。tags 會排在境界、靈根前面（例如「駐守中」）。 */
-export function generalBlock(g: General, ...tags: string[]): string {
-  const cell = (k: string, v: string | number) => `<span class="gb-cell"><i>${k}</i><em>${v}</em></span>`;
-  const bar = (cls: string, k: string, v: number, max: number) => `<span class="bar ${cls}"><i style="width:${Math.min(100, (v / Math.max(1, max)) * 100)}%"></i><span>${k} ${v} / ${max}</span></span>`;
+/** 境界標籤：境界越高顏色越鮮豔。 */
+export const realmTag = (realm: number) => `<span class="gb-tag realm-tag r${realm}">${REALMS[realm]}</span>`;
+/** 靈根標籤：依五行上色。 */
+export const aptTag = (g: General) => `<span class="gb-tag apt-${g.aptitude}">${APTITUDE_NAMES[g.aptitude]}</span>`;
+/** 標籤列：額外標籤（例如「駐守中」）＋境界＋靈根。 */
+export const generalTags = (g: General, tags: string[] = []) =>
+  `<span class="gb-tags">${tags.map((t) => `<span class="gb-tag">${t}</span>`).join('')}${realmTag(g.realm)}${aptTag(g)}</span>`;
+/** 能力格：[名稱, 數值] 一格一項。 */
+export const statCells = (cells: [string, string | number][]) =>
+  `<span class="gb-stats" style="--n:${cells.length}">${cells.map(([k, v]) => `<span class="gb-cell"><i>${k}</i><em>${v}</em></span>`).join('')}</span>`;
+const bar = (cls: string, k: string, v: number, max: number) =>
+  `<span class="bar ${cls}"><i style="width:${Math.min(100, (v / Math.max(1, max)) * 100)}%"></i><span>${k} ${v} / ${max}</span></span>`;
+/** 血量、體力兩條。 */
+export const vitalBars = (g: General) => `<span class="gb-bars">${bar('hp', '血量', g.hp, maxHp(g))}${bar('sta', '體力', g.stamina, maxStamina(g))}</span>`;
+/** 被動框。 */
+export const passiveBox = (g: General) => {
   const p = passiveOf(g);
-  return `<span class="gb">` +
-    `<span class="gb-tags">${[...tags, REALMS[g.realm]].map((t) => `<span class="gb-tag">${t}</span>`).join('')}<span class="gb-tag apt-${g.aptitude}">${APTITUDE_NAMES[g.aptitude]}</span></span>` +
-    `<span class="gb-stats">${cell('戰力', power(g))}${cell('武力', attack(g))}${cell('防禦', defense(g))}` +
-    `${cell('煉丹', craft(g, 'alchemy'))}${cell('煉器', craft(g, 'forging'))}${cell('畫符', craft(g, 'talisman'))}${cell('佈陣', craft(g, 'formation'))}</span>` +
-    `<span class="gb-bars">${bar('hp', '血量', g.hp, maxHp(g))}${bar('sta', '體力', g.stamina, maxStamina(g))}</span>` +
+  return `<span class="gb-line gb-passive"><strong>【${p.name}】</strong>${fxText(p.fx)}</span>`;
+};
+
+export interface BlockOptions {
+  /** 排在境界、靈根前面的標籤 */
+  tags?: string[];
+  /** 額外說明（放在被動上方），例如警告或用途 */
+  note?: string;
+}
+
+/** 選將清單用：標籤、能力格、血量體力、武器與被動分區顯示。 */
+export function generalBlock(g: General, opts: BlockOptions = {}): string {
+  return `<span class="gb">${generalTags(g, opts.tags)}` +
+    statCells([['戰力', power(g)], ['武力', attack(g)], ['防禦', defense(g)], ['煉丹', craft(g, 'alchemy')], ['煉器', craft(g, 'forging')], ['畫符', craft(g, 'talisman')], ['佈陣', craft(g, 'formation')]]) +
+    vitalBars(g) +
     (g.weapon ? `<span class="gb-line">武器：${g.weapon.name}・無視防禦 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</span>` : '') +
-    `<span class="gb-line gb-passive"><strong>【${p.name}】</strong>${fxText(p.fx)}</span>` +
+    (opts.note ? `<span class="gb-line gb-note">${opts.note}</span>` : '') +
+    passiveBox(g) +
+    `</span>`;
+}
+
+/** 只需部分資訊的清單：標籤列＋自訂內容（可含 statCells）＋被動。 */
+export function generalBrief(g: General, body = '', opts: BlockOptions & { passive?: boolean } = {}): string {
+  return `<span class="gb">${generalTags(g, opts.tags)}${body}` +
+    (opts.note ? `<span class="gb-line gb-note">${opts.note}</span>` : '') +
+    (opts.passive === false ? '' : passiveBox(g)) +
     `</span>`;
 }
 

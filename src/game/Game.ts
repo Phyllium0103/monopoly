@@ -26,7 +26,7 @@ import { RankView } from '../ui/RankView';
 import { LordView } from '../ui/LordView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { REALMS } from '../data/generals';
-import { fxText, passiveOf, fx, lordHas } from '../data/passives';
+import { passiveOf, fx, lordHas } from '../data/passives';
 import { ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
@@ -34,7 +34,7 @@ import { GARRISON_STRENGTH, MIN_GARRISON, RANK_METRICS, canOccupy, cityIncome, c
 import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, craft, defense, inBottleneck, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
-import { generalBlock, generalInfo, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
+import { aptTag, generalBlock, generalBrief, realmTag, statCells, vitalBars, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
 import { canUse, consumeItem, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
 import { buy, makeStock, beginShopVisit, refreshShop, SHOP_REFRESH_COSTS, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, partyRealm, realmRolls, realmTurns } from '../systems/RealmSystem';
@@ -48,7 +48,6 @@ type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
 /** 選將時顯示的被動效果 */
-const pv = (g: General) => `<span class="gb-line gb-passive"><strong>【${passiveOf(g).name}】</strong>${fxText(passiveOf(g).fx)}</span>`;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export class Game {
@@ -699,8 +698,8 @@ export class Game {
           color: LORDS[lord.id].css,
         })),
         ...party.map((g) => ({
-          label: `🧑 ${g.name}（${REALMS[g.realm]}）`, icon: portraitUrl(g),
-          sub: `戰力 ${power(g)}｜身價 ${fmtStones(generalSaleValue(g))}｜賣出後自動卸下裝備，離開進入聽風樓${pv(g)}`,
+          label: `🧑 ${g.name}`, icon: portraitUrl(g),
+          sub: generalBrief(g, statCells([['戰力', power(g)], ['身價', fmtStones(generalSaleValue(g))]]), { note: '賣出後自動卸下裝備，離開進入聽風樓' }),
           value: { kind: 'general', general: g } as Sale,
           color: '#c99a2e',
         })),
@@ -867,7 +866,7 @@ export class Game {
       facts([
         ['過路費', `<b>${fmtStones(fee)}</b>（戰敗付雙倍 ${fmtStones(fee * 2)}）`],
         ['守軍', `${city.garrisonSoldiers} 名`],
-        ...(guards.length ? guards.map((g) => ['駐將', `${g.name}・${generalInfo(g)}`] as [string, string]) : [['駐將', '無'] as [string, string]]),
+        ...(guards.length ? guards.map((g) => ['駐將', `<b>${g.name}</b> ${realmTag(g.realm)}${aptTag(g)} 戰力 <b>${power(g)}</b>・武力 ${attack(g)}・防禦 ${defense(g)}`] as [string, string]) : [['駐將', '無'] as [string, string]]),
         ...(fee * 2 > lord.stones ? [['⚠️ 警告', '雙倍過路費超過你持有的靈石，戰敗將先變賣城池，再不夠則隨行武將離開抵債，只剩主公一人時破產！', 'warn'] as [string, string, 'warn']] : []),
       ]) + '選擇繳費，或發起戰鬥：',
       choices,
@@ -906,9 +905,9 @@ export class Game {
     if (this.human(defender)) for (;;) {
       const decision = await this.dialog.choose(
         `${LORDS[attacker.id].name}挑戰${city.name}【${BATTLE_NAMES[kind]}】`,
-        `敵將 ${atkGen.name}：${generalInfo(atkGen)}<br><br>臨陣脫逃會直接判負，保留城池、駐將與其餘守軍。守軍四分之一（${Math.floor(city.garrisonSoldiers/4)} 人）加入敵方，對方免繳過路費。`,
+        `<b>敵將 ${atkGen.name}</b>${generalBlock(atkGen)}<br>臨陣脫逃會直接判負，保留城池、駐將與其餘守軍。守軍四分之一（${Math.floor(city.garrisonSoldiers/4)} 人）加入敵方，對方免繳過路費。`,
         [
-          { label: '迎戰・選擇應戰武將', value: 'fight', sub: defensePool.map(g=>`${g.name}：${generalInfo(g)}`).join('<br><br>') || '沒有可應戰武將，將不戰而敗' },
+          { label: '迎戰・選擇應戰武將', value: 'fight', sub: defensePool.map(g=>`<b class="gb-name">${g.name}</b>${generalBrief(g, statCells([['戰力', power(g)], ['武力', attack(g)], ['防禦', defense(g)]]) + vitalBars(g), { passive: false })}`).join('') || '沒有可應戰武將，將不戰而敗' },
           { label: '臨陣脫逃', value: 'flee', sub: `保留${city.name}，${Math.floor(city.garrisonSoldiers/4)} 名守軍倒戈` },
         ], null, '⚔️',
       );
@@ -1117,10 +1116,10 @@ export class Game {
       [...pool].sort((x, y) => (stat ? craft(y, stat) - craft(x, stat) : power(y) - power(x))).map((g) => ({
         label: g.name, icon: portraitUrl(g),
         sub: stat
-          ? `<b>${STAT_NAMES[stat]} ${craft(g, stat)}</b>・${REALMS[g.realm]}${pv(g)}`
+          ? generalBrief(g, statCells([[STAT_NAMES[stat], craft(g, stat)], ['體力', `${g.stamina}/${maxStamina(g)}`]]))
           : kind === 'duel'
-            ? `${REALMS[g.realm]}｜血量 ${g.hp}/${maxHp(g)}・戰力 ${power(g)}<br>武力 ${attack(g)}・防禦 ${defense(g)}${risky(g)}${g.technique ? `・${g.technique.name}` : ''}${pv(g)}`
-            : `戰力 ${power(g)}・武力 ${attack(g)}${pv(g)}`,
+            ? generalBlock(g, { note: [g.technique ? `功法：${g.technique.name}` : '', risky(g).replace(/^・/, '')].filter(Boolean).join('・') })
+            : generalBrief(g, statCells([['戰力', power(g)], ['武力', attack(g)]])),
         value: g,
         color: originCss(g.origin),
       })),
@@ -1147,7 +1146,7 @@ export class Game {
         '使用物品會消耗該武將的體力，能力值須達到門檻。',
         sortUsers(users, item).map((g) => {
           const c = canUse(item, g);
-          return { label: g.name, icon: portraitUrl(g), sub: itemUserInfo(g, item), value: g, disabled: !c.ok, reason: c.reason };
+          return { label: g.name, icon: portraitUrl(g), sub: generalBrief(g, `<span class="gb-line">${itemUserInfo(g, item)}</span>`, { passive: false }), value: g, disabled: !c.ok, reason: c.reason };
         }),
       );
       if (!user) continue;
@@ -1200,7 +1199,7 @@ export class Game {
           chosen = await this.dialog.pickMany(
             `🌀 ${realmName}（${L.name}秘境）・選擇武將`,
             `選 ${REALM_MIN_PARTY}–${REALM_MAX_PARTY} 人；歷時依隊伍平均境界而定，人越多個別隕落率越低，四人以上多得一份寶物。按取消可回到難度選擇。`,
-            free.map((g) => ({ label: g.name, icon: portraitUrl(g), sub: `${REALMS[g.realm]}・單獨隕落率約 ${Math.round(deathChance(g, [g], level) * 100)}%${pv(g)}`, value: g })),
+            free.map((g) => ({ label: g.name, icon: portraitUrl(g), sub: generalBrief(g, statCells([['戰力', power(g)], ['單獨隕落率', `${Math.round(deathChance(g, [g], level) * 100)}%`]]) + vitalBars(g)), value: g })),
             REALM_MIN_PARTY,
             REALM_MAX_PARTY,
             '下一步',
@@ -1289,11 +1288,11 @@ export class Game {
 
   private async generalAbilities(lord: Lord) {
     for (;;) {
-      const user=await this.dialog.choose('方外神通','隨行人物可在整備期間使用，不限所在位置。製物／起死回生耗 100 體力，冤魂召喚每五個自身回合一次。',abilityUsers(this.state,lord).map(g=>{const r=abilityReady(this.state,lord,g);return {label:g.name,sub:passiveOf(g).effectText,value:g,disabled:!r.ok,reason:r.reason};}));
+      const user=await this.dialog.choose('方外神通','隨行人物可在整備期間使用，不限所在位置。製物／起死回生耗 100 體力，冤魂召喚每五個自身回合一次。',abilityUsers(this.state,lord).map(g=>{const r=abilityReady(this.state,lord,g);return {label:g.name,icon:portraitUrl(g),sub:generalBrief(g,`<span class="gb-line gb-passive">${passiveOf(g).effectText}</span>`,{passive:false}),value:g,disabled:!r.ok,reason:r.reason};}));
       if(!user)break;
       let target:General|undefined;
       if(!fx(user).produceCategory) {
-        const selected=await this.dialog.choose(fx(user).reviveAbility?'起死回生：選擇我方亡將':'召喚冤魂：選擇亡將','取消返回神通列表。',abilityTargets(this.state,lord,user).map(g=>({label:g.name,sub:REALMS[g.realm]+'・修為 '+g.exp,value:g})),'返回');
+        const selected=await this.dialog.choose(fx(user).reviveAbility?'起死回生：選擇我方亡將':'召喚冤魂：選擇亡將','取消返回神通列表。',abilityTargets(this.state,lord,user).map(g=>({label:g.name,icon:portraitUrl(g),sub:generalBrief(g,statCells([['戰力',power(g)],['修為',g.exp]])),value:g})),'返回');
         if(!selected)continue;target=selected;
       }
       this.ui.log(useGeneralAbility(this.state,lord,user,target),'good');this.refresh();
@@ -1318,7 +1317,7 @@ export class Game {
           '只有隨行武將可以使用物品；取消返回物品清單。',
           sortUsers(freeGenerals(this.state, lord.id), item).map((g) => {
             const c = canUse(item, g);
-            return { label: g.name, icon: portraitUrl(g), sub: itemUserInfo(g, item), value: g, disabled: !c.ok, reason: c.reason };
+            return { label: g.name, icon: portraitUrl(g), sub: generalBrief(g, `<span class="gb-line">${itemUserInfo(g, item)}</span>`, { passive: false }), value: g, disabled: !c.ok, reason: c.reason };
           }),
         );
         if (!user) break;
@@ -1357,7 +1356,7 @@ export class Game {
         };
         eligible.sort((x, y) => Number(useful(y)) - Number(useful(x)) || power(y) - power(x));
         if (!eligible.length) { this.ui.toast('沒有符合條件的目標武將'); return null; }
-        const g = await this.dialog.choose('選擇生效的武將', defId === 'five' ? '僅能選擇五行靈根武將。' : '', eligible.map(x => ({ label: x.name, icon: portraitUrl(x), sub: itemTargetInfo(x, defId), value: x, color: originCss(x.origin) })));
+        const g = await this.dialog.choose('選擇生效的武將', defId === 'five' ? '僅能選擇五行靈根武將。' : '', eligible.map(x => ({ label: x.name, icon: portraitUrl(x), sub: generalBrief(x, `<span class="gb-line">${itemTargetInfo(x, defId)}</span>`, { passive: false }), value: x, color: originCss(x.origin) })));
         if (!g) return null;
         if (defId === 'five') {
           const element = await this.dialog.choose('選擇新的靈根', '不相容功法會卸回原主公行囊。', (['metal','wood','water','fire','earth'] as const).map(value => ({ label: ELEMENT_NAMES[value] + '靈根', value })), '返回選武將');
@@ -1586,8 +1585,8 @@ export class Game {
               `🏯 ${city.name}・調整駐將（${on.length}/${GARRISON_LIMIT}）`,
               '點選駐將可撤回，點選隨行武將可派駐。',
               [
-                ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, icon: portraitUrl(x), sub: generalBlock(x, '駐守中'), value: x, color: '#c99a2e', disabled: on.length <= 1, reason: '城池至少要有一名駐將' })),
-                ...party.map((x) => ({ label: `▲ 派駐 ${x.name}`, icon: portraitUrl(x), sub: generalBlock(x, '隨行'), value: x, disabled: on.length >= GARRISON_LIMIT, reason: `已滿 ${GARRISON_LIMIT} 人`, color: '#5aa8ec' })),
+                ...on.map((x) => ({ label: `▼ 撤回 ${x.name}`, icon: portraitUrl(x), sub: generalBlock(x, { tags: ['駐守中'] }), value: x, color: '#c99a2e', disabled: on.length <= 1, reason: '城池至少要有一名駐將' })),
+                ...party.map((x) => ({ label: `▲ 派駐 ${x.name}`, icon: portraitUrl(x), sub: generalBlock(x, { tags: ['隨行'] }), value: x, disabled: on.length >= GARRISON_LIMIT, reason: `已滿 ${GARRISON_LIMIT} 人`, color: '#5aa8ec' })),
               ],
               '完成',
             );
@@ -1684,7 +1683,7 @@ export class Game {
     const pool=freeGenerals(this.state,lord.id).filter(canDuel);
     if (!pool.length) return null;
     if (!this.human(lord)) return [...pool].sort((a,b)=>power(b)*(b.hp/maxHp(b))-power(a)*(a.hp/maxHp(a)))[0];
-    return this.dialog.choose(`九州比武大會・${stage}：派誰出戰？`,'可與上一場派同一人或換人。血量與體力沿用現況；不會戰死，取消視為棄權。',pool.map(g=>({label:g.name,sub:generalBlock(g),value:g})),'棄權');
+    return this.dialog.choose(`九州比武大會・${stage}：派誰出戰？`,'可與上一場派同一人或換人。血量與體力沿用現況；不會戰死，取消視為棄權。',pool.map(g=>({label:g.name,icon:portraitUrl(g),sub:generalBlock(g),value:g})),'棄權');
   }
 
   private async tournamentMatch(a:Lord,b:Lord,stage:string):Promise<Lord|null> {
@@ -1823,7 +1822,7 @@ export class Game {
       const choices: Choice<General>[] = candidates.map(g => {
         const r = sectTransferRequirement(this.state, lord, g);
         return { label: `${g.status === 'free' ? '▼' : '▲'} ${g.name}`, icon: portraitUrl(g),
-          sub: generalBlock(g, g.status === 'free' ? '隨行 → 留守宗門' : '宗門 → 隨行'),
+          sub: generalBlock(g, { tags: [g.status === 'free' ? '隨行 → 留守宗門' : '宗門 → 隨行'] }),
           value: g, disabled: !r.ok, reason: r.reason, color: g.status === 'free' ? '#c99a2e' : '#5aa8ec' };
       });
       const fee = sectDispatchFee(this.state, lord);
@@ -1957,7 +1956,7 @@ export class Game {
         <tr><td>過路費</td><td>${c.owner === 'neutral' ? `佔領後約 ${fmtStones(toll(c))}` : fmtStones(cityToll(this.state, c))}</td></tr>
         <tr><td>每回合</td><td title="${RANK_METRICS.filter((m) => m.id === 'stones' || m.id === 'soldiers').map((m) => `${m.name}第 ${ranks[m.id]} 名`).join('・')}">${fmtStones(inc.stones)}・兵 +${inc.soldiers}</td></tr>
         <tr><td>挖掘</td><td>${c.mining ? `${MATERIAL_NAMES[c.mining][0]}・每個自身回合 ${materialIncome(c)} 顆` : '佔領時指定基礎材料'}</td></tr>
-        <tr><td>駐將</td><td>${gens.length ? gens.map((g) => `${g.name}（${REALMS[g.realm]}・戰力 ${power(g)}）`).join('<br>') : '無'}</td></tr>
+        <tr><td>駐將</td><td>${gens.length ? gens.map((g) => `${g.name} ${realmTag(g.realm)} 戰力 ${power(g)}`).join('<br>') : '無'}</td></tr>
         <tr><td>比試</td><td>擂台戰（固定）＋${STAT_NAMES[c.contest]}比試</td></tr>
         <tr><td>守軍</td><td>${c.garrisonSoldiers}${c.shieldTurns ? `・護城大陣 ${c.shieldTurns}` : ''}</td></tr>
         ${c.owner !== 'neutral' ? `<tr><td>守城戰力</td><td title="全圖第 ${ranks.defense} 名">${garrisonPower(this.state, c)}<small class="terrain-fx">第 ${ranks.defense} 名</small></td></tr>` : ''}

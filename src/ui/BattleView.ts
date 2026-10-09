@@ -2,10 +2,10 @@ import type { City, General, LordId } from '../game/types';
 import { LORDS } from '../faction/Faction';
 import { fxText, passiveOf } from '../data/passives';
 import { REALMS } from '../data/generals';
-import { generalInfo } from './GeneralInfo';
+import { generalBrief, realmTag, statCells } from './GeneralInfo';
 import { portraitBigUrl, portraitUrl } from './Icons';
 import { ELEMENT_CSS, ELEMENT_NAMES, STAT_NAMES } from '../data/items';
-import { TRIBULATION_BOLTS, craft, type TribulationResult } from '../systems/GeneralSystem';
+import { TRIBULATION_BOLTS, attack, craft, defense, power, type TribulationResult } from '../systems/GeneralSystem';
 import { WOUNDED_HP, WOUNDED_REDUCE, type ContestResult, type Duel, type DuelEvent, type Fighter, type SiegeResult, type Side } from '../systems/BattleSystem';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -47,7 +47,7 @@ export class BattleView {
       <div class="fighter ${active ? 'active' : ''}" data-side="${f.side}" style="--fc:${LORDS[f.lord].css}">
         <div class="f-portrait ${f.side === 'b' ? 'flip' : ''}"><img src="${portraitBigUrl(f.general)}" alt="" onerror="this.style.visibility='hidden'"></div>
         <div class="f-lord">${LORDS[f.lord].name}</div>
-        <div class="f-name">${f.general.name}<small>${REALMS[f.general.realm]}</small></div>
+        <div class="f-name">${f.general.name} ${realmTag(f.general.realm)}</div>
         <div class="f-elem">${t ? `<span style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】${t.skillName}</span>` : '<span class="muted">無功法</span>'}</div>
         <div class="bar hp big"><i style="width:${hpPct}%"></i><em style="width:${shieldPct}%"></em><span>${Math.round(f.hp)} / ${f.maxHp}</span></div>
         <div class="bar energy ${f.energy >= 100 ? 'full' : ''}"><i style="width:${f.energy}%"></i><span>能量 ${f.energy}%</span></div>
@@ -192,7 +192,7 @@ export class BattleView {
         <div class="contest-row ${r.winner === side ? 'winner' : ''}" style="--fc:${LORDS[lord].css}">
           <img class="cr-portrait" src="${portraitUrl(g)}" alt="" onerror="this.style.visibility='hidden'">
           <div class="cr-main">
-            <div class="cr-name"><b>${g.name}</b><small>${LORDS[lord].name}・${REALMS[g.realm]}・${name} ${craft(g, r.stat)}</small></div>
+            <div class="cr-name"><b>${g.name}</b>${realmTag(g.realm)}<small>${LORDS[lord].name}・${name} ${craft(g, r.stat)}</small></div>
             <div class="bar contest"><i data-w="${(score / max) * 100}" style="width:0%"></i><span>${score}</span></div>
           </div>
         </div>`;
@@ -229,7 +229,7 @@ export class BattleView {
         <div class="tribulation">
           <div class="sky"></div>
           <div class="fighter trib" data-side="a" style="--fc:#7fb2ff">
-            <div class="f-name">${name}<small>${REALMS[r.fromRealm]}</small></div>
+            <div class="f-name">${name} ${realmTag(r.fromRealm)}</div>
             <div class="bar hp big"><i style="width:100%"></i><span>${hp} / ${cap}</span></div>
             <div class="bolts"></div>
           </div>
@@ -276,14 +276,14 @@ export class BattleView {
         <div class="siege">
           <div class="siege-side" style="--fc:${LORDS[attackerLord].css}">
             <h3>攻方・${LORDS[attackerLord].name}</h3>
-            ${attackers.map((g) => `<div><b>${g.name}</b><br><small>${generalInfo(g)}</small></div>`).join('')}
+            ${attackers.map((g) => `<div class="siege-gen"><b>${g.name}</b>${generalBrief(g, statCells([['戰力', power(g)], ['武力', attack(g)], ['防禦', defense(g)]]), { passive: false })}</div>`).join('')}
             <div class="siege-power">${r.attack}</div>
             <small>士兵損失 ${r.attackerLoss}</small>
           </div>
           <div class="vs">VS</div>
           <div class="siege-side" style="--fc:${city.owner === 'neutral' ? '#999' : LORDS[city.owner].css}">
             <h3>守方・${city.name}</h3>
-            ${defenders.length ? defenders.map((d) => `<div><b>${d.name}</b><br><small>${generalInfo(d)}</small></div>`).join('') : '<div>無駐將</div>'}
+            ${defenders.length ? defenders.map((d) => `<div class="siege-gen"><b>${d.name}</b>${generalBrief(d, statCells([['戰力', power(d)], ['武力', attack(d)], ['防禦', defense(d)]]), { passive: false })}</div>`).join('') : '<div>無駐將</div>'}
             <div>城池駐軍加成 ×1.5${city.shieldTurns > 0 ? '・護城大陣 ×1.5' : ''}</div>
             <div class="siege-power">${r.defense}</div>
             <small>守軍損失 ${r.defenderLoss}</small>

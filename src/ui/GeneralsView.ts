@@ -4,6 +4,7 @@ import { generalCooldownText } from '../systems/GeneralAbilities';
 import type { Equipment, GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS } from '../data/generals';
+import { realmTag } from './GeneralInfo';
 import { fxText, passiveOf, fx } from '../data/passives';
 import { ELEMENT_CSS, equipDesc, equipRealm, techniqueDesc } from '../data/items';
 import {
@@ -175,7 +176,7 @@ export class GeneralsView {
       <div class="gc-top">
       <div class="gc-portrait"><img src="${portraitUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></div>
       <div class="gc-head">
-        <b>${g.name}</b><small>${originKingdom(g.origin)}</small><span class="realm">${REALMS[g.realm]}</span>${g.isLord ? '<span class="lord-tag">主公</span>' : ''}
+        <b>${g.name}</b><small>${originKingdom(g.origin)}</small>${realmTag(g.realm)}${g.isLord ? '<span class="lord-tag">主公</span>' : ''}
         <span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span>
         <span class="chip trait" title="【${passiveOf(g).name}】${tip(fxText(passiveOf(g).fx))}${generalCooldownText(lord, g) ? `｜${tip(generalCooldownText(lord, g))}` : ''}｜${tip(passiveOf(g).flavor)}">【${passiveOf(g).name}】</span>
         ${buffs ? `<span class="chip buff">${buffs}</span>` : ''}

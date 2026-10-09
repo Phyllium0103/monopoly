@@ -2389,11 +2389,11 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .gb { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
 .gb-tags { display: flex; flex-wrap: wrap; gap: 4px; }
 .gb-tag { padding: 0 8px; border-radius: 10px; border: 1px solid #c8b088; background: #f3e9d2; font-size: 13px; line-height: 1.6; color: #5a4020; }
-.gb-stats { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid #d6c39a; border-radius: 6px; overflow: hidden; background: #fffaf0; }
+.gb-stats { display: grid; grid-template-columns: repeat(var(--n, 7), minmax(0, 1fr)); max-width: calc(var(--n, 7) * 92px); border: 1px solid #d6c39a; border-radius: 6px; overflow: hidden; background: #fffaf0; }
 .gb-cell { display: flex; flex-direction: column; align-items: center; padding: 2px 2px 3px; border-right: 1px solid #e6d8b8; border-bottom: 1px solid #e6d8b8; min-width: 0; }
 .gb-cell { border-bottom: 0; }
 .gb-cell:last-child { border-right: 0; }
-.gb-cell:nth-child(4) { border-left: 1px solid #d6c39a; }
+.gb-stats[style*="--n:7"] .gb-cell:nth-child(4) { border-left: 1px solid #d6c39a; }
 .gb-tag.apt-heaven, .gb-tag[class*="apt-"] { font-weight: 700; }
 .gb-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .gb-bars .bar { display: block; margin: 0; height: 18px; background: rgba(60, 40, 20, 0.28); }
@@ -2404,3 +2404,31 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .gb-passive strong { font-weight: 700; margin-right: 2px; }
 .choice small .gb-passive, .choice small.reason { margin-top: 4px; }
 .choice.has-icon:has(.gb) { align-items: flex-start; }
+
+/* 境界標籤：低階淡、高階鮮豔 */
+.realm-tag { font-weight: 700; border-width: 1px; white-space: nowrap; }
+.realm-tag.r0 { background: #f1ede4; border-color: #cfc6b4; color: #8a8070; }
+.realm-tag.r1 { background: #e6f1e1; border-color: #a9cc9c; color: #4d7a40; }
+.realm-tag.r2 { background: #d6efe9; border-color: #6fbcab; color: #22705f; }
+.realm-tag.r3 { background: #fbe7a8; border-color: #d9aa2a; color: #7a5600; }
+.realm-tag.r4 { background: #bfe0ff; border-color: #3f8ad0; color: #134f8a; }
+.realm-tag.r5 { background: #8f6ad8; border-color: #6a44b8; color: #fff; }
+.realm-tag.r6 { background: #d0449a; border-color: #a52a76; color: #fff; }
+.realm-tag.r7 { background: #f0641e; border-color: #c24a0e; color: #fff; }
+.realm-tag.r8 { background: linear-gradient(100deg, #e0213a, #ff6a3c); border-color: #b0102a; color: #fff; box-shadow: 0 0 5px rgba(224, 33, 58, 0.55); }
+.realm-tag.r9 { background: linear-gradient(100deg, #5b2cff, #b44dff, #39c6ff); border-color: #4a1ad8; color: #fff; box-shadow: 0 0 7px rgba(140, 80, 255, 0.7); }
+.realm-tag.r10 { background: linear-gradient(100deg, #ffd84a, #ff8ad8, #7fd8ff, #b6ff8a); border-color: #e0a800; color: #3a2400; box-shadow: 0 0 9px rgba(255, 216, 74, 0.85); }
+.gb-tag.realm-tag { line-height: 1.6; }
+
+/* 武將資訊共用細節 */
+.gb-note { color: #7a4a1a; }
+.gb-name { display: block; margin-top: 8px; font-size: 16px !important; }
+.gb-name:first-child { margin-top: 0; }
+.siege-gen { margin: 6px 0; text-align: left; }
+.siege-gen .gb { margin-top: 2px; }
+.cr-name .realm-tag { margin: 0 6px; font-size: 12.5px; }
+.f-name .realm-tag { font-size: 12.5px; vertical-align: 2px; padding: 0 6px; }
+.general-card .gc-head .realm-tag { font-size: 13px; }
+.rank-detail .realm-tag, .result-table .realm-tag { font-size: 12.5px; padding: 0 6px; }
+.sr-main .gb { margin-top: 4px; }
+.shop-row .sr-icon.general-portrait { align-self: flex-start; margin-top: 6px; }

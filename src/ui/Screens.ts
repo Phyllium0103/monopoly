@@ -5,7 +5,7 @@ import { GENERAL_SEEDS } from '../data/generals';
 import { citiesOf, generalsOf } from '../game/GameState';
 import { nameOf } from '../systems/ItemSystem';
 import { generalValue } from '../systems/GeneralSystem';
-import { REALMS } from '../data/generals';
+import { realmTag } from './GeneralInfo';
 import { SOLDIER_PRICE, totalAssets } from '../systems/CitySystem';
 import { fmtStones } from '../game/Currency';
 import { DEFAULT_ROUNDS, ROUND_OPTIONS } from '../game/GameState';
@@ -150,7 +150,7 @@ function assetDetails(state: GameState, id: LordId): string {
       ${row('總資產', a.total)}
     </table>
     ${list('城池與守軍', cities.map(c => row(`${c.name}・繁榮 ${c.prosperity}・守軍 ${c.garrisonSoldiers} 名・駐將 ${c.garrisonGenerals.map(g => state.generals[g].name).join('、') || '無'}`, c.prosperity * 100 + c.garrisonSoldiers * SOLDIER_PRICE)))}
-    ${list('武將（含裝備與功法）', gens.map(g => row(`${g.name}・${REALMS[g.realm]}・${statuses[g.status]}${g.cityId ? '／' + state.cities[g.cityId].name : ''}<br><small>武器：${g.weapon?.name ?? '無'}／寶衣：${g.armor?.name ?? '無'}／功法：${g.technique?.name ?? '無'}</small>`, generalValue(g))))}
+    ${list('武將（含裝備與功法）', gens.map(g => row(`${g.name} ${realmTag(g.realm)} ${statuses[g.status]}${g.cityId ? '／' + state.cities[g.cityId].name : ''}<br><small>武器：${g.weapon?.name ?? '無'}／寶衣：${g.armor?.name ?? '無'}／功法：${g.technique?.name ?? '無'}</small>`, generalValue(g))))}
     ${list('丹藥、陣法、符籙與法器', lord.items.map(i => row(`${nameOf(i)}`, i.price * .5)))}
     ${list('行囊寶衣', lord.gear.map(i => row(i.name, i.price * .5)))}
     ${list('功法秘笈', lord.scrolls.map(i => row(i.name, i.price * .5)))}

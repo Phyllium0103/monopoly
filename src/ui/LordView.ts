@@ -2,7 +2,7 @@ import type { GameState, General, LordId } from '../game/types';
 import { MATERIAL_NAMES } from '../data/weaponCatalog';
 import { materialIncome, materialsText } from '../systems/MaterialSystem';
 import { LORDS, LORD_IDS } from '../faction/Faction';
-import { REALMS } from '../data/generals';
+import { realmTag } from './GeneralInfo';
 import { passiveOf } from '../data/passives';
 import { fmtProsperity, fmtStones } from '../game/Currency';
 import { citiesOf, garrisonOf, generalsOf } from '../game/GameState';
@@ -66,7 +66,7 @@ export class LordView {
       .sort((a, b) => b.realm - a.realm || power(b) - power(a))
       .map(
         (g) =>
-          `<tr><td><b style="color:${d.css}">${g.name}${g.isLord ? '（主公）' : ''}</b></td><td>${REALMS[g.realm]}</td><td>${power(g)}</td><td>${attack(g)}/${defense(g)}/${g.hp}・${maxHp(g)}</td><td>${STATUS[g.status]}${g.status === 'garrison' && g.cityId ? `・${state.cities[g.cityId].name}` : ''}</td><td>${passiveOf(g).name}</td></tr>`,
+          `<tr><td><b style="color:${d.css}">${g.name}${g.isLord ? '（主公）' : ''}</b></td><td>${realmTag(g.realm)}</td><td>${power(g)}</td><td>${attack(g)}/${defense(g)}/${g.hp}・${maxHp(g)}</td><td>${STATUS[g.status]}${g.status === 'garrison' && g.cityId ? `・${state.cities[g.cityId].name}` : ''}</td><td>${passiveOf(g).name}</td></tr>`,
       )
       .join('');
 

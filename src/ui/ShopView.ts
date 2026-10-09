@@ -90,8 +90,13 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
           const iconSrc = o.kind === 'item' ? itemIconUrl(o.item.defId) : o.kind === 'equipment' ? equipIconUrl(o.equipment) : o.kind === 'beast' ? beastIconUrl(o.beast) : o.kind === 'general' || o.kind === 'revive' ? portraitUrl(o.general) : '';
           const iconHtml = iconSrc ? `<img class="sr-icon${o.kind === 'general' || o.kind === 'revive' ? ' general-portrait' : ''}" src="${iconSrc}" alt="" onerror="this.style.visibility='hidden'">` : '';
           row.innerHTML = `${iconHtml}${main}<div class="sr-price">${mode === 'sell' ? '+' : ''}${fmtStones(o.price)}</div>`;
+          // 按鈕固定放在右側一欄（招募在上、鎖定在下），文字變化不會擠壓左邊資訊
+          const actions = document.createElement('div');
+          actions.className = 'sr-actions';
+          row.appendChild(actions);
           const b = document.createElement('button');
           b.className = 'btn primary mini';
+          actions.appendChild(b);
           const otherRevive = o.kind === 'revive' && !o.own;
           const unavailable=o.kind==='general' && (!!o.general.owner || o.general.status==='dead');
           const blocked = unavailable || sold.has(i) || (kind === 'tavern' && recruited >= recruitLimit) || (otherRevive && revivedOther);
@@ -139,9 +144,8 @@ export function openShop(dialog: Dialog, state: GameState, lord: Lord, kind: Sho
               else{const r=lockTavernGeneral(lord,o);if(r.ok)onBuy(r.message);}
               render();
             };
-            row.appendChild(lock);
+            actions.appendChild(lock);
           }
-          row.appendChild(b);
           list.appendChild(row);
         });
         if (!visibleOffers.length) list.innerHTML = `<p class="muted">${mode === 'sell' ? '行囊中沒有本店可收購的物品。' : '目前沒有可購買的項目。'}</p>`;

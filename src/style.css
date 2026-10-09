@@ -2432,3 +2432,7 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .rank-detail .realm-tag, .result-table .realm-tag { font-size: 12.5px; padding: 0 6px; }
 .sr-main .gb { margin-top: 4px; }
 .shop-row .sr-icon.general-portrait { align-self: flex-start; margin-top: 6px; }
+
+/* 商店右側按鈕欄：固定寬度，主要按鈕在上、鎖定在下 */
+.sr-actions { flex: none; width: 108px; display: flex; flex-direction: column; gap: 6px; }
+.sr-actions .btn { width: 100%; white-space: normal; }

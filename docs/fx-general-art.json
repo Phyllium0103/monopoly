@@ -1,0 +1,5794 @@
+{
+  "createdAt": "2026-10-11T20:17:34.802944+00:00",
+  "count": 175,
+  "sourceSelection": "Latest reviewed selectedFxPath for all 175 characters; fourth revision included",
+  "originalFolder": "art-src/generals/fx",
+  "compressedFolder": "public/art/generals/full-fx",
+  "compression": {
+    "format": "WEBP",
+    "height": 1024,
+    "width": "round(originalWidth * 1024 / originalHeight)",
+    "quality": 80,
+    "method": 6,
+    "resampling": "LANCZOS",
+    "alphaPreserved": true
+  },
+  "headImagesCreated": false,
+  "images": [
+    {
+      "id": "liubei",
+      "number": 1,
+      "name": "劉備",
+      "weapon": "昭烈天命雙劍",
+      "source": "001-劉備-昭烈天命雙劍-特效-v6.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\001-劉備-昭烈天命雙劍-特效-v6.png",
+      "originalFile": "art-src/generals/fx/liubei.png",
+      "compressedFile": "public/art/generals/full-fx/liubei.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3342110,
+      "compressedBytes": 340192,
+      "originalSha256": "3949701b8483e55bd3107a919bdf47f8f6a021c7d3101d5c0ac7f26b7fc65849",
+      "compressedSha256": "698dfed0b2e2b6be3eb864846485e841160ed953b629cbc2810e2af726097df7",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "acc10e422ff663e4802fc8b7f1beb942a09db555227333e65b9a9cd591be6643",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "liushan",
+      "number": 2,
+      "name": "劉禪",
+      "weapon": "福澤天命安樂劍",
+      "source": "002-劉禪-福澤天命安樂劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\002-劉禪-福澤天命安樂劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/liushan.png",
+      "compressedFile": "public/art/generals/full-fx/liushan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3121596,
+      "compressedBytes": 291720,
+      "originalSha256": "ab44e0122674c6ee68fbc0b1aa388dfb6108bce54d0a8ac788f07455956aff87",
+      "compressedSha256": "6cda04a9f4a936bd4bf423810f7bbc9b38385aa9853254757732e478bb1f77ad",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "075bd2376c6abbcb32e0c3f8d637e21035a677d905447a39684a39e4959c9adb",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "guanyu",
+      "number": 3,
+      "name": "關羽",
+      "weapon": "武聖青龍斬天刀",
+      "source": "003-關羽-武聖青龍斬天刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\003-關羽-武聖青龍斬天刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/guanyu.png",
+      "compressedFile": "public/art/generals/full-fx/guanyu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3241621,
+      "compressedBytes": 328108,
+      "originalSha256": "90eb3e0167f95b369ba8b4f2e4f2bb0708a6b2578a9c7b5cc72e1b7bb24c027b",
+      "compressedSha256": "dd1303d8cf6aeed04154d4a6fdbe6e3a6485518187aee0dd7190b7d50a1f33a0",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "ef7a917f1c3f172aab28b257e3c7a426b9003a272b0e9e03ea89e7db1910cf08",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhangfei",
+      "number": 4,
+      "name": "張飛",
+      "weapon": "洪荒九幽滅世蛇矛",
+      "source": "004-張飛-洪荒九幽滅世蛇矛-特效-v9.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\004-張飛-洪荒九幽滅世蛇矛-特效-v9.png",
+      "originalFile": "art-src/generals/fx/zhangfei.png",
+      "compressedFile": "public/art/generals/full-fx/zhangfei.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3338732,
+      "compressedBytes": 343348,
+      "originalSha256": "db2f2ddeb00dd0ef565714620044f43b9eec1581d041f84af657ab2ad2c9f6ca",
+      "compressedSha256": "a44a29cec4cbf17d9e45bd6df9ff5f3f9850b989061dd947fd0b8851a946d644",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "7c213dd1ea595e417fab33decc2a59fd4a297720ea9d4e569df9144b0b879dfb",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhaoyun",
+      "number": 5,
+      "name": "趙雲",
+      "weapon": "九天龍膽破虛槍",
+      "source": "005-趙雲-九天龍膽破虛槍-特效-v11.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\005-趙雲-九天龍膽破虛槍-特效-v11.png",
+      "originalFile": "art-src/generals/fx/zhaoyun.png",
+      "compressedFile": "public/art/generals/full-fx/zhaoyun.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3189891,
+      "compressedBytes": 366814,
+      "originalSha256": "85c1a9e1bb11d8484dd7205689ae846f588bf8fed9140cd0512424172186d027",
+      "compressedSha256": "27e08a3fcdd9f31af190580d67bc6f2877164e487c4bc039393302e1dd879e3b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "2211f9b9667f91300490bcef625f72690e7bd7ba7eecf5ddbc61693f1d1fcf3e",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhugeliang",
+      "number": 6,
+      "name": "諸葛亮",
+      "weapon": "七星八陣陰陽扇",
+      "source": "006-諸葛亮-七星八陣陰陽扇-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\006-諸葛亮-七星八陣陰陽扇-特效-v2.png",
+      "originalFile": "art-src/generals/fx/zhugeliang.png",
+      "compressedFile": "public/art/generals/full-fx/zhugeliang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3168256,
+      "compressedBytes": 284634,
+      "originalSha256": "ce418ae62f603640d47e564ab9acd79a0143e8a9b0f245da393f3199a8bd0daa",
+      "compressedSha256": "baad1d161520d685ef913252555f721fcc8ecb29e07f3d4890f17c22f41dbb16",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "fc0453aa925d7d250bd1cd09a94d363718d96cbcf13d86fae823ea5e04421d87",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "huangzhong",
+      "number": 7,
+      "name": "黃忠",
+      "weapon": "落日射月神弓",
+      "source": "007-黃忠-落日射月神弓-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\007-黃忠-落日射月神弓-特效-v1.png",
+      "originalFile": "art-src/generals/fx/huangzhong.png",
+      "compressedFile": "public/art/generals/full-fx/huangzhong.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3352969,
+      "compressedBytes": 367918,
+      "originalSha256": "b060014f75e4db50ea121e89cdd8822e05241842a4e28a4786857f178bcaf63e",
+      "compressedSha256": "50d47e56d267f949f57dd072fd266a27c2e00e3bdaaef4780528e3dee4b2dc38",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e46ae82ee16370a747a767137996553eb28e9a586286fbca17b76e5f5290172b",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "machao",
+      "number": 8,
+      "name": "馬超",
+      "weapon": "九天御雷天威槍",
+      "source": "008-馬超-九天御雷天威槍-特效-v7.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\008-馬超-九天御雷天威槍-特效-v7.png",
+      "originalFile": "art-src/generals/fx/machao.png",
+      "compressedFile": "public/art/generals/full-fx/machao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3357567,
+      "compressedBytes": 327810,
+      "originalSha256": "8da1b7c426bc58c935c1a705df8729074fd0e3034a93e80450a78be7e80333d0",
+      "compressedSha256": "205c8303e15bffe2ea309e6d8a3abde7938799bee4617597fdae6d242f9db84b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e34c673a37ebadb251ec910f1db23231eb074d2647b7b3d8b1260f9dfa59142f",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "weiyan",
+      "number": 9,
+      "name": "魏延",
+      "weapon": "刑天噬魂碎滅刀",
+      "source": "009-魏延-刑天噬魂碎滅刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\009-魏延-刑天噬魂碎滅刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/weiyan.png",
+      "compressedFile": "public/art/generals/full-fx/weiyan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3248570,
+      "compressedBytes": 332432,
+      "originalSha256": "bd1fc8ccdac5ac4dc0cd49984786d2542b1999d3f1f0d240599217e027b96c10",
+      "compressedSha256": "01d399ffcec8feb15eaa05a62d4d9a8d3a6a2dff45f8cb2663b564ff8c41e5f6",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "19d03457585cd321d2b298692604c40ed07b4901b978d08a5a232530f6c26548",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "pangtong",
+      "number": 10,
+      "name": "龐統",
+      "weapon": "鳳舞九天連環杖",
+      "source": "010-龐統-鳳舞九天連環杖-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\010-龐統-鳳舞九天連環杖-特效-v1.png",
+      "originalFile": "art-src/generals/fx/pangtong.png",
+      "compressedFile": "public/art/generals/full-fx/pangtong.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3613258,
+      "compressedBytes": 393626,
+      "originalSha256": "65a6b17e111c45bcc9bc5ac0e1b5347a5d817f82783cdfaa11cf7e3659b39e40",
+      "compressedSha256": "182527de19a6f71f0669ff3e707802ccea1d2e2fd1f122be686d9e2ada909ae5",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "998ff2a360cca429b35c839df1d8a517ab3884b73736ed1aee61c9e8fb12bbcf",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "jiangwei",
+      "number": 11,
+      "name": "姜維",
+      "weapon": "九轉碧落蒼穹槍",
+      "source": "011-姜維-九轉碧落蒼穹槍-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\011-姜維-九轉碧落蒼穹槍-特效-v3.png",
+      "originalFile": "art-src/generals/fx/jiangwei.png",
+      "compressedFile": "public/art/generals/full-fx/jiangwei.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2979456,
+      "compressedBytes": 280908,
+      "originalSha256": "0f60eb873e95f9c758c4d1127e5bfc5cf1f84ec2a80f7783c337d81bdcd39590",
+      "compressedSha256": "a3053d841be99b909c04c835524fc88a03ff6c74156ed756a6e8d900e121444c",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "febbd13f2581d4a7a492ffce74a4a9ad079f01a687f20ded5078a95785f7cf0c",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "madai",
+      "number": 12,
+      "name": "馬岱",
+      "weapon": "追魂奪命九霄弓",
+      "source": "012-馬岱-追魂奪命九霄弓-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\012-馬岱-追魂奪命九霄弓-特效-v2.png",
+      "originalFile": "art-src/generals/fx/madai.png",
+      "compressedFile": "public/art/generals/full-fx/madai.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3075551,
+      "compressedBytes": 294758,
+      "originalSha256": "c0919d93aed06b200ab7b6e7e1890a0b10e3e0670411871b125827967e50b54e",
+      "compressedSha256": "eaf21cdf86c4c24adc35c89cee9231af11e772f2f4b30bae5b22fc315d4742ad",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "40b450099feb5153788c3d626102d3ced40aba74c01e7eb928dde8465a2d7d71",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "guanping",
+      "number": 13,
+      "name": "關平",
+      "weapon": "護主凌霄偃月刀",
+      "source": "013-關平-護主凌霄偃月刀-特效-v6.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\013-關平-護主凌霄偃月刀-特效-v6.png",
+      "originalFile": "art-src/generals/fx/guanping.png",
+      "compressedFile": "public/art/generals/full-fx/guanping.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3103500,
+      "compressedBytes": 255486,
+      "originalSha256": "2b0d31e16360bcca4973fd5a01dd43e5a4e3dc32f1273f6596a538372609f366",
+      "compressedSha256": "d9afbd0e5713a23782aab8487db3dfb1ca6399bb12ee99cf9cfddd78989ed2d8",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "deed721b625ae85365f6a213a9e16e222d0e199039827d5da97016fa9d31a3c9",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "maliang",
+      "number": 14,
+      "name": "馬良",
+      "weapon": "白眉經世點星筆",
+      "source": "014-馬良-白眉經世點星筆-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\014-馬良-白眉經世點星筆-特效-v1.png",
+      "originalFile": "art-src/generals/fx/maliang.png",
+      "compressedFile": "public/art/generals/full-fx/maliang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3599587,
+      "compressedBytes": 378320,
+      "originalSha256": "5ce64510505fec773161c8a38b401a1999044c3d3a4a5e6756a8114bb63c2549",
+      "compressedSha256": "4aa85d63b8c1900edc7e9b1ce9440cf9fa4af239402232e044f52a8a9fdffc60",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "1bc309ec35f88df54041eecc7e163ab46d6efbcbec7c2ab3ff8a3da9aa3269f0",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "jianyong",
+      "number": 15,
+      "name": "簡雍",
+      "weapon": "逍遙無極游天劍",
+      "source": "015-簡雍-逍遙無極游天劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\015-簡雍-逍遙無極游天劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/jianyong.png",
+      "compressedFile": "public/art/generals/full-fx/jianyong.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3108481,
+      "compressedBytes": 302194,
+      "originalSha256": "013d586236c23f8d7f6d67cc48485d7a0f824ddc2b4cce99efbbdc11a6accfcf",
+      "compressedSha256": "b3e5ebaf746df40d4e1e072270508c195516e8bc1021b6002f9e4146f090fa2e",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "efa0789bf0221f5e39dae10fd2950595bb89e8383c16b0fd7d370981cd597a71",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "fazheng",
+      "number": 16,
+      "name": "法正",
+      "weapon": "奇策決勝定軍劍",
+      "source": "016-法正-奇策決勝定軍劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\016-法正-奇策決勝定軍劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/fazheng.png",
+      "compressedFile": "public/art/generals/full-fx/fazheng.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3196085,
+      "compressedBytes": 293936,
+      "originalSha256": "0102d8c3a24f42d69cc05e4d5f60fe982614c36c4740a5dbb5682048805d513f",
+      "compressedSha256": "6bceb07bd623ae4b6c6b48e17f4dc67e4ef949c1463e97dace806b92e7af0237",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "758a9dd26e6c1f5a615048542fafc08ecb3ff3bbac60501e032655ec923bfbdc",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "mizhu",
+      "number": 17,
+      "name": "糜竺",
+      "weapon": "萬象通財天籌",
+      "source": "017-糜竺-萬象通財天籌-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\017-糜竺-萬象通財天籌-特效-v2.png",
+      "originalFile": "art-src/generals/fx/mizhu.png",
+      "compressedFile": "public/art/generals/full-fx/mizhu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3094950,
+      "compressedBytes": 235344,
+      "originalSha256": "f984b019f479faabdfdb52bc62431f01637aa2cb3db7cecc026044c664bf098b",
+      "compressedSha256": "d83af7cfee382741585e477f76679ed6cf25a14d571b8b39f7af4c879eb1c975",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "9f0ebe96e21b2c552076dda46c2d32f3a7781f31247759475c6bf52c420e7ace",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "guanxing",
+      "number": 18,
+      "name": "關興",
+      "weapon": "青龍繼志斬天刀",
+      "source": "018-關興-青龍繼志斬天刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\018-關興-青龍繼志斬天刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/guanxing.png",
+      "compressedFile": "public/art/generals/full-fx/guanxing.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3187743,
+      "compressedBytes": 323280,
+      "originalSha256": "6a3fc412c2a666e7a11d1d0580ca290d2585696119d7ba54bf51f30ec89eb82e",
+      "compressedSha256": "df0ee9d23a6465b8167c8bd4c3f611320764ad055335903bcc4add859cc25251",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "754bb1da40d49e660cd35742b8908c22131a1d74e516b4f7f6c33dfca0f4bbcc",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhangbao",
+      "number": 19,
+      "name": "張苞",
+      "weapon": "震天雷霆蛇矛",
+      "source": "019-張苞-震天雷霆蛇矛-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\019-張苞-震天雷霆蛇矛-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhangbao.png",
+      "compressedFile": "public/art/generals/full-fx/zhangbao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3284236,
+      "compressedBytes": 342546,
+      "originalSha256": "bd35de28730d7b9261b0ddb13af2a367fe8c4cfeaac35e89c9ffb162c0ce75e1",
+      "compressedSha256": "fd02d4b34fb5983090862021f78328a6f17db3137673bd74e4a0113b222cfa73",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "6c09c791203299792fd92fc99bf17fca60fb151e003ec08cd2f3266b801d3ee2",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "wangping",
+      "number": 20,
+      "name": "王平",
+      "weapon": "劈天裂地玄冥斧",
+      "source": "020-王平-劈天裂地玄冥斧-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\020-王平-劈天裂地玄冥斧-特效-v3.png",
+      "originalFile": "art-src/generals/fx/wangping.png",
+      "compressedFile": "public/art/generals/full-fx/wangping.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3330854,
+      "compressedBytes": 311644,
+      "originalSha256": "680843e41f5bb3c546b740bd9516b99bbe8760c37fa3cf82ef4f8c8e8073762b",
+      "compressedSha256": "f2c7594cfc64415dbe3ea60a69d22ce07447fc965083340888b2920106f820fb",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "355917b8fd90c3b7f7c8ac95893c72aba229730a35fd1ccbdf86d63619448bba",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "liaohua",
+      "number": 21,
+      "name": "廖化",
+      "weapon": "歲月長青續命槍",
+      "source": "021-廖化-歲月長青續命槍-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\021-廖化-歲月長青續命槍-特效-v3.png",
+      "originalFile": "art-src/generals/fx/liaohua.png",
+      "compressedFile": "public/art/generals/full-fx/liaohua.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3281509,
+      "compressedBytes": 323872,
+      "originalSha256": "d65490d42ca82f31773a97795684dbcff9e51c9dff73eeb21137fe64eaced977",
+      "compressedSha256": "80971edbfea2a385f583e5a3889a2cd5bd7a40021ca15d72f0127e4ad07ef3e1",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "72855c5e0437de2f5e4e1b78d8f7ae03a4fd9f12fdf12a41de2ff9762af6822d",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "yanyan",
+      "number": 22,
+      "name": "嚴顏",
+      "weapon": "不屈烈陽開天刀",
+      "source": "022-嚴顏-不屈烈陽開天刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\022-嚴顏-不屈烈陽開天刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/yanyan.png",
+      "compressedFile": "public/art/generals/full-fx/yanyan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3550350,
+      "compressedBytes": 363482,
+      "originalSha256": "47ec891a631c100f636d7ba14bc8644840fcf9ea2b06233d589743f0ae934793",
+      "compressedSha256": "ac556e55bfa23bade9b7a849e4945cf9df349260681a40728ed09185a37d5350",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "844c14dc43b382cbf457b2056a4a25a3c37447350c1e3635a73decbe950cf467",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "huangquan",
+      "number": 23,
+      "name": "黃權",
+      "weapon": "忠魂不滅傲天劍",
+      "source": "023-黃權-忠魂不滅傲天劍-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\023-黃權-忠魂不滅傲天劍-特效-v4.png",
+      "originalFile": "art-src/generals/fx/huangquan.png",
+      "compressedFile": "public/art/generals/full-fx/huangquan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2860607,
+      "compressedBytes": 240990,
+      "originalSha256": "16d94fa85e9cea558325d46aacbd3939bde634b685193566167d200d53787e64",
+      "compressedSha256": "aedfc61272197422ed26911eb644762c4ead1a13730cec4df02585bf628cedb4",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "129d7e36d822e0f46c216eb506025cbffe492c0bf2fce022074f27fba7b0d4af",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "liyan",
+      "number": 24,
+      "name": "李嚴",
+      "weapon": "督星斷獄伏魔戟",
+      "source": "024-李嚴-督星斷獄伏魔戟-特效-v7.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\024-李嚴-督星斷獄伏魔戟-特效-v7.png",
+      "originalFile": "art-src/generals/fx/liyan.png",
+      "compressedFile": "public/art/generals/full-fx/liyan.webp",
+      "originalSize": [
+        1083,
+        1453
+      ],
+      "compressedSize": [
+        763,
+        1024
+      ],
+      "originalBytes": 2880749,
+      "compressedBytes": 321518,
+      "originalSha256": "a2b4c3324ac170d5aba26414a34a7a722de828f81ed83aaceeb9f3a789e49a67",
+      "compressedSha256": "40a4f3cb1276782ab0ba91a8983a5f8c581b5adba2332e5d2ce85302b7fa3b1c",
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "a1e322b98e17de26267fd6473b25520bc936214b5e1e9e23c2e47c7e8b94e5dc",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "masu",
+      "number": 25,
+      "name": "馬謖",
+      "weapon": "虛空幻滅天書簡",
+      "source": "025-馬謖-虛空幻滅天書簡-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\025-馬謖-虛空幻滅天書簡-特效-v1.png",
+      "originalFile": "art-src/generals/fx/masu.png",
+      "compressedFile": "public/art/generals/full-fx/masu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3195209,
+      "compressedBytes": 283250,
+      "originalSha256": "1d4fc4e7e82c223f4e63b974a3aa8e92b2f69f0819cdc60813c04e31456ff63b",
+      "compressedSha256": "a9208d771074e51d93492f4c1cef512c07df1547faad76a9ff5345b98d0047e3",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e9c975186458137bb662a6c1e1d30ffd33d463c12eb0fa8b9b836fb598e07b3b",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "jiangwan",
+      "number": 26,
+      "name": "蔣琬",
+      "weapon": "定鼎九州天地劍",
+      "source": "026-蔣琬-定鼎九州天地劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\026-蔣琬-定鼎九州天地劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/jiangwan.png",
+      "compressedFile": "public/art/generals/full-fx/jiangwan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3249713,
+      "compressedBytes": 309488,
+      "originalSha256": "1d26cb303f299e94b75466ec94122255c98ff4525bbf4799f67d35d06648c4cd",
+      "compressedSha256": "24640a6b262806f9adb7d48027fe023ff0947f16394aca02df35b713ddad8db8",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "5423e3ab60399def75f204ee9e7f050d5b9ac0e34d36c9833b072d14f4f98208",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "feiyi",
+      "number": 27,
+      "name": "費禕",
+      "weapon": "息爭安邦太平笏",
+      "source": "027-費禕-息爭安邦太平笏-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\027-費禕-息爭安邦太平笏-特效-v1.png",
+      "originalFile": "art-src/generals/fx/feiyi.png",
+      "compressedFile": "public/art/generals/full-fx/feiyi.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3144455,
+      "compressedBytes": 259868,
+      "originalSha256": "c0978b86db11167942426011d18b297a8db619e1f85d287f5e0c08761c6f1a23",
+      "compressedSha256": "60c1263e1753aab90e45181f52e2ce444aab2fb33fa2cf51e8a8c26e16485769",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "c3d67f25197887a4f1ef3151703a77367cb95fe7238fb77887a0d0f7821f6300",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "sunqian",
+      "number": 28,
+      "name": "孫乾",
+      "weapon": "穿梭兩儀化雨杖",
+      "source": "028-孫乾-穿梭兩儀化雨杖-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\028-孫乾-穿梭兩儀化雨杖-特效-v4.png",
+      "originalFile": "art-src/generals/fx/sunqian.png",
+      "compressedFile": "public/art/generals/full-fx/sunqian.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2974093,
+      "compressedBytes": 258254,
+      "originalSha256": "a3b3d2650335a9f78b5c8b7cb68b643dc6eb8e63b36aef91ff4ef091b46fbe19",
+      "compressedSha256": "691cfe32d2f27686709fbccbd29b9aa46138b19cef07f07d079179c03f1b6d8b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "40ceb97a6e8f9f9bb0fe2da40c557224dcfa85b53314af2877ca54d1fbe228ec",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "yiji",
+      "number": 29,
+      "name": "伊籍",
+      "weapon": "逍遙穿雲神行劍",
+      "source": "029-伊籍-逍遙穿雲神行劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\029-伊籍-逍遙穿雲神行劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/yiji.png",
+      "compressedFile": "public/art/generals/full-fx/yiji.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2981845,
+      "compressedBytes": 264964,
+      "originalSha256": "f0016ec3607d8d899224034b21c616e82912c02176c7a5f276b73e26b9af31f0",
+      "compressedSha256": "f54725553da20b3eff12d0223c7289692b1694ad309b9e8cffac802027791bae",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "77d0c50523e667e2aa4e66d6505bfd806d7a0252f8195b37b8f5c7ae99e3f841",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhoucang",
+      "number": 30,
+      "name": "周倉",
+      "weapon": "擎天負嶽巨靈刀",
+      "source": "030-周倉-擎天負嶽巨靈刀-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\030-周倉-擎天負嶽巨靈刀-特效-v3.png",
+      "originalFile": "art-src/generals/fx/zhoucang.png",
+      "compressedFile": "public/art/generals/full-fx/zhoucang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3243479,
+      "compressedBytes": 305952,
+      "originalSha256": "3310f8bf183087ec80ad9e534f35116acafbfe5dc01c570a8185bfdc53aa5c77",
+      "compressedSha256": "cff9d36bc18fa37c90e45959ca8a5bcbefee136893ac9accfd8af40a583d0093",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "ece065bcb9d33cf4fa38dbdfc2c0fbf6ee3da2d71344e6dd1c7147ccb718e001",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "chendao",
+      "number": 31,
+      "name": "陳到",
+      "weapon": "極光白毦護天槍",
+      "source": "031-陳到-極光白毦護天槍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\031-陳到-極光白毦護天槍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/chendao.png",
+      "compressedFile": "public/art/generals/full-fx/chendao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3192007,
+      "compressedBytes": 334252,
+      "originalSha256": "58fc7765ab49b0f3a3a642617d90129b3c56ec8f1de9c6c754b330cd1b06ef65",
+      "compressedSha256": "0249c6d542c76413a13f260ae52cb80048e17aede6e887f0f41a9ca9c7158213",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "d71550fd2aefb9f4991e3dc8a8c300cc15b38d4fa22c7a0c8b602eed552bf67a",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "liufeng",
+      "number": 32,
+      "name": "劉封",
+      "weapon": "螟蛉吞日滅絕刀",
+      "source": "032-劉封-螟蛉吞日滅絕刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\032-劉封-螟蛉吞日滅絕刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/liufeng.png",
+      "compressedFile": "public/art/generals/full-fx/liufeng.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3345125,
+      "compressedBytes": 310578,
+      "originalSha256": "2f28129bdad413089bdb6e3d1a5fb55a80db9a884f0d69adbaee07d828646fac",
+      "compressedSha256": "7ed9405689d7afb25c86e1842f9a8ed2d26e748a43f9918d467e1a3e81aae728",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "c0add2d72b31e2bfbfad0989d6a3a8b44f006cc0043832a11e76210af0b1e0b4",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "mengda",
+      "number": 33,
+      "name": "孟達",
+      "weapon": "反覆無常逆天矛",
+      "source": "033-孟達-反覆無常逆天矛-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\033-孟達-反覆無常逆天矛-特效-v3.png",
+      "originalFile": "art-src/generals/fx/mengda.png",
+      "compressedFile": "public/art/generals/full-fx/mengda.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2976814,
+      "compressedBytes": 293770,
+      "originalSha256": "b1cd3a696633a67dbadf46e03239f7f7f67d339794d00353980a227cde39a970",
+      "compressedSha256": "a132ac8ce4040498ee2684a129d200f9170dfb5bfd1c0a4272624043a06ca790",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e44c4d04c1ae1dff949fae238c7b35ffafecfaf06c5a53cc5b3ada50be5eb483",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "dengzhi",
+      "number": 34,
+      "name": "鄧芝",
+      "weapon": "縱橫四海天平劍",
+      "source": "034-鄧芝-縱橫四海天平劍-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\034-鄧芝-縱橫四海天平劍-特效-v4.png",
+      "originalFile": "art-src/generals/fx/dengzhi.png",
+      "compressedFile": "public/art/generals/full-fx/dengzhi.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3218028,
+      "compressedBytes": 308546,
+      "originalSha256": "eb2ee8c4a94335a6a4c2ef099cf3b77513e8e088d9f04e29b47170d81d704f00",
+      "compressedSha256": "6a6505d02b5cd4e52b6ca0eefeb33ed7795258a268acd721b03f8c44e1681c23",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "cdc3f50d2b2f9b34fb3cb0dcdbc7cc12a5a07ddf9799b46e8e8c25f117a3fac9",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "menghuo",
+      "number": 35,
+      "name": "孟獲",
+      "weapon": "洪荒百獸萬鈞棒",
+      "source": "035-孟獲-洪荒百獸萬鈞棒-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\035-孟獲-洪荒百獸萬鈞棒-特效-v1.png",
+      "originalFile": "art-src/generals/fx/menghuo.png",
+      "compressedFile": "public/art/generals/full-fx/menghuo.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3657386,
+      "compressedBytes": 378560,
+      "originalSha256": "31ce03900ae5d3afc4bacebf8d26e9ff6c4bb65f3698a45ce8a2280e146a416e",
+      "compressedSha256": "b7df9b1cc4e5bf8d1956c8d5e891f67b39d3be4742125459e04a29d6fe3bfd5f",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "50b0526f4253e91aeed5d3a69687bfc9a20d8442d8455b227a77a4fd5107ec47",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhurongfuren",
+      "number": 36,
+      "name": "祝融夫人",
+      "weapon": "九幽業火流星刀",
+      "source": "036-祝融夫人-九幽業火流星刀-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\036-祝融夫人-九幽業火流星刀-特效-v3.png",
+      "originalFile": "art-src/generals/fx/zhurongfuren.png",
+      "compressedFile": "public/art/generals/full-fx/zhurongfuren.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3016834,
+      "compressedBytes": 295622,
+      "originalSha256": "ee0a1aeb1f4626fe8476b57132588982c86160925fd9530d24dcac8922adb171",
+      "compressedSha256": "d5a879ee0587b3078e7f3a34aea126681e649e6149e40f207234742dffd1789f",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "7a7e43a905571c93ab00798268a13682046246d5e1c32566bbc0cffa39fe22f4",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "huangyueying",
+      "number": 37,
+      "name": "黃月英",
+      "weapon": "萬華天機滅世弩",
+      "source": "037-黃月英-萬華天機滅世弩-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\037-黃月英-萬華天機滅世弩-特效-v1.png",
+      "originalFile": "art-src/generals/fx/huangyueying.png",
+      "compressedFile": "public/art/generals/full-fx/huangyueying.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3522024,
+      "compressedBytes": 340216,
+      "originalSha256": "64c856d6e76ffe9c20a7320f99a171252c77d5f1a5c0a0aa297a4b27ca8e6efc",
+      "compressedSha256": "c64850ac74517ae1ef40eee4918d6698fed1ad8393f9f423dbd14f1b00bb44dd",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "138b601bf057f293347d300715631138df4363cb9f24ab4bab1a7d2c40f6498c",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "shamoke",
+      "number": 38,
+      "name": "沙摩柯",
+      "weapon": "萬瘴蒺藜骨朵",
+      "source": "038-沙摩柯-萬瘴蒺藜骨朵-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\038-沙摩柯-萬瘴蒺藜骨朵-特效-v1.png",
+      "originalFile": "art-src/generals/fx/shamoke.png",
+      "compressedFile": "public/art/generals/full-fx/shamoke.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3385590,
+      "compressedBytes": 343414,
+      "originalSha256": "d1c9f195f1fd41429cbb81b3613682e77c16743fd6b2ce58de1161459ac97ee0",
+      "compressedSha256": "752b6962e573f9de715a755a83cc23844c7a273ced45b6a3f8ab1763588fb85d",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "4dfa00cd802191bf5d4dbda978a90f99ca6ead74a777c77caa4fb887b5cdf49c",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "guansuo",
+      "number": 39,
+      "name": "關索",
+      "weapon": "飛花逐月絕情劍",
+      "source": "039-關索-飛花逐月絕情劍-特效-v6.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\039-關索-飛花逐月絕情劍-特效-v6.png",
+      "originalFile": "art-src/generals/fx/guansuo.png",
+      "compressedFile": "public/art/generals/full-fx/guansuo.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3090743,
+      "compressedBytes": 304726,
+      "originalSha256": "181a2c86bd3e377f6e219e7550a0241d8de7547ec9ae6d21b89e22cf2085ef49",
+      "compressedSha256": "b1c3e2282c647bdc6ede26dfbd0d9317b94fa02eed133fb4f407c06c8b20467b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "83026a7cde146ab9ad3937f15e10fd9d6f13ee19a304cfd5c0451e28eb69dee1",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "mifang",
+      "number": 40,
+      "name": "糜芳",
+      "weapon": "乾坤無影逃遁刀",
+      "source": "040-糜芳-乾坤無影逃遁刀-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\040-糜芳-乾坤無影逃遁刀-特效-v2.png",
+      "originalFile": "art-src/generals/fx/mifang.png",
+      "compressedFile": "public/art/generals/full-fx/mifang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3061189,
+      "compressedBytes": 310688,
+      "originalSha256": "6a8b89b20b4871f77195f9db696d44da34007db8b6d327d7cfbf0c28fbdd0b6a",
+      "compressedSha256": "3eb3cb5a089078329b0336036df401adf049c91c102b4d60799b2443f377958b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "d7767bea7a4ecf0a2e171bab6c74dd8323ed71db4bacdea79300d77b33e9ec1c",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhugezhan",
+      "number": 41,
+      "name": "諸葛瞻",
+      "weapon": "碧血丹心殉天劍",
+      "source": "041-諸葛瞻-碧血丹心殉天劍-特效-v5.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\041-諸葛瞻-碧血丹心殉天劍-特效-v5.png",
+      "originalFile": "art-src/generals/fx/zhugezhan.png",
+      "compressedFile": "public/art/generals/full-fx/zhugezhan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2994831,
+      "compressedBytes": 257128,
+      "originalSha256": "5287a42aa246d58c98ece520933f9afb16441d4b105e6783fa8c416c029195b6",
+      "compressedSha256": "7da4b7715ac1e1cf9a6244716154a60e6148ede7f295152db39955704095dbf9",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "68c52ba58af300b894fa1b98b1d8d3324b3b429fc9bfa5bff5c868668610742f",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhangxingcai",
+      "number": 42,
+      "name": "張星彩",
+      "weapon": "銀河破滅隕星矛",
+      "source": "042-張星彩-銀河破滅隕星矛-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\042-張星彩-銀河破滅隕星矛-特效-v3.png",
+      "originalFile": "art-src/generals/fx/zhangxingcai.png",
+      "compressedFile": "public/art/generals/full-fx/zhangxingcai.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3452984,
+      "compressedBytes": 383944,
+      "originalSha256": "57456b3b467bb405037a79e08a823b34990dd6162011d0d7e1e107b28784b539",
+      "compressedSha256": "7bbe3b693a7ded3fd7eeede7f3899103015275b6dcc586cf39ea05046e578c5d",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "cccd4ce70d42c0d35f15daebcd4287a95f4ef89944adbb97f7b90b6f040f3360",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "sunquan",
+      "number": 43,
+      "name": "孫權",
+      "weapon": "皇極天威雙龍劍",
+      "source": "043-孫權-皇極天威雙龍劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\043-孫權-皇極天威雙龍劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/sunquan.png",
+      "compressedFile": "public/art/generals/full-fx/sunquan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3543816,
+      "compressedBytes": 344732,
+      "originalSha256": "bf8b615761c555c8591b39f5be5854859bb803662e9ff997584ec32535080dbd",
+      "compressedSha256": "afa2c8b402ef6d924ac340f693d171e63b18b6fc49312e95681a16bcf1c99fa8",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "08f787eee027e4689d7744c530b6e9015f9bfb6e0cd87f2e0a772354d474e4e8",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhouyu",
+      "number": 44,
+      "name": "周瑜",
+      "weapon": "周郎紅蓮劫火琴",
+      "source": "044-周瑜-周郎紅蓮劫火琴-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\044-周瑜-周郎紅蓮劫火琴-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhouyu.png",
+      "compressedFile": "public/art/generals/full-fx/zhouyu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3465819,
+      "compressedBytes": 335992,
+      "originalSha256": "93d50f6e5ea74648d9e0e95be4ea876b0b3efc8f0fd09e6e8e41548ae08cbf27",
+      "compressedSha256": "59a9d23df1db0e87578e163bf6ba7f62c92da62c3ac31f2c32d82902a5ad5f80",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "94159b99c2c4cace7103b96b9ae703a74712caf72baee8aa9d23241f9f870bec",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "lusu",
+      "number": 45,
+      "name": "魯肅",
+      "weapon": "三分定鼎弭兵劍",
+      "source": "045-魯肅-三分定鼎弭兵劍-特效-v6.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\045-魯肅-三分定鼎弭兵劍-特效-v6.png",
+      "originalFile": "art-src/generals/fx/lusu.png",
+      "compressedFile": "public/art/generals/full-fx/lusu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3284433,
+      "compressedBytes": 316580,
+      "originalSha256": "60a03a0bb33efbbfa77aa24c388f19f9dd24be8e7ab2edf24564c65f106c67f3",
+      "compressedSha256": "1a83e9c17150197828a0f2d6fb8c63a93d23461bf67fef7efb51945b0693efb5",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e77da74175ea3a85d776f40512646652c8dac657f587c555ec8231678a719b1f",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "lvmeng",
+      "number": 46,
+      "name": "呂蒙",
+      "weapon": "無相無我奪命刀",
+      "source": "046-呂蒙-無相無我奪命刀-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\046-呂蒙-無相無我奪命刀-特效-v2.png",
+      "originalFile": "art-src/generals/fx/lvmeng.png",
+      "compressedFile": "public/art/generals/full-fx/lvmeng.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3189056,
+      "compressedBytes": 273322,
+      "originalSha256": "ed6244e621a695fb686b5c74ee69a6da5868e28136a9db8a9b59569089ab89c5",
+      "compressedSha256": "d0e5925a1587839706e049938af05f0cd599162fc649e958c523c89f1a55a55e",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e752d7c472845262c9629dba518d619427613ba3502c4b28269f6fa4a23c0ae7",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "luxun",
+      "number": 47,
+      "name": "陸遜",
+      "weapon": "朱雀焚世寂滅劍",
+      "source": "047-陸遜-朱雀焚世寂滅劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\047-陸遜-朱雀焚世寂滅劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/luxun.png",
+      "compressedFile": "public/art/generals/full-fx/luxun.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3368112,
+      "compressedBytes": 357308,
+      "originalSha256": "2a59e2d518c6fad2758be6a55ee661c1a2b396f332e3702b37d1a37bc798e5d6",
+      "compressedSha256": "1a4333bd95c64ef02dcddd5ce87320b177f1c73ec5119be26884e01a756dbcc0",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e56531f3c5a6e322e842cc02d0b6158ee85d88fb84463fe824ae63785b1adb52",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "ganning",
+      "number": 48,
+      "name": "甘寧",
+      "weapon": "百騎劫天奪魂戟",
+      "source": "048-甘寧-百騎劫天奪魂戟-特效-v10.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\048-甘寧-百騎劫天奪魂戟-特效-v10.png",
+      "originalFile": "art-src/generals/fx/ganning.png",
+      "compressedFile": "public/art/generals/full-fx/ganning.webp",
+      "originalSize": [
+        1091,
+        1442
+      ],
+      "compressedSize": [
+        775,
+        1024
+      ],
+      "originalBytes": 2565136,
+      "compressedBytes": 285908,
+      "originalSha256": "4694329ca7a673823bbe0d5f667ed4056951e1a9a9f40a240c53ee9c024d87c5",
+      "compressedSha256": "4130f94c5f88380de6b23a164923810e5ea7caa60dbeef55ac63ccd5b35eb484",
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "03ac41468e73f0ad442e02e349fb8023c3d59ed4b52b0814ffb4b0e85f681984",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "taishici",
+      "number": 49,
+      "name": "太史慈",
+      "weapon": "戰神無雙天刑戟",
+      "source": "049-太史慈-戰神無雙天刑戟-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\049-太史慈-戰神無雙天刑戟-特效-v1.png",
+      "originalFile": "art-src/generals/fx/taishici.png",
+      "compressedFile": "public/art/generals/full-fx/taishici.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3116875,
+      "compressedBytes": 275164,
+      "originalSha256": "47d45443e8ba6d52de5cdab47abfadff184a3731bc108e83f21fe813537ac77b",
+      "compressedSha256": "eba56fb358efa6f95a3f9992e81723c1b7a67ed0aebed68069d1baa5b3430d34",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "3c0f25ccd3d951376baca3a949254d95d4f348c641247481222532072498b4cc",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "huanggai",
+      "number": 50,
+      "name": "黃蓋",
+      "weapon": "業火連天碎嶽鞭",
+      "source": "050-黃蓋-業火連天碎嶽鞭-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\050-黃蓋-業火連天碎嶽鞭-特效-v2.png",
+      "originalFile": "art-src/generals/fx/huanggai.png",
+      "compressedFile": "public/art/generals/full-fx/huanggai.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2984085,
+      "compressedBytes": 238068,
+      "originalSha256": "e6f605862f55b87328a1f09e9e29ecde6a71aca1f43055426ca9466dc4dc347b",
+      "compressedSha256": "b32d1ff357e872e7794c88c9cdf618b5b02d2c98abe7cc4adcfb8c2a40a9bdd6",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "04383945c2c305110afe3948f306fb35e2f5ea96bca40d1b3f461294c2b7d229",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhoutai",
+      "number": 51,
+      "name": "周泰",
+      "weapon": "九命金剛不壞刀",
+      "source": "051-周泰-九命金剛不壞刀-特效-v5.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\051-周泰-九命金剛不壞刀-特效-v5.png",
+      "originalFile": "art-src/generals/fx/zhoutai.png",
+      "compressedFile": "public/art/generals/full-fx/zhoutai.webp",
+      "originalSize": [
+        1083,
+        1452
+      ],
+      "compressedSize": [
+        764,
+        1024
+      ],
+      "originalBytes": 3140457,
+      "compressedBytes": 371672,
+      "originalSha256": "1d7cae0dcab91c47b2ba4cf53b921f72cb47eb1eefc27c47e2678bdbf023a7ec",
+      "compressedSha256": "29beaef0fa21fda785d53595b5c15b0ed3aadf1216eb07eb34ab836527b720a2",
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "5f18f316791467628b337e5eb242ed74dd9db8efd46084f58529da23d2fec1ec",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "chengpu",
+      "number": 52,
+      "name": "程普",
+      "weapon": "滄浪定海翻江矛",
+      "source": "052-程普-滄浪定海翻江矛-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\052-程普-滄浪定海翻江矛-特效-v3.png",
+      "originalFile": "art-src/generals/fx/chengpu.png",
+      "compressedFile": "public/art/generals/full-fx/chengpu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3218938,
+      "compressedBytes": 281616,
+      "originalSha256": "0d781483359df79927d32c1fd50bb4c0bd6e65376fb3fff7ef7e5b3debbe2760",
+      "compressedSha256": "09073475731a2ac6e711749f8a16e6f4fbac1edd606bf9fdefb8983ec71bf353",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "c3da4d59ef023c0059f0eb71cf0a3e60e2178df6868a05714789377daa082e45",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "lingtong",
+      "number": 53,
+      "name": "凌統",
+      "weapon": "踏罡步斗斬風刀",
+      "source": "053-凌統-踏罡步斗斬風刀-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\053-凌統-踏罡步斗斬風刀-特效-v4.png",
+      "originalFile": "art-src/generals/fx/lingtong.png",
+      "compressedFile": "public/art/generals/full-fx/lingtong.webp",
+      "originalSize": [
+        1083,
+        1452
+      ],
+      "compressedSize": [
+        764,
+        1024
+      ],
+      "originalBytes": 2729569,
+      "compressedBytes": 333682,
+      "originalSha256": "fa565006a80f49fe57b2680b4c1b6bb574811f159994b1eb63b9884989dbe046",
+      "compressedSha256": "ba50993e80bf58a8651312af2d0dafc9f8b9573c0dcd34cc58ea5ee87fd5ed61",
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "250661c2795094dc4631327289a252da87e825ae63672c8828e74f496764c6a1",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "handang",
+      "number": 54,
+      "name": "韓當",
+      "weapon": "不動明王伏波刀",
+      "source": "054-韓當-不動明王伏波刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\054-韓當-不動明王伏波刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/handang.png",
+      "compressedFile": "public/art/generals/full-fx/handang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3563116,
+      "compressedBytes": 330528,
+      "originalSha256": "85f59bf248dccf87be8ae5e08283c69305097d36a2a7ea601c74955410035609",
+      "compressedSha256": "8859d363e28c62889d9c95dff4497748ba4c5671e557a9c30a9dde7069af11dc",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "077fb4e4b39956606303e8a5c85f23429cfd37272e986f775fca34a8cfab261e",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhangzhao",
+      "number": 55,
+      "name": "張昭",
+      "weapon": "托天理政玄玉杖",
+      "source": "055-張昭-托天理政玄玉杖-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\055-張昭-托天理政玄玉杖-特效-v2.png",
+      "originalFile": "art-src/generals/fx/zhangzhao.png",
+      "compressedFile": "public/art/generals/full-fx/zhangzhao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2951360,
+      "compressedBytes": 217818,
+      "originalSha256": "246b78c08f98576450a0ba8204802ce0fb4723d0c2a04fbb2f477434b06b4bb7",
+      "compressedSha256": "d76c01cf578de3491f12c576c35754e956df35cb3fe9c994f66d70a3ae02f811",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "f72524ea67db18b32dbf12f0875a9a8e34bd8f2ff66b4e0cfcdbc7b08c4b796e",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhugejin",
+      "number": 56,
+      "name": "諸葛瑾",
+      "weapon": "萬里無雲清平扇",
+      "source": "056-諸葛瑾-萬里無雲清平扇-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\056-諸葛瑾-萬里無雲清平扇-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhugejin.png",
+      "compressedFile": "public/art/generals/full-fx/zhugejin.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2985443,
+      "compressedBytes": 239232,
+      "originalSha256": "18f08a0c613947b45e35cd167566ee74f8d647f3590aa5791480d8a0b7d041b7",
+      "compressedSha256": "be464547abda53b498bb9443de13f5b6db29e79c1224febe49c3dbfe63e1c63c",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "947079149c79d842f5e52e90a788276bd390aa03088a97ac2357a9409f3443f4",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xusheng",
+      "number": 57,
+      "name": "徐盛",
+      "weapon": "銅牆鐵壁擎天盾",
+      "source": "057-徐盛-銅牆鐵壁擎天盾-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\057-徐盛-銅牆鐵壁擎天盾-特效-v2.png",
+      "originalFile": "art-src/generals/fx/xusheng.png",
+      "compressedFile": "public/art/generals/full-fx/xusheng.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3053690,
+      "compressedBytes": 234572,
+      "originalSha256": "19e83ae07d5a89cf048270b89f0cbdd6245d4ec060f2691f4d6d39715026aa09",
+      "compressedSha256": "e3986b48c03f65481b7f0b954a63760cfc962d5f435a82239c7e3023f27446da",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "77eec42043659d3d1f41b099542d44ade6086849d23e58016bef66625fe4e941",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhuran",
+      "number": 58,
+      "name": "朱然",
+      "weapon": "九陽焚天射日弓",
+      "source": "058-朱然-九陽焚天射日弓-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\058-朱然-九陽焚天射日弓-特效-v2.png",
+      "originalFile": "art-src/generals/fx/zhuran.png",
+      "compressedFile": "public/art/generals/full-fx/zhuran.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2869800,
+      "compressedBytes": 251150,
+      "originalSha256": "b8392b1535d4f017e4f2095eeb0b074e9d48679f915c700201e36bd77b186e70",
+      "compressedSha256": "e79104d671f82c976b52861a2e95a469801ca95d2bf02b95aea56d1be8dc0ab4",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "461e3aaec1649b4ff1fb42518033480a9518c22dc4f56ba9d9ac489ea6cbe27d",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "jiangqin",
+      "number": 59,
+      "name": "蔣欽",
+      "weapon": "蒼龍穿雲隕星弓",
+      "source": "059-蔣欽-蒼龍穿雲隕星弓-特效-v5.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\059-蔣欽-蒼龍穿雲隕星弓-特效-v5.png",
+      "originalFile": "art-src/generals/fx/jiangqin.png",
+      "compressedFile": "public/art/generals/full-fx/jiangqin.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3508840,
+      "compressedBytes": 369812,
+      "originalSha256": "244bdbb6188b170bd83d36f424b1676632b2f8652d30b6533d2d96cfaf2626cd",
+      "compressedSha256": "e993b47584752331109e67d9a8f1603beaf9f8c744f919c7739d2d863d2fc6f6",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "6ba32a41b35b4f7bc67a6e0ce83b3f899c62453af52978c2b10f052e11a01ed6",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "dingfeng",
+      "number": 60,
+      "name": "丁奉",
+      "weapon": "飛雪連天絕殺刀",
+      "source": "060-丁奉-飛雪連天絕殺刀-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\060-丁奉-飛雪連天絕殺刀-特效-v3.png",
+      "originalFile": "art-src/generals/fx/dingfeng.png",
+      "compressedFile": "public/art/generals/full-fx/dingfeng.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2949391,
+      "compressedBytes": 272076,
+      "originalSha256": "8df5a48123a2a9d70a29bb7bae3d762cd3179d8d03600badc125322e7962a4be",
+      "compressedSha256": "5c20a98415a809e2181c7b5684f17e6f0043f661b58cfb4e242799258ddf64fb",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "b56a5a31fcf0855892cfcba0f664e7a5cb7ea9d558508c86987c37d82ea74216",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "panzhang",
+      "number": 61,
+      "name": "潘璋",
+      "weapon": "天羅地網奪魄刀",
+      "source": "061-潘璋-天羅地網奪魄刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\061-潘璋-天羅地網奪魄刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/panzhang.png",
+      "compressedFile": "public/art/generals/full-fx/panzhang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2794348,
+      "compressedBytes": 244718,
+      "originalSha256": "f41395c9cef3749b8cd651c9fa79b5fe9dd9717f59349fc79b3b955ada463c60",
+      "compressedSha256": "65f330c9eb5d5dd86dc729021fe1de04326cc88ddb6dc2acb7c2c1afb07566f1",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "32c51f53fb80953ae0c2c9aa0cf313ed59abbb707c67b7a61d7740a4e6b3b8c5",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhuhuan",
+      "number": 62,
+      "name": "朱桓",
+      "weapon": "不落要塞擎天戟",
+      "source": "062-朱桓-不落要塞擎天戟-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\062-朱桓-不落要塞擎天戟-特效-v3.png",
+      "originalFile": "art-src/generals/fx/zhuhuan.png",
+      "compressedFile": "public/art/generals/full-fx/zhuhuan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2713941,
+      "compressedBytes": 227958,
+      "originalSha256": "918a3007f2500ec473cfe58604f75ad213eeb5e4e531fd96dc16243f63006de5",
+      "compressedSha256": "253aeb6ad816b51c3c72abc2af9ec69a1ff4337911d57c6d446a0fb092842867",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "98fdec5a0678ea20906461cff070b499ada44728558c3ad0653c5be9289f0708",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "yufan",
+      "number": 63,
+      "name": "虞翻",
+      "weapon": "易理窮微問卦籌",
+      "source": "063-虞翻-易理窮微問卦籌-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\063-虞翻-易理窮微問卦籌-特效-v1.png",
+      "originalFile": "art-src/generals/fx/yufan.png",
+      "compressedFile": "public/art/generals/full-fx/yufan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2700555,
+      "compressedBytes": 193102,
+      "originalSha256": "7ca85e3eed9bc19327cdd27773824d5fe0b99c717a2cde5894764b1dbb97e77c",
+      "compressedSha256": "be60aab2b079926bfb53e97f5d6c11f94e38133fba2da89fb4da185359b996c1",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "f9b15b0d3d332ae6c953dbc61514aea384c70502f249329f4df97fa6bed441fa",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "guyong",
+      "number": 64,
+      "name": "顧雍",
+      "weapon": "忘言弈世山河盤",
+      "source": "064-顧雍-忘言弈世山河盤-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\064-顧雍-忘言弈世山河盤-特效-v1.png",
+      "originalFile": "art-src/generals/fx/guyong.png",
+      "compressedFile": "public/art/generals/full-fx/guyong.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3086191,
+      "compressedBytes": 258974,
+      "originalSha256": "bf2977390b822e0fea2f093e833d640ae5b5d11117ecc0ba2e685b8b954d5c30",
+      "compressedSha256": "b8fa8d41c964b46e44cdfc87e2823b507821d057cfc5472e90f91e5a5b0c8474",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "82ab48a5a511c8d4ee94aa5eed71589b85c18f3a465cee9fc3ee2f22b2ed2f3f",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "lukang",
+      "number": 65,
+      "name": "陸抗",
+      "weapon": "太平天下無極劍",
+      "source": "065-陸抗-太平天下無極劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\065-陸抗-太平天下無極劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/lukang.png",
+      "compressedFile": "public/art/generals/full-fx/lukang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3384841,
+      "compressedBytes": 329572,
+      "originalSha256": "ea44dc5bdc48ae732e9c61c269a7c8eda2e144bb07461e4a827fffdbb08d5508",
+      "compressedSha256": "1614e94095567eb570e10b0fc2df1960205acaab9a5aa39152c93f49ff3101ec",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "544db3ef09d9d581efdfa259ee0f801f61e5ceeab7ab683eb59bfc54f10eef4e",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "sunce",
+      "number": 66,
+      "name": "孫策",
+      "weapon": "九天雷霆霸王槍",
+      "source": "066-孫策-九天雷霆霸王槍-特效-v14.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\066-孫策-九天雷霆霸王槍-特效-v14.png",
+      "originalFile": "art-src/generals/fx/sunce.png",
+      "compressedFile": "public/art/generals/full-fx/sunce.webp",
+      "originalSize": [
+        1083,
+        1452
+      ],
+      "compressedSize": [
+        764,
+        1024
+      ],
+      "originalBytes": 2642286,
+      "compressedBytes": 301340,
+      "originalSha256": "d5c1f16f45ef3d4cd48a8e553e06bb28f73d22f296fc3ba6e4c7f18b6f06d98d",
+      "compressedSha256": "5434fccefe59b547c1b77f33a177112ff0d8acce63434ce71fe381439c673fb0",
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "ae5b937de52fb5f36a8cca84293f6571015bae40b24073d5f123d1daef78a098",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "sunshangxiang",
+      "number": 67,
+      "name": "孫尚香",
+      "weapon": "陰陽流光星月刀",
+      "source": "067-孫尚香-陰陽流光星月刀-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\067-孫尚香-陰陽流光星月刀-特效-v2.png",
+      "originalFile": "art-src/generals/fx/sunshangxiang.png",
+      "compressedFile": "public/art/generals/full-fx/sunshangxiang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3292993,
+      "compressedBytes": 342666,
+      "originalSha256": "04fee1d02ded93c6821e7498c1dd736b8f761b33b97b19ad558d9e379637a00f",
+      "compressedSha256": "217663aa34c006bc5b0904a71bb17e92d0eba9347331dccb28c4a21e9a6fdd70",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "2fd82071a64106ffe8284c6a5bc005abd0fb761899900d8c241b6ad268ee2ee0",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "lvfan",
+      "number": 68,
+      "name": "呂範",
+      "weapon": "萬界通財乾坤盤",
+      "source": "068-呂範-萬界通財乾坤盤-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\068-呂範-萬界通財乾坤盤-特效-v3.png",
+      "originalFile": "art-src/generals/fx/lvfan.png",
+      "compressedFile": "public/art/generals/full-fx/lvfan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3149465,
+      "compressedBytes": 256830,
+      "originalSha256": "afcef8565d021fb711718ee037d51b2eb72cd7580889245d42311ba78c534351",
+      "compressedSha256": "8a9d0d1f9cba73a24bc5e8fb9a11204526dc2b921c274688d90af07650429b9c",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "37c282ba48fbda7216ada257cdb4a4f058fb0e4ac1b7dd3d0aa6cb1865331690",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "heqi",
+      "number": 69,
+      "name": "賀齊",
+      "weapon": "萬壑千峰碎星刀",
+      "source": "069-賀齊-萬壑千峰碎星刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\069-賀齊-萬壑千峰碎星刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/heqi.png",
+      "compressedFile": "public/art/generals/full-fx/heqi.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3551558,
+      "compressedBytes": 345856,
+      "originalSha256": "83d091335938de42e962f801dc50ccc8783c083761f1e3c21a116734019a37e7",
+      "compressedSha256": "50a1576b82dcdd2ac9f07ac4449aedf5d2da2f0aa1cd9b376beb5aac54c77b9b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "c193aeb3de4c8fbabe2b2a39b9b435254d39e2cf851cc188776cebbb65e9b4aa",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "sunjian",
+      "number": 70,
+      "name": "孫堅",
+      "weapon": "江東帝王破天刀",
+      "source": "070-孫堅-江東帝王破天刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\070-孫堅-江東帝王破天刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/sunjian.png",
+      "compressedFile": "public/art/generals/full-fx/sunjian.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3442249,
+      "compressedBytes": 364786,
+      "originalSha256": "0d8d0dc1e62fe7ba5ea8796d6c63051957ec48b0b65cfb32e566fc7e1079c5d5",
+      "compressedSha256": "aa650967a9e47e171b0f62cd44aacd0222de12dc64a21e908556efc0d4145716",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "396bba3b04198070e71f90d9c47f2ae1215362027d9e633236a18d42215d1ea1",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "bulianshi",
+      "number": 71,
+      "name": "步練師",
+      "weapon": "慈航普渡淨世傘",
+      "source": "071-步練師-慈航普渡淨世傘-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\071-步練師-慈航普渡淨世傘-特效-v1.png",
+      "originalFile": "art-src/generals/fx/bulianshi.png",
+      "compressedFile": "public/art/generals/full-fx/bulianshi.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3428620,
+      "compressedBytes": 310040,
+      "originalSha256": "50547ae64035c15e8f246d2a5578afcc4caad8c8d37b03ab471d66251f96e68e",
+      "compressedSha256": "7a2d1cf9e323194c53bb63274efb986d52ba494e7e38ac73988ca70f62377963",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "cdb35a162c8a5aaa9ec0e171efcfc9c1301a4d26281fdd9e6a2b1bafc390069f",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "daqiao",
+      "number": 72,
+      "name": "大喬",
+      "weapon": "國色天香迷魂扇",
+      "source": "072-大喬-國色天香迷魂扇-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\072-大喬-國色天香迷魂扇-特效-v1.png",
+      "originalFile": "art-src/generals/fx/daqiao.png",
+      "compressedFile": "public/art/generals/full-fx/daqiao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3416458,
+      "compressedBytes": 313496,
+      "originalSha256": "1fcaceb080c813873200fb14ca48fb3c20537d360767a4c986d12dfb57b47a23",
+      "compressedSha256": "a66f19e59d4c63f960f77217fbf8765bf2e21e5bd5d8249e954c842b80d58a1b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "c6b9ae2449fcaf861419a49a7ec74fce6f57803b44a1bb7e540415963e5e09c1",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xiaoqiao",
+      "number": 73,
+      "name": "小喬",
+      "weapon": "焚天鳳舞九霄扇",
+      "source": "073-小喬-焚天鳳舞九霄扇-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\073-小喬-焚天鳳舞九霄扇-特效-v1.png",
+      "originalFile": "art-src/generals/fx/xiaoqiao.png",
+      "compressedFile": "public/art/generals/full-fx/xiaoqiao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3464893,
+      "compressedBytes": 350800,
+      "originalSha256": "4819d8b6c69f0c5edfadde101a387ab7043a99051eb538533e902138525307cc",
+      "compressedSha256": "88709967cee7749ad7a21a77f660030cde4233e6b9951442f550b8b8ef1f7e40",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "94a1cbf54f7805fd987190e83c774dffe3afabc857ee6deb7f010c38b4e87700",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhugeke",
+      "number": 74,
+      "name": "諸葛恪",
+      "weapon": "呼風喚雨狂傲劍",
+      "source": "074-諸葛恪-呼風喚雨狂傲劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\074-諸葛恪-呼風喚雨狂傲劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhugeke.png",
+      "compressedFile": "public/art/generals/full-fx/zhugeke.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3432337,
+      "compressedBytes": 317186,
+      "originalSha256": "0ba1fe4daaca8af88fe1b58592b61744b5f6cf67d7fde461bc22b4bcc4523e22",
+      "compressedSha256": "6d498d70b8eae257c11d66a77c79f5498c73e7a619cd24054dde15c1fcdacd07",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "b4dddd25910b483f229d472f3291c22d38f577f740b68c63da68997f3ee70c01",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "sunjiao",
+      "number": 75,
+      "name": "孫皎",
+      "weapon": "銀龍鎮江定海槍",
+      "source": "075-孫皎-銀龍鎮江定海槍-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\075-孫皎-銀龍鎮江定海槍-特效-v4.png",
+      "originalFile": "art-src/generals/fx/sunjiao.png",
+      "compressedFile": "public/art/generals/full-fx/sunjiao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3307355,
+      "compressedBytes": 339268,
+      "originalSha256": "8f623f40cba7d4124b12bd99afdd70fde26d11785ab0d22a7effce5e818e822b",
+      "compressedSha256": "5cd883750cc52b7eec4dca5a7f817022a9bb030027536d33752eb710c0ba0fc1",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "a2e2c1bfc0283ca796920316a7482f168b506a763e17400eeb605072033d4b80",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhoufang",
+      "number": 76,
+      "name": "周魴",
+      "weapon": "絕殺千機奪命刀",
+      "source": "076-周魴-絕殺千機奪命刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\076-周魴-絕殺千機奪命刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhoufang.png",
+      "compressedFile": "public/art/generals/full-fx/zhoufang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3007673,
+      "compressedBytes": 240176,
+      "originalSha256": "f70ba2aab5768d45df33b6a910bbef47589d688dd89f941c708edf77b72aad6d",
+      "compressedSha256": "46632b2cf5d8fce1b720805e5c229f5ea5e56998931046c11d73860f3e071fc8",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "d27b3aa02733c302816dd38155fd2f7019b45fd95280001881184898e59da2b7",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "lukai",
+      "number": 77,
+      "name": "陸凱",
+      "weapon": "浩然正氣破邪劍",
+      "source": "077-陸凱-浩然正氣破邪劍-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\077-陸凱-浩然正氣破邪劍-特效-v2.png",
+      "originalFile": "art-src/generals/fx/lukai.png",
+      "compressedFile": "public/art/generals/full-fx/lukai.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3227251,
+      "compressedBytes": 269720,
+      "originalSha256": "dae363658e32cfd17d08f7f5d681c23be5ea42117339bbc6e20f0493c8e388a7",
+      "compressedSha256": "eb6b53bce44d5da5dfdc86978affc8ba992beeebfc4e884ae784d9635764441d",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e922d2b3c186f669ff1954e5ab7f80bd943ad3d046fb6a7014358abbdae84a31",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "wuguotai",
+      "number": 78,
+      "name": "吳國太",
+      "weapon": "皇極天母盤龍杖",
+      "source": "078-吳國太-皇極天母盤龍杖-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\078-吳國太-皇極天母盤龍杖-特效-v2.png",
+      "originalFile": "art-src/generals/fx/wuguotai.png",
+      "compressedFile": "public/art/generals/full-fx/wuguotai.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3281857,
+      "compressedBytes": 224954,
+      "originalSha256": "13179219192cd02b51ae30c26b64e231406f8883a5e93cf56097e0c877def719",
+      "compressedSha256": "aa1f7cc49555e413c0bdc68918314a0e185e7603d66e92951926b4ff5aaf579b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "5f74aba5a93cae1d2685c64bbf9debdc0c4cf3996119b4216d545ee314140505",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "sunluban",
+      "number": 79,
+      "name": "孫魯班",
+      "weapon": "暗無天日滅魂簪",
+      "source": "079-孫魯班-暗無天日滅魂簪-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\079-孫魯班-暗無天日滅魂簪-特效-v1.png",
+      "originalFile": "art-src/generals/fx/sunluban.png",
+      "compressedFile": "public/art/generals/full-fx/sunluban.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3375906,
+      "compressedBytes": 302510,
+      "originalSha256": "a73d2ecabbb1eb106d0e2c66d4948b0bc6196d8515a18dd63476493877738c4b",
+      "compressedSha256": "421005df821598720bed46476200e59ba1ebcda22052c56c9c5ec2a2a38ae660",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "ac96301349a3afaf1cabe870e97c4d0ae3f77ad09bfcbe076d512f922ff132b4",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhuzhi",
+      "number": 80,
+      "name": "朱治",
+      "weapon": "鎮國擎天不朽劍",
+      "source": "080-朱治-鎮國擎天不朽劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\080-朱治-鎮國擎天不朽劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhuzhi.png",
+      "compressedFile": "public/art/generals/full-fx/zhuzhi.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3187226,
+      "compressedBytes": 274156,
+      "originalSha256": "f7d68d4daaddac5d346dc1576589f9fcede8cf3645718e4646aad3fdffa6c108",
+      "compressedSha256": "4f249198768b99aeb375006aa0db3e7ff57f29923c67a70e4ae0a9fc65c4045d",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "42e30111419bb73a455c07910c29a2c7f364d7ba1bd92580d9187bef6a81360a",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "sundeng",
+      "number": 81,
+      "name": "孫登",
+      "weapon": "東宮天命賜福劍",
+      "source": "081-孫登-東宮天命賜福劍-特效-v6.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\081-孫登-東宮天命賜福劍-特效-v6.png",
+      "originalFile": "art-src/generals/fx/sundeng.png",
+      "compressedFile": "public/art/generals/full-fx/sundeng.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2957639,
+      "compressedBytes": 245446,
+      "originalSha256": "eba046fb9d00ab4793734b5ef2b5a35ddd074ac5e3c6398ddb4377be4e21d93f",
+      "compressedSha256": "c122b928b6d8db4c5afc504023de2fda720ac829dc9fefeff897662b72d251a0",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e1a56573619515b484c0d8df770f9f6978ea5e6b33da1d287b232d8c85719d37",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "liuzan",
+      "number": 82,
+      "name": "留贊",
+      "weapon": "驚天動地雷音刀",
+      "source": "082-留贊-驚天動地雷音刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\082-留贊-驚天動地雷音刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/liuzan.png",
+      "compressedFile": "public/art/generals/full-fx/liuzan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3595608,
+      "compressedBytes": 377324,
+      "originalSha256": "481e007b41d32c0bb035c4ae625dd7716a4046ca20e4f11cd4615f67d538920b",
+      "compressedSha256": "708d33e6e963b9984f4535f1cb9a1d814b07c8aff814e560dd9f3f451367ce5e",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "b4aa290170ab2d865f489a79067c1e39644d279019ede6451fb78fd82bb66f0a",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "caocao",
+      "number": 83,
+      "name": "曹操",
+      "weapon": "九五至尊天帝劍",
+      "source": "083-曹操-九五至尊天帝劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\083-曹操-九五至尊天帝劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/caocao.png",
+      "compressedFile": "public/art/generals/full-fx/caocao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3570622,
+      "compressedBytes": 330540,
+      "originalSha256": "757da4e1094a2c8bb21ba34a6b7534806c99494d1cbb2a7f8f2a76863f5a24b1",
+      "compressedSha256": "bd1efb765d16eaa770549dcdd2dd520be77dcb8fb2bdef7186c9e564c877acd3",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "fa3b8ca3d0038e8baa27e27c4c132f99415e6b086b22e113fdd15d83d088200a",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xiahoudun",
+      "number": 84,
+      "name": "夏侯惇",
+      "weapon": "獨目啖睛怒戰刀",
+      "source": "084-夏侯惇-獨目啖睛怒戰刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\084-夏侯惇-獨目啖睛怒戰刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/xiahoudun.png",
+      "compressedFile": "public/art/generals/full-fx/xiahoudun.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3499341,
+      "compressedBytes": 345868,
+      "originalSha256": "e5647755e41a29523e0c20ee52b8348b677bbb34fb762a0dd3085d8bc6001919",
+      "compressedSha256": "8534d3aac583a3eaba59cb3619651cc44dca4b7efd1321e1b2681d473df9ca9d",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "df0fe1ce9e8f800c464a5e060f2e5139c9d8de5db4dd983fe222bdc461885efc",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xiahouyuan",
+      "number": 85,
+      "name": "夏侯淵",
+      "weapon": "御風追電射日弓",
+      "source": "085-夏侯淵-御風追電射日弓-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\085-夏侯淵-御風追電射日弓-特效-v2.png",
+      "originalFile": "art-src/generals/fx/xiahouyuan.png",
+      "compressedFile": "public/art/generals/full-fx/xiahouyuan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3073194,
+      "compressedBytes": 308566,
+      "originalSha256": "4678f9820e7362a38864517bea2eebe65e2dc2218293f37f674dde8b68a1f9eb",
+      "compressedSha256": "54cde9d0897e9b3f7fc16df63dee8710025773404a9d0f09166f5ad1a5fa3f27",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "365011eef6cf2e9718567facd4378f1ce920de844a6b5ac7963e677bdb0eaea9",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhangliao",
+      "number": 86,
+      "name": "張遼",
+      "weapon": "破空止啼天威鉞",
+      "source": "086-張遼-破空止啼天威鉞-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\086-張遼-破空止啼天威鉞-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhangliao.png",
+      "compressedFile": "public/art/generals/full-fx/zhangliao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3447963,
+      "compressedBytes": 334932,
+      "originalSha256": "6abb74581a0d9211334ceca6875de8fccf07db539ae6b5afe875a28f9b6d9409",
+      "compressedSha256": "f132f89bd6dc15728733bce7c001fed2f7f806cdb6b3ed4a35cdbb3f2992b9d5",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "6d48d28ae2406a26ca1247a1f29f834567c4ca88bdacf325262ddd6f0893b936",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xuchu",
+      "number": 87,
+      "name": "許褚",
+      "weapon": "破天裂地巨靈錘",
+      "source": "087-許褚-破天裂地巨靈錘-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\087-許褚-破天裂地巨靈錘-特效-v1.png",
+      "originalFile": "art-src/generals/fx/xuchu.png",
+      "compressedFile": "public/art/generals/full-fx/xuchu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3596924,
+      "compressedBytes": 343768,
+      "originalSha256": "b728eff151e6020a08d3715d79e90d08651ec75101f9136976af6ebfdbabd67f",
+      "compressedSha256": "b8bbaf58e2edeff2bd1faebd02a63a9369896207ebdf5f36742d24ee1465f0a7",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "b47c2333bafbbc5acc6184be2096d52588761b14f3dd31dcb8b92c47e25252d6",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "dianwei",
+      "number": 88,
+      "name": "典韋",
+      "weapon": "萬鈞護主天魔戟",
+      "source": "088-典韋-萬鈞護主天魔戟-特效-v6.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\088-典韋-萬鈞護主天魔戟-特效-v6.png",
+      "originalFile": "art-src/generals/fx/dianwei.png",
+      "compressedFile": "public/art/generals/full-fx/dianwei.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3332643,
+      "compressedBytes": 316682,
+      "originalSha256": "381145e3d0de5161a00f29d18406842986fe1f6235b8fd6a4dda8c193c345e2b",
+      "compressedSha256": "6cff8213498f97e8039ec5bff8e54489d65b5e1b0a047ec3aaa66dffbbcace1f",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "af8c3484524d1cf02526f0c5eb6a19fdefabb231a9105783f129225253cde879",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "guojia",
+      "number": 89,
+      "name": "郭嘉",
+      "weapon": "鬼才算盡風雲扇",
+      "source": "089-郭嘉-鬼才算盡風雲扇-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\089-郭嘉-鬼才算盡風雲扇-特效-v1.png",
+      "originalFile": "art-src/generals/fx/guojia.png",
+      "compressedFile": "public/art/generals/full-fx/guojia.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3418270,
+      "compressedBytes": 319570,
+      "originalSha256": "19e5b42cbe8272d4b05ff16ebb4161c9b5cdc60531c024ab2fab038d05b38643",
+      "compressedSha256": "3e8c93ad8cd0628db8a0cc0c11da2349910edd1dd5b067971d89fbf15b26c70a",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "8e2b55790506b5238938917d2971be125332098874f50efa41521cc95db345ab",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xunyu",
+      "number": 90,
+      "name": "荀彧",
+      "weapon": "王佐定鼎王道劍",
+      "source": "090-荀彧-王佐定鼎王道劍-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\090-荀彧-王佐定鼎王道劍-特效-v3.png",
+      "originalFile": "art-src/generals/fx/xunyu.png",
+      "compressedFile": "public/art/generals/full-fx/xunyu.webp",
+      "originalSize": [
+        1082,
+        1453
+      ],
+      "compressedSize": [
+        763,
+        1024
+      ],
+      "originalBytes": 2896971,
+      "compressedBytes": 259638,
+      "originalSha256": "82bdc0966daded855185fba549e05feb36cc1ff453a50f2b0a0bd01b1a7b145f",
+      "compressedSha256": "4e94e414926ba8bb8ed29e534e8fbb1f8502d1d2f2dc75d85f702d092c5071f2",
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "5e2a13d8e8dbcace555684ae9216762ea42ee03b9dcadb41ca6c5d7fa7b5e46b",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xuhuang",
+      "number": 91,
+      "name": "徐晃",
+      "weapon": "開天闢地刑天斧",
+      "source": "091-徐晃-開天闢地刑天斧-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\091-徐晃-開天闢地刑天斧-特效-v1.png",
+      "originalFile": "art-src/generals/fx/xuhuang.png",
+      "compressedFile": "public/art/generals/full-fx/xuhuang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3289991,
+      "compressedBytes": 304158,
+      "originalSha256": "4e822deea2004d89d379d87343082ccdb3629ac6302b68bc30de4fd8e7c478d4",
+      "compressedSha256": "b233bde0b7e388b042e1179c8c4373a022dde99e5fc62708ce6a05622b430821",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "7f5438277c7e25e8ac4b2c9ef652c2b817843f8864a261ee55c96ae0a447f2e3",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "caoren",
+      "number": 92,
+      "name": "曹仁",
+      "weapon": "不動如山鎮天盾",
+      "source": "092-曹仁-不動如山鎮天盾-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\092-曹仁-不動如山鎮天盾-特效-v2.png",
+      "originalFile": "art-src/generals/fx/caoren.png",
+      "compressedFile": "public/art/generals/full-fx/caoren.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3186431,
+      "compressedBytes": 259714,
+      "originalSha256": "684afd60e57ac4122eb1315a7f4c19bf447496e16d45a2c2af5249d3a835227d",
+      "compressedSha256": "63c63749e79f199ffc3866e786bbfd662bbf8502ae2fb13d2012c593ab07aa7b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "388e321987451d0fcb97db6278dbd8a0633e1a48f6bc963038ee4cd25e9416f4",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhanghe",
+      "number": 93,
+      "name": "張郃",
+      "weapon": "百變流光雙鉤",
+      "source": "093-張郃-百變流光雙鉤-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\093-張郃-百變流光雙鉤-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhanghe.png",
+      "compressedFile": "public/art/generals/full-fx/zhanghe.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3351486,
+      "compressedBytes": 356972,
+      "originalSha256": "a8b810dc9f40bb96b0e3e993e137399a29b00ed54f68a9c4f17115fba17fc562",
+      "compressedSha256": "2d20533e4b87aee0edea991bb057dd5e60570a68f39e75aec2d4a788f73c2ae7",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "cc1a41d89ce53c0d9b165241e111bc75da8a9eb88a931f3ca59f15643a183797",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "chengyu",
+      "number": 94,
+      "name": "程昱",
+      "weapon": "森羅萬象血肉劍",
+      "source": "094-程昱-森羅萬象血肉劍-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\094-程昱-森羅萬象血肉劍-特效-v4.png",
+      "originalFile": "art-src/generals/fx/chengyu.png",
+      "compressedFile": "public/art/generals/full-fx/chengyu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2963414,
+      "compressedBytes": 258782,
+      "originalSha256": "8e12073caeb03f328afc161e137b12698a40acad78f7ebe3fd814f1889e5e1d1",
+      "compressedSha256": "2d8dae4af851a2abedda3db69a133f75e04300b8002ee9a0ffb43b7b2f462a32",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "bb1ac4ccc5afa8a17f05a22d795783c40e382f3afb22a0d532920305586a0ca0",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xunyou",
+      "number": 95,
+      "name": "荀攸",
+      "weapon": "算盡蒼生造化簡",
+      "source": "095-荀攸-算盡蒼生造化簡-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\095-荀攸-算盡蒼生造化簡-特效-v1.png",
+      "originalFile": "art-src/generals/fx/xunyou.png",
+      "compressedFile": "public/art/generals/full-fx/xunyou.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3237722,
+      "compressedBytes": 310424,
+      "originalSha256": "30148453309b208db7e64027b9698d4093298dcc7a3b49e3c2b3e46da463ed84",
+      "compressedSha256": "677409b34cab0b8530cb1df281403f7d266ecb634536bbf15941c8e1c17c04ca",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "57ee42dd440998d5c5e7a2438f75d99a989267c733aa0cf0cff1c85c5500085e",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "yujin",
+      "number": 96,
+      "name": "于禁",
+      "weapon": "鐵面無私裁決刀",
+      "source": "096-于禁-鐵面無私裁決刀-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\096-于禁-鐵面無私裁決刀-特效-v2.png",
+      "originalFile": "art-src/generals/fx/yujin.png",
+      "compressedFile": "public/art/generals/full-fx/yujin.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3046419,
+      "compressedBytes": 269286,
+      "originalSha256": "f4988680e6d2b937f7b902ef3a0320d2989f3d10f1e1ad5368aea8be8a5b3bb0",
+      "compressedSha256": "ef1a2aff42dde064ccf6f901f5916d392c98127f7a56b7ee5aa248ffc6b02c09",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "d22a42ae3a31cd5c0dc6b091c9624c8aa13079f866de1f3cb1951fb0af6ea977",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "yuejin",
+      "number": 97,
+      "name": "樂進",
+      "weapon": "勇往直前裂天鉤",
+      "source": "097-樂進-勇往直前裂天鉤-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\097-樂進-勇往直前裂天鉤-特效-v3.png",
+      "originalFile": "art-src/generals/fx/yuejin.png",
+      "compressedFile": "public/art/generals/full-fx/yuejin.webp",
+      "originalSize": [
+        1083,
+        1452
+      ],
+      "compressedSize": [
+        764,
+        1024
+      ],
+      "originalBytes": 3062037,
+      "compressedBytes": 370458,
+      "originalSha256": "473b828ae41e4078070f6899c9a0b5d24a67a5042b69f1c0041d8dd08cb60143",
+      "compressedSha256": "5694425fe8dabcc86599ca5cb6ce28a5b580dec7d93e14a741c44e9948df72e3",
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "6f490f6cd6ff05ed8e31b2879ab1349c164824605f3ff38ab899c2ef13c74d8c",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "caohong",
+      "number": 98,
+      "name": "曹洪",
+      "weapon": "捨命救主黃金刀",
+      "source": "098-曹洪-捨命救主黃金刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\098-曹洪-捨命救主黃金刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/caohong.png",
+      "compressedFile": "public/art/generals/full-fx/caohong.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3391664,
+      "compressedBytes": 325702,
+      "originalSha256": "d569b7f08ce61054bb6dee2d308d9b6f370788c4c5ae7c3c065a75dc55caa6e9",
+      "compressedSha256": "2e307345e6a1ab9b5ac2226245ae0bf168cd1e417370f8bc9789eb5bea8681b1",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "07a8f47c857afded9bf83108474542f1a0a72ff4973bf633a48b517605204dc0",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "simayi",
+      "number": 99,
+      "name": "司馬懿",
+      "weapon": "隻手遮天篡命扇",
+      "source": "099-司馬懿-隻手遮天篡命扇-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\099-司馬懿-隻手遮天篡命扇-特效-v3.png",
+      "originalFile": "art-src/generals/fx/simayi.png",
+      "compressedFile": "public/art/generals/full-fx/simayi.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3303639,
+      "compressedBytes": 249476,
+      "originalSha256": "8b3f1f5972ba7c742d02fadec39b7f0b0bc302ab1e8f892fd9469612de770fa2",
+      "compressedSha256": "71e6d46996cce457167d5b135fca9dcea54302458a5937aaca7deb770ffd926f",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "bc828debd946381cd1da3e537b5944b386785b525e6993e91e5b07e37a1a2440",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "caozhen",
+      "number": 100,
+      "name": "曹真",
+      "weapon": "威鎮八方護國刀",
+      "source": "100-曹真-威鎮八方護國刀-特效-v6.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\100-曹真-威鎮八方護國刀-特效-v6.png",
+      "originalFile": "art-src/generals/fx/caozhen.png",
+      "compressedFile": "public/art/generals/full-fx/caozhen.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3440307,
+      "compressedBytes": 326340,
+      "originalSha256": "0a9723c2581fd9b76b72c28a80f9f8018e5e0bdc21fdd0e4db720c7036660f74",
+      "compressedSha256": "52cef39935aefafba603655ba61ce6c4b8e5b71505a4d3fe0ce157fa2f395e7b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "0263f93559711173360e5cb088c00c9d2727728d265cbcf28fc5fef9a79028be",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "lidian",
+      "number": 101,
+      "name": "李典",
+      "weapon": "萬卷書山破邪戟",
+      "source": "101-李典-萬卷書山破邪戟-特效-v5.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\101-李典-萬卷書山破邪戟-特效-v5.png",
+      "originalFile": "art-src/generals/fx/lidian.png",
+      "compressedFile": "public/art/generals/full-fx/lidian.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3150116,
+      "compressedBytes": 309526,
+      "originalSha256": "befd4545f91016214723721f3985ee345021a143dc842016105f2838744480dd",
+      "compressedSha256": "22455d634dc01b5e822346197a753dd1b5b0f66a3cdfbb6670b49353761c97f4",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "5747a11704062634f3afc04f81feb1517ab8e8cc619674c5f1ac5469a1236253",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "pangde",
+      "number": 102,
+      "name": "龐德",
+      "weapon": "視死如歸修羅刀",
+      "source": "102-龐德-視死如歸修羅刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\102-龐德-視死如歸修羅刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/pangde.png",
+      "compressedFile": "public/art/generals/full-fx/pangde.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3629721,
+      "compressedBytes": 372738,
+      "originalSha256": "8a75cbcf929f0f6bdde0040b3dc1a89d43ceb6b11bd0739fc7551cc4af8ca98c",
+      "compressedSha256": "6c681f5d9121b2366fb92dc3c2d49fa78256713acc8b28faf6195e3fa86d334a",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "eb0070520f06a1ee711dbc76f010233e42868c66c4e44ba65260ca8d42164bee",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "wenpin",
+      "number": 103,
+      "name": "文聘",
+      "weapon": "萬夫莫開擎天槍",
+      "source": "103-文聘-萬夫莫開擎天槍-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\103-文聘-萬夫莫開擎天槍-特效-v2.png",
+      "originalFile": "art-src/generals/fx/wenpin.png",
+      "compressedFile": "public/art/generals/full-fx/wenpin.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3579097,
+      "compressedBytes": 290606,
+      "originalSha256": "24a80bc3f3ff8280bc8857595c2d35108589f615e66fbac791627927dcd0d369",
+      "compressedSha256": "fe0302006a55b28727afe61d5902437dcbf12d4203c7f2fedad451e2e2d174c9",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "d591eeb8113f0d1f1f213a6ea3f8ae6451a037cc2c43f9d010e76f9cedd3383c",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "manchong",
+      "number": 104,
+      "name": "滿寵",
+      "weapon": "固若金湯鎮天劍",
+      "source": "104-滿寵-固若金湯鎮天劍-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\104-滿寵-固若金湯鎮天劍-特效-v2.png",
+      "originalFile": "art-src/generals/fx/manchong.png",
+      "compressedFile": "public/art/generals/full-fx/manchong.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3288581,
+      "compressedBytes": 283652,
+      "originalSha256": "98c9a2107df46533bd56582b9765c0fbe055228ea9d6c039abd1bd87a6d1ed02",
+      "compressedSha256": "a71a858b65fc74ac37942ce5bed6643b405cdde33e00d3c196f3ed5200baee3c",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "61cdcfc3f13f807afe38703428096efed70ffc141675d55dd1e90406e7d9ffb1",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhongyao",
+      "number": 105,
+      "name": "鍾繇",
+      "weapon": "楷書萬代點睛筆",
+      "source": "105-鍾繇-楷書萬代點睛筆-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\105-鍾繇-楷書萬代點睛筆-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhongyao.png",
+      "compressedFile": "public/art/generals/full-fx/zhongyao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3441015,
+      "compressedBytes": 323472,
+      "originalSha256": "f92d32a9a0f02fcd4f5c0c50a6923875e89cbaf847cb93b6bce978dac6c8a4b2",
+      "compressedSha256": "d231f16557a44fda867ee9674a70a2564cdf13d256b01a9950f9cc612a3a81e1",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "591030e3a0d196107471e0acfdfb00f1ac8ff08003856bcd354aa1c477ec72aa",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "chenqun",
+      "number": 106,
+      "name": "陳群",
+      "weapon": "九品衡才秉正笏",
+      "source": "106-陳群-九品衡才秉正笏-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\106-陳群-九品衡才秉正笏-特效-v3.png",
+      "originalFile": "art-src/generals/fx/chenqun.png",
+      "compressedFile": "public/art/generals/full-fx/chenqun.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2926242,
+      "compressedBytes": 239290,
+      "originalSha256": "3bfee113a6de19a033a59bdcec5b03616c3c63a27111a8eecc83dc11c4944928",
+      "compressedSha256": "e82345f47e3b836a8280b963e0ac7bf368e09cd59d33cb31aee546bc578d6d22",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "195d3ec4c978c662675b19d8435ff9248d99e6c96389651679b3ccc0a772b9dc",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "dengai",
+      "number": 107,
+      "name": "鄧艾",
+      "weapon": "穿梭虛空破界刀",
+      "source": "107-鄧艾-穿梭虛空破界刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\107-鄧艾-穿梭虛空破界刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/dengai.png",
+      "compressedFile": "public/art/generals/full-fx/dengai.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3280911,
+      "compressedBytes": 318904,
+      "originalSha256": "fd58f0902c755444cead57548d609068623496c3229aa6d9f8dddc84083330d9",
+      "compressedSha256": "88f41a458c31a2ef664ef39d99daf961893d6fa79f3e95f97e421508da18e9d3",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "d9c1fe9d457f51dbfec286399173ef058002f40bd71ba1dafa46fe9e1683d98e",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "haozhao",
+      "number": 108,
+      "name": "郝昭",
+      "weapon": "陳倉不破御天盾",
+      "source": "108-郝昭-陳倉不破御天盾-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\108-郝昭-陳倉不破御天盾-特效-v1.png",
+      "originalFile": "art-src/generals/fx/haozhao.png",
+      "compressedFile": "public/art/generals/full-fx/haozhao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3726851,
+      "compressedBytes": 362776,
+      "originalSha256": "df279b002ad2d712bdc174e226c088eeebabb9b4c33ec6b4de24e5c7512055e8",
+      "compressedSha256": "14ce02d064d30893866e3073b0737234173a7960444647e08a5e9135d504f274",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "431edc440381ed17e4f1db741978f730321f581d361c3832aed8f20f743955db",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "caopi",
+      "number": 109,
+      "name": "曹丕",
+      "weapon": "承天受命帝王劍",
+      "source": "109-曹丕-承天受命帝王劍-特效-v5.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\109-曹丕-承天受命帝王劍-特效-v5.png",
+      "originalFile": "art-src/generals/fx/caopi.png",
+      "compressedFile": "public/art/generals/full-fx/caopi.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 2978078,
+      "compressedBytes": 266252,
+      "originalSha256": "83abe598c27bd30240b58129dd177603d9b0da78891165e7d444bb8684d9e6ad",
+      "compressedSha256": "6a75bba5f8476420b19c30f803eca85c28be95f6d9d560b11cb379b3b400e951",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "722eff832cd8c0cfd2d4ad5ec5c27f04e1ede5f77e62b8b7993276c7bf07055e",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "caozhang",
+      "number": 110,
+      "name": "曹彰",
+      "weapon": "破嶽蕩魔狂獸戟",
+      "source": "110-曹彰-破嶽蕩魔狂獸戟-特效-v5.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\110-曹彰-破嶽蕩魔狂獸戟-特效-v5.png",
+      "originalFile": "art-src/generals/fx/caozhang.png",
+      "compressedFile": "public/art/generals/full-fx/caozhang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3091334,
+      "compressedBytes": 298040,
+      "originalSha256": "def033698d838b476b5f56853c020fc23a94819861fc78b34a9d883f91ae9918",
+      "compressedSha256": "f93d4ec8fe927bd14a8c5107cbeabbc7a68733dbf4aede925136ba0770428f10",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "37650d0fb1f0ddcee42b532756afc5695d00406f2f90222b9cb3193d4755b116",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "caoang",
+      "number": 111,
+      "name": "曹昂",
+      "weapon": "忠孝兩全捨生劍",
+      "source": "111-曹昂-忠孝兩全捨生劍-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\111-曹昂-忠孝兩全捨生劍-特效-v4.png",
+      "originalFile": "art-src/generals/fx/caoang.png",
+      "compressedFile": "public/art/generals/full-fx/caoang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3210321,
+      "compressedBytes": 316404,
+      "originalSha256": "cb3f3158e2947d590ada4081b94b783c3bacca93748a458d22c8b20bd093a304",
+      "compressedSha256": "d52f1492738726e528a5959e7d79ea7d75a7a90a5cda282535a1689fee0635bc",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "cf11fb2d88309f05e8757ffb260618b47be509aae5d17fba78411424e43c2c1a",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xushu",
+      "number": 112,
+      "name": "徐庶",
+      "weapon": "飄渺無蹤飛仙劍",
+      "source": "112-徐庶-飄渺無蹤飛仙劍-特效-v7.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\112-徐庶-飄渺無蹤飛仙劍-特效-v7.png",
+      "originalFile": "art-src/generals/fx/xushu.png",
+      "compressedFile": "public/art/generals/full-fx/xushu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3109859,
+      "compressedBytes": 308266,
+      "originalSha256": "849cf8b31b5cfb511937cee2918872016f07224ab7628454a88bf6986e0fde67",
+      "compressedSha256": "643f46959e320f9d2e35e557acdafa6bdcb823f1f0b6dbac99ad657f5329f071",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "b91627a37a560456134097f53a0288b77400ecf1ef13c8ea35a6c9d91d1361ce",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhonghui",
+      "number": 113,
+      "name": "鍾會",
+      "weapon": "顛覆乾坤叛逆劍",
+      "source": "113-鍾會-顛覆乾坤叛逆劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\113-鍾會-顛覆乾坤叛逆劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhonghui.png",
+      "compressedFile": "public/art/generals/full-fx/zhonghui.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3334320,
+      "compressedBytes": 319526,
+      "originalSha256": "704720b60e4107a8350cca24f92beac4776b42e64cb6b7ae967d2c30cfbcfb45",
+      "compressedSha256": "d98a651adc49fe4056417e7f921db739e18bcca95f019165911d627748936813",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "25ec9751f0a47f45d9ce1b640cdce337761a5ecb62f5fe7f955fc0d9444e1c5b",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "simazhao",
+      "number": 114,
+      "name": "司馬昭",
+      "weapon": "偷天換日篡道劍",
+      "source": "114-司馬昭-偷天換日篡道劍-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\114-司馬昭-偷天換日篡道劍-特效-v4.png",
+      "originalFile": "art-src/generals/fx/simazhao.png",
+      "compressedFile": "public/art/generals/full-fx/simazhao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3353955,
+      "compressedBytes": 299138,
+      "originalSha256": "10ed12fd4c75b6ea9464e7a66d3530f49229e5bc00dbb59331c482ecf8f9975b",
+      "compressedSha256": "d4bed44a2fdf64cff3bc51412e02e1dadfe06d8ec773cfd2b176ede15e647883",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "44ac34c79fb07fb5faba82d52b2436fc83767ebcda6d3da04d511ace901ded85",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "caozhi",
+      "number": 115,
+      "name": "曹植",
+      "weapon": "驚風泣雨洛神筆",
+      "source": "115-曹植-驚風泣雨洛神筆-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\115-曹植-驚風泣雨洛神筆-特效-v2.png",
+      "originalFile": "art-src/generals/fx/caozhi.png",
+      "compressedFile": "public/art/generals/full-fx/caozhi.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3415359,
+      "compressedBytes": 330062,
+      "originalSha256": "52ca56f66de7e2b10ff49bca7e2e00bb4224e53e02f6435fc0a02a9b42756cfd",
+      "compressedSha256": "96019a19767edeb8d33052584352543a61e93462bbb76a33b9b54c9cdfd6b7ab",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e5fe09ddef4c0c15dc52a3f8850ffbc405be7418316599540a3403400bf6ed46",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "simashi",
+      "number": 116,
+      "name": "司馬師",
+      "weapon": "權傾天下暗夜劍",
+      "source": "116-司馬師-權傾天下暗夜劍-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\116-司馬師-權傾天下暗夜劍-特效-v2.png",
+      "originalFile": "art-src/generals/fx/simashi.png",
+      "compressedFile": "public/art/generals/full-fx/simashi.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3155941,
+      "compressedBytes": 280358,
+      "originalSha256": "6d24d7e9bc7c54bb1d4ad3287a8d76062bf054d34138b03cd64e142455c5f746",
+      "compressedSha256": "1dd9bb5a866b9a6d0298c545b268dc4125b97d35ce7efb5c097993d440bd5b05",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "1540e99dab9dfc39624f6b547153293526806afd349f67865dbcf2e636d4db0c",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "caiwenji",
+      "number": 117,
+      "name": "蔡文姬",
+      "weapon": "餘音繞樑絕世笳",
+      "source": "117-蔡文姬-餘音繞樑絕世笳-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\117-蔡文姬-餘音繞樑絕世笳-特效-v1.png",
+      "originalFile": "art-src/generals/fx/caiwenji.png",
+      "compressedFile": "public/art/generals/full-fx/caiwenji.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3570238,
+      "compressedBytes": 374202,
+      "originalSha256": "28d0a86c6881c7035aa7931a47c80bf0d23b1d1399b6408cda7924dd87a4f4ba",
+      "compressedSha256": "671444fb74ce328987256f6bee6f1e470e5ebcafa788c2dda676cf958bcdc5b8",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "c2b144f170368f8821887ae69606125fb2eef72f8b4e793524ec65b1092d6ec7",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhenji",
+      "number": 118,
+      "name": "甄姬",
+      "weapon": "傾國傾城仙音笛",
+      "source": "118-甄姬-傾國傾城仙音笛-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\118-甄姬-傾國傾城仙音笛-特效-v3.png",
+      "originalFile": "art-src/generals/fx/zhenji.png",
+      "compressedFile": "public/art/generals/full-fx/zhenji.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3187650,
+      "compressedBytes": 305172,
+      "originalSha256": "da3e4eec4cb795b3ff118d226edfc64867f29643772d4605d83bdfbf1480888a",
+      "compressedSha256": "a4af27862f6b00e705d9644424426dbd69f5845f61b4156f62c8e4eb7735a655",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "0ce0c387e9a8b77442526e39ffaf8b32cef6f0564d793067bbd15abcd2e19a19",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xuyou",
+      "number": 119,
+      "name": "許攸",
+      "weapon": "燎原焚糧破軍簡",
+      "source": "119-許攸-燎原焚糧破軍簡-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\119-許攸-燎原焚糧破軍簡-特效-v1.png",
+      "originalFile": "art-src/generals/fx/xuyou.png",
+      "compressedFile": "public/art/generals/full-fx/xuyou.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3283160,
+      "compressedBytes": 296298,
+      "originalSha256": "80329c77e9bd19fc727af0073e412ce3140b1d61c6d9adfad69fdef3fde4d7f6",
+      "compressedSha256": "7ab0490ffc502aaa3d9713757c58584b9b3aa06892c6e66a49e9ababbb8b95e6",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "c526d3ebd35c18cb1abf1dc89b045073f5163940ffcda459d740ccbd27532607",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "jianggan",
+      "number": 120,
+      "name": "蔣幹",
+      "weapon": "偷樑換柱無影簡",
+      "source": "120-蔣幹-偷樑換柱無影簡-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\120-蔣幹-偷樑換柱無影簡-特效-v2.png",
+      "originalFile": "art-src/generals/fx/jianggan.png",
+      "compressedFile": "public/art/generals/full-fx/jianggan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3103794,
+      "compressedBytes": 252356,
+      "originalSha256": "8afd3cff4075191894925fd90ddfcccbd99d495ba47783a8236b934cc62c6c74",
+      "compressedSha256": "61f6217379b1fb14af69bc862b862bb1d8d4b3bccd8bbbde28d333d42218a508",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "609dc7204160abc90b30074c449fdd8a9ccdcb5b7a7904c1802f6c0f669614d4",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "niujin",
+      "number": 121,
+      "name": "牛金",
+      "weapon": "萬牛奔騰碎天斧",
+      "source": "121-牛金-萬牛奔騰碎天斧-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\121-牛金-萬牛奔騰碎天斧-特效-v2.png",
+      "originalFile": "art-src/generals/fx/niujin.png",
+      "compressedFile": "public/art/generals/full-fx/niujin.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3298221,
+      "compressedBytes": 295356,
+      "originalSha256": "46ea87a3287cd57a108aee1654070b4f7fadc2d30de855370b44867993ba4a05",
+      "compressedSha256": "d79723ce63ffe9562c7f3c4e64fb70e66282adecef993a726e7b3c8d2642d86f",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "7e6d7f7aa940c78258c5e7e9156f8add5456a008da0395d1f7ec38922e95dcf6",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "wangshuang",
+      "number": 122,
+      "name": "王雙",
+      "weapon": "毀天滅地末日錘",
+      "source": "122-王雙-毀天滅地末日錘-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\122-王雙-毀天滅地末日錘-特效-v1.png",
+      "originalFile": "art-src/generals/fx/wangshuang.png",
+      "compressedFile": "public/art/generals/full-fx/wangshuang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3496510,
+      "compressedBytes": 352656,
+      "originalSha256": "f8a72bf92c69cdfc252e17c778d0252e0ab6a3bd6813ced85c5a60d2136180d4",
+      "compressedSha256": "52f1c0b9fa5278a789a0c4ebd50654dec0e68b580daa9d05b215ac902f37870f",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "bb6b9680215ac82e46b00468445e4d9b82e1f9ff62fff9e6668d426cf470d62d",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "dongzhuo",
+      "number": 123,
+      "name": "董卓",
+      "weapon": "霸世裂天魔弓",
+      "source": "123-董卓-霸世裂天魔弓-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\123-董卓-霸世裂天魔弓-特效-v2.png",
+      "originalFile": "art-src/generals/fx/dongzhuo.png",
+      "compressedFile": "public/art/generals/full-fx/dongzhuo.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3394040,
+      "compressedBytes": 298972,
+      "originalSha256": "5a3daca65ccd6664ee7b53d7df8aa20df8979cda6e126f2da2a36e1d96c3c113",
+      "compressedSha256": "24919c313bb6b305ed4d0ef7f471abf765e63b77cdecaf9c4ef9846d001d2360",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "bdb68b0564ec145df6e95a5b6d2d9badd1937aa6327fff798a10a25bd53d667b",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "lvbu",
+      "number": 124,
+      "name": "呂布",
+      "weapon": "破碎虛空修羅戟",
+      "source": "124-呂布-破碎虛空修羅戟-特效-v5.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\124-呂布-破碎虛空修羅戟-特效-v5.png",
+      "originalFile": "art-src/generals/fx/lvbu.png",
+      "compressedFile": "public/art/generals/full-fx/lvbu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3566080,
+      "compressedBytes": 378714,
+      "originalSha256": "c876597a7c43b85a7492d401e7748e3178aaa30bd2efa6166023321dd2eed786",
+      "compressedSha256": "d88632d777e974e357b55bf329855dfcb31e3a3d93553805c9a4d838e25099c2",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "10e6ad216efcf49d21e4b7c64d928a341c4108e6dadbc4808325ff72a450f6db",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "huaxiong",
+      "number": 125,
+      "name": "華雄",
+      "weapon": "傲視群雄狂魔刀",
+      "source": "125-華雄-傲視群雄狂魔刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\125-華雄-傲視群雄狂魔刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/huaxiong.png",
+      "compressedFile": "public/art/generals/full-fx/huaxiong.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3408350,
+      "compressedBytes": 330388,
+      "originalSha256": "5887af2eee982d102bf910f5dc7f66c0e6c87e19135c8d241653d91c7bc6dea9",
+      "compressedSha256": "a485726dee629c1534a625605a8a0bf66d5ef8f4ee8bc1370dbd594ac1189c1a",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e3bb8315e28755d28d05d01711d227358f7adb016611c48c9a77c25ff84a692c",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "lijue",
+      "number": 126,
+      "name": "李傕",
+      "weapon": "劫駕亂政凶煞槍",
+      "source": "126-李傕-劫駕亂政凶煞槍-特效-v6.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\126-李傕-劫駕亂政凶煞槍-特效-v6.png",
+      "originalFile": "art-src/generals/fx/lijue.png",
+      "compressedFile": "public/art/generals/full-fx/lijue.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3125248,
+      "compressedBytes": 340564,
+      "originalSha256": "d2b6b8d1b57f2eaed4ce8fb73931ced1b84e7a22595c3ae7d808cb93bbb7aa00",
+      "compressedSha256": "6c36c1044db5b15ca18429b30e57c690ec8b53c3d75a537a8e06c7fa2eab91dd",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "a33c49f393c7e0a9a0c50fbd8a53f5174b0293f9bb49c9f6e89d6bcf90697395",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "guosi",
+      "number": 127,
+      "name": "郭汜",
+      "weapon": "窮凶極惡吞天矛",
+      "source": "127-郭汜-窮凶極惡吞天矛-特效-v7.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\127-郭汜-窮凶極惡吞天矛-特效-v7.png",
+      "originalFile": "art-src/generals/fx/guosi.png",
+      "compressedFile": "public/art/generals/full-fx/guosi.webp",
+      "originalSize": [
+        1085,
+        1450
+      ],
+      "compressedSize": [
+        766,
+        1024
+      ],
+      "originalBytes": 2601185,
+      "compressedBytes": 270494,
+      "originalSha256": "4301ef8a9328d49eb22e6dc2f5382c001368e4d04ea91559cc0775a9316f1eb2",
+      "compressedSha256": "e350176ab092507252384f9b79ceabc3af0ae0140d5669091d83b2556f46c7d6",
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "c443528d40eacb18c70e7514225c4c6e064571d56c0192d8db2c02da0d4f1633",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "liru",
+      "number": 128,
+      "name": "李儒",
+      "weapon": "萬毒歸宗滅世壺",
+      "source": "128-李儒-萬毒歸宗滅世壺-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\128-李儒-萬毒歸宗滅世壺-特效-v1.png",
+      "originalFile": "art-src/generals/fx/liru.png",
+      "compressedFile": "public/art/generals/full-fx/liru.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3508667,
+      "compressedBytes": 323622,
+      "originalSha256": "33ba58fbf8960a730ea574bf78af7040751503bd339d4e9df898a1ebb0b5b55e",
+      "compressedSha256": "8f8195ce71301c496e8cf5fdebf2f334865b8c69ca22f520993a3e8c11bf161a",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "9fe897e17a4199c9e6550ebeb0d2d70e233cac29e63d2cbc63e0b3f2e9319111",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "jiaxu",
+      "number": 129,
+      "name": "賈詡",
+      "weapon": "顛倒乾坤災厄簡",
+      "source": "129-賈詡-顛倒乾坤災厄簡-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\129-賈詡-顛倒乾坤災厄簡-特效-v1.png",
+      "originalFile": "art-src/generals/fx/jiaxu.png",
+      "compressedFile": "public/art/generals/full-fx/jiaxu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3435906,
+      "compressedBytes": 297004,
+      "originalSha256": "e98c3b937ce592336f1f9d861e11ba364e37d94590430759a9cc7cd4beab737a",
+      "compressedSha256": "018a720fb41ba9c68e580641b4241c9e152a7562aabdb2fc23c2ed7643af907d",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "302530165bcf1f39c7a19b967dc78f008ea4c30a374c2e24ae7ffb2b4d546792",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xurong",
+      "number": 130,
+      "name": "徐榮",
+      "weapon": "暗影絕殺奪命弓",
+      "source": "130-徐榮-暗影絕殺奪命弓-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\130-徐榮-暗影絕殺奪命弓-特效-v3.png",
+      "originalFile": "art-src/generals/fx/xurong.png",
+      "compressedFile": "public/art/generals/full-fx/xurong.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3206770,
+      "compressedBytes": 276452,
+      "originalSha256": "897755bcc6a94a77f89512615af96f2811cd7e44fa3bb383f2f78acea894e10a",
+      "compressedSha256": "5d26eafa83a0380453a41433bc67dc2774aebc19a45f530af2021e332c800fea",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "3c743d396c6c97721ff328355180b3655e44d33d04164952ddf37ae1e4e43cab",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "gaoshun",
+      "number": 131,
+      "name": "高順",
+      "weapon": "攻無不克鎮天盾刀",
+      "source": "131-高順-攻無不克鎮天盾刀-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\131-高順-攻無不克鎮天盾刀-特效-v3.png",
+      "originalFile": "art-src/generals/fx/gaoshun.png",
+      "compressedFile": "public/art/generals/full-fx/gaoshun.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3322047,
+      "compressedBytes": 315448,
+      "originalSha256": "9a381aeab9de4fefaa874bb1542d42451fb393e9080b793b2203e505d2d4cb7c",
+      "compressedSha256": "750ca02d545c3bc99075a438503c224901a42d2c146d33d9929c47a92ea78d8a",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "05e248011a60df220a50ae05b0c9be26e76d5d7f10d955570b034905e3087cdf",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "chengong",
+      "number": 132,
+      "name": "陳宮",
+      "weapon": "公台孤忠問心劍",
+      "source": "132-陳宮-公台孤忠問心劍-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\132-陳宮-公台孤忠問心劍-特效-v2.png",
+      "originalFile": "art-src/generals/fx/chengong.png",
+      "compressedFile": "public/art/generals/full-fx/chengong.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3262432,
+      "compressedBytes": 307276,
+      "originalSha256": "046ada2a1d952a99eec8a2f3049a4f3635b91103aaeae6bde2a3f2621e4593bb",
+      "compressedSha256": "f8da0454a0c23aef223f34547c1b79b150c89bad5820ff4359327dc77bbe1aad",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "a31f50ed0b513c449ff6fd19342c21b9dbaa56861bc227378a6485fbdff8b019",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhangji",
+      "number": 133,
+      "name": "張濟",
+      "weapon": "席捲八荒颶風槍",
+      "source": "133-張濟-席捲八荒颶風槍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\133-張濟-席捲八荒颶風槍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhangji.png",
+      "compressedFile": "public/art/generals/full-fx/zhangji.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3455094,
+      "compressedBytes": 345068,
+      "originalSha256": "383ea2046899e370fb8ed1469b6f99615aaa73e55dd50a56350fd8a0a6dac42f",
+      "compressedSha256": "cb70791798649bbc4b55be1d13c7b81600fa202a1c4777bef682ff3c3babe64a",
+      "sourceAlphaRange": [
+        0,
+        253
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "9be2d2f99c43c6b836b7d4c0f99e8979cce6076c922591d223c909f0805b81aa",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhangxiu",
+      "number": 134,
+      "name": "張繡",
+      "weapon": "鳳凰涅槃寂滅槍",
+      "source": "134-張繡-鳳凰涅槃寂滅槍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\134-張繡-鳳凰涅槃寂滅槍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhangxiu.png",
+      "compressedFile": "public/art/generals/full-fx/zhangxiu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3651058,
+      "compressedBytes": 388598,
+      "originalSha256": "1667025c35cca8c1df8d4685981a9506e7b11e525042fb38b1f4183934849344",
+      "compressedSha256": "93e08bb5308a5907827b005f12039d1b2e139a2f4950cda180cb823b9f9ec504",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "4f971a9c04653da740f0a35d0ef6ac188448a26c0342f13926f58bed08e80cc0",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "hucheer",
+      "number": 135,
+      "name": "胡車兒",
+      "weapon": "探囊取物無影刀",
+      "source": "135-胡車兒-探囊取物無影刀-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\135-胡車兒-探囊取物無影刀-特效-v2.png",
+      "originalFile": "art-src/generals/fx/hucheer.png",
+      "compressedFile": "public/art/generals/full-fx/hucheer.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3097529,
+      "compressedBytes": 310268,
+      "originalSha256": "32985cc4ca12d9854604d6cbeea861f93b61e1583fc69a8059dc7d411abc711a",
+      "compressedSha256": "b9cb2dc9c55b1c137ae068a676e7b51d3fc2aea34abfdfe8291f868d3a659acf",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "8a15521e4afaf6843825b37062f2b07f314854eacd7e71733408b6b441cbf810",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "diaochan",
+      "number": 136,
+      "name": "貂蟬",
+      "weapon": "傾國傾城魅魔鞭",
+      "source": "136-貂蟬-傾國傾城魅魔鞭-特效-v5.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\136-貂蟬-傾國傾城魅魔鞭-特效-v5.png",
+      "originalFile": "art-src/generals/fx/diaochan.png",
+      "compressedFile": "public/art/generals/full-fx/diaochan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3275960,
+      "compressedBytes": 277590,
+      "originalSha256": "dbf89844951d6cab7f3cb413c8cde40500548a75790897e03ea9fb54c50fe99d",
+      "compressedSha256": "ba0a0123fe59a10751cd5cd41aebc26901c2f40d517c32ca6904ff701979b11d",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "d610294e0ff01106bec635e477814d863a9cefe5d329032a1e526d4262ef56d2",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zangba",
+      "number": 137,
+      "name": "臧霸",
+      "weapon": "劈山斷嶽鎮天刀",
+      "source": "137-臧霸-劈山斷嶽鎮天刀-特效-v5.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\137-臧霸-劈山斷嶽鎮天刀-特效-v5.png",
+      "originalFile": "art-src/generals/fx/zangba.png",
+      "compressedFile": "public/art/generals/full-fx/zangba.webp",
+      "originalSize": [
+        1083,
+        1452
+      ],
+      "compressedSize": [
+        764,
+        1024
+      ],
+      "originalBytes": 3329310,
+      "compressedBytes": 318244,
+      "originalSha256": "2d9587ea4d4562fc7fe9ed80a106d48b3bf51194c8767484d3746b91a178c6bd",
+      "compressedSha256": "b8d0b70f9697b0f553dbcf3c3ef5c1a5f3d8cbe067a1da9587fc9d18cdb85237",
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "9505dac2d9c4808de8200b0527d3b2f99db86c92b9c33bbadbe4f1842e36b6e7",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "mateng",
+      "number": 138,
+      "name": "馬騰",
+      "weapon": "威震邊疆破天槍",
+      "source": "138-馬騰-威震邊疆破天槍-特效-v6.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\138-馬騰-威震邊疆破天槍-特效-v6.png",
+      "originalFile": "art-src/generals/fx/mateng.png",
+      "compressedFile": "public/art/generals/full-fx/mateng.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3166316,
+      "compressedBytes": 314882,
+      "originalSha256": "d57e49707f227fc4c634bd1a554c1b7ff40829efaa30278c9b3df0957768d12c",
+      "compressedSha256": "8c6bb264b89de1a7638300894b407a8695ac14996a154c1d519947c0ca141a50",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "31637fb0ccef43133e1555ec4cd3a926ea464574170437e7b48aec3b1aa82568",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "hansui",
+      "number": 139,
+      "name": "韓遂",
+      "weapon": "千迴百轉亂世矛",
+      "source": "139-韓遂-千迴百轉亂世矛-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\139-韓遂-千迴百轉亂世矛-特效-v4.png",
+      "originalFile": "art-src/generals/fx/hansui.png",
+      "compressedFile": "public/art/generals/full-fx/hansui.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3194186,
+      "compressedBytes": 289126,
+      "originalSha256": "54d2195390dd26cdf74f5be09161d4fafa1ea939a228252c6546955b3fe3fe0a",
+      "compressedSha256": "784ff6f0cdca42974f37d3e7a1045ebb75bb8b28b2da88f39b5452dc3f3afa76",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "b8ded1edcb4c1b733143421c6d62f567f020d5f34a8e554d9e8c909b706cad5d",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "lisu",
+      "number": 140,
+      "name": "李肅",
+      "weapon": "金光破財穿心矛",
+      "source": "140-李肅-金光破財穿心矛-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\140-李肅-金光破財穿心矛-特效-v2.png",
+      "originalFile": "art-src/generals/fx/lisu.png",
+      "compressedFile": "public/art/generals/full-fx/lisu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3086912,
+      "compressedBytes": 284232,
+      "originalSha256": "a8f838176f29dec6f0db53b7c5ebcabeec99bc80891cb90e262b4d77e9511c43",
+      "compressedSha256": "90721b77516275f1b223dda0606a0acdd03ada87dba7ee4a26b4587dd0c7b1e5",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "57223e207624fd8bc7c1159899158e3645b05bd6c816a1a79675907df022709f",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "yanxing",
+      "number": 141,
+      "name": "閻行",
+      "weapon": "破虛殞命刺天矛",
+      "source": "141-閻行-破虛殞命刺天矛-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\141-閻行-破虛殞命刺天矛-特效-v2.png",
+      "originalFile": "art-src/generals/fx/yanxing.png",
+      "compressedFile": "public/art/generals/full-fx/yanxing.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3280297,
+      "compressedBytes": 300738,
+      "originalSha256": "e3776699b77eb1b1e72f8561c17dbdbf5a70b6e14ac88f28d1fee0a2300b15bb",
+      "compressedSha256": "a0b6740368bcc1b4ed51324ebf909e50aad2a230489f7cb6f540345e5c59a85c",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "71e9b19297d2449a94debdaa16c8477bc4c63510478e0a555ed2819a6c150c98",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "chenggongying",
+      "number": 142,
+      "name": "成公英",
+      "weapon": "忠勇斷後孤影弓",
+      "source": "142-成公英-忠勇斷後孤影弓-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\142-成公英-忠勇斷後孤影弓-特效-v1.png",
+      "originalFile": "art-src/generals/fx/chenggongying.png",
+      "compressedFile": "public/art/generals/full-fx/chenggongying.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3074280,
+      "compressedBytes": 294324,
+      "originalSha256": "69876d422f2a718903b9668a2b7dba93ffe75153c3c45f3c3ab4f315923dd97a",
+      "compressedSha256": "a5c9b14f8f8496d813e963f02c355b9ccb1e78719019f7e50f5a8b3bc76e5a02",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "3973cc116b265184af5d80a596f084f73134164c8ef516a9e7aa8ba6874e6899",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhanglu",
+      "number": 143,
+      "name": "張魯",
+      "weapon": "萬法歸一太上劍",
+      "source": "143-張魯-萬法歸一太上劍-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\143-張魯-萬法歸一太上劍-特效-v2.png",
+      "originalFile": "art-src/generals/fx/zhanglu.png",
+      "compressedFile": "public/art/generals/full-fx/zhanglu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3191079,
+      "compressedBytes": 303174,
+      "originalSha256": "ff214db8de0cdee4195c017dc6fb0f206f93921d0cb236ad330d15b0705acc3f",
+      "compressedSha256": "25e23841e79aa0643f7dc069d78faa88d7a93e046bd5d1ce585002822bd5ee35",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "253deef282c7fd155f46691b31d65d5b8bf8f1f83a2b824b63b8e1fa068b96de",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "yanliang",
+      "number": 144,
+      "name": "顏良",
+      "weapon": "威震華夏神魔刀",
+      "source": "144-顏良-威震華夏神魔刀-特效-v5.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\144-顏良-威震華夏神魔刀-特效-v5.png",
+      "originalFile": "art-src/generals/fx/yanliang.png",
+      "compressedFile": "public/art/generals/full-fx/yanliang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3257894,
+      "compressedBytes": 302378,
+      "originalSha256": "90c7f53bad66ac208fc20ee3187f444fcfc02fcf9a2ee8f3f02a665ec4cec5b7",
+      "compressedSha256": "d56214f4ebfa8957b0516d34e46abc9429f3d30b7f20602f64a4c303bce149af",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "69d09c2bab084e7a12473479e6bf55fb8f58c3ae478060f6e2b7f760f5bb75bd",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "wenchou",
+      "number": 145,
+      "name": "文丑",
+      "weapon": "狂暴無雙碎天槍",
+      "source": "145-文丑-狂暴無雙碎天槍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\145-文丑-狂暴無雙碎天槍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/wenchou.png",
+      "compressedFile": "public/art/generals/full-fx/wenchou.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3526148,
+      "compressedBytes": 400660,
+      "originalSha256": "dc168a901ae422422d21d1ff3571e3169d2e78110b6d8226e59dba470409855b",
+      "compressedSha256": "8890d70b235b50c9d94303fcec14185f3212c3d07550824d06def5c5d102cdb8",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "48c8371a1852f0bb382343901d484d643cfea1314c7799b3b3a0fbea24ea2c11",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "jiling",
+      "number": 146,
+      "name": "紀靈",
+      "weapon": "號令群雄霸天刀",
+      "source": "146-紀靈-號令群雄霸天刀-特效-v6.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\146-紀靈-號令群雄霸天刀-特效-v6.png",
+      "originalFile": "art-src/generals/fx/jiling.png",
+      "compressedFile": "public/art/generals/full-fx/jiling.webp",
+      "originalSize": [
+        1082,
+        1453
+      ],
+      "compressedSize": [
+        763,
+        1024
+      ],
+      "originalBytes": 3159282,
+      "compressedBytes": 313480,
+      "originalSha256": "1d6ec70ad98b0ea64516664f87588f12b43ce3444e843e1c00062b136949440d",
+      "compressedSha256": "da5dcf83b162ce0d134280a3949c1b34ad0080864b5e49b824c5853bfbef5bcd",
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "9801a73128bea28d564623e5c05a0a9d973fa8c4922f25f72ef283df94dd93ca",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "juyi",
+      "number": 147,
+      "name": "鞠義",
+      "weapon": "萬箭穿心射日弩",
+      "source": "147-鞠義-萬箭穿心射日弩-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\147-鞠義-萬箭穿心射日弩-特效-v3.png",
+      "originalFile": "art-src/generals/fx/juyi.png",
+      "compressedFile": "public/art/generals/full-fx/juyi.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3044779,
+      "compressedBytes": 265142,
+      "originalSha256": "605e730bdd80d8d448b407284868f4089589f7a25151e9fe1daa9e65075665b0",
+      "compressedSha256": "477073c041f46a36179b9223822973c770e0ab82891e321a01baac2a2c4b8f31",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "8ba4c6194c129fe14285fa1798bc3e8821e5e9f95f97613647f26181dae0bbf1",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "jushou",
+      "number": 148,
+      "name": "沮授",
+      "weapon": "觀星明勢監軍劍",
+      "source": "148-沮授-觀星明勢監軍劍-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\148-沮授-觀星明勢監軍劍-特效-v2.png",
+      "originalFile": "art-src/generals/fx/jushou.png",
+      "compressedFile": "public/art/generals/full-fx/jushou.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3054894,
+      "compressedBytes": 240998,
+      "originalSha256": "69cf1bef83a430ae54724e1019a9f60b6c31ec5e585198d3bd74636f813ffd88",
+      "compressedSha256": "1ff4ea5039ece458311918f0460e0a437eadd9c61db579640f8161f07e27e084",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "da97e428609404b38b6b2008efacb8c2f94781708373dc35ad3432fb97f4589b",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "tianfeng",
+      "number": 149,
+      "name": "田豐",
+      "weapon": "寧死不屈浩然簡",
+      "source": "149-田豐-寧死不屈浩然簡-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\149-田豐-寧死不屈浩然簡-特效-v1.png",
+      "originalFile": "art-src/generals/fx/tianfeng.png",
+      "compressedFile": "public/art/generals/full-fx/tianfeng.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3325068,
+      "compressedBytes": 309546,
+      "originalSha256": "8bd85681736db10aa88daa37d1d902953c3132034caeb1ec1497548609be8021",
+      "compressedSha256": "dd48b42c2686140b14bca8eb6d331d38d0f48ff1bf68c29c3df0d430da1907cb",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "136cda4625dc8988eccc3629688af0a2620e55b7d94546616a02064aaeca6cbd",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "lvlingqi",
+      "number": 150,
+      "name": "呂玲綺",
+      "weapon": "裂天碎地風神戟",
+      "source": "150-呂玲綺-裂天碎地風神戟-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\150-呂玲綺-裂天碎地風神戟-特效-v1.png",
+      "originalFile": "art-src/generals/fx/lvlingqi.png",
+      "compressedFile": "public/art/generals/full-fx/lvlingqi.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3565059,
+      "compressedBytes": 411858,
+      "originalSha256": "dcc9a08a58049efa27228c5343ccf02829699e6624e1f3bc1cbc8b70d62d3e22",
+      "compressedSha256": "99a8b49ac0bd8d8817eba6592da3fcbd148d8e307631c4c264ed77f20edb476a",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "91cab08568fe737a8a78cd80cd8bc001f6de73455ef4dd51d418deaea4ef6bf7",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "yuanshao",
+      "number": 151,
+      "name": "袁紹",
+      "weapon": "號令天下皇極劍",
+      "source": "151-袁紹-號令天下皇極劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\151-袁紹-號令天下皇極劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/yuanshao.png",
+      "compressedFile": "public/art/generals/full-fx/yuanshao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3243251,
+      "compressedBytes": 272938,
+      "originalSha256": "602985497584f4183411f9e657d6da3cb88c8510e3b1fd0bbbf6ce82e5363f68",
+      "compressedSha256": "b72e7717f83656e8feed3a51517f490b65ab4278b762706ef145819dd0950648",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "432af3cd51d2e10d738008572f2a8c3765c655f14ed00eb40b6d2b578426234b",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "yuanshu",
+      "number": 152,
+      "name": "袁術",
+      "weapon": "逆天改命亂世璽",
+      "source": "152-袁術-逆天改命亂世璽-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\152-袁術-逆天改命亂世璽-特效-v3.png",
+      "originalFile": "art-src/generals/fx/yuanshu.png",
+      "compressedFile": "public/art/generals/full-fx/yuanshu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3418090,
+      "compressedBytes": 325234,
+      "originalSha256": "559fb7993e3aac79ec8285ca16151cb13b4f6fc6ffd72bf63d30dbee4d8c4de8",
+      "compressedSha256": "13c3729dd7a7bb42aeeb6b05380d7f6f775cfea4bb27fd87f17a7b2b05284206",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e10c83d120442bb46f1665e813abefb4ab1ee2b9ccab89b9a7ab9eef6824b029",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhangjiao",
+      "number": 153,
+      "name": "張角",
+      "weapon": "蒼天已死滅世杖",
+      "source": "153-張角-蒼天已死滅世杖-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\153-張角-蒼天已死滅世杖-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhangjiao.png",
+      "compressedFile": "public/art/generals/full-fx/zhangjiao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3594293,
+      "compressedBytes": 384518,
+      "originalSha256": "de63417ba7d57e4c6813cde310805ced800643cb80c8652322fde525ff2de2d0",
+      "compressedSha256": "e0cec25e709f0c3c78b8d204f3d4668d345283176a9c27b64db65db91c22cd52",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "1c57098992f6bfb345b3e3566be321fc20ff7fae608c535d3f87248663e6f89d",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhangbaoyj",
+      "number": 154,
+      "name": "張寶",
+      "weapon": "移山倒海地魔劍",
+      "source": "154-張寶-移山倒海地魔劍-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\154-張寶-移山倒海地魔劍-特效-v4.png",
+      "originalFile": "art-src/generals/fx/zhangbaoyj.png",
+      "compressedFile": "public/art/generals/full-fx/zhangbaoyj.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3291977,
+      "compressedBytes": 353776,
+      "originalSha256": "12c126d1c6b1696c29727d82d361148d9d4dc9a726a5a4bb014966eae3ad7363",
+      "compressedSha256": "bc2b7efdf13f31afea1435e50646f624887b98c64683dd119de54b9db0263d97",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "d3d0c00605a641127cfe366d5a887c3c2b3fd2d970651c821d9e44a77762eeb6",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhangliang",
+      "number": 155,
+      "name": "張梁",
+      "weapon": "萬鬼噬心人魔刀",
+      "source": "155-張梁-萬鬼噬心人魔刀-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\155-張梁-萬鬼噬心人魔刀-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhangliang.png",
+      "compressedFile": "public/art/generals/full-fx/zhangliang.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3408363,
+      "compressedBytes": 310672,
+      "originalSha256": "c7f7834f2efe558468e42272f30985d721f3054d5d7e26a081d85e8bb3f45b09",
+      "compressedSha256": "4c1a134aff3af86d6b4430be3b33a43ed20e571a9f5aa854f2752e3aeb57aff8",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "303b26229e89726d83179dc07e7bbae6865ce86142fd000808dd67867bac1248",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "gongsunzan",
+      "number": 156,
+      "name": "公孫瓚",
+      "weapon": "縱橫天下天馬槊",
+      "source": "156-公孫瓚-縱橫天下天馬槊-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\156-公孫瓚-縱橫天下天馬槊-特效-v3.png",
+      "originalFile": "art-src/generals/fx/gongsunzan.png",
+      "compressedFile": "public/art/generals/full-fx/gongsunzan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3193646,
+      "compressedBytes": 331270,
+      "originalSha256": "3ed317715cb2c943208fe865044b67b812f391f2e127f7aa0f24a3f7e68a1f57",
+      "compressedSha256": "5ba36b3eaadb19b778897d0febc4cd6434acf6bb5031627aa3aeeffc90a5afc5",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "acc7b8b755f544c442aa76337e003776f34cdc4ff2506a566504cdc05cdf314c",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "liubiao",
+      "number": 157,
+      "name": "劉表",
+      "weapon": "偏安一隅護世劍",
+      "source": "157-劉表-偏安一隅護世劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\157-劉表-偏安一隅護世劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/liubiao.png",
+      "compressedFile": "public/art/generals/full-fx/liubiao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3257520,
+      "compressedBytes": 289306,
+      "originalSha256": "dfe4064a19c4fb98688a09f25a4a9338f0ededeffd46f4e0b077f390ab64648e",
+      "compressedSha256": "c0cc990ae4cade9261a5a3869a23f31d0033da3302b779d0696dca4c9a3feb20",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "b7fe679f97a6b1bb55369a1b5ffe22f9deb12808d7a1af88f0a374a187069ef0",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "shenpei",
+      "number": 158,
+      "name": "審配",
+      "weapon": "玉石俱焚滅世弩",
+      "source": "158-審配-玉石俱焚滅世弩-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\158-審配-玉石俱焚滅世弩-特效-v1.png",
+      "originalFile": "art-src/generals/fx/shenpei.png",
+      "compressedFile": "public/art/generals/full-fx/shenpei.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3550274,
+      "compressedBytes": 372524,
+      "originalSha256": "94d9609a64ba602fa31ff0e2c51a22061eef7c74e06c8a5d0fc6383dad642958",
+      "compressedSha256": "aa773f0a748ec86ad928dbe45f5587b5151c46d5f967d9ee7a20ec289388f5eb",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "14e686cbc5f3312f26a31e42f105896d1643c8ee71c409e3ddf9e04e581b727c",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "taoqian",
+      "number": 159,
+      "name": "陶謙",
+      "weapon": "厚德載物天地劍",
+      "source": "159-陶謙-厚德載物天地劍-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\159-陶謙-厚德載物天地劍-特效-v1.png",
+      "originalFile": "art-src/generals/fx/taoqian.png",
+      "compressedFile": "public/art/generals/full-fx/taoqian.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3251990,
+      "compressedBytes": 283652,
+      "originalSha256": "94ed13f4087e797fa3eade1535a0a28c7465fedee6923cfaa0075c8ff6ecd3b6",
+      "compressedSha256": "579fdd68071770dfdf118348beac29019e8109dbd4e8792309439559069052d1",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "4ef237628fad5b0cd97b90523cf53d867b1b95da3fedaf12bd0729d33a7136d0",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "gaolan",
+      "number": 160,
+      "name": "高覽",
+      "weapon": "穩如泰山震天斧",
+      "source": "160-高覽-穩如泰山震天斧-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\160-高覽-穩如泰山震天斧-特效-v2.png",
+      "originalFile": "art-src/generals/fx/gaolan.png",
+      "compressedFile": "public/art/generals/full-fx/gaolan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3240587,
+      "compressedBytes": 300210,
+      "originalSha256": "9b71af9fce6d23d3f784b17b58b0ec006b8d1b5d3950a464b80eb01f02804ea7",
+      "compressedSha256": "8ea869b125de926d655dcf7b3b7d938992b3fdde643601929124c12f38b3021c",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "0b9eeb7d559dd214fd80f17d121664d39a1cb54f039f0c802a36ecf9b91b8865",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "wutugu",
+      "number": 161,
+      "name": "兀突骨",
+      "weapon": "烏鱗蠻荒骨朵",
+      "source": "161-兀突骨-烏鱗蠻荒骨朵-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\161-兀突骨-烏鱗蠻荒骨朵-特效-v3.png",
+      "originalFile": "art-src/generals/fx/wutugu.png",
+      "compressedFile": "public/art/generals/full-fx/wutugu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3474181,
+      "compressedBytes": 337620,
+      "originalSha256": "6a3bb92333e5f926ffcbd991ef4f7b71cd6c224e31f02695ece503e36fad8dee",
+      "compressedSha256": "90f9000735b7aad7608d9189c3d5e7808e0aa29177743c0e369dad8e3868936b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "f32d246df1f76b00ab744ed90469eab9ba137ec50a8c962ee30ee73fd903e3bc",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "mulu",
+      "number": 162,
+      "name": "木鹿大王",
+      "weapon": "萬獸無疆洪荒杖",
+      "source": "162-木鹿大王-萬獸無疆洪荒杖-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\162-木鹿大王-萬獸無疆洪荒杖-特效-v2.png",
+      "originalFile": "art-src/generals/fx/mulu.png",
+      "compressedFile": "public/art/generals/full-fx/mulu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3413471,
+      "compressedBytes": 318246,
+      "originalSha256": "591eb855b445e2694748f28bb5e5c9de6a9f52033a3a790c77654d5571757bda",
+      "compressedSha256": "8f6a5134a01ad94f1109b3ffe069e13764ea42447cf6b50b913c4f8ef29b12ce",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "bc4288147382e896097f86274767d7cde27860cf68754cf40950f064ea3cc283",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zuoci",
+      "number": 163,
+      "name": "左慈",
+      "weapon": "萬象森羅化境拂塵",
+      "source": "163-左慈-萬象森羅化境拂塵-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\163-左慈-萬象森羅化境拂塵-特效-v4.png",
+      "originalFile": "art-src/generals/fx/zuoci.png",
+      "compressedFile": "public/art/generals/full-fx/zuoci.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3376138,
+      "compressedBytes": 303760,
+      "originalSha256": "95a9e1bec557071f887976a21bfafceeb89b98fc5371d60be079d1cc2bb68f5e",
+      "compressedSha256": "d442c84807bb22295fbda9d0a031abdeb43445ca594d47c26d45cf3cb50754e7",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e7170739506611ae0a8ef62afc9a45d7d4322660d80b909aebfe927dcc38ab6b",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "yuji",
+      "number": 164,
+      "name": "于吉",
+      "weapon": "咒怨纏身奪命幡",
+      "source": "164-于吉-咒怨纏身奪命幡-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\164-于吉-咒怨纏身奪命幡-特效-v1.png",
+      "originalFile": "art-src/generals/fx/yuji.png",
+      "compressedFile": "public/art/generals/full-fx/yuji.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3430124,
+      "compressedBytes": 334298,
+      "originalSha256": "c378af0e0a0dd52dd3f3af9e75cdb11b882a852278cee2f3b41b9225f8ce1ce3",
+      "compressedSha256": "c96a826b905b59b07a8a0ea3d26003f946a75feb51a7d451a7946f64a0bfa1b7",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "8d6247316c019ba00ff4a460b8238cebf96076f724cff2bdb47b68d1e8eb318b",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "huatuo",
+      "number": 165,
+      "name": "華佗",
+      "weapon": "起死回生造化針",
+      "source": "165-華佗-起死回生造化針-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\165-華佗-起死回生造化針-特效-v4.png",
+      "originalFile": "art-src/generals/fx/huatuo.png",
+      "compressedFile": "public/art/generals/full-fx/huatuo.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3418954,
+      "compressedBytes": 319892,
+      "originalSha256": "103820fe1ea181aa0957418bd602361965533e542ecc9269e98e95a4de7e1b55",
+      "compressedSha256": "c47a96dfe069b6a3c32443c2f6f336f8089e61e1ae07eb83c217117406c28de7",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "336d845c3faf38533dd931b2487db156a917515d4ec7368a91fd7aa5dd66b81d",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "guanlu",
+      "number": 166,
+      "name": "管輅",
+      "weapon": "洞悉天道知命甲",
+      "source": "166-管輅-洞悉天道知命甲-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\166-管輅-洞悉天道知命甲-特效-v1.png",
+      "originalFile": "art-src/generals/fx/guanlu.png",
+      "compressedFile": "public/art/generals/full-fx/guanlu.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3402816,
+      "compressedBytes": 298068,
+      "originalSha256": "e0fb1f9a030b4138ebf284f20d8b28b438cd38f1f6e844463812ec1f05f30874",
+      "compressedSha256": "638fea35313775c98bc9de22a7931843c19593c2812fda4018a49c90cbb3478e",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "5376cd4cfbb0465de2f67ad5e0427657726c81f14c2acd7d805e6fcd0e854c83",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "shuijing",
+      "number": 167,
+      "name": "水鏡先生",
+      "weapon": "倒映乾坤明鏡扇",
+      "source": "167-水鏡先生-倒映乾坤明鏡扇-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\167-水鏡先生-倒映乾坤明鏡扇-特效-v1.png",
+      "originalFile": "art-src/generals/fx/shuijing.png",
+      "compressedFile": "public/art/generals/full-fx/shuijing.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3309981,
+      "compressedBytes": 304618,
+      "originalSha256": "e0ca0b6d9e378d5a88fd4fb729d17157e95a3b8587803a8200ffbabc5410d018",
+      "compressedSha256": "96768e4f4a2dbba4abf543d95681fa2672f778b7a1db4444ebce7f6862ad8893",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "ebcae887afc1dc40b244d1d6dc734cf4d24f04a3f234ed53ef1e76bb251585c7",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "pangdegong",
+      "number": 168,
+      "name": "龐德公",
+      "weapon": "超脫三界仙人杖",
+      "source": "168-龐德公-超脫三界仙人杖-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\168-龐德公-超脫三界仙人杖-特效-v1.png",
+      "originalFile": "art-src/generals/fx/pangdegong.png",
+      "compressedFile": "public/art/generals/full-fx/pangdegong.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3477338,
+      "compressedBytes": 334046,
+      "originalSha256": "4747be586ac127e53e7657828df530f8e8c374a872d925b219f54d174d586a14",
+      "compressedSha256": "669636c64f34c984f546f25c8ad4e42942430f3b3faf08c7bf71b975e0f4e726",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "a813400cfa69fba2de7d3b616fdf57c0778db120541b8a20c6f7ce187e3c128e",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "huangchengyan",
+      "number": 169,
+      "name": "黃承彥",
+      "weapon": "奇門解陣引路杖",
+      "source": "169-黃承彥-奇門解陣引路杖-特效-v3.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\169-黃承彥-奇門解陣引路杖-特效-v3.png",
+      "originalFile": "art-src/generals/fx/huangchengyan.png",
+      "compressedFile": "public/art/generals/full-fx/huangchengyan.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3355286,
+      "compressedBytes": 333946,
+      "originalSha256": "23074f899afd2fdaa37c870baf31cbc55795e487506f7d95796812c7b84d86df",
+      "compressedSha256": "d7269356034e1538e4dfe763925687e65a87d88bcc4354588a8faf9fabacfd5f",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "f74e42e505e4dd74e849967c319e30b5e5e968c06bcdbdc392224bef360cdd34",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "xushao",
+      "number": 170,
+      "name": "許劭",
+      "weapon": "一語成讖春秋簡",
+      "source": "170-許劭-一語成讖春秋簡-特效-v2.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\170-許劭-一語成讖春秋簡-特效-v2.png",
+      "originalFile": "art-src/generals/fx/xushao.png",
+      "compressedFile": "public/art/generals/full-fx/xushao.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3339489,
+      "compressedBytes": 284326,
+      "originalSha256": "feee3c4a9b86d080bf0380f8f4cb04fa91b4acb45305dcb0198829d0cd7e0ba2",
+      "compressedSha256": "870a0c551d586ca487cfa1b18a902c5cae79354a9589255fd8a5217111565b0a",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "9adebce5b75a69161d62ebc20121b1667598c223330188bb8c2a048cb605a446",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "zhangzhongjing",
+      "number": 171,
+      "name": "張仲景",
+      "weapon": "醫統天下濟世葫蘆",
+      "source": "171-張仲景-醫統天下濟世葫蘆-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\171-張仲景-醫統天下濟世葫蘆-特效-v1.png",
+      "originalFile": "art-src/generals/fx/zhangzhongjing.png",
+      "compressedFile": "public/art/generals/full-fx/zhangzhongjing.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3223481,
+      "compressedBytes": 284944,
+      "originalSha256": "4814653811352b1b1e394120763c4e8d4bbf6af48085cf0c94d4dc0486a63e54",
+      "compressedSha256": "ae78a093e06348dbd306e37d4e7556461dac2a6e78aae592903c1774be6fb914",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "ef5ba24bc46b02ed5b623afb4881a6b6c1ea1bfb73ff0a00644d018606ca35a1",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "dongfeng",
+      "number": 172,
+      "name": "董奉",
+      "weapon": "萬物復甦仙醫箱",
+      "source": "172-董奉-萬物復甦仙醫箱-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\172-董奉-萬物復甦仙醫箱-特效-v1.png",
+      "originalFile": "art-src/generals/fx/dongfeng.png",
+      "compressedFile": "public/art/generals/full-fx/dongfeng.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3288379,
+      "compressedBytes": 315488,
+      "originalSha256": "c1e938b35789c47abf00dab84930bd98cad0e2a63601ed88a0c900532ec3cc74",
+      "compressedSha256": "839b450aa0a378cb371231030e4849eaa5f2c15d25b3f5f7284915e914f4adad",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "e9078fe67b9122e9b65431d8895a620d81b8bd8d3de798a8a77bfe1ab40d3a2c",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "guanning",
+      "number": 173,
+      "name": "管寧",
+      "weapon": "清節無塵問道尺",
+      "source": "173-管寧-清節無塵問道尺-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\173-管寧-清節無塵問道尺-特效-v1.png",
+      "originalFile": "art-src/generals/fx/guanning.png",
+      "compressedFile": "public/art/generals/full-fx/guanning.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3241652,
+      "compressedBytes": 280604,
+      "originalSha256": "af398fe3e922708e4ce215dd8524a9aae4cd46e537a79e81974007d95cf03548",
+      "compressedSha256": "639de9d8dffb2cbe21dcd116dd61953969ce583ee09192d251c448a4085d03dd",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "db05fa7c7815934c479eab9ed0dc8c9ed075dd04955c77217cc212246b9f8d15",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "nanhua",
+      "number": 174,
+      "name": "南華老仙",
+      "weapon": "執掌天道造化杖",
+      "source": "174-南華老仙-執掌天道造化杖-特效-v4.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\174-南華老仙-執掌天道造化杖-特效-v4.png",
+      "originalFile": "art-src/generals/fx/nanhua.png",
+      "compressedFile": "public/art/generals/full-fx/nanhua.webp",
+      "originalSize": [
+        1083,
+        1453
+      ],
+      "compressedSize": [
+        763,
+        1024
+      ],
+      "originalBytes": 2866221,
+      "compressedBytes": 298384,
+      "originalSha256": "ea5a0d448c0aba9ad50bf097604c3748a346177f5fb679466a33d7a6061ba532",
+      "compressedSha256": "13987505ec1bf39d9d809124280a0156c2908fb1c55a57bd6d671a18ffa55a47",
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "7d1a7279feaae38d8d3717f4b8ad90885810f2915f1b5fa546d02d8d92c479ba",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    },
+    {
+      "id": "pujing",
+      "number": 175,
+      "name": "普靜禪師",
+      "weapon": "普渡眾生大悲珠",
+      "source": "175-普靜禪師-普渡眾生大悲珠-特效-v1.png",
+      "selectedFxSourcePath": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\fx-001-175-20261009\\特效PNG\\175-普靜禪師-普渡眾生大悲珠-特效-v1.png",
+      "originalFile": "art-src/generals/fx/pujing.png",
+      "compressedFile": "public/art/generals/full-fx/pujing.webp",
+      "originalSize": [
+        1024,
+        1536
+      ],
+      "compressedSize": [
+        683,
+        1024
+      ],
+      "originalBytes": 3226144,
+      "compressedBytes": 264908,
+      "originalSha256": "45d31180c17aac1df9bf5e6450c0cb7793179de88e8d1ddf361400e68af8835a",
+      "compressedSha256": "c300a8b86b2794f3716f11d588ac94a2dbefbfd776396a97ce6a0c61d077e70b",
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "compressedAlphaRange": [
+        0,
+        255
+      ],
+      "compressedAlphaSha256": "031bcf90ed3fb5af8faf49d6235e2555316028bafa0b2aa1bc0932afdd44e815",
+      "transparent": true,
+      "resizedAlphaPreservedExactly": true
+    }
+  ]
+}

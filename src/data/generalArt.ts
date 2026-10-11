@@ -1,4 +1,5 @@
 import type { General } from '../game/types';
+import { weaponGrade } from './weaponCatalog';
 
 /** 全身圖尺寸（比例用）；原始 PNG 在 art-src/generals/base/，來源與 SHA 記錄於 docs/base-general-art.json。 */
 export const GENERAL_ART: Record<string, { width: number; height: number }> = {
@@ -710,3 +711,12 @@ export const generalArtUrl = (g: Pick<General, 'id' | 'ghostSourceId'>) =>
 /** 由全身圖裁出的 192px 頭像；裁切範圍記錄於 docs/general-head-crops.json。 */
 export const generalHeadUrl = (g: Pick<General, 'id' | 'ghostSourceId'>) =>
   `${import.meta.env?.BASE_URL ?? './'}art/generals/head/${encodeURIComponent(generalArtId(g))}.webp`;
+
+/** 名冊只在武器到達天階時使用特效立繪；幽魂沿用原武將的圖片。 */
+export const hasHeavenWeapon = (g: Pick<General, 'weapon'>) =>
+  g.weapon !== null && weaponGrade(g.weapon) === 3;
+
+export const rosterArtUrl = (g: Pick<General, 'id' | 'ghostSourceId' | 'weapon'>) =>
+  hasHeavenWeapon(g)
+    ? `${import.meta.env?.BASE_URL ?? './'}art/generals/full-fx/${encodeURIComponent(generalArtId(g))}.webp`
+    : generalArtUrl(g);

@@ -25,6 +25,7 @@ const { sectDispatchFee, sectTransferRequirement, transferSectGeneral } = requir
 const { weaponUpgradeTip, upgradeWeapon, upgradeRequirement } = require('../src/systems/MaterialSystem.ts');
 const { WEAPON_CATALOG, MATERIAL_NAMES, makePersonalWeapon } = require('../src/data/weaponCatalog.ts');
 const { generalInfo } = require('../src/ui/GeneralInfo.ts');
+const { hasHeavenWeapon, rosterArtUrl } = require('../src/data/generalArt.ts');
 const { aiManageSect } = require('../src/systems/AISystem.ts');
 const { judge, playCasino, CASINO_MIN_BET } = require('../src/systems/CasinoSystem.ts');
 const { BOARD } = require('../src/data/board.ts');
@@ -51,6 +52,58 @@ test('All 175 source PNGs match the name mapping, dimensions and SHA; full and h
       const webp = fs.readFileSync(path.join(__dirname, '../public/art/generals', dir, `${g.id}.webp`));
       assert.equal(webp.toString('ascii', 8, 12), 'WEBP', `${g.name} ${dir} must be WebP`);
     }
+  }
+});
+test('Roster switches from full base art to FX on the actual heaven weapon upgrade', () => {
+  const state = createGameState('liu'), lord = state.lords.liu;
+  for (const seed of [...GENERAL_SEEDS, ...HIDDEN_SEEDS]) {
+    const g = { ...state.generals.liubei, id: seed.id, weapon: null };
+    assert.equal(hasHeavenWeapon(g), false);
+    assert.equal(rosterArtUrl(g), `./art/generals/full/${g.id}.webp`);
+    for (let stage = 0; stage < 3; stage++) {
+      g.weapon = makePersonalWeapon(g.id, stage);
+      assert.equal(hasHeavenWeapon(g), false);
+      assert.equal(rosterArtUrl(g), `./art/generals/full/${g.id}.webp`);
+    }
+    lord.materials[WEAPON_CATALOG[g.id].material][2] = 1;
+    upgradeWeapon(lord, g);
+    assert.equal(hasHeavenWeapon(g), true);
+    assert.equal(rosterArtUrl(g), `./art/generals/full-fx/${g.id}.webp`);
+    // 天品下、中、上均屬天階；地品上仍應使用基礎圖。
+    for (const tier of [9, 10, 11]) {
+      g.weapon.tier = tier;
+      assert.equal(hasHeavenWeapon(g), true);
+    }
+    g.weapon.tier = 8;
+    assert.equal(hasHeavenWeapon(g), false);
+    assert.equal(rosterArtUrl(g), `./art/generals/full/${g.id}.webp`);
+    g.weapon = makePersonalWeapon(g.id, 3);
+    const ghost = { ...g, id: `ghost-${g.id}`, ghostSourceId: g.id };
+    assert.equal(rosterArtUrl(ghost), `./art/generals/full-fx/${g.id}.webp`);
+  }
+});
+test('All 175 FX source PNGs and compressed WebPs match their recorded name, heaven weapon and SHA', () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/fx-general-art.json')));
+  const seeds = [...GENERAL_SEEDS, ...HIDDEN_SEEDS];
+  assert.equal(manifest.count, seeds.length);
+  assert.equal(manifest.images.length, seeds.length);
+  assert.equal(new Set(manifest.images.map(r => r.id)).size, seeds.length);
+  for (const g of seeds) {
+    const r = manifest.images.find(r => r.id === g.id);
+    assert.equal(r.name, g.name);
+    assert.equal(r.weapon, WEAPON_CATALOG[g.id].names[3]);
+    assert.equal(r.originalFile, `art-src/generals/fx/${g.id}.png`);
+    assert.equal(r.compressedFile, `public/art/generals/full-fx/${g.id}.webp`);
+    const png = fs.readFileSync(path.join(__dirname, '..', r.originalFile));
+    assert.equal(crypto.createHash('sha256').update(png).digest('hex'), r.originalSha256);
+    assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], r.originalSize);
+    assert.ok(r.originalSize[0] <= 1145 && r.originalSize[1] <= 1536);
+    assert.equal(png[25], 6, `${g.name} FX must retain RGBA`);
+    const webp = fs.readFileSync(path.join(__dirname, '..', r.compressedFile));
+    assert.equal(webp.toString('ascii', 8, 12), 'WEBP');
+    assert.equal(crypto.createHash('sha256').update(webp).digest('hex'), r.compressedSha256);
+    assert.equal(r.compressedSize[1], 1024);
+    assert.ok(r.transparent && r.resizedAlphaPreservedExactly);
   }
 });
 test('Dispatch at the lord current city costs zero; distance still charges remotely', () => {

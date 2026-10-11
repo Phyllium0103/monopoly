@@ -47,7 +47,7 @@ export const itemIconUrl = (defId: string) => ['realmkey', 'realmescape'].includ
 export const equipIconUrl = (e: Equipment) => e.fixedGeneralId ? `${BASE}art/icons/weapons/${WEAPON_CATALOG[e.fixedGeneralId].material}.svg` : url('icons/寶衣', baseName(e.name));
 /** 靈獸 */
 export const beastIconUrl = (b: Beast) => url('icons/靈獸', baseName(b.name));
-/** 名冊、清單、商店統一使用頭像；點頭像可看全身圖。 */
+/** 選將清單、商店使用頭像；名冊使用依武器品階切換的全身圖。 */
 export const portraitUrl = generalHeadUrl;
 /** 鬥法與地圖棋子使用透明全身圖。 */
 export const portraitBigUrl = generalArtUrl;

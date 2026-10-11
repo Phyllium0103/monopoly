@@ -25,7 +25,9 @@ import {
 } from '../systems/GeneralSystem';
 import { bagHtml } from './ItemUI';
 import { LORDS, originKingdom } from '../faction/Faction';
-import { equipIconUrl, portraitUrl } from './Icons';
+import { equipIconUrl } from './Icons';
+import { hasHeavenWeapon, rosterArtUrl } from '../data/generalArt';
+import { WEAPON_CATALOG } from '../data/weaponCatalog';
 import type { RosterAction } from '../engine/prompts';
 
 const SECTIONS: { status: General['status']; title: string }[] = [
@@ -201,7 +203,12 @@ export class GeneralsView {
     const free = manage || this.mode.free;
     const card = document.createElement('div');
     const ready = canAttemptBreak(g, state.round).ok;
-    card.className = `general-card s-${g.status}${ready ? ' ready' : ''}`;
+    const heavenWeapon = hasHeavenWeapon(g);
+    // 預留各品階最長的武器名稱，升階換圖時不讓右側文字撐高圖片框。
+    const weaponNames = WEAPON_CATALOG[g.ghostSourceId ?? g.id]?.names ?? [];
+    const weaponNameSpace = weaponNames.reduce((longest, name) => name.length > longest.length ? name : longest, g.weapon?.name.split('・').pop() ?? '');
+    card.className = `general-card s-${g.status}${ready ? ' ready' : ''}${heavenWeapon ? ' has-fx-art' : ''}`;
+    const art = `<div class="gc-portrait"><img src="${rosterArtUrl(g)}" data-full-art="${rosterArtUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></div>`;
     const cap = expCap(g);
     const t = g.technique;
     const city = g.cityId ? state.cities[g.cityId] : null;
@@ -219,8 +226,8 @@ export class GeneralsView {
     card.innerHTML = `
       <div class="gc-details">
       ${ready ? `<div class="ready-banner">✨ 修為圓滿，可以${needsTribulation(g) ? '渡劫' : '突破'}了！</div>` : ''}
-      <div class="gc-top">
-      <div class="gc-portrait"><img src="${portraitUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></div>
+      <div class="gc-overview">
+      ${art}
       <div class="gc-head">
         <b>${g.name}</b><small>${originKingdom(g.origin)}</small>${realmTag(g.realm)}${g.isLord ? '<span class="lord-tag">主公</span>' : ''}
         <span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span>
@@ -228,10 +235,9 @@ export class GeneralsView {
         ${buffs ? `<span class="chip buff">${buffs}</span>` : ''}
         <span class="st">${status}</span>
       </div>
-      </div>
       <div class="gc-body">
         <div class="gc-slots">
-          <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(`${equipDesc(g.weapon)}｜${weaponUpgradeTip(lord, g)}`)}"` : ''}><small>武器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.weapon.name.split('・').pop()}</b><em class="slot-tier">${g.weapon.name.split('・')[0]}・破防 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</em>` : '<b><span class="muted">無</span></b>'}</div>
+          <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(`${equipDesc(g.weapon)}｜${weaponUpgradeTip(lord, g)}`)}"` : ''}><small>武器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b class="gc-slot-name" data-name-space="${weaponNameSpace}"><span>${g.weapon.name.split('・').pop()}</span></b><em class="slot-tier">${g.weapon.name.split('・')[0]}・破防 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</em>` : '<b><span class="muted">無</span></b>'}</div>
           <div class="gc-slot eq-row" data-slot="armor" ${g.armor ? `title="${tip(equipDesc(g.armor))}"` : ''}><small>寶衣</small>${g.armor ? `<img class="slot-icon" src="${equipIconUrl(g.armor)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.armor.name.split('・').pop()}</b><em class="slot-tier">${g.armor.name.split('・')[0]}</em>` : '<b><span class="muted">無</span></b>'}</div>
         </div>
         <table class="gc-table">
@@ -248,6 +254,7 @@ export class GeneralsView {
             <td><small>佈陣</small><b>${craft(g, 'formation')}</b></td>
           </tr>
         </table>
+      </div>
       </div>
       <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（化神圓滿）'}${bottleneck ? '・瓶頸' : ''}</span></div>
       ${breakInfo ? `<div class="break-info">${breakInfo}</div>` : ''}

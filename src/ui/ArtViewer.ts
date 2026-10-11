@@ -1,4 +1,4 @@
-/** 點武將頭像時放大顯示全身圖；點任意處或按 Esc 關閉。 */
+/** 點頭像或名冊立繪時放大顯示對應全身圖；點任意處或按 Esc 關閉。 */
 export function installArtViewer() {
   let overlay: HTMLDivElement | null = null;
   const close = () => {
@@ -16,13 +16,16 @@ export function installArtViewer() {
         return;
       }
       const img = e.target;
-      if (!(img instanceof HTMLImageElement) || !img.src.includes('/art/generals/head/')) return;
+      if (!(img instanceof HTMLImageElement)) return;
+      const fullUrl = img.dataset.fullArt ?? (img.src.includes('/art/generals/head/')
+        ? img.src.replace('/generals/head/', '/generals/full/') : null);
+      if (!fullUrl) return;
       e.stopPropagation();
       e.preventDefault();
       overlay = document.createElement('div');
       overlay.className = 'art-viewer';
       const full = document.createElement('img');
-      full.src = img.src.replace('/generals/head/', '/generals/full/');
+      full.src = fullUrl;
       full.alt = img.alt;
       overlay.appendChild(full);
       document.body.appendChild(overlay);

@@ -1,0 +1,164 @@
+{
+  "selectedStyle": "02 白玉極簡・境界圖示遞進版",
+  "styleId": "white-jade-icon-progression-v1",
+  "frameRatio": [
+    1145,
+    1536
+  ],
+  "atlas": {
+    "file": "public/art/realm-frames/white-jade-icon-progression.png",
+    "width": 1536,
+    "height": 1024,
+    "sha256": "94cfde278e95e267813a1745a2937857d21e850be9d2316ca66cb439957c0e2a",
+    "mode": "RGBA",
+    "transparent": true,
+    "source": "C:\\Users\\User\\.codex\\generated_images\\01a11681-85a0-7eb3-b74a-740e56dfe671\\exec-1b33af32-8c21-4e7e-9088-b8c0f35f8457.png"
+  },
+  "referencePreview": "02白玉極簡-境界圖示遞進版-v1.png",
+  "generationMode": "built-in imagegen",
+  "frames": [
+    {
+      "realm": 0,
+      "name": "凡人",
+      "viewBox": [
+        9,
+        84,
+        255,
+        380
+      ],
+      "centerTransparentRatio": 1.0,
+      "centerMaxAlpha": 1,
+      "visiblePixels": 16744
+    },
+    {
+      "realm": 1,
+      "name": "煉氣",
+      "viewBox": [
+        256,
+        74,
+        265,
+        385
+      ],
+      "centerTransparentRatio": 1.0,
+      "centerMaxAlpha": 1,
+      "visiblePixels": 29836
+    },
+    {
+      "realm": 2,
+      "name": "築基",
+      "viewBox": [
+        523,
+        70,
+        249,
+        390
+      ],
+      "centerTransparentRatio": 1.0,
+      "centerMaxAlpha": 1,
+      "visiblePixels": 26953
+    },
+    {
+      "realm": 3,
+      "name": "金丹",
+      "viewBox": [
+        780,
+        70,
+        258,
+        394
+      ],
+      "centerTransparentRatio": 1.0,
+      "centerMaxAlpha": 1,
+      "visiblePixels": 24265
+    },
+    {
+      "realm": 4,
+      "name": "元嬰",
+      "viewBox": [
+        1030,
+        69,
+        262,
+        393
+      ],
+      "centerTransparentRatio": 1.0,
+      "centerMaxAlpha": 1,
+      "visiblePixels": 28630
+    },
+    {
+      "realm": 5,
+      "name": "化神",
+      "viewBox": [
+        1284,
+        48,
+        249,
+        416
+      ],
+      "centerTransparentRatio": 1.0,
+      "centerMaxAlpha": 1,
+      "visiblePixels": 38108
+    },
+    {
+      "realm": 6,
+      "name": "煉虛",
+      "viewBox": [
+        21,
+        511,
+        288,
+        400
+      ],
+      "centerTransparentRatio": 1.0,
+      "centerMaxAlpha": 1,
+      "visiblePixels": 33817
+    },
+    {
+      "realm": 7,
+      "name": "合體",
+      "viewBox": [
+        320,
+        518,
+        288,
+        397
+      ],
+      "centerTransparentRatio": 1.0,
+      "centerMaxAlpha": 1,
+      "visiblePixels": 41202
+    },
+    {
+      "realm": 8,
+      "name": "大乘",
+      "viewBox": [
+        630,
+        500,
+        276,
+        421
+      ],
+      "centerTransparentRatio": 1.0,
+      "centerMaxAlpha": 1,
+      "visiblePixels": 40766
+    },
+    {
+      "realm": 9,
+      "name": "渡劫",
+      "viewBox": [
+        924,
+        492,
+        305,
+        424
+      ],
+      "centerTransparentRatio": 1.0,
+      "centerMaxAlpha": 1,
+      "visiblePixels": 38940
+    },
+    {
+      "realm": 10,
+      "name": "真仙",
+      "viewBox": [
+        1221,
+        504,
+        303,
+        417
+      ],
+      "centerTransparentRatio": 1.0,
+      "centerMaxAlpha": 1,
+      "visiblePixels": 49528
+    }
+  ]
+}

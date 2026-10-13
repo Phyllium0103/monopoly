@@ -2595,3 +2595,35 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 @media (max-width: 560px) {
   .general-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* 已選白玉境界框：人物與外框共用原本左側尺寸，境界更新時更換圖集視窗。 */
+.gc-portrait.has-realm-frame { isolation: isolate; }
+.gc-portrait.has-realm-frame .gc-art {
+  position: absolute;
+  inset: 16% 8% 6%;
+  z-index: 1;
+}
+.general-card .gc-portrait.has-realm-frame .gc-art img {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: left bottom;
+}
+.realm-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 升階後破防百分比換行不改變人物區與境界框高度。 */
+.gc-overview .eq-row[data-slot="weapon"] .slot-tier { display: grid; }
+.gc-overview .eq-row[data-slot="weapon"] .slot-tier::before { content: attr(data-tier-space); visibility: hidden; }
+.gc-overview .eq-row[data-slot="weapon"] .slot-tier::before,
+.gc-overview .eq-row[data-slot="weapon"] .slot-tier > span { grid-area: 1 / 1; min-width: 0; }

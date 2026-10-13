@@ -1,0 +1,11 @@
+Use case: background-extraction / precise-object-edit.
+EDIT TARGET: supplied final approved "02 白玉極簡・境界圖示遞進版" sheet. Convert this approved art into a production TRANSPARENT PNG ATLAS for a game, keeping its eleven frame designs EXACTLY as approved.
+Do not redesign or restyle the frames. Preserve original thin white-jade contours, exact realm crest shapes, crane/lotus/cloud/lightning details, side ribbons, carved feet, gold highlights, line widths, colors and reading order.
+CRITICAL: Remove the entire dark charcoal background, including ALL dark areas INSIDE every frame aperture and the spaces between frames. These areas must become true alpha transparency, not solid black/white and not a painted checkerboard. All centers remain empty transparent holes for a full-body warrior placed behind the border.
+Remove every piece of text: title, heading ornaments not connected to an individual frame, all eleven bottom realm labels. No text anywhere. Retain only the eleven border artworks and their attached emblems.
+Keep the SAME original 1536x1024 canvas, same six-frames-in-top-row/five-frames-in-bottom-row arrangement, same precise positions and scale, NO auto reflow, centering, enlargement, new twelfth frame or cropping. Leave original text regions empty transparent. The original atlas grid locations will be used by the game to render each frame separately.
+Exactly 11 standalone empty frame shapes in the original reading order:
+plain mortal outline; qi mist swirl; foundation supports; round golden core; seated nascent spirit; divine eye; void fragments; yin-yang union; lotus; forked thunder/clouds; immortal crown and paired cranes.
+Include all frame tips, jade fragments and crests intact. Remove scattered sparkle dots if any; do not remove structural corner diamond ornaments or the two yin-yang symbol dots. Retain subtle material highlights on actual jade artwork but no opaque background halo.
+Preserve clean antialiased edges and genuinely transparent alpha everywhere not part of the border/crest. No characters, weapons, stats, scenery, extra graphics, labels or watermark.
+Transparent background AND transparent interiors are mandatory. This is extraction of the chosen artwork, not a new design concept.

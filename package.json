@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "node tests/game-rules.cjs && node tests/multiplayer.cjs",
+    "test": "node tests/game-rules.cjs && node tests/multiplayer.cjs && node tests/realm-frames.cjs",
     "test:e2e": "node tests/e2e-supabase.mjs",
     "build:engine": "vite build --config vite.engine.config.ts",
     "deploy:functions": "npm run build:engine && npx -y supabase@latest functions deploy game --project-ref jmesntwspqdpkesmcjea --no-verify-jwt --use-api"

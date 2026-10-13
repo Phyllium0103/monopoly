@@ -28,6 +28,7 @@ import { LORDS, originKingdom } from '../faction/Faction';
 import { equipIconUrl } from './Icons';
 import { hasHeavenWeapon, rosterArtUrl } from '../data/generalArt';
 import { WEAPON_CATALOG } from '../data/weaponCatalog';
+import { realmFrameHtml } from './RealmFrame';
 import type { RosterAction } from '../engine/prompts';
 
 const SECTIONS: { status: General['status']; title: string }[] = [
@@ -208,7 +209,7 @@ export class GeneralsView {
     const weaponNames = WEAPON_CATALOG[g.ghostSourceId ?? g.id]?.names ?? [];
     const weaponNameSpace = weaponNames.reduce((longest, name) => name.length > longest.length ? name : longest, g.weapon?.name.split('・').pop() ?? '');
     card.className = `general-card s-${g.status}${ready ? ' ready' : ''}${heavenWeapon ? ' has-fx-art' : ''}`;
-    const art = `<div class="gc-portrait"><img src="${rosterArtUrl(g)}" data-full-art="${rosterArtUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></div>`;
+    const art = `<div class="gc-portrait has-realm-frame"><div class="gc-art"><img src="${rosterArtUrl(g)}" data-full-art="${rosterArtUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></div>${realmFrameHtml(g.realm)}</div>`;
     const cap = expCap(g);
     const t = g.technique;
     const city = g.cityId ? state.cities[g.cityId] : null;
@@ -237,7 +238,7 @@ export class GeneralsView {
       </div>
       <div class="gc-body">
         <div class="gc-slots">
-          <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(`${equipDesc(g.weapon)}｜${weaponUpgradeTip(lord, g)}`)}"` : ''}><small>武器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b class="gc-slot-name" data-name-space="${weaponNameSpace}"><span>${g.weapon.name.split('・').pop()}</span></b><em class="slot-tier">${g.weapon.name.split('・')[0]}・破防 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</em>` : '<b><span class="muted">無</span></b>'}</div>
+          <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(`${equipDesc(g.weapon)}｜${weaponUpgradeTip(lord, g)}`)}"` : ''}><small>武器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b class="gc-slot-name" data-name-space="${weaponNameSpace}"><span>${g.weapon.name.split('・').pop()}</span></b><em class="slot-tier" data-tier-space="天階・破防 100%"><span>${g.weapon.name.split('・')[0]}・破防 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</span></em>` : '<b><span class="muted">無</span></b>'}</div>
           <div class="gc-slot eq-row" data-slot="armor" ${g.armor ? `title="${tip(equipDesc(g.armor))}"` : ''}><small>寶衣</small>${g.armor ? `<img class="slot-icon" src="${equipIconUrl(g.armor)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.armor.name.split('・').pop()}</b><em class="slot-tier">${g.armor.name.split('・')[0]}</em>` : '<b><span class="muted">無</span></b>'}</div>
         </div>
         <table class="gc-table">
@@ -256,7 +257,7 @@ export class GeneralsView {
         </table>
       </div>
       </div>
-      <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（化神圓滿）'}${bottleneck ? '・瓶頸' : ''}</span></div>
+      <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（真仙圓滿）'}${bottleneck ? '・瓶頸' : ''}</span></div>
       ${breakInfo ? `<div class="break-info">${breakInfo}</div>` : ''}
       <div class="bar hp"><i style="width:${(g.hp / maxHp(g)) * 100}%"></i><span>血量 ${g.hp} / ${maxHp(g)}</span></div>
       <div class="bar sta"><i style="width:${g.stamina / maxStamina(g) * 100}%"></i><span>體力 ${g.stamina} / ${maxStamina(g)}</span></div>

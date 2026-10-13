@@ -2597,7 +2597,13 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 }
 
 /* 已選白玉境界框：人物與外框共用原本左側尺寸，境界更新時更換圖集視窗。 */
-.gc-portrait.has-realm-frame { isolation: isolate; }
+.gc-portrait.has-realm-frame {
+  isolation: isolate;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+}
 .gc-portrait.has-realm-frame .gc-art {
   position: absolute;
   inset: 16% 8% 6%;
@@ -2620,6 +2626,9 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
   overflow: hidden;
   pointer-events: none;
   user-select: none;
+  /* 略放大境界框，底緣維持原位，人物與右側資訊不跟著縮放。 */
+  transform: scale(1.06);
+  transform-origin: center bottom;
 }
 
 /* 升階後破防百分比換行不改變人物區與境界框高度。 */

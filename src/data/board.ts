@@ -1,3 +1,4 @@
+import { buildSelectedBoard } from './selectedBoard';
 import type { LordId, Tile, TileKind, Vec2 } from '../game/types';
 
 /** 放大地點間距，建築與人物維持原尺寸。 */
@@ -199,19 +200,20 @@ function buildBoard() {
   return { tiles, cities, edges };
 }
 
-export const BOARD = buildBoard();
+export const LEGACY_BOARD = buildBoard();
+export const BOARD = buildSelectedBoard();
 
 export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
   city: { icon: '🏯', desc: '城池：停在無主城池可佔領；踏入他人城池需繳過路費或開戰' },
-  realm: { icon: '🌀', desc: '秘境：位於要道之上，只有六處。每次入場需消耗一把秘境遺鑰；破界遁空符可在隕落風險發生時保全隊撤離，整趟無獎勵。可選擇難度（煉氣到渡劫共九級）與派遣人數探索，難度越高越危險，獎勵也越好' },
+  realm: { icon: '🌀', desc: '秘境：位於道路旁的試煉據點。每次入場需消耗一把秘境遺鑰；破界遁空符可在隕落風險發生時保全隊撤離，整趟無獎勵。可選擇難度（煉氣到渡劫共九級）與派遣人數探索，難度越高越危險，獎勵也越好' },
   treasure: { icon: '💰', desc: '天寶商行：販售法器、陣法、符籙' },
   herb: { icon: '🌿', desc: '百草堂：販售各種丹藥' },
   forge: { icon: '🔨', desc: '天工坊：販售寶衣' },
   library: { icon: '📜', desc: '藏經閣：販售功法' },
   beast: { icon: '🐉', desc: '萬獸園：販售靈獸，每位主公限一隻' },
   tavern: { icon: '🏮', desc: '聽風樓：招募各國尚未出仕的將領' },
-  casino: { icon: '🎲', desc: '乾坤骰閣：位於地圖正中，不與道路相連，經由傳送陣或指定傳送（傳送陣、筋斗雲物品）抵達。與荷官骰盅比大小，自訂賭注，每次只能賭一把，離開後被隨機送往地圖其他地點' },
-  portal: { icon: '🌌', desc: '傳送陣：位於四個角落的路上，踩到有一半機率被送往地圖正中的乾坤骰閣，否則隨機傳送到地圖上的另一格' },
+  casino: { icon: '🎲', desc: '乾坤骰殿：沿道路設置的骰運據點。與荷官骰盅比大小，自訂賭注，每次只能賭一把，離開後被隨機送往地圖其他地點' },
+  portal: { icon: '🌌', desc: '山河社稷圖：沿道路設置的傳送機緣，踩到有一半機率被送往其中一處乾坤骰殿，否則隨機傳送到地圖上的另一格' },
   vein: { icon: '💎', desc: '靈脈：路過就能獲得靈石（不用停下），依主公本人的境界計算，每輪每位主公只領一次' },
   road: { icon: '🛤️', desc: '驛道：可能遇到奇遇。岔路依箭頭行走，每次經過後箭頭換方向；逆向停在岔路，下回合返回，途經岔路則隨機選出口' },
 };

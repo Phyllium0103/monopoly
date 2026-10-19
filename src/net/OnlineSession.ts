@@ -269,11 +269,17 @@ export class OnlineSession {
       if (this.roomId === roomId) this.leaveLocal('無法讀取對局資料，請稍後重新加入');
       return;
     }
-    this.game.startOnline(pub.state, this.me!.lord_id, () => {
-      // 結算畫面按「返回大廳」
-      this.leaveLocal('');
-      this.exit();
-    });
+    try {
+      this.game.startOnline(pub.state, this.me!.lord_id, () => {
+        // 結算畫面按「返回大廳」
+        this.leaveLocal('');
+        this.exit();
+      });
+    } catch (error) {
+      // Keep the remote game intact and display the map-version error in a visible lobby.
+      this.leaveLocal((error as Error).message);
+      throw error;
+    }
     this.version = pub.version;
     this.handlePublic(pub);
   }

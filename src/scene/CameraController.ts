@@ -12,25 +12,37 @@ export class CameraController {
   private keys = new Set<string>();
 
   constructor(
-    private camera: THREE.PerspectiveCamera,
+    private camera: THREE.OrthographicCamera,
     dom: HTMLElement,
   ) {
-    camera.position.set(0, 48, 52);
+    camera.position.set(-183.7117,150,183.7117);
     this.controls = new OrbitControls(camera, dom);
-    this.controls.target.set(0, 0, 4 * MAP_SCALE);
+    this.controls.target.set(0,0,0);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.08;
     this.controls.minDistance = 14;
     this.controls.maxDistance = 160 * MAP_SCALE;
-    this.controls.minPolarAngle = 0.25;
-    this.controls.maxPolarAngle = 1.25;
+    this.controls.minPolarAngle = this.controls.maxPolarAngle = Math.PI/3;
+    this.controls.minAzimuthAngle = this.controls.maxAzimuthAngle = -Math.PI/4;
+    this.controls.enableRotate=false;
+    this.controls.minZoom=.2;this.controls.maxZoom=8;
     this.controls.screenSpacePanning = false;
     this.controls.mouseButtons = {
-      LEFT: THREE.MOUSE.ROTATE,
+      LEFT: THREE.MOUSE.PAN,
       MIDDLE: THREE.MOUSE.DOLLY,
       RIGHT: THREE.MOUSE.PAN,
     };
     this.controls.update();
+    const toolbar=document.createElement('div');toolbar.className='map-camera-tools';
+    toolbar.innerHTML='<span>45°方位 · 30°俯角</span><button type="button">全圖</button><button type="button">＋</button><button type="button">－</button><button type="button">地名</button><button type="button">純地圖</button>';
+    const buttons=toolbar.querySelectorAll('button');
+    buttons[0].onclick=()=>{this.focusTarget=null;this.controls.target.set(0,0,0);camera.position.set(-183.7117,150,183.7117);camera.zoom=Math.min((camera.right-camera.left)/416,180/222)*.92;camera.updateProjectionMatrix();this.controls.update();};
+    buttons[1].onclick=()=>{camera.zoom=Math.min(8,camera.zoom*1.3);camera.updateProjectionMatrix();};
+    buttons[2].onclick=()=>{camera.zoom=Math.max(.2,camera.zoom/1.3);camera.updateProjectionMatrix();};
+    buttons[3].onclick=()=>{document.body.classList.toggle('map-all-names');buttons[3].setAttribute('aria-pressed',String(document.body.classList.contains('map-all-names')));};
+    buttons[4].onclick=()=>{const pure=document.body.classList.toggle('map-inspection');buttons[4].textContent=pure?'返回遊戲':'純地圖';};
+    toolbar.addEventListener('keydown',e=>e.stopPropagation());
+    document.body.append(toolbar);
 
     window.addEventListener('keydown', (e) => {
       if ((e.target as HTMLElement)?.tagName === 'INPUT') return;
@@ -53,6 +65,7 @@ export class CameraController {
   }
 
   update(dt: number) {
+    document.body.classList.toggle('map-overview',this.camera.zoom<1.2);
     const move = new THREE.Vector3();
     const k = this.keys;
     if (k.has('w') || k.has('arrowup')) move.z -= 1;
@@ -83,8 +96,8 @@ export class CameraController {
 
     // 限制在地圖範圍
     const t = this.controls.target;
-    const cx = THREE.MathUtils.clamp(t.x, -55 * MAP_SCALE, 55 * MAP_SCALE) - t.x;
-    const cz = THREE.MathUtils.clamp(t.z, -45 * MAP_SCALE, 50 * MAP_SCALE) - t.z;
+    const cx = THREE.MathUtils.clamp(t.x, -130, 130) - t.x;
+    const cz = THREE.MathUtils.clamp(t.z, -130, 130) - t.z;
     if (cx || cz) {
       t.x += cx;
       t.z += cz;

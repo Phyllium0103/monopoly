@@ -1,17 +1,20 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import type { City, GameState, Tile, Vec2 } from '../game/types';
-import { Terrain } from './Terrain';
-import { animateCity, buildCityMesh, type CityVisual } from './CityMesh';
+import { SelectedTerrain } from './SelectedTerrain';
+import { MapModelPool } from './MapModelPool';
+import { BUILDING_LOTS, CELL_SIZE, cityModelLevel } from '../data/selectedBoard';
+import type { MAP_MODELS } from '../data/mapModels';
+import { animateCity, type CityVisual } from './CityMesh';
 import { animateBuilding, buildSpecial, type BuildingVisual } from './Buildings';
 import { ownerColor, ownerCss, ownerName } from '../faction/Faction';
-import { BOARD, MAP_SCALE, TILE_INFO } from '../data/board';
+import { BOARD, TILE_INFO } from '../data/board';
 import type { Animator } from '../scene/Animator';
 import { easeOut } from '../scene/Animator';
 import { cityToll } from '../systems/CitySystem';
 import { fmtStones } from '../game/Currency';
 
-const CITY_SCALE = 0.72;
+
 
 interface CityEntry {
   visual: CityVisual;
@@ -23,7 +26,8 @@ interface CityEntry {
 
 export class World {
   root = new THREE.Group();
-  terrain: Terrain;
+  terrain: SelectedTerrain;
+  private modelPool = new MapModelPool(()=>this.invalidateShadows());
   pickables: THREE.Object3D[] = [];
   tiles: Tile[] = BOARD.tiles;
   private cities = new Map<string, CityEntry>();
@@ -38,11 +42,11 @@ export class World {
   constructor(
     scene: THREE.Scene,
     private animator: Animator,
+    private invalidateShadows:()=>void,
   ) {
     scene.add(this.root);
-    const pts: Vec2[] = this.tiles.map((t) => t.pos);
-    const segs: [Vec2, Vec2][] = BOARD.edges.map(([a, b]) => [this.tiles[a].pos, this.tiles[b].pos]);
-    this.terrain = new Terrain(pts, segs);
+    this.terrain = new SelectedTerrain();
+    this.root.add(this.modelPool.group);
     this.root.add(this.terrain.group);
     this.root.add(this.highlights);
 
@@ -61,7 +65,7 @@ export class World {
   }
 
   ground(x: number, z: number) {
-    return Math.max(this.terrain.heightAt(x / MAP_SCALE, z / MAP_SCALE), 0);
+    return Math.max(this.terrain.heightAt(x, z), 0);
   }
 
   tilePosition(index: number): THREE.Vector3 {
@@ -69,34 +73,33 @@ export class World {
     return new THREE.Vector3(p.x, this.ground(p.x, p.z), p.z);
   }
 
-  private tileRadius(index: number) {
-    const k = this.tiles[index].kind;
-    return k === 'city' ? 2.4 : k === 'road' ? 0.9 : 1.8;
-  }
+  private tileRadius(_index: number) { return CELL_SIZE*.38; }
 
   private addSpecial(tile: Tile) {
-    const v = buildSpecial(tile.kind);
-    const p = this.tilePosition(tile.index);
-    v.group.position.copy(p);
-    if (tile.kind !== 'road') v.group.scale.setScalar(0.85);
-    this.root.add(v.group);
-    this.buildings.push(v);
-    const el = document.createElement('div');
-    el.className = `special-label k-${tile.kind}${tile.links.length >= 3 ? ' fork' : ''}`;
-    el.textContent = tile.kind === 'road' ? (tile.links.length >= 3 ? `🔱 ${tile.name}` : tile.name) : `${TILE_INFO[tile.kind].icon} ${tile.name}`;
-    const label = new CSS2DObject(el);
-    label.position.set(0, tile.kind === 'road' ? 1.6 : 3.6, 0);
-    v.group.add(label);
+    const lot=BUILDING_LOTS.find(o=>o.tile===tile.index);
+    if(!lot) return;
+    const g=new THREE.Group();g.position.set(lot.pos.x,0,lot.pos.z);this.root.add(g);
+    if(['vein','secret','relic'].includes(lot.type)) {
+      const v=buildSpecial(tile.kind);
+      const bounds=new THREE.Box3().setFromObject(v.group),size=bounds.getSize(new THREE.Vector3());
+      v.group.scale.setScalar(CELL_SIZE*1.8/Math.max(size.x,size.z,1));
+      v.group.rotation.y=lot.rotation;g.add(v.group);this.buildings.push(v);
+    }
+    const el=document.createElement('div');el.className=`special-label k-${tile.kind}`;
+    el.textContent=`${TILE_INFO[tile.kind].icon} ${tile.name}`;
+    const label=new CSS2DObject(el);label.position.set(0,7,0);g.add(label);
   }
 
   private addPicker(tile: Tile) {
-    const r = this.tileRadius(tile.index) + 0.4;
-    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 3, 8), new THREE.MeshBasicMaterial({ visible: false }));
-    mesh.position.copy(this.tilePosition(tile.index)).setY(1.2);
-    mesh.userData = { pick: true, tile: tile.index };
-    this.root.add(mesh);
-    this.pickables.push(mesh);
+    const mesh=new THREE.Mesh(new THREE.BoxGeometry(CELL_SIZE*.96,1,CELL_SIZE*.96),new THREE.MeshBasicMaterial({visible:false}));
+    mesh.position.copy(this.tilePosition(tile.index));mesh.userData={pick:true,tile:tile.index};
+    this.root.add(mesh);this.pickables.push(mesh);
+    const lot=BUILDING_LOTS.find(o=>o.tile===tile.index);
+    if(lot){const box=new THREE.Mesh(new THREE.BoxGeometry(CELL_SIZE*2,5,CELL_SIZE*2),new THREE.MeshBasicMaterial({visible:false}));
+      box.position.set(lot.pos.x,2.5,lot.pos.z);box.userData={pick:true,tile:tile.index};this.root.add(box);this.pickables.push(box);}
   }
+
+  setOccupied(indices:number[]) { this.terrain.setOccupied(indices); }
 
   /** 依遊戲狀態建立或更新所有城池 */
   syncCities(state: GameState) {
@@ -106,16 +109,23 @@ export class World {
       else if (entry.owner !== city.owner) this.rebuildCity(city);
       this.updateLabel(state, city);
     }
+    void this.modelPool.sync(BUILDING_LOTS.flatMap(o=>{
+      const city=o.type==='city'?state.cities[o.id]:null;
+      const key=(city?`city-${cityModelLevel(city.prosperity)}`:o.type) as keyof typeof MAP_MODELS;
+      if(!['forge','herb','treasure','library','beast','tavern','casino'].includes(o.type)&&!city)return [];
+      return [{id:o.id,key,x:o.pos.x,z:o.pos.z,rotation:o.rotation,color:city&&city.owner!=='neutral'?ownerColor(city.owner):0xffffff}];
+    }));
   }
 
   private createCity(city: City) {
-    const pos = this.tilePosition(city.tile);
+    const lot=BUILDING_LOTS.find(o=>o.id===city.id)!;
+    const pos=new THREE.Vector3(lot.pos.x,0,lot.pos.z);
     const holder = new THREE.Group();
     holder.position.copy(pos);
     this.root.add(holder);
 
     const territory = new THREE.Mesh(
-      new THREE.CircleGeometry(3.6, 36),
+      new THREE.PlaneGeometry(CELL_SIZE*2.08,CELL_SIZE*2.08),
       new THREE.MeshBasicMaterial({ color: ownerColor(city.owner), transparent: true, opacity: 0.28, depthWrite: false }),
     );
     territory.rotation.x = -Math.PI / 2;
@@ -125,28 +135,21 @@ export class World {
     this.root.add(territory);
 
     const label = document.createElement('div');
-    label.className = 'city-label';
+    label.className = `city-label${city.capital || city.prosperity>=80 ? ' map-landmark':''}`;
     const labelObj = new CSS2DObject(label);
-    labelObj.position.set(0, 4, 0);
+    labelObj.position.set(0, 8, 0);
     holder.add(labelObj);
 
-    const visual = buildCityMesh(city.owner, city.capital);
-    visual.group.scale.multiplyScalar(CITY_SCALE);
+    const visual:CityVisual = {group:new THREE.Group(),animated:[],flags:[]};
     holder.add(visual.group);
     this.cities.set(city.id, { visual, holder, territory, label, owner: city.owner });
   }
 
   private rebuildCity(city: City) {
     const e = this.cities.get(city.id)!;
-    e.holder.remove(e.visual.group);
-    e.visual = buildCityMesh(city.owner, city.capital);
-    e.holder.add(e.visual.group);
     e.owner = city.owner;
     (e.territory.material as THREE.MeshBasicMaterial).color.setHex(ownerColor(city.owner));
     e.territory.visible = city.owner !== 'neutral';
-    const target = (city.capital ? 1.25 : 1) * CITY_SCALE;
-    e.visual.group.scale.setScalar(0.01);
-    this.animator.tween(0.6, (t) => e.visual.group.scale.setScalar(Math.max(0.01, easeOut(t) * target)));
   }
 
   private updateLabel(state: GameState, city: City) {
@@ -279,7 +282,7 @@ export class World {
     );
     sign.name = 'sign';
     g.add(sign);
-    g.scale.setScalar(1.3);
+    g.scale.setScalar(.28);
     return g;
   }
 
@@ -297,7 +300,7 @@ export class World {
         this.forkArrows.set(tile.index, sign);
       }
       // 立在通往目標的路上，離城池或路口一小段距離，才不會被建築蓋住
-      const off = tile.kind === 'city' ? 6.5 : 3.2;
+      const off = CELL_SIZE*.28;
       const p = this.tilePosition(tile.index);
       sign.position.set(p.x + dx * off, p.y, p.z + dz * off);
       sign.getObjectByName('sign')!.rotation.y = Math.atan2(-dz, dx);
@@ -324,8 +327,8 @@ export class World {
     const dx = dir.x / len;
     const dz = dir.z / len;
     // 各主公的箭頭略微錯開，避免重疊
-    const side = (slot - 1.5) * 0.7;
-    g.position.set(p.x + dx * 2.6 - dz * side, p.y + 0.9, p.z + dz * 2.6 + dx * side);
+    const side = (slot - 1.5) * 0.28;
+    g.position.set(p.x + dx * 1.3 - dz * side, p.y + 0.9, p.z + dz * 1.3 + dx * side);
     g.rotation.y = Math.atan2(dx, dz);
     g.visible = true;
   }

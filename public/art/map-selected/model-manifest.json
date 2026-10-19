@@ -1,0 +1,93 @@
+{
+  "forge": {
+    "url": "/art/map-selected/forge.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\forge\\blender-refinement-20261016\\天工坊-Blender-精修-v5.glb",
+    "sha256": "ba09aa4ce28a06154671083b4f98c9ba3cf35ddd90035cdec010931152fbd1c1",
+    "status": "complete",
+    "version": "v5"
+  },
+  "herb": {
+    "url": "/art/map-selected/herb.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\herb\\blender-native-20261016\\百草堂-Blender-v12.glb",
+    "sha256": "91a4f912b2ba546b6fef2cbd9b90a87ef0a1496528c0ad9fcb342065297c865c",
+    "status": "complete",
+    "version": "v12"
+  },
+  "treasure": {
+    "url": "/art/map-selected/treasure.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\treasure\\blender-native-20261016\\天寶商行-Blender-v3.glb",
+    "sha256": "d40c8c4e26c58e5cd2b1764f718de078837f3d1bcb838a948f451441969fed60",
+    "status": "complete",
+    "version": "v3"
+  },
+  "library": {
+    "url": "/art/map-selected/library.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\library\\blender-native-20261016\\藏經閣-Blender-v4.glb",
+    "sha256": "1b4a7235ace52f5b438c0dc14606f34417a6f07af6417d4382bb5786ae5720b2",
+    "status": "complete",
+    "version": "v4"
+  },
+  "beast": {
+    "url": "/art/map-selected/beast.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\beast\\blender-native-20261016\\萬獸園-Blender-v3.glb",
+    "sha256": "b369d2e13772d8b34e38354073d42f73d5800e60af14b6a4ad137132aeea7957",
+    "status": "complete",
+    "version": "v3"
+  },
+  "tavern": {
+    "url": "/art/map-selected/tavern.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\tavern\\blender-native-20261017\\聽風樓-Blender-v2.glb",
+    "sha256": "f549f443678973c5f3ccbdfcfb284ce86d58305b012b9e750244d8a1cd4a5373",
+    "status": "complete",
+    "version": "v2"
+  },
+  "casino": {
+    "url": "/art/map-selected/casino.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\casino\\blender-native-20261018\\乾坤骰閣-製作中-candidate17.glb",
+    "sha256": "ca4ed2185dc34ec4fc68d0e8e50da21e1fc9f27a673dc7373a7c9b240dfe3cf1",
+    "status": "in_progress",
+    "version": "candidate17"
+  },
+  "city-1": {
+    "url": "/art/map-selected/city-1.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-1\\blender-native-20261018\\荒地-Blender-v6-well-bond-draft.glb",
+    "sha256": "bb50dbd486dd858588c8268d1232cbcde274e9f2a5ef9f8c93bcc4f933f29f1b",
+    "status": "in_progress",
+    "version": "v6-well-bond-draft"
+  },
+  "city-2": {
+    "url": "/art/map-selected/city-2.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-2\\blender-native-20261018\\2階・聚落-Blender-v5-source-moss-draft.glb",
+    "sha256": "adc47e49efd2efebb7526da5ebd9118f42317dc591da5932797060200ed1cd4c",
+    "status": "in_progress",
+    "version": "v5-source-moss-draft"
+  },
+  "city-3": {
+    "url": "/art/map-selected/city-3.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-3\\blender-native-20261018\\3階・小鎮-Blender-v8-source-roofs-draft.glb",
+    "sha256": "9515b0d797f2b7713d93c833a3560086c112320ac90443aa01e34e7bb832bf67",
+    "status": "in_progress",
+    "version": "v8-source-roofs-draft"
+  },
+  "city-4": {
+    "url": "/art/map-selected/city-4.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-4\\blender-native-20261018\\4階・大城-Blender-v8-cypress-inlays-draft.glb",
+    "sha256": "c51d1b110ebc640a8d0c236fa56ef393bbb7ff11cfa64a72c3a1599ca64c91fb",
+    "status": "in_progress",
+    "version": "v8-cypress-inlays-draft"
+  },
+  "city-5": {
+    "url": "/art/map-selected/city-5.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-5\\blender-native-20261018\\5階・高塔-Blender-v6-astral-detail-draft.glb",
+    "sha256": "fe3884df2da71708095607b5005ad50ddc5c631ce6effadd4b4d6b6dc3b1a4f0",
+    "status": "in_progress",
+    "version": "v6-astral-detail-draft"
+  },
+  "city-6": {
+    "url": "/art/map-selected/city-6.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-6\\blender-native-20261018\\6階・仙城-Blender-v8-lotus-detail-draft.glb",
+    "sha256": "fab96974d8683637a3793727231cb978366e0ce5e2471e76bd36153dad31ef16",
+    "status": "in_progress",
+    "version": "v8-lotus-detail-draft"
+  }
+}

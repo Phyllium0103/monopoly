@@ -27,7 +27,7 @@ export class Environment {
     scene.add(sun);
 
     this.addSky();
-    this.addClouds();
+    // The map texture already supplies low cloud veils; keep the board unobstructed.
   }
 
   private addSky() {
@@ -47,7 +47,7 @@ export class Environment {
     this.scene.add(new THREE.Mesh(geo, mat));
   }
 
-  private addClouds() {
+  addClouds() {
     const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, roughness: 1, flatShading: true });
     const geo = new THREE.IcosahedronGeometry(1, 1);
     for (let i = 0; i < 12; i++) {

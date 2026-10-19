@@ -22,7 +22,7 @@ import { RankView } from '../ui/RankView';
 import { LordView } from '../ui/LordView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
-import { TILE_INFO } from '../data/board';
+import { BOARD, TILE_INFO } from '../data/board';
 import { terrainEffects, terrainOf } from '../data/terrain';
 import { RANK_METRICS, cityIncomeOf, cityRanks, cityToll, garrisonPower, recruitCost, toll } from '../systems/CitySystem';
 import { canAttemptBreak, maxHp, maxStamina, power } from '../systems/GeneralSystem';
@@ -82,7 +82,7 @@ export class Game {
     private uiRoot: HTMLElement,
   ) {
     this.sm = new SceneManager(sceneRoot);
-    this.world = new World(this.sm.scene, this.sm.animator);
+    this.world = new World(this.sm.scene, this.sm.animator,()=>{this.sm.renderer.shadowMap.needsUpdate=true;});
     this.ui = new GameUI(uiRoot);
     this.dialog = new Dialog(uiRoot);
     this.generalsView = new GeneralsView(uiRoot);
@@ -108,6 +108,11 @@ export class Game {
 
     this.sm.setPickables(this.world.pickables);
     this.sm.onUpdate((dt, time) => {
+      if(this.state) this.world.setOccupied([...this.sprites.values()].filter(s=>s.group.visible).map(s=>{
+        let closest=-1,distance=Infinity;
+        for(const t of this.world.tiles){const d=Math.max(Math.abs(t.pos.x-s.group.position.x),Math.abs(t.pos.z-s.group.position.z));if(d<1.96&&d<distance){closest=t.index;distance=d;}}
+        return closest;
+      }).filter(i=>i>=0));
       this.world.update(dt);
       for (const s of this.sprites.values()) s.update(dt, time);
     });
@@ -240,6 +245,9 @@ export class Game {
 
   /** 進入多人對局：me 為本機玩家的主公 */
   startOnline(state: GameState, me: LordId, onExit: () => void) {
+    if(state.tiles.length!==BOARD.tiles.length || state.tiles.some((t,i)=>t.name!==BOARD.tiles[i].name || t.pos.x!==BOARD.tiles[i].pos.x || t.pos.z!==BOARD.tiles[i].pos.z)) {
+      throw new Error('此房間仍使用舊版地圖。請更新多人伺服器並建立新房間；舊對局資料不會被覆寫。');
+    }
     this.reset();
     this.me = me;
     this.online = { onExit };
@@ -564,15 +572,11 @@ export class Game {
   // ───────────────────────── 地圖與棋子 ─────────────────────────
 
   private slotPosition(id: LordId, tile: number): THREE.Vector3 {
-    const t = this.state.tiles[tile];
     const p = this.world.tilePosition(tile);
     const i = LORD_IDS.indexOf(id);
-    const big = t.kind !== 'road';
-    const ox = (i % 2 === 0 ? -1 : 1) * (big ? 1.1 : 0.75);
-    const oz = (i < 2 ? 1 : -0.2) * (big ? 1 : 0.7) + (big ? 2.2 : 0.4);
-    const x = p.x + ox;
-    const z = p.z + oz;
-    return new THREE.Vector3(x, this.world.ground(x, z) + (t.kind === 'road' ? 0.25 : 0.05), z);
+    const ox=(i%2===0?-1:1)*.55;
+    const oz=(i<2?1:-1)*.5;
+    return new THREE.Vector3(p.x+ox,p.y+.08,p.z+oz);
   }
 
   private facingText(lord: Lord): string {

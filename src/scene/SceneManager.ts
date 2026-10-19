@@ -6,7 +6,7 @@ import { Animator } from './Animator';
 
 export class SceneManager {
   scene = new THREE.Scene();
-  camera: THREE.PerspectiveCamera;
+  camera: THREE.OrthographicCamera;
   renderer: THREE.WebGLRenderer;
   labels: CSS2DRenderer;
   cameraController: CameraController;
@@ -43,7 +43,7 @@ export class SceneManager {
     this.labels.domElement.className = 'label-layer';
     container.appendChild(this.labels.domElement);
 
-    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 1000);
+    this.camera = new THREE.OrthographicCamera(-90*window.innerWidth/window.innerHeight,90*window.innerWidth/window.innerHeight,90,-90,.5,1500);
     this.cameraController = new CameraController(this.camera, this.renderer.domElement);
     this.environment = new Environment(this.scene);
 
@@ -100,15 +100,22 @@ export class SceneManager {
       this.environment.update(dt);
       this.cameraController.update(dt);
       this.frame++;
-      if (this.frame % 3 === 0) this.renderer.shadowMap.needsUpdate = true;
+      // Buildings are static. Refresh their expensive shadow map only when a model changes.
+      if (this.frame === 1) this.renderer.shadowMap.needsUpdate = true;
       this.renderer.render(this.scene, this.camera);
+      if(import.meta.env.DEV && this.frame%30===0) this.renderer.domElement.dataset.mapMetrics=JSON.stringify({
+        calls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,
+        geometries:this.renderer.info.memory.geometries,zoom:this.camera.zoom,
+        elevation:90-THREE.MathUtils.radToDeg(this.cameraController.controls.getPolarAngle()),
+        azimuth:THREE.MathUtils.radToDeg(this.cameraController.controls.getAzimuthalAngle()),
+      });
       // 文字標籤是 DOM，每格都更新很吃瀏覽器的排版；隔格更新肉眼看不出差別
       if (this.frame % 2 === 0) this.labels.render(this.scene, this.camera);
     });
   }
 
   private resize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.left=-90*window.innerWidth/window.innerHeight;this.camera.right=90*window.innerWidth/window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.labels.setSize(window.innerWidth, window.innerHeight);

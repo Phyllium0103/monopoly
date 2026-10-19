@@ -394,7 +394,8 @@ export class Engine {
 
   /** 踩到角落的傳送陣：一半機率送往地圖正中的乾坤骰閣，否則隨機傳送到任一格 */
   private async landPortal(lord: Lord) {
-    const casino = this.state.tiles.find((t) => t.kind === 'casino');
+    const casinos = this.state.tiles.filter((t) => t.kind === 'casino');
+    const casino = casinos[Math.floor(Math.random()*casinos.length)];
     const dest = casino && Math.random() < 0.5 ? casino : this.randomDestination(lord.position);
     this.view.log(`${LORDS[lord.id].name}踏入傳送陣，被送到「${dest.name}」！`, this.human(lord) ? 'good' : 'ai');
     if (this.human(lord)) this.view.toast(`傳送陣！被送到「${dest.name}」`, lord.id);

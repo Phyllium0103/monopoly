@@ -1,0 +1,6068 @@
+{
+  "format": "sanguo-layout-editor-v1",
+  "version": 1,
+  "gridUnit": 16,
+  "title": "三國36城・五區48設施",
+  "historyVersion": "230-260-population-weighted-v2",
+  "roads": [
+    [
+      5,
+      9
+    ],
+    [
+      5,
+      10
+    ],
+    [
+      5,
+      11
+    ],
+    [
+      5,
+      12
+    ],
+    [
+      5,
+      13
+    ],
+    [
+      5,
+      14
+    ],
+    [
+      5,
+      15
+    ],
+    [
+      6,
+      9
+    ],
+    [
+      6,
+      15
+    ],
+    [
+      7,
+      9
+    ],
+    [
+      7,
+      15
+    ],
+    [
+      8,
+      9
+    ],
+    [
+      8,
+      15
+    ],
+    [
+      9,
+      9
+    ],
+    [
+      9,
+      15
+    ],
+    [
+      10,
+      9
+    ],
+    [
+      10,
+      15
+    ],
+    [
+      11,
+      9
+    ],
+    [
+      11,
+      15
+    ],
+    [
+      12,
+      9
+    ],
+    [
+      12,
+      15
+    ],
+    [
+      13,
+      9
+    ],
+    [
+      13,
+      15
+    ],
+    [
+      14,
+      9
+    ],
+    [
+      14,
+      15
+    ],
+    [
+      15,
+      9
+    ],
+    [
+      15,
+      15
+    ],
+    [
+      16,
+      9
+    ],
+    [
+      16,
+      15
+    ],
+    [
+      17,
+      9
+    ],
+    [
+      17,
+      15
+    ],
+    [
+      18,
+      9
+    ],
+    [
+      18,
+      15
+    ],
+    [
+      19,
+      9
+    ],
+    [
+      19,
+      15
+    ],
+    [
+      20,
+      9
+    ],
+    [
+      20,
+      15
+    ],
+    [
+      21,
+      9
+    ],
+    [
+      21,
+      15
+    ],
+    [
+      22,
+      9
+    ],
+    [
+      22,
+      10
+    ],
+    [
+      22,
+      11
+    ],
+    [
+      22,
+      12
+    ],
+    [
+      22,
+      13
+    ],
+    [
+      22,
+      14
+    ],
+    [
+      22,
+      15
+    ],
+    [
+      22,
+      16
+    ],
+    [
+      22,
+      17
+    ],
+    [
+      22,
+      18
+    ],
+    [
+      22,
+      19
+    ],
+    [
+      22,
+      20
+    ],
+    [
+      23,
+      20
+    ],
+    [
+      24,
+      20
+    ],
+    [
+      25,
+      20
+    ],
+    [
+      25,
+      21
+    ],
+    [
+      25,
+      22
+    ],
+    [
+      25,
+      23
+    ],
+    [
+      25,
+      24
+    ],
+    [
+      25,
+      25
+    ],
+    [
+      25,
+      26
+    ],
+    [
+      25,
+      27
+    ],
+    [
+      25,
+      28
+    ],
+    [
+      25,
+      29
+    ],
+    [
+      25,
+      30
+    ],
+    [
+      25,
+      31
+    ],
+    [
+      25,
+      32
+    ],
+    [
+      25,
+      33
+    ],
+    [
+      25,
+      34
+    ],
+    [
+      25,
+      35
+    ],
+    [
+      25,
+      36
+    ],
+    [
+      25,
+      37
+    ],
+    [
+      25,
+      38
+    ],
+    [
+      25,
+      39
+    ],
+    [
+      25,
+      40
+    ],
+    [
+      25,
+      41
+    ],
+    [
+      25,
+      42
+    ],
+    [
+      26,
+      20
+    ],
+    [
+      26,
+      32
+    ],
+    [
+      26,
+      37
+    ],
+    [
+      26,
+      42
+    ],
+    [
+      27,
+      20
+    ],
+    [
+      27,
+      32
+    ],
+    [
+      27,
+      37
+    ],
+    [
+      27,
+      42
+    ],
+    [
+      28,
+      20
+    ],
+    [
+      28,
+      32
+    ],
+    [
+      28,
+      37
+    ],
+    [
+      28,
+      42
+    ],
+    [
+      29,
+      20
+    ],
+    [
+      29,
+      26
+    ],
+    [
+      29,
+      27
+    ],
+    [
+      29,
+      28
+    ],
+    [
+      29,
+      29
+    ],
+    [
+      29,
+      30
+    ],
+    [
+      29,
+      31
+    ],
+    [
+      29,
+      32
+    ],
+    [
+      29,
+      37
+    ],
+    [
+      29,
+      42
+    ],
+    [
+      30,
+      20
+    ],
+    [
+      30,
+      26
+    ],
+    [
+      30,
+      28
+    ],
+    [
+      30,
+      32
+    ],
+    [
+      30,
+      37
+    ],
+    [
+      30,
+      42
+    ],
+    [
+      31,
+      20
+    ],
+    [
+      31,
+      21
+    ],
+    [
+      31,
+      22
+    ],
+    [
+      31,
+      23
+    ],
+    [
+      31,
+      24
+    ],
+    [
+      31,
+      25
+    ],
+    [
+      31,
+      26
+    ],
+    [
+      31,
+      28
+    ],
+    [
+      31,
+      32
+    ],
+    [
+      31,
+      37
+    ],
+    [
+      31,
+      42
+    ],
+    [
+      32,
+      21
+    ],
+    [
+      32,
+      28
+    ],
+    [
+      32,
+      32
+    ],
+    [
+      32,
+      37
+    ],
+    [
+      32,
+      42
+    ],
+    [
+      33,
+      21
+    ],
+    [
+      33,
+      28
+    ],
+    [
+      33,
+      32
+    ],
+    [
+      33,
+      37
+    ],
+    [
+      33,
+      42
+    ],
+    [
+      34,
+      21
+    ],
+    [
+      34,
+      28
+    ],
+    [
+      34,
+      32
+    ],
+    [
+      34,
+      37
+    ],
+    [
+      34,
+      42
+    ],
+    [
+      35,
+      21
+    ],
+    [
+      35,
+      28
+    ],
+    [
+      35,
+      32
+    ],
+    [
+      35,
+      37
+    ],
+    [
+      35,
+      42
+    ],
+    [
+      36,
+      21
+    ],
+    [
+      36,
+      28
+    ],
+    [
+      36,
+      32
+    ],
+    [
+      36,
+      37
+    ],
+    [
+      36,
+      42
+    ],
+    [
+      37,
+      21
+    ],
+    [
+      37,
+      28
+    ],
+    [
+      37,
+      32
+    ],
+    [
+      37,
+      37
+    ],
+    [
+      37,
+      42
+    ],
+    [
+      38,
+      21
+    ],
+    [
+      38,
+      28
+    ],
+    [
+      38,
+      32
+    ],
+    [
+      38,
+      37
+    ],
+    [
+      38,
+      42
+    ],
+    [
+      39,
+      21
+    ],
+    [
+      39,
+      28
+    ],
+    [
+      39,
+      32
+    ],
+    [
+      39,
+      37
+    ],
+    [
+      39,
+      42
+    ],
+    [
+      40,
+      21
+    ],
+    [
+      40,
+      28
+    ],
+    [
+      40,
+      32
+    ],
+    [
+      40,
+      37
+    ],
+    [
+      40,
+      42
+    ],
+    [
+      41,
+      21
+    ],
+    [
+      41,
+      28
+    ],
+    [
+      41,
+      32
+    ],
+    [
+      41,
+      37
+    ],
+    [
+      41,
+      42
+    ],
+    [
+      42,
+      9
+    ],
+    [
+      42,
+      10
+    ],
+    [
+      42,
+      11
+    ],
+    [
+      42,
+      12
+    ],
+    [
+      42,
+      13
+    ],
+    [
+      42,
+      14
+    ],
+    [
+      42,
+      15
+    ],
+    [
+      42,
+      16
+    ],
+    [
+      42,
+      17
+    ],
+    [
+      42,
+      18
+    ],
+    [
+      42,
+      19
+    ],
+    [
+      42,
+      20
+    ],
+    [
+      42,
+      21
+    ],
+    [
+      42,
+      22
+    ],
+    [
+      42,
+      23
+    ],
+    [
+      42,
+      24
+    ],
+    [
+      42,
+      25
+    ],
+    [
+      42,
+      26
+    ],
+    [
+      42,
+      27
+    ],
+    [
+      42,
+      28
+    ],
+    [
+      42,
+      29
+    ],
+    [
+      42,
+      30
+    ],
+    [
+      42,
+      31
+    ],
+    [
+      42,
+      32
+    ],
+    [
+      42,
+      33
+    ],
+    [
+      42,
+      34
+    ],
+    [
+      42,
+      35
+    ],
+    [
+      42,
+      36
+    ],
+    [
+      42,
+      37
+    ],
+    [
+      42,
+      38
+    ],
+    [
+      42,
+      39
+    ],
+    [
+      42,
+      40
+    ],
+    [
+      42,
+      41
+    ],
+    [
+      42,
+      42
+    ],
+    [
+      43,
+      9
+    ],
+    [
+      43,
+      17
+    ],
+    [
+      43,
+      21
+    ],
+    [
+      43,
+      28
+    ],
+    [
+      43,
+      33
+    ],
+    [
+      44,
+      9
+    ],
+    [
+      44,
+      17
+    ],
+    [
+      44,
+      21
+    ],
+    [
+      44,
+      28
+    ],
+    [
+      44,
+      33
+    ],
+    [
+      45,
+      9
+    ],
+    [
+      45,
+      17
+    ],
+    [
+      45,
+      21
+    ],
+    [
+      45,
+      28
+    ],
+    [
+      45,
+      33
+    ],
+    [
+      46,
+      9
+    ],
+    [
+      46,
+      17
+    ],
+    [
+      46,
+      21
+    ],
+    [
+      46,
+      28
+    ],
+    [
+      46,
+      33
+    ],
+    [
+      47,
+      9
+    ],
+    [
+      47,
+      17
+    ],
+    [
+      47,
+      21
+    ],
+    [
+      47,
+      22
+    ],
+    [
+      47,
+      23
+    ],
+    [
+      47,
+      24
+    ],
+    [
+      47,
+      25
+    ],
+    [
+      47,
+      26
+    ],
+    [
+      47,
+      27
+    ],
+    [
+      47,
+      28
+    ],
+    [
+      47,
+      29
+    ],
+    [
+      47,
+      30
+    ],
+    [
+      47,
+      31
+    ],
+    [
+      47,
+      32
+    ],
+    [
+      47,
+      33
+    ],
+    [
+      48,
+      9
+    ],
+    [
+      48,
+      17
+    ],
+    [
+      48,
+      25
+    ],
+    [
+      49,
+      9
+    ],
+    [
+      49,
+      17
+    ],
+    [
+      49,
+      25
+    ],
+    [
+      50,
+      9
+    ],
+    [
+      50,
+      17
+    ],
+    [
+      50,
+      25
+    ],
+    [
+      50,
+      26
+    ],
+    [
+      50,
+      27
+    ],
+    [
+      50,
+      28
+    ],
+    [
+      50,
+      29
+    ],
+    [
+      50,
+      30
+    ],
+    [
+      51,
+      9
+    ],
+    [
+      51,
+      17
+    ],
+    [
+      51,
+      25
+    ],
+    [
+      51,
+      30
+    ],
+    [
+      52,
+      9
+    ],
+    [
+      52,
+      17
+    ],
+    [
+      52,
+      18
+    ],
+    [
+      52,
+      19
+    ],
+    [
+      52,
+      20
+    ],
+    [
+      52,
+      21
+    ],
+    [
+      52,
+      22
+    ],
+    [
+      52,
+      23
+    ],
+    [
+      52,
+      24
+    ],
+    [
+      52,
+      25
+    ],
+    [
+      52,
+      30
+    ],
+    [
+      53,
+      9
+    ],
+    [
+      53,
+      17
+    ],
+    [
+      53,
+      25
+    ],
+    [
+      53,
+      30
+    ],
+    [
+      54,
+      9
+    ],
+    [
+      54,
+      17
+    ],
+    [
+      54,
+      25
+    ],
+    [
+      54,
+      30
+    ],
+    [
+      55,
+      9
+    ],
+    [
+      55,
+      17
+    ],
+    [
+      55,
+      25
+    ],
+    [
+      55,
+      30
+    ],
+    [
+      56,
+      9
+    ],
+    [
+      56,
+      17
+    ],
+    [
+      56,
+      25
+    ],
+    [
+      56,
+      30
+    ],
+    [
+      57,
+      9
+    ],
+    [
+      57,
+      10
+    ],
+    [
+      57,
+      11
+    ],
+    [
+      57,
+      12
+    ],
+    [
+      57,
+      13
+    ],
+    [
+      57,
+      14
+    ],
+    [
+      57,
+      15
+    ],
+    [
+      57,
+      16
+    ],
+    [
+      57,
+      17
+    ],
+    [
+      57,
+      25
+    ],
+    [
+      57,
+      30
+    ],
+    [
+      58,
+      25
+    ],
+    [
+      58,
+      30
+    ],
+    [
+      59,
+      25
+    ],
+    [
+      59,
+      30
+    ],
+    [
+      60,
+      25
+    ],
+    [
+      60,
+      26
+    ],
+    [
+      60,
+      27
+    ],
+    [
+      60,
+      28
+    ],
+    [
+      60,
+      29
+    ],
+    [
+      60,
+      30
+    ]
+  ],
+  "objects": [
+    {
+      "id": "luoyang",
+      "type": "city",
+      "name": "洛陽",
+      "at": [
+        43,
+        18
+      ],
+      "side": "right",
+      "prosperity": 98,
+      "historyId": "luoyang",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "changan",
+      "type": "city",
+      "name": "長安",
+      "at": [
+        35,
+        19
+      ],
+      "side": "above",
+      "prosperity": 92,
+      "historyId": "changan",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "xuchang",
+      "type": "city",
+      "name": "許昌",
+      "at": [
+        45,
+        19
+      ],
+      "side": "above",
+      "prosperity": 76,
+      "historyId": "xuchang",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "ye",
+      "type": "city",
+      "name": "鄴城",
+      "at": [
+        47,
+        15
+      ],
+      "side": "above",
+      "prosperity": 82,
+      "historyId": "ye",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "jinyang",
+      "type": "city",
+      "name": "晉陽",
+      "at": [
+        43,
+        12
+      ],
+      "side": "right",
+      "prosperity": 51,
+      "historyId": "jinyang",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "ji",
+      "type": "city",
+      "name": "薊城",
+      "at": [
+        50,
+        7
+      ],
+      "side": "above",
+      "prosperity": 62,
+      "historyId": "ji",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "beiping",
+      "type": "city",
+      "name": "北平",
+      "at": [
+        55,
+        7
+      ],
+      "side": "above",
+      "prosperity": 28,
+      "historyId": "beiping",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "beihai",
+      "type": "city",
+      "name": "北海",
+      "at": [
+        55,
+        15
+      ],
+      "side": "above",
+      "prosperity": 60,
+      "historyId": "beihai",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "c21",
+      "type": "city",
+      "name": "彭城",
+      "at": [
+        53,
+        19
+      ],
+      "side": "right",
+      "prosperity": 67,
+      "historyId": "c21",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "shouchun",
+      "type": "city",
+      "name": "壽春",
+      "at": [
+        53,
+        21
+      ],
+      "side": "right",
+      "prosperity": 54,
+      "historyId": "shouchun",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "hefei",
+      "type": "city",
+      "name": "合肥",
+      "at": [
+        53,
+        23
+      ],
+      "side": "right",
+      "prosperity": 39,
+      "historyId": "hefei",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "jianye",
+      "type": "city",
+      "name": "建業",
+      "at": [
+        55,
+        23
+      ],
+      "side": "above",
+      "prosperity": 95,
+      "historyId": "jianye",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "wujun",
+      "type": "city",
+      "name": "吳郡",
+      "at": [
+        61,
+        26
+      ],
+      "side": "right",
+      "prosperity": 84,
+      "historyId": "wujun",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "kuaiji",
+      "type": "city",
+      "name": "會稽",
+      "at": [
+        61,
+        28
+      ],
+      "side": "right",
+      "prosperity": 74,
+      "historyId": "kuaiji",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "chaisang",
+      "type": "city",
+      "name": "柴桑",
+      "at": [
+        51,
+        28
+      ],
+      "side": "right",
+      "prosperity": 52,
+      "historyId": "chaisang",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "c31",
+      "type": "city",
+      "name": "武昌",
+      "at": [
+        48,
+        26
+      ],
+      "side": "right",
+      "prosperity": 73,
+      "historyId": "c31",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "xiangyang",
+      "type": "city",
+      "name": "襄陽",
+      "at": [
+        43,
+        24
+      ],
+      "side": "right",
+      "prosperity": 61,
+      "historyId": "xiangyang",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "jiangling",
+      "type": "city",
+      "name": "江陵",
+      "at": [
+        43,
+        26
+      ],
+      "side": "right",
+      "prosperity": 64,
+      "historyId": "jiangling",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "wancheng",
+      "type": "city",
+      "name": "宛城",
+      "at": [
+        43,
+        22
+      ],
+      "side": "right",
+      "prosperity": 55,
+      "historyId": "wancheng",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "changsha",
+      "type": "city",
+      "name": "長沙",
+      "at": [
+        44,
+        31
+      ],
+      "side": "above",
+      "prosperity": 58,
+      "historyId": "changsha",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "lingling",
+      "type": "city",
+      "name": "零陵",
+      "at": [
+        40,
+        35
+      ],
+      "side": "above",
+      "prosperity": 42,
+      "historyId": "lingling",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "wuling",
+      "type": "city",
+      "name": "武陵",
+      "at": [
+        40,
+        30
+      ],
+      "side": "above",
+      "prosperity": 37,
+      "historyId": "wuling",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "chengdu",
+      "type": "city",
+      "name": "成都",
+      "at": [
+        26,
+        27
+      ],
+      "side": "right",
+      "prosperity": 96,
+      "historyId": "chengdu",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "hanzhong",
+      "type": "city",
+      "name": "漢中",
+      "at": [
+        32,
+        22
+      ],
+      "side": "right",
+      "prosperity": 47,
+      "historyId": "hanzhong",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "tianshui",
+      "type": "city",
+      "name": "天水",
+      "at": [
+        28,
+        18
+      ],
+      "side": "above",
+      "prosperity": 36,
+      "historyId": "tianshui",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "wuwei",
+      "type": "city",
+      "name": "武威",
+      "at": [
+        23,
+        12
+      ],
+      "side": "right",
+      "prosperity": 49,
+      "historyId": "wuwei",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "jiangzhou",
+      "type": "city",
+      "name": "江州",
+      "at": [
+        30,
+        29
+      ],
+      "side": "right",
+      "prosperity": 66,
+      "historyId": "jiangzhou",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "c41",
+      "type": "city",
+      "name": "永安",
+      "at": [
+        36,
+        26
+      ],
+      "side": "above",
+      "prosperity": 38,
+      "historyId": "c41",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "jianning",
+      "type": "city",
+      "name": "建寧",
+      "at": [
+        26,
+        38
+      ],
+      "side": "right",
+      "prosperity": 34,
+      "historyId": "jianning",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "c65",
+      "type": "city",
+      "name": "敦煌",
+      "at": [
+        6,
+        7
+      ],
+      "side": "above",
+      "prosperity": 40,
+      "historyId": "c65",
+      "added": false,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "c63",
+      "type": "city",
+      "name": "張掖",
+      "at": [
+        17,
+        7
+      ],
+      "side": "above",
+      "prosperity": 37,
+      "historyId": "c63",
+      "added": true,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "c64",
+      "type": "city",
+      "name": "酒泉",
+      "at": [
+        13,
+        7
+      ],
+      "side": "above",
+      "prosperity": 38,
+      "historyId": "c64",
+      "added": true,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "c101",
+      "type": "city",
+      "name": "蒼梧",
+      "at": [
+        40,
+        40
+      ],
+      "side": "above",
+      "prosperity": 43,
+      "historyId": "c101",
+      "added": true,
+      "manualScore": false,
+      "notes": ""
+    },
+    {
+      "id": "secret-regional48-1",
+      "type": "secret",
+      "name": "秘境",
+      "at": [
+        45,
+        26
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "東部服務區；沿道路最近：武昌 4格、江陵 5格、襄陽 7格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "beast-regional48-1",
+      "type": "beast",
+      "name": "萬獸園",
+      "at": [
+        40,
+        19
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中北服務區；沿道路最近：宛城 3格、洛陽 5格、長安 5格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "treasure-regional48-1",
+      "type": "treasure",
+      "name": "天寶商行",
+      "at": [
+        43,
+        34
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中南服務區；沿道路最近：長沙 3格、武陵 4格、零陵 5格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "forge-regional48-1",
+      "type": "forge",
+      "name": "天工坊",
+      "at": [
+        20,
+        13
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西北服務區；沿道路最近：武威 5格、天水 13格、張掖 13格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "vein-regional48-1",
+      "type": "vein",
+      "name": "礦脈",
+      "at": [
+        34,
+        26
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西南服務區；沿道路最近：武陵 2格、長沙 7格、江陵 10格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "forge-regional48-2",
+      "type": "forge",
+      "name": "天工坊",
+      "at": [
+        48,
+        23
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "東部服務區；沿道路最近：武昌 2格、柴桑 5格、合肥 6格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "tavern-regional48-1",
+      "type": "tavern",
+      "name": "聽風樓",
+      "at": [
+        43,
+        7
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中北服務區；沿道路最近：晉陽 4格、薊城 7格、洛陽 10格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "library-regional48-1",
+      "type": "library",
+      "name": "藏經閣",
+      "at": [
+        43,
+        38
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中南服務區；沿道路最近：零陵 3格、南海 5格、蒼梧 6格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "herb-regional48-1",
+      "type": "herb",
+      "name": "百草堂",
+      "at": [
+        19,
+        7
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西北服務區；沿道路最近：敦煌 2格、酒泉 9格、張掖 13格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "casino-regional48-1",
+      "type": "casino",
+      "name": "乾坤骰殿",
+      "at": [
+        26,
+        25
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西南服務區；沿道路最近：成都 2格、天水 8格、漢中 13格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "herb-regional48-2",
+      "type": "herb",
+      "name": "百草堂",
+      "at": [
+        48,
+        29
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "東部服務區；沿道路最近：武昌 3格、長沙 7格、江陵 8格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "beast-regional48-2",
+      "type": "beast",
+      "name": "萬獸園",
+      "at": [
+        43,
+        40
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中南服務區；沿道路最近：南海 3格、蒼梧 4格、零陵 5格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "treasure-regional48-2",
+      "type": "treasure",
+      "name": "天寶商行",
+      "at": [
+        16,
+        13
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西北服務區；沿道路最近：敦煌 5格、酒泉 12格、張掖 16格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "secret-regional48-2",
+      "type": "secret",
+      "name": "秘境",
+      "at": [
+        26,
+        23
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西南服務區；沿道路最近：成都 4格、天水 6格、漢中 11格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "treasure-regional48-3",
+      "type": "treasure",
+      "name": "天寶商行",
+      "at": [
+        53,
+        15
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "東部服務區；沿道路最近：北海 2格、彭城 3格、壽春 5格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "casino-regional48-2",
+      "type": "casino",
+      "name": "乾坤骰殿",
+      "at": [
+        43,
+        29
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中北服務區；沿道路最近：江陵 3格、襄陽 5格、武陵 5格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "tavern-regional48-2",
+      "type": "tavern",
+      "name": "聽風樓",
+      "at": [
+        34,
+        35
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中南服務區；沿道路最近：南海 2格、蒼梧 5格、零陵 10格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "library-regional48-2",
+      "type": "library",
+      "name": "藏經閣",
+      "at": [
+        23,
+        16
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西北服務區；沿道路最近：武威 4格、天水 10格、張掖 12格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "forge-regional48-3",
+      "type": "forge",
+      "name": "天工坊",
+      "at": [
+        26,
+        40
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西南服務區；沿道路最近：建寧 2格、交趾 11格、成都 13格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "library-regional48-3",
+      "type": "library",
+      "name": "藏經閣",
+      "at": [
+        57,
+        28
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "東部服務區；沿道路最近：會稽 5格、吳郡 7格、柴桑 9格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "secret-regional48-3",
+      "type": "secret",
+      "name": "秘境",
+      "at": [
+        43,
+        15
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中北服務區；沿道路最近：洛陽 3格、晉陽 3格、鄴城 7格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "vein-regional48-3",
+      "type": "vein",
+      "name": "礦脈",
+      "at": [
+        33,
+        40
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中南服務區；沿道路最近：建寧 8格、蒼梧 11格、交趾 13格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "beast-regional48-3",
+      "type": "beast",
+      "name": "萬獸園",
+      "at": [
+        23,
+        10
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西北服務區；沿道路最近：武威 2格、張掖 6格、酒泉 10格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "herb-regional48-3",
+      "type": "herb",
+      "name": "百草堂",
+      "at": [
+        32,
+        24
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西南服務區；沿道路最近：漢中 2格、長安 7格、天水 7格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "beast-regional48-4",
+      "type": "beast",
+      "name": "萬獸園",
+      "at": [
+        57,
+        23
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "東部服務區；沿道路最近：建業 2格、吳郡 4格、會稽 6格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "forge-regional48-4",
+      "type": "forge",
+      "name": "天工坊",
+      "at": [
+        43,
+        10
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中北服務區；沿道路最近：晉陽 2格、洛陽 8格、薊城 9格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "casino-regional48-3",
+      "type": "casino",
+      "name": "乾坤骰殿",
+      "at": [
+        30,
+        35
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中南服務區；沿道路最近：合浦 5格、南海 7格、蒼梧 10格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "tavern-regional48-3",
+      "type": "tavern",
+      "name": "聽風樓",
+      "at": [
+        15,
+        7
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西北服務區；沿道路最近：張掖 2格、酒泉 2格、敦煌 9格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "treasure-regional48-4",
+      "type": "treasure",
+      "name": "天寶商行",
+      "at": [
+        28,
+        40
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西南服務區；沿道路最近：交趾 5格、建寧 8格、合浦 12格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "tavern-regional48-4",
+      "type": "tavern",
+      "name": "聽風樓",
+      "at": [
+        53,
+        28
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "東部服務區；沿道路最近：柴桑 5格、會稽 9格、吳郡 11格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "herb-regional48-4",
+      "type": "herb",
+      "name": "百草堂",
+      "at": [
+        45,
+        15
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中北服務區；沿道路最近：鄴城 2格、洛陽 4格、晉陽 8格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "secret-regional48-4",
+      "type": "secret",
+      "name": "秘境",
+      "at": [
+        31,
+        40
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中南服務區；沿道路最近：合浦 2格、交趾 9格、南海 10格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "vein-regional48-4",
+      "type": "vein",
+      "name": "礦脈",
+      "at": [
+        14,
+        13
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西北服務區；沿道路最近：張掖 2格、武威 6格、酒泉 6格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "library-regional48-4",
+      "type": "library",
+      "name": "藏經閣",
+      "at": [
+        27,
+        30
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西南服務區；沿道路最近：江州 5格、成都 7格、建寧 8格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "vein-regional48-5",
+      "type": "vein",
+      "name": "礦脈",
+      "at": [
+        47,
+        7
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "東部服務區；沿道路最近：北海 4格、北平 8格、彭城 9格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "treasure-regional48-5",
+      "type": "treasure",
+      "name": "天寶商行",
+      "at": [
+        32,
+        19
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中北服務區；沿道路最近：漢中 2格、長安 3格、天水 5格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "forge-regional48-5",
+      "type": "forge",
+      "name": "天工坊",
+      "at": [
+        38,
+        30
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中南服務區；沿道路最近：零陵 2格、長沙 10格、南海 10格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "casino-regional48-4",
+      "type": "casino",
+      "name": "乾坤骰殿",
+      "at": [
+        9,
+        13
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西北服務區；沿道路最近：酒泉 2格、敦煌 5格、張掖 6格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "beast-regional48-5",
+      "type": "beast",
+      "name": "萬獸園",
+      "at": [
+        26,
+        35
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西南服務區；沿道路最近：建寧 3格、成都 8格、江州 10格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "casino-regional48-5",
+      "type": "casino",
+      "name": "乾坤骰殿",
+      "at": [
+        58,
+        13
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "東部服務區；沿道路最近：北平 6格、北海 6格、薊城 11格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "library-regional48-5",
+      "type": "library",
+      "name": "藏經閣",
+      "at": [
+        49,
+        15
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中北服務區；沿道路最近：鄴城 2格、彭城 5格、北海 6格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "herb-regional48-5",
+      "type": "herb",
+      "name": "百草堂",
+      "at": [
+        38,
+        35
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中南服務區；沿道路最近：蒼梧 2格、南海 5格、零陵 11格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "secret-regional48-5",
+      "type": "secret",
+      "name": "秘境",
+      "at": [
+        8,
+        7
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西北服務區；沿道路最近：敦煌 2格、酒泉 5格、張掖 9格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "tavern-regional48-5",
+      "type": "tavern",
+      "name": "聽風樓",
+      "at": [
+        38,
+        26
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西南服務區；沿道路最近：建寧 5格、成都 6格、江州 8格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "relic-regional48-1",
+      "type": "relic",
+      "name": "山河社稷圖",
+      "at": [
+        58,
+        11
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西北服務區；沿道路最近：武威 6格、天水 8格、成都 12格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "relic-regional48-2",
+      "type": "relic",
+      "name": "山河社稷圖",
+      "at": [
+        35,
+        40
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "西南服務區；沿道路最近：建寧 5格、交趾 8格、合浦 15格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "relic-regional48-3",
+      "type": "relic",
+      "name": "山河社稷圖",
+      "at": [
+        6,
+        11
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": false,
+      "manualScore": false,
+      "notes": "中北服務區；沿道路最近：江陵 4格、永安 4格、襄陽 6格。距離為道路占地格，非擲骰回合。"
+    }
+  ],
+  "historicalReference": {
+    "period": "約230–260年三國鼎立時期",
+    "periodPolicy": {
+      "startCE": 230,
+      "endCE": 260,
+      "label": "約230–260年三國鼎立時期",
+      "assessmentType": "結構性時期輪廓，非單一年份快照、非逐年算術平均。",
+      "warTreatment": "納入本期後段已發生的戰亂，例如255–258年壽春事件；並未聲稱230年已承受後來事件。",
+      "outsideWindowPolicy": "230年前形成的行政、水利及交通只作延續背景，逐城註明。263年滅蜀、264年後行政改制與280年統一不算入分數。",
+      "administrativeScale": "各點代表城市及其可直接維持的近郊供應腹地；使用郡域標籤者另標proxy，不聲稱整郡全是城內經濟。",
+      "urbanPopulation": "沒有推估或宣稱任何230–260年精確城市人口。",
+      "olderPopulationUse": "140年郡國戶口僅能另列史料背景，本次沒有用它作分數換算公式。"
+    },
+    "rubric": {
+      "officialAncientStatistic": false,
+      "populationEstimate": false,
+      "totalRange": {
+        "min": 0,
+        "max": 100
+      },
+      "aggregation": "五項加總；人口集聚35分、生產商業30分為主要權重。",
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5
+        }
+      ],
+      "populationPolicy": "沒有可同口徑比較的230–260年單城人口表。人口項依都城官署、軍市、移民或編戶記載、產業及供養腹地作定性代理，不填造城市人口，不以140年郡人口或263/280年國家總人口換算。",
+      "gameCalibration": "依使用者要求將洛陽、成都、建業、長安列四大核心城並放大分層。四城優先是遊戲設計設定，不等於史料已證明四城人口必占前四；尤其長安與鄴、吳縣的確切人口高低無法確定。",
+      "precision": "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+    },
+    "sources": [
+      {
+        "id": "sgz03",
+        "title": "《三國志》卷3・明帝紀",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷03",
+        "period": "226–239",
+        "evidenceScope": "魏都、巡幸、宮室、陝西與荊州戰事",
+        "caveat": "紀年記事；宮室營造不能等同民間富裕。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz04",
+        "title": "《三國志》卷4・三少帝紀",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷04",
+        "period": "239–265",
+        "evidenceScope": "洛陽政變、帝位更替與國家戰事",
+        "caveat": "",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz09",
+        "title": "《三國志》卷9・曹真等傳",
+        "url": "https://zh.wikisource.org/zh-hant/三國志/卷09",
+        "period": "230及前後",
+        "evidenceScope": "長安出兵、秦嶺道路與漢水軍運",
+        "caveat": "交通記載是軍事物流，不直接證明商業流量。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz15",
+        "title": "《三國志》卷15・劉馥、梁習、張既等傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷15",
+        "period": "約200–254",
+        "evidenceScope": "屯田、灌溉、并州恢復、薊城農田與河西治理",
+        "caveat": "若干治理先於230年；逐城另註時段。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz16",
+        "title": "《三國志》卷16・任峻、蘇則、倉慈等傳",
+        "url": "https://zh.wikisource.org/zh-hant/三國志/卷16",
+        "period": "建安至魏末；倉慈在太和年間",
+        "evidenceScope": "屯田制度、京兆農業整頓、敦煌商旅保護",
+        "caveat": "部分經濟記錄指郡域或較早制度，非城市產值。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz20",
+        "title": "《三國志》卷20・武文世王公傳",
+        "url": "https://zh.wikisource.org/zh-hant/三國志/卷20",
+        "period": "220–260前後",
+        "evidenceScope": "彭城等封國與北海王封爵",
+        "caveat": "封邑戶數不是城市人口，封號亦不保證王本人常住同名城。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz26",
+        "title": "《三國志》卷26・滿寵、田豫等傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷26",
+        "period": "約220–250",
+        "evidenceScope": "合肥新城、幽州邊務與互市",
+        "caveat": "邊務資料不能逐項歸屬到右北平某一城市。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz27",
+        "title": "《三國志》卷27・徐邈、王昶等傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷27",
+        "period": "約228–260",
+        "evidenceScope": "武威酒泉鹽池水田、宛與新野軍政轉移",
+        "caveat": "徐邈開田與倉儲是涼州及郡域記載，不能當作城內統計。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz28",
+        "title": "《三國志》卷28・毌丘儉、諸葛誕等傳",
+        "url": "https://zh.wikisource.org/zh-hant/三國志/卷28",
+        "period": "251–258為重點",
+        "evidenceScope": "淮南三叛、壽春圍城與遷徙",
+        "caveat": "",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz32",
+        "title": "《三國志》卷32・先主傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷32",
+        "period": "221–223",
+        "evidenceScope": "成都稱帝、永安退駐與託孤",
+        "caveat": "只作230年體制形成的近前背景。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz35",
+        "title": "《三國志》卷35・諸葛亮傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷35",
+        "period": "225–234",
+        "evidenceScope": "蜀漢行政、北伐補給與農業負擔",
+        "caveat": "",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz40",
+        "title": "《三國志》卷40・李嚴等傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷40",
+        "period": "223–234",
+        "evidenceScope": "永安駐軍、江州都護與漢中後勤",
+        "caveat": "",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz41",
+        "title": "《三國志》卷41・王平等傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷41",
+        "period": "約230–248；244為重點",
+        "evidenceScope": "漢中防禦與曹爽攻勢",
+        "caveat": "所記軍民總數不在本檔轉為城市人口。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz43",
+        "title": "《三國志》卷43・李恢等傳",
+        "url": "https://zh.wikisource.org/zh-hant/三國志/卷43",
+        "period": "221–231及前後",
+        "evidenceScope": "建寧、南中平亂及軍資徵發",
+        "caveat": "軍資產地是南中廣域；不全是建寧城內生產。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz47",
+        "title": "《三國志》卷47・吳主傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷47",
+        "period": "208–252；229後為主",
+        "evidenceScope": "建業定都、武昌留守與吳國戰事",
+        "caveat": "柴桑屯軍是208年前後背景；不得冒稱230年新資料。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz48",
+        "title": "《三國志》卷48・三嗣主傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷48",
+        "period": "252–280",
+        "evidenceScope": "建業宮廷政變、會稽與軍政",
+        "caveat": "只採260年以前記事支撐本期，263後不納入分數。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz49",
+        "title": "《三國志》卷49・士燮傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷49",
+        "period": "約190–226",
+        "evidenceScope": "交趾治理、南方物產進貢與蒼梧政局",
+        "caveat": "主要早於230年；進貢物品不是自由貿易額。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz52",
+        "title": "《三國志》卷52・顧雍、步騭傳",
+        "url": "https://zh.wikisource.org/zh-hant/三國志/卷52",
+        "period": "約200–247",
+        "evidenceScope": "會稽郡政與交州治理",
+        "caveat": "顧雍治理會稽是早期背景，不據此斷言全期無戰亂。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz53",
+        "title": "《三國志》卷53・薛綜傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷53",
+        "period": "約220–243",
+        "evidenceScope": "合浦、交趾太守與交州軍政",
+        "caveat": "原文保留帝國官員視角，不以其族群貶詞作評分。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz57",
+        "title": "《三國志》卷57・虞翻、朱據等傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷57",
+        "period": "孫吳中前期至250前後",
+        "evidenceScope": "會稽太守任官、徐陵任零陵太守等",
+        "caveat": "部分任官時間未精確繫年。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz58",
+        "title": "《三國志》卷58・陸遜傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷58",
+        "period": "約200–245；229留守為重點",
+        "evidenceScope": "吳會編戶屯田、武昌太子留守",
+        "caveat": "屯田編戶是郡域，不是吳城內的手工業統計。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz60",
+        "title": "《三國志》卷60・呂岱等傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷60",
+        "period": "220–256；226及231為重點",
+        "evidenceScope": "交廣分治、合浦渡海、長沙漚口與武陵平亂",
+        "caveat": "",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz61",
+        "title": "《三國志》卷61・潘濬、陸凱傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷61",
+        "period": "約220–260",
+        "evidenceScope": "武陵平亂及孫吳地方軍政",
+        "caveat": "地方征討的毀傷不可直接量化成城市經濟損失。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sgz64",
+        "title": "《三國志》卷64・鍾離牧傳",
+        "url": "https://zh.wikisource.org/wiki/三國志/卷64",
+        "period": "242–246南海任官為重點",
+        "evidenceScope": "南海太守、揭陽與高涼地方秩序",
+        "caveat": "郡內治安與招撫不等於番禺城市收入。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "hhs112",
+        "title": "《後漢書》卷112・郡國志四",
+        "url": "https://zh.wikisource.org/zh-hant/後漢書/卷112",
+        "period": "主體約140；另含後出注文",
+        "evidenceScope": "北海、荊州、揚州郡縣與治所背景",
+        "caveat": "本檔只用行政與地理背景；不將140年郡人口作230–260城市人口或繁榮公式。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "hhs113",
+        "title": "《後漢書》卷113・郡國志五",
+        "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113",
+        "period": "主體約140；另含後出注文",
+        "evidenceScope": "河西、幽州、益州與交州郡治及道路背景",
+        "caveat": "治所可能後移；縣目和戶口不是230年的逐城調查。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "hy01",
+        "title": "《華陽國志》卷1・巴志",
+        "url": "https://zh.wikisource.org/wiki/華陽國志/卷一",
+        "period": "成書於4世紀；記巴郡沿革及蜀漢事件",
+        "evidenceScope": "江州城、李嚴築城與河流會合",
+        "caveat": "地理敘述跨年代，不能全部指定為230年城市實況。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "hy03",
+        "title": "《華陽國志》卷3・蜀志",
+        "url": "https://zh.wikisource.org/wiki/華陽國志/卷三",
+        "period": "成書於4世紀；追述秦漢蜀漢",
+        "evidenceScope": "成都、蜀地水利農桑及錦業背景",
+        "caveat": "不得將書中晉代戶數與市場描述無條件回填蜀漢。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "hy04",
+        "title": "《華陽國志》卷4・南中志",
+        "url": "https://zh.wikisource.org/wiki/華陽國志/卷四",
+        "period": "成書於4世紀；含蜀漢與晉代沿革",
+        "evidenceScope": "南中軍資、建寧與庲降都督及味縣",
+        "caveat": "味縣郡治文字與晉代材料混合；230–260具體治所沿革須保留疑問。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "sj37",
+        "title": "《水經注》卷37・葉榆河、牂柯水等",
+        "url": "https://zh.wikisource.org/wiki/水經注/37",
+        "period": "成書於6世紀；引較早地理記錄",
+        "evidenceScope": "蒼梧廣信及嶺南水路",
+        "caveat": "用於地理和行政沿革，不能代替3世紀船運量統計。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "gov_nanhai",
+        "title": "文史廣東：魏晉南北朝時期的廣州",
+        "url": "https://www.gdwsw.gov.cn/wsbl/content/post_41897.html",
+        "period": "現代政府文史文章，敘217、226等年",
+        "evidenceScope": "番禺郡州治與步騭城",
+        "caveat": "現代綜述作輔證；不直接採用後世廣州海外繁榮程度。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "gov_hepu",
+        "title": "文化和旅遊部：合浦漢代海絲文物",
+        "url": "https://www.mct.gov.cn/wlbphone/wlbydd/xxfb/qglb/gx/202311/t20231103_949504.html",
+        "period": "漢代遺物的現代博物館報導",
+        "evidenceScope": "合浦早期海外交換的考古背景",
+        "caveat": "漢代文物不能精確斷定230–260年的商船數量。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "hhs111",
+        "title": "《後漢書》卷111・郡國志三",
+        "url": "https://zh.wikisource.org/zh-hant/後漢書/卷111",
+        "period": "主體約140；另含後出注文",
+        "evidenceScope": "徐州彭城及泗水地理背景",
+        "caveat": "只作地理背景；不採本卷戶口當作230–260年彭城城市人口。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "pop-SGZ13",
+        "title": "《三國志》卷十三・王肅傳",
+        "url": "https://zh.wikisource.org/zh-hant/三國志/卷13",
+        "provenance": "王肅諫宮室疏保存在原傳；原傳明繫景初間。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "pop-SGZ33",
+        "title": "《三國志》卷三十三・後主傳",
+        "url": "https://zh.wikisource.org/zh-hant/三國志/卷33",
+        "provenance": "建興十四年成都遷入四百餘戶及蜀漢中央活動。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "pop-SGZ65",
+        "title": "《三國志》卷六十五・賀邵傳",
+        "url": "https://zh.wikisource.org/zh-hant/三國志/卷65",
+        "provenance": "賀邵出任吳郡太守在孫休時；沒有給出精確任年及城市戶口。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "pop-JS01",
+        "title": "《晉書》卷一・宣帝紀",
+        "url": "https://zh.wikisource.org/zh-hant/晉書/卷001",
+        "provenance": "唐修正史追述司馬懿事；青龍三年段記長安粟輸京師，數字不等於人口。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "pop-TPYL815",
+        "title": "《太平御覽》卷八一五・錦",
+        "url": "https://zh.wikisource.org/zh-hant/太平御覽/0815",
+        "provenance": "北宋類書轉引《諸葛亮集》《丹陽記》等早書；可以核引文保存鏈，原篇及確切年月未詳。",
+        "accessedOn": "2026-10-19"
+      },
+      {
+        "id": "pop-ZZTJ73",
+        "title": "《資治通鑑》卷七十三・魏紀五",
+        "url": "https://zh.wikisource.org/zh-hant/資治通鑑/卷073",
+        "provenance": "北宋編年史；將王肅宮室疏安排在青龍三年235年，與原傳景初間不同。",
+        "accessedOn": "2026-10-19"
+      }
+    ],
+    "notes": [
+      "保留既有32個id；新增四點合計36。各city的citations已展開短標題及直接URL，可單獨顯示。",
+      "北平是右北平郡域候選節點，絕不可當作後世北京名稱與薊城重疊；應核對現有地圖座標。",
+      "北海、吳郡、會稽、長沙、零陵、武陵、漢中、天水、建寧、南海、交趾等標籤含郡域意義，應顯示representativeSeat與nodeScope。",
+      "古武昌在今鄂州一帶，與現代武漢武昌區需區分；江州是巴郡江州，並非晉代江州州域。",
+      "永安宮、魚復與白帝城不能不加區別地縮成同一城牆；合肥也須提示舊城與新城防區。",
+      "廣信與龍編等精確城址、建寧治所沿革有疑問，這份檔案不提供未核實座標。",
+      "請顯示『約230–260年相對遊戲指數』，並保留逐城uncertainty；不宜把score稱為歷史統計或考古測量值。",
+      "沒有可同口徑比較的230–260年單城人口表。人口項依都城官署、軍市、移民或編戶記載、產業及供養腹地作定性代理，不填造城市人口，不以140年郡人口或263/280年國家總人口換算。",
+      "依使用者要求將洛陽、成都、建業、長安列四大核心城並放大分層。四城優先是遊戲設計設定，不等於史料已證明四城人口必占前四；尤其長安與鄴、吳縣的確切人口高低無法確定。"
+    ],
+    "populationComparability": {
+      "foundComparableUrbanCensuses": false,
+      "qualification": "本次核讀下列原典，未找到六城在230–260年間同年、同邊界、同戶口定義的城內常住人口普查。這是本次研究結果，不是宣稱所有傳世及出土材料均無任何城市人口線索。",
+      "urbanPopulationValues": null,
+      "mainReasons": [
+        "郡、尹、縣常包含鄉里農村，不能直接換成城牆內居民。",
+        "遷入若干戶、工程役夫、駐軍、宮人及糧穀運量，均不等於城市總人口。",
+        "《三國志》記載的同一事件也可能與後出編年書存在繫年差異。",
+        "《華陽國志》及類書引文保留重要生產地理，但常兼有漢、蜀、晉時層，不能一律定為230年的現況。"
+      ],
+      "rankingConclusion": "洛陽、成都、建業具有國都及中央資源集聚的強證；長安具有西線軍政、軍市與關中供應的強證。將四城列為遊戲高組可以作為有史料支撐的設計選擇，但不能宣稱已證明它們恰為當時城內人口前四，尤其不能證明長安人口必高於鄴或吳縣。"
+    },
+    "excludedPopulationNumbers": [
+      {
+        "item": "140年《後漢書》郡國志戶口",
+        "whyExcluded": "是早約一世紀的郡國行政戶口，不是230–260年單城城內人口。包括河南尹、京兆、蜀郡、丹陽、吳郡等皆須如此區分。"
+      },
+      {
+        "item": "263年蜀亡時的舉國戶口",
+        "whyExcluded": "是蜀漢國家清冊，且超出比較窗；不得將94萬口或其他國家總數標在成都。",
+        "url": "https://zh.wikisource.org/zh-hant/三國志/卷33"
+      },
+      {
+        "item": "280年吳亡時的舉國戶口",
+        "whyExcluded": "是整個吳國的降服疆域統計，且晚於比較窗；不得標成建業人口。"
+      },
+      {
+        "item": "《華陽國志》成都縣漢戶七萬、晉三萬七千",
+        "whyExcluded": "原文分漢、晉，並列十二鄉、五部尉，屬縣域戶數；不是230年城牆內37,000戶，更不是37,000人。",
+        "url": "https://zh.wikisource.org/zh-hant/華陽國志/卷三"
+      },
+      {
+        "item": "諸葛亮成都桑八百株、薄田十五頃",
+        "whyExcluded": "是一戶家產，不是成都全城桑田規模；可作桑田存在的旁證，不能用於量化城市總產值。",
+        "url": "https://zh.wikisource.org/zh-hant/三國志/卷35"
+      },
+      {
+        "item": "洛陽三四萬役夫、建業周邊三萬作士、成都四百餘遷入戶、鄴數萬送入人口、長安五百萬斛",
+        "whyExcluded": "分別是勞役、一次移民、跨年遷移或糧穀數量，口徑完全不同，不可排成城市人口表。"
+      }
+    ],
+    "updatedOn": "2026-10-19",
+    "warning": "依史料設計的相對遊戲指數，不是古代統計；不將東漢全郡人口當作三國單城人口。"
+  },
+  "historyProfiles": {
+    "luoyang": {
+      "name": "洛陽",
+      "score": 98,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 35
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 30
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 15
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 15
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年仍是曹魏朝廷與中央官署核心，明帝宮室建設帶動資源集中；河南尹的農政亦見記載。惟249年政變與260年弒帝，使高行政地位不能直接換成同等民生安定。",
+      "uncertainty": "宮殿工程代表國家徵發能力，並非居民普遍富裕；交通、產業與聚落分為定性估讀。",
+      "seat": "洛陽",
+      "region": "中原",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz03",
+          "title": "《三國志》卷3・明帝紀",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷03"
+        },
+        {
+          "sourceId": "sgz04",
+          "title": "《三國志》卷4・三少帝紀",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷04"
+        },
+        {
+          "sourceId": "sgz15",
+          "title": "《三國志》卷15・劉馥、梁習、張既等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷15"
+        },
+        {
+          "sourceId": "pop-SGZ13",
+          "title": "《三國志》卷十三・王肅傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷13"
+        },
+        {
+          "sourceId": "pop-JS01",
+          "title": "《晉書》卷一・宣帝紀",
+          "url": "https://zh.wikisource.org/zh-hant/晉書/卷001"
+        }
+      ],
+      "facts": [
+        "明帝紀記洛陽宮與宗廟營造。",
+        "三少帝紀記249年曹爽被誅及260年曹髦遇害。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 90,
+        "max": 100,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。",
+        "依使用者要求將洛陽、成都、建業、長安列四大核心城並放大分層。四城優先是遊戲設計設定，不等於史料已證明四城人口必占前四；尤其長安與鄴、吳縣的確切人口高低無法確定。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": true,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "中央宮廷與官署、集中勞役及跨區糧食供應共同支持洛陽高等級。大型工程同時耗農失業，應把資源集聚與居民安定分開評估。",
+        "evidence": [
+          {
+            "id": "luoyang-imperial-concentration",
+            "title": "國家宗廟集中於洛陽",
+            "sourceId": "SGZ03",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷03",
+            "locator": "太和三年冬，洛陽宗廟成、迎鄴神主段",
+            "date": "229年，緊鄰比較窗的制度背景",
+            "scope": "洛陽中央禮制與宮廷機構",
+            "excerpt": "洛陽宗廟未成，神主在鄴廟",
+            "supports": "229年底將鄴所存帝室神主迎至洛陽，支持230年代洛陽作為中央都城的制度集聚。",
+            "doesNotSupport": "禮制中心不能直接換算居民數；宗廟遷移也不證明鄴經濟隨即衰退。",
+            "uncertainty": "是行政地位證據，不是市場或人口統計。"
+          },
+          {
+            "id": "luoyang-palace-labor",
+            "title": "王肅疏所見三四萬役夫",
+            "sourceId": "SGZ13",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷13",
+            "locator": "王肅傳，後肅以常侍領祕書監之後的諫宮室疏",
+            "date": "原傳作景初間，237–239年；《通鑑》卷73將此疏繫235年，存在編年差異",
+            "scope": "魏明帝宮室工程及被徵調勞力；洛陽為疏中核心場景，不能排除相關工程群",
+            "excerpt": "今見作者三四萬人",
+            "numbers": [
+              {
+                "min": 30000,
+                "max": 40000,
+                "unit": "人",
+                "meaning": "正在服役的工程勞力",
+                "isUrbanPopulation": false
+              },
+              {
+                "value": 10000,
+                "unit": "人",
+                "meaning": "王肅建議保留並輪替的役夫額度",
+                "isUrbanPopulation": false
+              },
+              {
+                "value": 3600000,
+                "unit": "夫",
+                "meaning": "一萬人按全年累計的勞動量，應理解為工日量，非360萬名不同居民",
+                "isUrbanPopulation": false
+              }
+            ],
+            "supports": "都城工程可集中大批人力與供給，並造成種穀者寡、食穀者眾的資源壓力。",
+            "doesNotSupport": "役夫包括徵發及輪役人口；不得將3–4萬當作洛陽全部居民、最低居民數或永久移民。",
+            "uncertainty": "原傳與《通鑑》繫年不同；諫疏旨在減役，數量是當事人政策陳述而非城市戶籍表。",
+            "crossReferenceUrl": "https://zh.wikisource.org/zh-hant/資治通鑑/卷073"
+          },
+          {
+            "id": "luoyang-central-grain-demand",
+            "title": "京師接受關中糧穀",
+            "sourceId": "JS01",
+            "url": "https://zh.wikisource.org/zh-hant/晉書/卷001",
+            "locator": "青龍三年關東饑段；參見長安長安糧穀輸京師證據",
+            "date": "按本紀編排為235年",
+            "scope": "京師洛陽接受國家糧穀輸送；不是洛陽每戶用糧調查",
+            "excerpt": "關東饑；輸於京師",
+            "supports": "中央都城是跨區徵集與供應的目的地，能支持行政及物流高權重。河南農政另見《三國志》卷15劉靖傳。",
+            "doesNotSupport": "不能由一筆救饑輸糧推算城內人口或判斷所有居民富裕；也不宜把外來供給完全算成本地產出。",
+            "uncertainty": "與長安一項是同一事件，不是兩份互相獨立的統計證據。"
+          }
+        ],
+        "backgroundOnly": ""
+      }
+    },
+    "changan": {
+      "name": "長安",
+      "score": 92,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 32
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 28
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 14
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 14
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 4
+        }
+      ],
+      "rationale": "約230至260年是魏在關中的軍政與補給中心，曹真由此出兵，京兆亦有整治阡陌、農桑的記錄。秦嶺通道提高交通地位，但西線戰事與徵輸壓力限制了它恢復漢代盛況的判斷。",
+      "uncertainty": "京兆農政是郡域資料；不將漢代都城規模或現代西安人口帶入本期。",
+      "seat": "長安",
+      "region": "關隴",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz09",
+          "title": "《三國志》卷9・曹真等傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷09"
+        },
+        {
+          "sourceId": "sgz16",
+          "title": "《三國志》卷16・任峻、蘇則、倉慈等傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷16"
+        },
+        {
+          "sourceId": "sgz03",
+          "title": "《三國志》卷3・明帝紀",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷03"
+        },
+        {
+          "sourceId": "pop-JS01",
+          "title": "《晉書》卷一・宣帝紀",
+          "url": "https://zh.wikisource.org/zh-hant/晉書/卷001"
+        }
+      ],
+      "facts": [
+        "230年曹真從長安出子午道。",
+        "倉慈傳注所引魏略記顏斐在京兆整阡陌、樹桑果。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 84,
+        "max": 100,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。",
+        "依使用者要求將洛陽、成都、建業、長安列四大核心城並放大分層。四城優先是遊戲設計設定，不等於史料已證明四城人口必占前四；尤其長安與鄴、吳縣的確切人口高低無法確定。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": true,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "軍市、京兆農桑整頓與外輸糧穀可支持西部大城及軍需樞紐。京兆全郡富庶不等於長安城內富庶；史料仍不能給出與鄴、吳縣直接互比的人口。",
+        "evidence": [
+          {
+            "id": "changan-market",
+            "title": "青龍年間長安軍市",
+            "sourceId": "SGZ16",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷16",
+            "locator": "倉慈傳末，裴注引《魏略》顏斐事：至青龍中段",
+            "date": "青龍中，約233–237年；無確切年",
+            "scope": "長安軍市及縣民，直接涉及城市市場與軍民關係",
+            "excerpt": "司馬宣王在長安立軍市",
+            "supports": "長安存在受軍方管理的交易場所，且有軍士與縣民交易、侵侮及整飭秩序的記述。",
+            "doesNotSupport": "沒有市場戶數、成交額、城內人口，亦不能把駐軍直接列為永久市民。",
+            "uncertainty": "《魏略》經裴注保存；人物治理敘述有褒揚性，軍市規模不明。"
+          },
+          {
+            "id": "changan-jingzhao-production",
+            "title": "顏斐整頓京兆農桑及車牛",
+            "sourceId": "SGZ16",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷16",
+            "locator": "同上顏斐事，始京兆從馬超破後段",
+            "date": "黃初初之後至青龍間，約220年代至230年代；就任及改革未記確年",
+            "scope": "京兆郡屬縣及農村，非僅長安城內",
+            "excerpt": "整阡陌，樹桑果；豐富常為雍州十郡最",
+            "supports": "關中戰亂後的農桑、運輸工具及耕牛恢復，提供長安周邊供應能力的依據。",
+            "doesNotSupport": "十郡最是敘事性相對評語，不是十座城市的人口或產值排行。",
+            "uncertainty": "不能將對一二年間家家有車牛的褒政敘述視為逐戶調查；勿給城市人口推算。"
+          },
+          {
+            "id": "changan-grain-transfer",
+            "title": "長安糧穀輸京師",
+            "sourceId": "JS01",
+            "url": "https://zh.wikisource.org/zh-hant/晉書/卷001",
+            "locator": "青龍三年段，苻雙、強端來降之後、四年獲白鹿之前",
+            "date": "按本紀編排為青龍三年235年",
+            "scope": "以長安名義記錄的糧穀集散與向京師的國家運輸",
+            "excerpt": "運長安粟五百萬斛輸於京師",
+            "numbers": [
+              {
+                "value": 5000000,
+                "unit": "斛",
+                "meaning": "記載的穀物運量",
+                "isUrbanPopulation": false
+              }
+            ],
+            "supports": "長安可作為關中糧儲及跨區輸送節點；司馬懿西屯長安、督雍梁諸軍的同卷記載亦支持其西線中心地位。",
+            "doesNotSupport": "不能把斛換成人口；長安粟可能包含區域徵集的庫糧，不表示全由城內生產或全為剩餘商品。",
+            "uncertainty": "後出《晉書》的大額敘事性數字，宜保留原單位，不作人口反推。"
+          }
+        ],
+        "backgroundOnly": "《三國志》卷15張既傳記215年後拔漢中民數萬戶以實長安及三輔；這是較早的區域移民，不是230–260長安總戶口。"
+      }
+    },
+    "xuchang": {
+      "name": "許昌",
+      "score": 76,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 26
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 23
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 13
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 11
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年的許昌已非皇帝常駐首都，但明帝仍多次巡幸並增建宮殿，延續陪都與潁川腹地的供應需求。分數保留行政和農業支撐，未沿用漢獻帝遷許時的最高政治地位。",
+      "uncertainty": "宮廷巡幸有直接記載；屯田制度較早，不能當作本期逐年農產統計。",
+      "seat": "許昌",
+      "region": "中原",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz03",
+          "title": "《三國志》卷3・明帝紀",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷03"
+        },
+        {
+          "sourceId": "sgz16",
+          "title": "《三國志》卷16・任峻、蘇則、倉慈等傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷16"
+        }
+      ],
+      "facts": [
+        "230及232年明帝幸許昌宮；232年修宮、起景福承光殿。",
+        "任峻傳記曹氏屯田及糧運制度形成。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 68,
+        "max": 84,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "ye": {
+      "name": "鄴城",
+      "score": 82,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 29
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 25
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 13
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 11
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 4
+        }
+      ],
+      "rationale": "約230至260年鄴仍保有曹氏宗廟、宮室與河北行政網絡，但中央決策已在洛陽。明帝迎鄴廟神主入洛，顯示其地位轉變；本分重河北供應與既有城邑支撐，不把曹操時期霸府直接延伸。",
+      "uncertainty": "部分河渠與宮室證據早於230年；城內商業規模未有可直接比較的同期數字。",
+      "seat": "鄴",
+      "region": "河北",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz03",
+          "title": "《三國志》卷3・明帝紀",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷03"
+        },
+        {
+          "sourceId": "sgz15",
+          "title": "《三國志》卷15・劉馥、梁習、張既等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷15"
+        },
+        {
+          "sourceId": "pop-SGZ16",
+          "title": "《三國志》卷十六・鄭渾傳、倉慈傳末裴注引《魏略》顏斐事",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷16"
+        }
+      ],
+      "facts": [
+        "229年神主由鄴廟迎至洛陽新廟。",
+        "梁習傳記向鄴遷戶及供鄴宮室的較早背景。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 74,
+        "max": 90,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "鄴有早期大規模移民與魏郡農業整頓的基礎，229年後雖中央宗廟移洛陽，並不代表城市經濟失去支撐。缺少同期城市總人口，應保留較強區域中心定位。",
+        "evidence": [
+          {
+            "id": "ye-early-migration",
+            "title": "梁習前後送鄴數萬口",
+            "sourceId": "SGZ15",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷15",
+            "locator": "梁習傳，初領并州刺史、建安十八年改任之前",
+            "date": "約206–213年，早於比較窗的集聚背景",
+            "scope": "并州軍士家屬遷往鄴；未明定城牆內安置",
+            "excerpt": "前後送鄴，凡數萬口",
+            "numbers": [
+              {
+                "original": "數萬口",
+                "unit": "口",
+                "meaning": "若干年累計送往鄴的人口，未提供精確值",
+                "isUrbanPopulation": false
+              }
+            ],
+            "supports": "鄴曾受國家移民政策支持，具人口集聚的形成基礎。",
+            "doesNotSupport": "數萬是累計遷入量，不是鄴總人口；強制移徙不能直接等同生活富裕。",
+            "uncertainty": "時間較早，三十餘年後的存留、流動及城內比例未知。"
+          },
+          {
+            "id": "ye-weijun-production",
+            "title": "鄭渾治理魏郡的村落生產",
+            "sourceId": "SGZ16",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷16",
+            "locator": "鄭渾傳，文帝即位後歷任郡守、明帝稱述之前",
+            "date": "220年後、239年前；魏郡太守任年未明",
+            "scope": "魏郡村落及果木種植，非鄴城內工商人口",
+            "excerpt": "村落齊整如一，民得財足用饒",
+            "supports": "魏郡有農林生產與較充足生活資源的記載，可支撐鄴周邊腹地較高評價。",
+            "doesNotSupport": "不能把郡域褒政詞直接轉成鄴城市人口、產值或與其他郡的可比統計。",
+            "uncertainty": "名守傳的褒揚敘事，未附普查數字；年代只有上下限。"
+          },
+          {
+            "id": "ye-capital-function-change",
+            "title": "229年鄴廟神主迎至洛陽",
+            "sourceId": "SGZ03",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷03",
+            "locator": "太和三年十一月至十二月",
+            "date": "229年，230–260比較窗的制度背景",
+            "scope": "帝室禮制中心的轉移，非市井或地方戶口",
+            "excerpt": "迎高皇帝、太皇帝、武帝、文帝神主于鄴",
+            "supports": "洛陽的中央政治權重可高於鄴；鄴仍具有較早國都建設及聚集的人口資源背景。",
+            "doesNotSupport": "不能由神主移出推論鄴人口驟降、商業崩潰或低於長安。",
+            "uncertainty": "與洛陽同一事件的反向觀察，不是獨立經濟統計。"
+          }
+        ],
+        "backgroundOnly": ""
+      }
+    },
+    "jinyang": {
+      "name": "晉陽",
+      "score": 51,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 18
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 16
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 7
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 7
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年晉陽按并州核心節點估分，梁習任內安集編戶、勸農桑，形成較前期戰亂穩定的基礎。然233年并州邊部仍有叛亂，州域恢復的成果不可全部視為晉陽城內繁榮。",
+      "uncertainty": "梁習228年已離任；農桑為并州範圍，晉陽治所背景另據較早郡國志。",
+      "seat": "晉陽",
+      "region": "河北",
+      "nodeScope": "city_and_regional_proxy",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz15",
+          "title": "《三國志》卷15・劉馥、梁習、張既等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷15"
+        },
+        {
+          "sourceId": "sgz03",
+          "title": "《三國志》卷3・明帝紀",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷03"
+        },
+        {
+          "sourceId": "hhs113",
+          "title": "《後漢書》卷113・郡國志五",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113"
+        }
+      ],
+      "facts": [
+        "梁習在并州二十餘年，至228年徵還。",
+        "233年步度根部落叛出塞、魏軍出討。"
+      ],
+      "evidencePeriod": "約220–260年，230前治理作背景",
+      "suggestedEditableBand": {
+        "min": 43,
+        "max": 59,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "ji": {
+      "name": "薊城",
+      "score": 62,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 21
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 19
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 9
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年薊是幽州軍政節點；劉靖在魏後期修戾陵渠，灌溉薊南北並推進稻作，提供實際生產證據。邊塞交往增加交通價值，同時帶來軍役與安全成本，不能只按州治名位評高分。",
+      "uncertainty": "水利利益及於薊周邊而非全在城內；商貿分包含對北方交通位置的推估。",
+      "seat": "薊",
+      "region": "幽遼",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz15",
+          "title": "《三國志》卷15・劉馥、梁習、張既等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷15"
+        },
+        {
+          "sourceId": "hhs113",
+          "title": "《後漢書》卷113・郡國志五",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113"
+        },
+        {
+          "sourceId": "sgz26",
+          "title": "《三國志》卷26・滿寵、田豫等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷26"
+        }
+      ],
+      "facts": [
+        "劉靖傳記修渠灌溉薊南北，劉靖254年卒。",
+        "郡國志載薊為刺史治。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 54,
+        "max": 70,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "beiping": {
+      "name": "北平",
+      "score": 28,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 8
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 8
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 4
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 6
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 2
+        }
+      ],
+      "rationale": "約230至260年以右北平郡域中心作東北通道節點，保留郡政與邊地往來的功能。由於缺乏這三十年間土垠城市經濟的直接描寫，五項採保守中低值；此點不能與薊城合併或借用後世北平聲勢。",
+      "uncertainty": "高不確定性：名單中的北平須確認指右北平，而非後世北京名稱；230–260城址及城市經濟資料不足。",
+      "seat": "右北平郡域，漢治土垠；本期具體城址待考",
+      "region": "幽遼",
+      "nodeScope": "commandery_proxy",
+      "confidence": "low",
+      "evidence": [
+        {
+          "sourceId": "hhs113",
+          "title": "《後漢書》卷113・郡國志五",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113"
+        },
+        {
+          "sourceId": "sgz26",
+          "title": "《三國志》卷26・滿寵、田豫等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷26"
+        }
+      ],
+      "facts": [
+        "郡國志把右北平與廣陽薊分列，右北平首縣為土垠。",
+        "田豫傳反映魏初幽州邊防與部族往來，屬區域背景。"
+      ],
+      "evidencePeriod": "約140治所背景＋魏初邊務；230–260城市資料有缺口",
+      "suggestedEditableBand": {
+        "min": 20,
+        "max": 36,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "beihai": {
+      "name": "北海",
+      "score": 60,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 22
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 19
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 7
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 9
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年北海是青州郡國節點，魏明帝時仍見北海王封號，並承接較早的屬縣網絡。評分重山東腹地農業與城邑連結，但缺少同期城市市場細節，不借孔融時的名聲或郡域戶口充當城內繁華。",
+      "uncertainty": "高不確定性：北海是郡國名，非單一固定城址；劇與平壽的本期治所沿革需另校，農業分為腹地估讀。",
+      "seat": "北海郡國節點；劇、平壽等治所沿革待考",
+      "region": "青徐",
+      "nodeScope": "commandery_proxy",
+      "confidence": "low",
+      "evidence": [
+        {
+          "sourceId": "sgz20",
+          "title": "《三國志》卷20・武文世王公傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷20"
+        },
+        {
+          "sourceId": "sgz03",
+          "title": "《三國志》卷3・明帝紀",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷03"
+        },
+        {
+          "sourceId": "hhs112",
+          "title": "《後漢書》卷112・郡國志四",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷112"
+        }
+      ],
+      "facts": [
+        "曹蕤太和六年改封北海王，233年卒。",
+        "郡國志北海縣目分列劇、平壽等。"
+      ],
+      "evidencePeriod": "約232–233封國記事＋較早行政地理背景",
+      "suggestedEditableBand": {
+        "min": 52,
+        "max": 68,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "c21": {
+      "name": "彭城",
+      "score": 67,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 23
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 21
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 9
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 11
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年彭城仍居徐州內陸交通要地，232年曹據復封彭城，提供本期行政角色的直接線索。分數保留泗水通道及周邊縣邑支撐，政治分低於都督大鎮，亦不把王國食邑戶數當作城市人口。",
+      "uncertainty": "封國不等於王本人全期居城；水運與農業分以地理條件估讀，無同期商稅總額。",
+      "seat": "彭城",
+      "region": "青徐",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz20",
+          "title": "《三國志》卷20・武文世王公傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷20"
+        },
+        {
+          "sourceId": "hhs111",
+          "title": "《後漢書》卷111・郡國志三",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷111"
+        }
+      ],
+      "facts": [
+        "232年曹據復封彭城王。"
+      ],
+      "evidencePeriod": "232年起封國記事；交通位置作地理估讀",
+      "suggestedEditableBand": {
+        "min": 59,
+        "max": 75,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "shouchun": {
+      "name": "壽春",
+      "score": 54,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 18
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 17
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 8
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 1
+        }
+      ],
+      "rationale": "約230至260年壽春是魏在淮南的大鎮，軍政集中及淮河交通使其地位甚高；但251、255與257至258年的叛亂及長期圍城，嚴重削弱民生安定。故政治交通仍高，戰後穩定度明顯扣分。",
+      "uncertainty": "這是整段時期的結構性綜合，特別納入末段戰禍；不是聲稱230年已經遭受257年圍城。",
+      "seat": "壽春",
+      "region": "淮南",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz28",
+          "title": "《三國志》卷28・毌丘儉、諸葛誕等傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷28"
+        }
+      ],
+      "facts": [
+        "王凌、毌丘儉文欽及諸葛誕三次淮南反抗。",
+        "諸葛誕257年五月起兵，258年二月城破。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 46,
+        "max": 62,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "hefei": {
+      "name": "合肥",
+      "score": 39,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 11
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 10
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 7
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 1
+        }
+      ],
+      "rationale": "約230至260年合肥以魏吳爭奪的防區為主，滿寵主張把兵力移至遠水新城，降低吳軍舟運優勢。較早屯田水利提供補給基礎，但多次攻圍使民生恢復受限，因此軍事重要性沒有直接加成為繁華。",
+      "uncertainty": "舊城與新城不能混成同一城址；230與233年新城記事存在來源層次差異，本文不強定單一完工年。",
+      "seat": "合肥舊城及新城防區",
+      "region": "淮南",
+      "nodeScope": "fortified_district",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz26",
+          "title": "《三國志》卷26・滿寵、田豫等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷26"
+        },
+        {
+          "sourceId": "sgz15",
+          "title": "《三國志》卷15・劉馥、梁習、張既等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷15"
+        },
+        {
+          "sourceId": "sgz47",
+          "title": "《三國志》卷47・吳主傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷47"
+        }
+      ],
+      "facts": [
+        "滿寵傳青龍元年移城議，次年吳軍攻新城。",
+        "劉馥傳記早期屯田及陂塘水利的延續作用。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 31,
+        "max": 47,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "jianye": {
+      "name": "建業",
+      "score": 95,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 34
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 28
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 15
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 15
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年建業承接229年定都後的朝廷、官署與長江物資集散，政治及交通皆居吳國最高層級。惟宮室工程、二宮爭議與252年後權臣更替增加徵發和動盪，繁榮不能等同宮廷奢華。",
+      "uncertainty": "城市產值與人口沒有同期可比較數據；產業與聚落分是對首都供應網絡的定性估讀。",
+      "seat": "建業",
+      "region": "江東",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz47",
+          "title": "《三國志》卷47・吳主傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷47"
+        },
+        {
+          "sourceId": "sgz48",
+          "title": "《三國志》卷48・三嗣主傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷48"
+        }
+      ],
+      "facts": [
+        "229年孫權遷都建業。",
+        "252年後諸葛恪、孫峻、孫綝相繼掌權並發生宮廷流血。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 87,
+        "max": 100,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。",
+        "依使用者要求將洛陽、成都、建業、長安列四大核心城並放大分層。四城優先是遊戲設計設定，不等於史料已證明四城人口必占前四；尤其長安與鄴、吳縣的確切人口高低無法確定。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": true,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "229年遷都、245年句容水道與邸閣工程、247年宮室修建，構成首都與物流網絡的連續證據。工程徵發也反映農桑負擔，不能只當作富庶指標。",
+        "evidence": [
+          {
+            "id": "jianye-capital-229",
+            "title": "229年孫權遷都建業",
+            "sourceId": "SGZ47",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷47",
+            "locator": "黃龍元年秋九月",
+            "date": "229年，230–260國都格局的直接背景",
+            "scope": "吳國都城與中央政治機構",
+            "excerpt": "權遷都建業",
+            "supports": "建業是230–260年吳國中央行政、宮廷及政治人員集中的都城。",
+            "doesNotSupport": "遷都未附城內戶口；不能據此設定精確移民數或斷定人口必居全國第一。",
+            "uncertainty": "首都職能的證據很強，居民數及城界則未交代。"
+          },
+          {
+            "id": "jianye-jurong-channel-245",
+            "title": "245年句容水道、會市及邸閣",
+            "sourceId": "SGZ47",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷47",
+            "locator": "赤烏八年八月，陳勳工程",
+            "date": "245年",
+            "scope": "句容至雲陽的區域水運設施，屬首都東方供應腹地，非建業城內工程",
+            "excerpt": "將屯田及作士三萬人鑿句容中道；通會市，作邸閣",
+            "numbers": [
+              {
+                "value": 30000,
+                "unit": "人",
+                "meaning": "被調遣的屯田及作士工程勞力",
+                "isUrbanPopulation": false
+              }
+            ],
+            "supports": "首都周邊水運、市場聯繫及倉儲有國家投資；工程規模有原文數字。",
+            "doesNotSupport": "3萬人不是建業市民；不能將整段水道及沿線產出完全歸入城內。",
+            "uncertainty": "具體古河道、會市位置與工程受益範圍須另作地理核對，本研究不把整條線畫作精確古運河。"
+          },
+          {
+            "id": "jianye-palace-materials-247",
+            "title": "247年太初宮改作與武昌宮材",
+            "sourceId": "SGZ47",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷47",
+            "locator": "赤烏十年三月，並裴注引《江表傳》孫權詔",
+            "date": "247年開始；248年三月宮成",
+            "scope": "建業中央宮室與武昌材料調運",
+            "excerpt": "可徙武昌宮材瓦，更繕治之",
+            "supports": "宮廷建設與跨區運材顯示首都消費及工匠動員；也有重用既有材料、減輕農桑負擔的政策考量。",
+            "doesNotSupport": "宮殿不等於民間普遍富裕，工程役夫也不等於自由城市就業人口。",
+            "uncertainty": "部分話語來自裴注所引《江表傳》，有君主節儉形象的敘事作用。"
+          }
+        ],
+        "backgroundOnly": ""
+      }
+    },
+    "wujun": {
+      "name": "吳郡",
+      "score": 84,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 30
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 28
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 11
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 11
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 4
+        }
+      ],
+      "rationale": "約230至260年以吳縣代表吳郡核心，陸遜傳所見吳、會稽、丹楊編戶整頓與屯田，反映江東供給網絡。分數重水路和區域農業組織，不把後世蘇州工商盛況或整郡人口套到這座治所。",
+      "uncertainty": "吳郡是行政區標籤；大部分農業與編戶證據及於多縣，吳城的手工業分帶有較大推估。",
+      "seat": "吳縣",
+      "region": "江東",
+      "nodeScope": "administrative_seat_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz58",
+          "title": "《三國志》卷58・陸遜傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷58"
+        },
+        {
+          "sourceId": "hhs112",
+          "title": "《後漢書》卷112・郡國志四",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷112"
+        },
+        {
+          "sourceId": "pop-SGZ65",
+          "title": "《三國志》卷六十五・賀邵傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷65"
+        }
+      ],
+      "facts": [
+        "陸遜傳記海昌屯田及吳、會稽、丹楊的編戶治理。",
+        "郡國志列吳為吳郡首縣。"
+      ],
+      "evidencePeriod": "吳政權前中期背景，評估230–260供應地位",
+      "suggestedEditableBand": {
+        "min": 76,
+        "max": 92,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "吳縣為吳郡治所及江東大族所在，區域農桑與編戶基礎不容低估。但目前核到的農業詳證多在建安，230–260年吳縣城內產量、人口仍不足以與四城作量化比較。",
+        "evidence": [
+          {
+            "id": "wu-commandery-administration",
+            "title": "孫休時賀邵任吳郡太守",
+            "sourceId": "SGZ65",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷65",
+            "locator": "賀邵傳首段",
+            "date": "孫休在位258–264年間；任命確年不明，可能部分在260年之後",
+            "scope": "吳郡行政機構，非吳縣城市戶籍",
+            "excerpt": "孫休即位；出為吳郡太守",
+            "supports": "吳郡持續為正式郡級行政中心；可支持地方行政角色。",
+            "doesNotSupport": "這不是繁榮或人口的直接量度，不足以單獨把吳縣評成低分或高分。",
+            "uncertainty": "只有任職時段，沒有同時期城市生產或人口統計；此證用途限於行政角色。"
+          },
+          {
+            "id": "wu-agricultural-household-background",
+            "title": "陸遜所見海昌農桑及東三郡編戶",
+            "sourceId": "SGZ58",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷58",
+            "locator": "陸遜傳前段，海昌屯田都尉及部伍東三郡",
+            "date": "主要為建安年間、219年前，早於230–260比較窗，僅形成背景",
+            "scope": "海昌縣及吳、會稽、丹楊三郡；不等於郡治吳縣",
+            "excerpt": "勸督農桑；強者為兵，羸者補戶",
+            "supports": "江東郡域具農桑、倉穀救濟與持續編戶的具體背景，不能因非國都便視為薄弱小城腹地。",
+            "doesNotSupport": "不能把東三郡數萬精卒歸入吳縣人口，亦不能當成230年人口或產量。",
+            "uncertainty": "年代較早且範圍寬，對230–260吳縣單城繁榮只能提供有限背景支持。"
+          }
+        ],
+        "backgroundOnly": ""
+      }
+    },
+    "kuaiji": {
+      "name": "會稽",
+      "score": 74,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 26
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 24
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 4
+        }
+      ],
+      "rationale": "約230至260年以山陰代表會稽郡治，顧雍及後續太守的治理與孫休徙居會稽，顯示其持續行政地位。沿海及浙東水路提升交換潛力，但山區治理與郡內差異，使聚落和穩定分低於吳郡核心。",
+      "uncertainty": "郡治和腹地合評；顧雍事蹟早於230年，孫休徙居屬250年代；未證明全郡均有同等市場發達。",
+      "seat": "山陰",
+      "region": "江東",
+      "nodeScope": "administrative_seat_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz52",
+          "title": "《三國志》卷52・顧雍、步騭傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷52"
+        },
+        {
+          "sourceId": "sgz57",
+          "title": "《三國志》卷57・虞翻、朱據等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷57"
+        },
+        {
+          "sourceId": "sgz48",
+          "title": "《三國志》卷48・三嗣主傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷48"
+        },
+        {
+          "sourceId": "hhs112",
+          "title": "《後漢書》卷112・郡國志四",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷112"
+        }
+      ],
+      "facts": [
+        "顧雍曾行會稽太守事，吾粲亦任會稽太守。",
+        "孫休由丹楊徙會稽後於258年被迎立。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 66,
+        "max": 82,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "chaisang": {
+      "name": "柴桑",
+      "score": 52,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 16
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 16
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 7
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 11
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 2
+        }
+      ],
+      "rationale": "約230至260年柴桑按長江與鄱陽湖通道的節點評分；較早孫權曾屯此，說明軍政交通用途。商貿分是水運位置的估讀，不把赤壁前的軍事名氣當成人口或市場規模，地方生產則採中等保守值。",
+      "uncertainty": "直接屯軍記錄較早；本期商舶、市場及城市規模缺少直載，交通優勢不等於已知貿易量。",
+      "seat": "柴桑",
+      "region": "江東",
+      "nodeScope": "city_and_transport_corridor",
+      "confidence": "low",
+      "evidence": [
+        {
+          "sourceId": "sgz47",
+          "title": "《三國志》卷47・吳主傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷47"
+        },
+        {
+          "sourceId": "hhs112",
+          "title": "《後漢書》卷112・郡國志四",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷112"
+        }
+      ],
+      "facts": [
+        "吳主傳赤壁前記事以柴桑為孫權所在。",
+        "郡國志提供柴桑及周邊郡縣的行政地理背景。"
+      ],
+      "evidencePeriod": "208年前後背景；230–260交通延續為推估",
+      "suggestedEditableBand": {
+        "min": 44,
+        "max": 60,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "c31": {
+      "name": "武昌",
+      "score": 73,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 24
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 23
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 12
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 11
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年武昌雖讓出吳國首都地位，仍由陸遜輔太子留守，後續重臣亦在此協理荊州軍政。長江中游的調兵與物資轉運維持高分，但不能用現代武漢規模或仍為帝都的假設評價。",
+      "uncertainty": "古武昌與現代武漢武昌區不可混同；行政記錄較明確，市場與產業規模仍為推估。",
+      "seat": "孫吳武昌，即今鄂州一帶",
+      "region": "荊楚",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz58",
+          "title": "《三國志》卷58・陸遜傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷58"
+        },
+        {
+          "sourceId": "sgz60",
+          "title": "《三國志》卷60・呂岱等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷60"
+        },
+        {
+          "sourceId": "sgz47",
+          "title": "《三國志》卷47・吳主傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷47"
+        }
+      ],
+      "facts": [
+        "229年陸遜輔太子登、掌武昌留事。",
+        "呂岱代潘濬領荊州文書，與陸遜並在武昌。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 65,
+        "max": 81,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "xiangyang": {
+      "name": "襄陽",
+      "score": 61,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 21
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 18
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 11
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 1
+        }
+      ],
+      "rationale": "約230至260年襄陽是魏控制漢水中游並對吳作戰的要地，水陸匯合支撐軍需與轉運。明帝紀仍見吳軍向襄陽施壓，故保留行政交通優勢，同時扣除長期前線徵發和軍事風險對民生的影響。",
+      "uncertainty": "襄樊兩城與廣義漢水防區須區分；交通、農業分不代表有可核的城市交易量或產量。",
+      "seat": "襄陽",
+      "region": "荊楚",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz03",
+          "title": "《三國志》卷3・明帝紀",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷03"
+        },
+        {
+          "sourceId": "sgz27",
+          "title": "《三國志》卷27・徐邈、王昶等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷27"
+        }
+      ],
+      "facts": [
+        "明帝紀記吳將諸葛瑾等攻襄陽。",
+        "王昶傳記宛距襄陽遠，移治新野以便軍事聯絡。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 53,
+        "max": 69,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "jiangling": {
+      "name": "江陵",
+      "score": 64,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 22
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 21
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 9
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 2
+        }
+      ],
+      "rationale": "約230至260年江陵是孫吳南郡重鎮，連通荊州腹地與長江上游；朱然守備及後來修城，顯示持續軍政投入。王昶於250年前後攻南郡，又使本地難與江東腹地同評安定，故軍政與民生分開處理。",
+      "uncertainty": "軍政防區含南郡與江陵周邊；修城不能直接證明商業成長，亦不援用東漢南郡戶口作城市量。",
+      "seat": "江陵",
+      "region": "荊楚",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz47",
+          "title": "《三國志》卷47・吳主傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷47"
+        },
+        {
+          "sourceId": "sgz27",
+          "title": "《三國志》卷27・徐邈、王昶等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷27"
+        }
+      ],
+      "facts": [
+        "吳主傳記248年朱然城江陵。",
+        "250年魏大將軍王昶圍南郡，王昶傳詳述渡江攻勢。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 56,
+        "max": 72,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "wancheng": {
+      "name": "宛城",
+      "score": 55,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 19
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 17
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 8
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 9
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 2
+        }
+      ],
+      "rationale": "約230至260年宛仍是南陽北部大城與魏荊豫軍政據點，但王昶因距襄陽遠而移治新野，說明其前線調度有侷限。農墾與倉儲成果是二州供應背景，因此不把南陽大郡的早期人口全換算成宛的繁榮。",
+      "uncertainty": "王昶廣農墾殖主要在移治後的二州防區，不能全部歸功於宛；本期城內產業數字不詳。",
+      "seat": "宛",
+      "region": "中原",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz27",
+          "title": "《三國志》卷27・徐邈、王昶等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷27"
+        },
+        {
+          "sourceId": "hhs112",
+          "title": "《後漢書》卷112・郡國志四",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷112"
+        }
+      ],
+      "facts": [
+        "王昶初屯宛，後以距襄陽三百餘里表徙新野。",
+        "郡國志列宛為南陽首縣。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 47,
+        "max": 63,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "changsha": {
+      "name": "長沙",
+      "score": 58,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 20
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 18
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 8
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 9
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年以臨湘代表長沙核心，231年呂岱移屯長沙漚口，顯示其為吳國湘江流域的軍政後方。區域農業與水路供給支持中上分，但漚口駐軍不在臨湘城內，武陵方向動亂亦影響穩定。",
+      "uncertainty": "漚口與臨湘不可混址；農業及聚落分按湘江腹地估讀，非採用140年長沙全郡人口比例。",
+      "seat": "臨湘",
+      "region": "荊楚",
+      "nodeScope": "administrative_seat_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz60",
+          "title": "《三國志》卷60・呂岱等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷60"
+        },
+        {
+          "sourceId": "hhs112",
+          "title": "《後漢書》卷112・郡國志四",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷112"
+        }
+      ],
+      "facts": [
+        "呂岱黃龍三年還屯長沙漚口。",
+        "郡國志長沙首縣為臨湘。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 50,
+        "max": 66,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "lingling": {
+      "name": "零陵",
+      "score": 42,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 14
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 14
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 5
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 6
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年以泉陵代表零陵郡政節點，原典保留徐陵任太守與屬縣沿革，確有行政腹地。同期城市產業缺少直載，故以湘南農業和水路連結作保守估讀，沒有按郡域人口把泉陵當成巨型城市。",
+      "uncertainty": "徐陵任官時間未明確繫年；農業、商貿和穩定分的城市層證據弱，應保留較大的可調範圍。",
+      "seat": "泉陵",
+      "region": "荊楚",
+      "nodeScope": "administrative_seat_and_hinterland",
+      "confidence": "low",
+      "evidence": [
+        {
+          "sourceId": "sgz57",
+          "title": "《三國志》卷57・虞翻、朱據等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷57"
+        },
+        {
+          "sourceId": "hhs112",
+          "title": "《後漢書》卷112・郡國志四",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷112"
+        }
+      ],
+      "facts": [
+        "虞翻傳注引《會稽典錄》提及徐陵遷零陵太守，未精確繫年。",
+        "郡國志零陵首縣為泉陵。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 34,
+        "max": 50,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "wuling": {
+      "name": "武陵",
+      "score": 37,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 11
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 12
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 5
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 7
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 2
+        }
+      ],
+      "rationale": "約230至260年以臨沅代表武陵郡，吳國需持續經營五谿等腹地，潘濬、呂岱的大規模征討表明統治並不平順。水路與地方農業保留基本支撐，但軍事控制成本使穩定和聚落整合分偏低。",
+      "uncertainty": "征討發生於武陵廣域，不能直接說臨沅城被毀；亦不把族群差異本身當作落後或扣分依據。",
+      "seat": "臨沅",
+      "region": "荊楚",
+      "nodeScope": "administrative_seat_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz61",
+          "title": "《三國志》卷61・潘濬、陸凱傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷61"
+        },
+        {
+          "sourceId": "sgz60",
+          "title": "《三國志》卷60・呂岱等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷60"
+        },
+        {
+          "sourceId": "hhs112",
+          "title": "《後漢書》卷112・郡國志四",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷112"
+        }
+      ],
+      "facts": [
+        "黃龍年間潘濬等征武陵，呂岱亦參與。",
+        "郡國志以臨沅列武陵首縣。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 29,
+        "max": 45,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "chengdu": {
+      "name": "成都",
+      "score": 96,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 34
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 29
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 15
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 14
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 4
+        }
+      ],
+      "rationale": "約230至260年成都是蜀漢朝廷與益州行政核心，蜀地水利、農桑和錦業為供應基礎，較少遭外軍直接攻城。惟北伐財政與人力負擔不可忽略，高分表示首都及腹地組織力，不是全體居民富足。",
+      "uncertainty": "錦業與水利材料有跨年代描述；不用263年蜀國總人口作成都人口，也不把263年亡國提前算入穩定分。",
+      "seat": "成都",
+      "region": "巴蜀",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz35",
+          "title": "《三國志》卷35・諸葛亮傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷35"
+        },
+        {
+          "sourceId": "sgz32",
+          "title": "《三國志》卷32・先主傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷32"
+        },
+        {
+          "sourceId": "hy03",
+          "title": "《華陽國志》卷3・蜀志",
+          "url": "https://zh.wikisource.org/wiki/華陽國志/卷三"
+        },
+        {
+          "sourceId": "pop-SGZ33",
+          "title": "《三國志》卷三十三・後主傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷33"
+        },
+        {
+          "sourceId": "pop-TPYL815",
+          "title": "《太平御覽》卷八一五・錦",
+          "url": "https://zh.wikisource.org/zh-hant/太平御覽/0815"
+        }
+      ],
+      "facts": [
+        "先主221年在成都稱帝，後主朝廷沿置。",
+        "諸葛亮傳反映蜀漢行政與長期軍需壓力。",
+        "蜀志記成都及蜀地農桑、錦業背景。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 88,
+        "max": 100,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。",
+        "依使用者要求將洛陽、成都、建業、長安列四大核心城並放大分層。四城優先是遊戲設計設定，不等於史料已證明四城人口必占前四；尤其長安與鄴、吳縣的確切人口高低無法確定。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": true,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "成都為蜀漢中央所在，236年有四百餘戶遷入的直接記錄，錦業又與對外交易及國家財政相關。這些能支持高組，但仍無可互比的城內總人口。",
+        "evidence": [
+          {
+            "id": "chengdu-236-migration",
+            "title": "236年四百餘戶遷至成都",
+            "sourceId": "SGZ33",
+            "url": "https://zh.wikisource.org/zh-hant/三國志/卷33",
+            "locator": "建興十四年夏四月；首段另記223年後主襲位於成都",
+            "date": "236年；國都制度背景始於223年後主繼位",
+            "scope": "指定遷入成都的一次移民；史文未劃清城牆內、縣域或近郊安置",
+            "excerpt": "徙武都氐王苻健及氐民四百餘戶於成都",
+            "numbers": [
+              {
+                "lowerBoundExclusive": 400,
+                "unit": "戶",
+                "meaning": "一次遷入的氐民戶數",
+                "isUrbanPopulation": false
+              }
+            ],
+            "supports": "有當期國家安排人口向成都集聚的直接史證，並與中央政治活動相連。",
+            "doesNotSupport": "400餘戶不是成都總戶口；不得乘固定戶均人口後稱作城市普查，也不能推定全部安置在城內。",
+            "uncertainty": "安置範圍及是否與既有戶籍重疊不明。"
+          },
+          {
+            "id": "chengdu-brocade-finance-trade",
+            "title": "蜀錦的軍國財用與跨國交易",
+            "sourceId": "TPYL815",
+            "url": "https://zh.wikisource.org/zh-hant/太平御覽/0815",
+            "locator": "布帛部・錦，引《諸葛亮集》及《丹陽記》",
+            "date": "《諸葛亮集》引文歸於諸葛亮時，應在234年前但原篇年月未詳；《丹陽記》是後出追述三國情形；現存轉引載體為北宋類書",
+            "scope": "財政引文論蜀國；《丹陽記》另點名成都錦藝，並論魏吳取得蜀錦",
+            "excerpts": [
+              "決敵之資，惟仰錦耳",
+              "成都獨稱妙；魏則市於蜀，而吳亦資西道"
+            ],
+            "supports": "成都錦藝名聲、蜀錦的高價商品與軍國財源角色，有具體文字依據。",
+            "doesNotSupport": "沒有產量、工人總數、銷售額或人口；蜀國所產之錦不能全算成都城內產量，亦不表示吳境無紡織業。",
+            "uncertainty": "兩段均由同一後出類書保存，不應當作兩套同期獨立統計。丹陽記對江東尚無錦的概括帶時層與文本傳承問題。"
+          },
+          {
+            "id": "chengdu-urban-production-geography",
+            "title": "成都錦官、車官與城市交通地理",
+            "sourceId": "HYG03",
+            "url": "https://zh.wikisource.org/zh-hant/華陽國志/卷三",
+            "locator": "蜀郡，州治大城、郡治少城之後；城南文學及錦官段",
+            "date": "四世紀地方志追述；該段兼有漢、蜀、晉層次，不能定為230年單一年份",
+            "scope": "成都城市及近郊的官營生產、橋梁和道路",
+            "excerpt": "其道西城，故錦官也；西又有車官城",
+            "supports": "有城市層的錦官、車官設施及河橋地理，補足只談蜀國整體錦業的尺度不足。",
+            "doesNotSupport": "不能證明各設施在230–260每一年均同時運作，亦不能推算產值或人口。",
+            "uncertainty": "故錦官是追記；網頁含大量校注，正文所述年代須保留不確定性。"
+          }
+        ],
+        "backgroundOnly": ""
+      }
+    },
+    "hanzhong": {
+      "name": "漢中",
+      "score": 47,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 13
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 14
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 8
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 2
+        }
+      ],
+      "rationale": "約230至260年以南鄭代表漢中軍政中心，北伐集結與糧運使行政價值甚高。244年曹爽來攻而王平拒守，顯示前線風險；秦嶺道路限制運輸，蜀漢門戶的重要性不能直接換成商業盛度。",
+      "uncertainty": "漢中是盆地與郡名，南鄭是代表治所；傳中的軍民數與軍糧不是單城人口或市場統計。",
+      "seat": "南鄭",
+      "region": "巴蜀",
+      "nodeScope": "administrative_seat_and_basin",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz41",
+          "title": "《三國志》卷41・王平等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷41"
+        },
+        {
+          "sourceId": "sgz40",
+          "title": "《三國志》卷40・李嚴等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷40"
+        },
+        {
+          "sourceId": "sgz09",
+          "title": "《三國志》卷9・曹真等傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷09"
+        }
+      ],
+      "facts": [
+        "244年曹爽攻漢中，王平部署防禦。",
+        "李嚴曾奉命向漢中增兵並負擔糧運。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 39,
+        "max": 55,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "tianshui": {
+      "name": "天水",
+      "score": 36,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 10
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 10
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 5
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 1
+        }
+      ],
+      "rationale": "約230至260年的天水處在魏蜀爭奪的隴右，231年戰事及護持上邽麥田的命令，直接顯示農產與軍需關係。雖具穀地和通道價值，連年軍事競逐壓低穩定分，郡域資源不全歸某一城址。",
+      "uncertainty": "天水郡治沿革及冀、上邽須分清；本分為隴右郡域節點，不能對應現代天水市總體經濟。",
+      "seat": "天水郡域，冀縣、上邽一帶",
+      "region": "關隴",
+      "nodeScope": "commandery_and_valley_proxy",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz03",
+          "title": "《三國志》卷3・明帝紀",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷03"
+        }
+      ],
+      "facts": [
+        "231年諸葛亮攻天水，魏命護上邽左右麥田以給軍。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 28,
+        "max": 44,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "wuwei": {
+      "name": "武威",
+      "score": 49,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 12
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 15
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 7
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 11
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 4
+        }
+      ],
+      "rationale": "約230至260年以姑臧代表武威，徐邈任涼州刺史時修武威鹽池、擴水田並疏通西域往來，提供產業和交通實據。評分高於一般邊城，但河西少雨與軍政負擔使聚落支撐及穩定度仍採中等值。",
+      "uncertainty": "徐邈政績主要約228至240年且屬州郡範圍；不得把所述豐足等同姑臧每戶財產或城市產值。",
+      "seat": "姑臧",
+      "region": "河西",
+      "nodeScope": "administrative_seat_and_oasis",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz27",
+          "title": "《三國志》卷27・徐邈、王昶等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷27"
+        },
+        {
+          "sourceId": "hhs113",
+          "title": "《後漢書》卷113・郡國志五",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113"
+        }
+      ],
+      "facts": [
+        "徐邈修武威、酒泉鹽池，廣開水田；240年還朝。",
+        "郡國志武威首縣姑臧。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 41,
+        "max": 57,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "jiangzhou": {
+      "name": "江州",
+      "score": 66,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 22
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 21
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年江州是蜀漢巴郡與東向軍運的節點，李嚴在此駐屯築城，水陸倉儲與兩江交會提升轉運地位。地勢逼仄及水患限制聚落容納，故交通分高，生產與聚落分不因後世重慶規模而膨脹。",
+      "uncertainty": "《華陽國志》的城邑描述跨年代；以蜀漢李嚴事作主證，河流及地形作輔，非重建精確城市面積。",
+      "seat": "巴郡江州，今重慶主城一帶",
+      "region": "巴蜀",
+      "nodeScope": "city_and_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz40",
+          "title": "《三國志》卷40・李嚴等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷40"
+        },
+        {
+          "sourceId": "hy01",
+          "title": "《華陽國志》卷1・巴志",
+          "url": "https://zh.wikisource.org/wiki/華陽國志/卷一"
+        }
+      ],
+      "facts": [
+        "226年前後李嚴移屯江州。",
+        "巴志記李嚴更築大城及江州地理條件。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 58,
+        "max": 74,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "c41": {
+      "name": "永安",
+      "score": 38,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 9
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 10
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 7
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 2
+        }
+      ],
+      "rationale": "約230至260年永安承接劉備退駐與託孤後的東部防線，李嚴留鎮、陳到繼守，扼長江峽口而有軍運價值。它的高行政分來自都護駐防，有限的山地腹地使農工和聚落分低於江州，並非仍是皇都。",
+      "uncertainty": "永安宮、魚復縣城與白帝城相關而不宜視為同一城牆範圍；商業與規模證據較弱。",
+      "seat": "永安／魚復，白帝城附近",
+      "region": "巴蜀",
+      "nodeScope": "fortified_seat_and_gorge",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz40",
+          "title": "《三國志》卷40・李嚴等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷40"
+        },
+        {
+          "sourceId": "sgz32",
+          "title": "《三國志》卷32・先主傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷32"
+        }
+      ],
+      "facts": [
+        "223年李嚴留鎮永安；後陳到駐永安。",
+        "先主223年卒於永安宮。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 30,
+        "max": 46,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "jianning": {
+      "name": "建寧",
+      "score": 34,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 10
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 10
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 5
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 7
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 2
+        }
+      ],
+      "rationale": "約230至260年建寧是蜀漢經營南中的郡政節點，李恢平亂後徵集耕牛、戰馬、金銀等供軍。資源潛力提高生產分，但反覆叛亂與徵發限制穩定和交通分，不把南中廣域物產全算作城內工業。",
+      "uncertainty": "建寧郡、味縣與庲降都督駐所的年代有沿革；資源是廣域徵發，未證明城市本身同量生產。",
+      "seat": "建寧郡／庲降都督節點；味縣沿革待核",
+      "region": "南中",
+      "nodeScope": "commandery_and_regional_command_proxy",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz43",
+          "title": "《三國志》卷43・李恢等傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷43"
+        },
+        {
+          "sourceId": "hy04",
+          "title": "《華陽國志》卷4・南中志",
+          "url": "https://zh.wikisource.org/wiki/華陽國志/卷四"
+        }
+      ],
+      "facts": [
+        "李恢229年更領建寧太守；南中軍資徵發載於本傳。",
+        "南中志記建寧、味縣與都督屯的關係。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 26,
+        "max": 42,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "c100": {
+      "name": "南海",
+      "score": 63,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 20
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 22
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 8
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年以番禺代表南海核心，兼有郡治與交州治理功能；鍾離牧242年後任太守並處理治安。珠江口位置支持海陸轉運高分，但不把漢墓舶來品或後世廣州盛況當作當期貿易額。",
+      "uncertainty": "郡內招撫事蹟不全在番禺城；226年廣州分置後又復併，勿把264年後州制提前固定化。",
+      "seat": "番禺",
+      "region": "嶺南",
+      "nodeScope": "administrative_seat_and_port_hinterland",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz64",
+          "title": "《三國志》卷64・鍾離牧傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷64"
+        },
+        {
+          "sourceId": "sgz60",
+          "title": "《三國志》卷60・呂岱等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷60"
+        },
+        {
+          "sourceId": "gov_nanhai",
+          "title": "文史廣東：魏晉南北朝時期的廣州",
+          "url": "https://www.gdwsw.gov.cn/wsbl/content/post_41897.html"
+        },
+        {
+          "sourceId": "hhs113",
+          "title": "《後漢書》卷113・郡國志五",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113"
+        }
+      ],
+      "facts": [
+        "鍾離牧242年起任南海太守，約四年去職。",
+        "政府文史整理番禺與州郡治的沿革。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 55,
+        "max": 71,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "c104": {
+      "name": "交趾",
+      "score": 48,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 15
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 16
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 6
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 8
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年交趾承接士燮時期的郡政與南方物產網絡，吳平士徽後改派官吏，薛綜亦任太守。行政與海陸聯絡仍有價值，但226年政治斷裂的恢復程度難明，故不延續士燮時的安定評語為滿分。",
+      "uncertainty": "主要社會經濟材料早於230年；龍編城址與郡域應分開，進貢珍品不能當作城市自由貿易總額。",
+      "seat": "龍編等郡治區域，具體城址另校",
+      "region": "交州",
+      "nodeScope": "administrative_seat_and_delta_proxy",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz49",
+          "title": "《三國志》卷49・士燮傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷49"
+        },
+        {
+          "sourceId": "sgz53",
+          "title": "《三國志》卷53・薛綜傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷53"
+        },
+        {
+          "sourceId": "sgz60",
+          "title": "《三國志》卷60・呂岱等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷60"
+        },
+        {
+          "sourceId": "hhs113",
+          "title": "《後漢書》卷113・郡國志五",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113"
+        }
+      ],
+      "facts": [
+        "士燮226年卒後士徽拒命，呂岱進兵。",
+        "薛綜先後任合浦、交趾太守。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 40,
+        "max": 56,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "c65": {
+      "name": "敦煌",
+      "score": 40,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 7
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 12
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 6
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 12
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年敦煌扼河西與西域往來，太和年間倉慈分配田地、整頓豪右並保護胡商，使交通和治理有直接證據。綠洲耕地與地方聚落有限，所以商路地位雖高，農工與聚落支撐不按大都會處理。",
+      "uncertainty": "倉慈任期未逐年明記；西域商旅指經由郡域，不能推成敦煌城內商稅或常住人口數字。",
+      "seat": "敦煌縣",
+      "region": "河西",
+      "nodeScope": "administrative_seat_and_oasis",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz16",
+          "title": "《三國志》卷16・任峻、蘇則、倉慈等傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷16"
+        },
+        {
+          "sourceId": "hhs113",
+          "title": "《後漢書》卷113・郡國志五",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113"
+        }
+      ],
+      "facts": [
+        "倉慈太和年間任敦煌太守。",
+        "本傳記商旅受豪族阻滯，倉慈給過所、護送並調整土地。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 32,
+        "max": 48,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "c63": {
+      "name": "張掖",
+      "score": 37,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 8
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 11
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 5
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年張掖是河西中繼郡治，曹魏在220年代平定地方叛亂後恢復行政。徐邈的河西水田與往來政策提供區域背景，但缺少本期觻得城市產業細節，故採交通較高、其餘中等的保守分。",
+      "uncertainty": "張既、蘇則平亂主要早於230年；徐邈政策屬河西整體，並無直接張掖城市產量資料。",
+      "seat": "觻得",
+      "region": "河西",
+      "nodeScope": "administrative_seat_and_oasis",
+      "confidence": "low",
+      "evidence": [
+        {
+          "sourceId": "sgz16",
+          "title": "《三國志》卷16・任峻、蘇則、倉慈等傳",
+          "url": "https://zh.wikisource.org/zh-hant/三國志/卷16"
+        },
+        {
+          "sourceId": "sgz15",
+          "title": "《三國志》卷15・劉馥、梁習、張既等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷15"
+        },
+        {
+          "sourceId": "sgz27",
+          "title": "《三國志》卷27・徐邈、王昶等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷27"
+        },
+        {
+          "sourceId": "hhs113",
+          "title": "《後漢書》卷113・郡國志五",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113"
+        }
+      ],
+      "facts": [
+        "蘇則傳記220年前後張掖張進、酒泉黃華起兵及平定。",
+        "郡國志張掖首縣為觻得；徐邈政策提供河西背景。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 29,
+        "max": 45,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "c64": {
+      "name": "酒泉",
+      "score": 38,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 8
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 12
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 5
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年以福祿代表酒泉，徐邈修酒泉鹽池取得穀物，並開水田，提供生產與補給實據。河西通道提高交通分，但乾旱環境與分散綠洲限制聚落支撐，不能因位於商路就視為富庶大城。",
+      "uncertainty": "鹽池與水田是酒泉郡及涼州範圍，不全在福祿城內；其後二十年市場變化缺少連續資料。",
+      "seat": "福祿",
+      "region": "河西",
+      "nodeScope": "administrative_seat_and_oasis",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz27",
+          "title": "《三國志》卷27・徐邈、王昶等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷27"
+        },
+        {
+          "sourceId": "sgz15",
+          "title": "《三國志》卷15・劉馥、梁習、張既等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷15"
+        },
+        {
+          "sourceId": "hhs113",
+          "title": "《後漢書》卷113・郡國志五",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113"
+        }
+      ],
+      "facts": [
+        "徐邈傳明記修武威、酒泉鹽池以收穀。",
+        "郡國志酒泉首縣為福祿。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 30,
+        "max": 46,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "c101": {
+      "name": "蒼梧",
+      "score": 43,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 11
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 13
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 6
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年以廣信代表蒼梧，作嶺南內河與北向通道的郡政節點；步騭經營交州的較早事蹟顯示其軍政關係。水路提升交通分，但不把蒼梧全郡戶口或後代梧州商埠繁華直接移作廣信城市規模。",
+      "uncertainty": "廣信確切城址與現代行政區對應有討論；《水經注》為後出地理彙編，本期市場規模資料有限。",
+      "seat": "廣信，今梧州與封開交界一帶須校",
+      "region": "嶺南",
+      "nodeScope": "administrative_seat_and_river_corridor",
+      "confidence": "low",
+      "evidence": [
+        {
+          "sourceId": "sj37",
+          "title": "《水經注》卷37・葉榆河、牂柯水等",
+          "url": "https://zh.wikisource.org/wiki/水經注/37"
+        },
+        {
+          "sourceId": "sgz49",
+          "title": "《三國志》卷49・士燮傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷49"
+        },
+        {
+          "sourceId": "hhs113",
+          "title": "《後漢書》卷113・郡國志五",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113"
+        }
+      ],
+      "facts": [
+        "水經注記廣信為蒼梧郡治及相關水路。",
+        "士燮傳記蒼梧太守吳巨與步騭的政局。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 35,
+        "max": 51,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    },
+    "c102": {
+      "name": "合浦",
+      "score": 36,
+      "components": [
+        {
+          "key": "populationConcentration",
+          "label": "人口集聚（代理）",
+          "max": 35,
+          "value": 8
+        },
+        {
+          "key": "productionCommerce",
+          "label": "生產與商業",
+          "max": 30,
+          "value": 11
+        },
+        {
+          "key": "administrativeConcentration",
+          "label": "行政資源集聚",
+          "max": 15,
+          "value": 4
+        },
+        {
+          "key": "transportMarket",
+          "label": "交通與市場腹地",
+          "max": 15,
+          "value": 10
+        },
+        {
+          "key": "stabilityRecovery",
+          "label": "安定與恢復",
+          "max": 5,
+          "value": 3
+        }
+      ],
+      "rationale": "約230至260年合浦仍是交州沿海郡政節點，薛綜任太守及呂岱渡海用兵顯示海路聯絡。漢代港航考古可作背景，交通分因此較高；但本期船運量與城內生產不詳，不按出土珍品推定全期鼎盛。",
+      "uncertainty": "郡治、河口與出海港可能分離；漢代海絲文物未必正好屬230–260年，不代表同期城市財富平均值。",
+      "seat": "合浦郡治及南流江口港航區",
+      "region": "嶺南",
+      "nodeScope": "administrative_seat_and_port_district",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "sourceId": "sgz53",
+          "title": "《三國志》卷53・薛綜傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷53"
+        },
+        {
+          "sourceId": "sgz60",
+          "title": "《三國志》卷60・呂岱等傳",
+          "url": "https://zh.wikisource.org/wiki/三國志/卷60"
+        },
+        {
+          "sourceId": "gov_hepu",
+          "title": "文化和旅遊部：合浦漢代海絲文物",
+          "url": "https://www.mct.gov.cn/wlbphone/wlbydd/xxfb/qglb/gx/202311/t20231103_949504.html"
+        },
+        {
+          "sourceId": "hhs113",
+          "title": "《後漢書》卷113・郡國志五",
+          "url": "https://zh.wikisource.org/zh-hant/後漢書/卷113"
+        }
+      ],
+      "facts": [
+        "薛綜任合浦、交趾太守。",
+        "呂岱由合浦方向浮海處理交趾士徽事件。",
+        "文化和旅遊部介紹合浦漢代海外交換物證。"
+      ],
+      "evidencePeriod": "約230–260年",
+      "suggestedEditableBand": {
+        "min": 28,
+        "max": 44,
+        "meaning": "可調遊戲區間，不是人口或統計信賴區間"
+      },
+      "scoringAssumptions": [
+        "行政功能與可見歷史事件為直接依據；交通、產業和聚落強度多為明示的定性推估。",
+        "未將較早郡域人口、封邑戶數、兵力、進貢數量或宮室工程直接換算成本城人口或商業產值。",
+        "個別整數與城間幾分差距是可調遊戲設計；不作統計測量或人口排名解讀。"
+      ],
+      "scoreNature": "editorial_game_index_not_historical_statistic",
+      "noUrbanPopulationEstimate": true,
+      "coreCity": false,
+      "populationEvidence": {
+        "urbanCount": null,
+        "urbanCountStatus": "no_comparable_contemporary_city_count",
+        "summary": "人口集聚項為定性代理，沒有填造本城230–260年的人口數；郡域或近郊證據的範圍見下方治所與不確定性。"
+      }
+    }
+  }
+}

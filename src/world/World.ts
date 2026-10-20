@@ -165,6 +165,7 @@ export class World {
   }
 
   setHover(index: number | null) {
+    if(index!==null&&this.tiles[index].kind==='road')index=null;
     for(const el of this.root.children.flatMap(g=>g.children).filter(o=>o instanceof CSS2DObject)) {
       const element=(el as CSS2DObject).element;
       if(element.classList.contains('special-label'))element.hidden=element.dataset.tile!==String(index);

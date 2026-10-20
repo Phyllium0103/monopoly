@@ -19,9 +19,11 @@ export const BUILDING_LOTS = SELECTED_LAYOUT.objects.map(o => {
 });
 export function buildSelectedBoard() {
   const tiles: Tile[] = SELECTED_LAYOUT.roads.map(([x,y],index) => ({
-    index, kind:'road', name:`白玉驛道 ${index+1}`, pos:gridPosition(x,y), cityId:null,
+    index, kind:'road', name:'道路', pos:gridPosition(x,y), cityId:null,
     links:[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].map(([a,b])=>ids.get(key(a,b))).filter((v):v is number=>v!==undefined),
   }));
+  // Generic categories only: roads have no individual place names.
+  for(const t of tiles)if(t.links.length>=3)t.name='岔路口';
   const claimed = new Set<number>();
   const cities: {id:string;name:string;prosperity:number;owner?:LordId;tile:number}[] = [];
   for (const o of BUILDING_LOTS) {

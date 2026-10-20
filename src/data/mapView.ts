@@ -12,6 +12,6 @@ export function clampMapTarget(x:number,z:number,width:number,height:number,targ
   return unprojectGround(Math.max(-hu,Math.min(hu,p.u)),Math.max(-hv,Math.min(hv,p.v+offset))-offset);
 }
 
-/** Keep at least half of each ground dimension visible, including portrait screens. */
-export const maximumMapZoom=(width:number,height:number)=>Math.max(Number.EPSILON,Math.min(width,height)/(FLOOR_SIZE*.5));
+/** Zoom-out endpoint: show no more than half of either ground dimension. */
+export const minimumMapZoom=(width:number,height:number)=>Math.max(Number.EPSILON,Math.max(width,height)/(FLOOR_SIZE*.5));
 export const forkDirection=(dx:number,dz:number)=>Math.abs(dx)>=Math.abs(dz)?(dx>=0?'east':'west'):(dz>=0?'south':'north');

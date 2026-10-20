@@ -94,7 +94,7 @@ const DEFS: Def[] = [
         icon: '🏳️',
         title: '潰兵來降',
         tone: 'good',
-        story: `一隊被打散的敗兵在${c.place}外徘徊，既無糧草也無主帥。見你軍容整肅，為首的老校尉上前解下佩刀，願率部卒歸降。`,
+        story: `一隊被打散的敗兵在官道旁徘徊，既無糧草也無主帥。見你軍容整肅，為首的老校尉上前解下佩刀，願率部卒歸降。`,
         apply: () => {
           c.lord.soldiers += n;
           return `潰兵 ${n} 人編入你的麾下。`;
@@ -253,7 +253,7 @@ const DEFS: Def[] = [
         icon: '📜',
         title: '荒廟壁畫',
         tone: 'good',
-        story: `暴雨驟至，隊伍在${c.place}外的一座荒廟裡避雨。借著閃電的光亮，你發現斑駁的壁畫並非佛像，而是一套連貫的吐納行功圖，旁邊還有蠅頭小字註解。`,
+        story: `暴雨驟至，隊伍在官道旁的一座荒廟裡避雨。借著閃電的光亮，你發現斑駁的壁畫並非佛像，而是一套連貫的吐納行功圖，旁邊還有蠅頭小字註解。`,
         apply: () => {
           c.lord.scrolls.push(t);
           return `命書吏抄錄成冊，得功法「${t.name}」。`;
@@ -286,7 +286,7 @@ const DEFS: Def[] = [
         icon: '🐫',
         title: '受困商旅',
         tone: 'neutral',
-        story: `${c.place}外的官道上，一支商隊被一夥流寇堵住，貨車翻倒，商人們抱頭哀號。為首的老掌櫃遠遠望見你的旗號，高聲呼救。`,
+        story: `前方的官道上，一支商隊被一夥流寇堵住，貨車翻倒，商人們抱頭哀號。為首的老掌櫃遠遠望見你的旗號，高聲呼救。`,
         options: [
           {
             label: '⚔️ 出手相救',
@@ -386,9 +386,9 @@ const DEFS: Def[] = [
 ];
 
 /** 停在驛道上：約七成機率遇到奇遇 */
-export function rollRoadEvent(state: GameState, lord: Lord, place: string): RoadEvent | null {
+export function rollRoadEvent(state: GameState, lord: Lord): RoadEvent | null {
   if (Math.random() < 0.3) return null;
-  const ctx: Ctx = { state, lord, place };
+  const ctx: Ctx = { state, lord, place:'官道' };
   let r = Math.random() * DEFS.reduce((s, d) => s + d.weight, 0);
   for (const d of DEFS) {
     r -= d.weight;

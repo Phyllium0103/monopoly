@@ -446,7 +446,7 @@ export class Engine {
       case 'portal':
         return this.landPortal(lord);
       case 'road':
-        return this.roadEvent(lord, t.name);
+        return this.roadEvent(lord);
       case 'casino':
         return this.landCasino(lord);
       default:
@@ -1211,8 +1211,8 @@ export class Engine {
   }
 
   /** 停在驛道：可能遇到奇遇，有些要玩家抉擇 */
-  private async roadEvent(lord: Lord, place: string) {
-    const ev = rollRoadEvent(this.state, lord, place);
+  private async roadEvent(lord: Lord) {
+    const ev = rollRoadEvent(this.state, lord);
     if (!ev) return;
     const name = LORDS[lord.id].name;
     let result: string;

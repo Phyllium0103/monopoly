@@ -635,6 +635,7 @@ export class Game {
       else this.answer(tile);
       return;
     }
+    if(this.state.tiles[tile].kind==='road')return;
     this.hoverTile = tile;
     this.refresh();
   }
@@ -642,8 +643,9 @@ export class Game {
   private handleHover(o: THREE.Object3D | null) {
     if (!this.state) return;
     const tile = this.tileOf(o);
-    this.world.setHover(tile);
-    if (tile === null) {
+    const road=tile!==null&&this.state.tiles[tile].kind==='road';
+    this.world.setHover(road?null:tile);
+    if (tile === null || road) {
       this.ui.showTooltip(null);
       return;
     }
@@ -664,6 +666,7 @@ export class Game {
 
   private tileInfoHtml(index: number): string {
     const t = this.state.tiles[index];
+    if(t.kind==='road')return '';
     const here = LORD_IDS.filter((id) => this.state.lords[id].alive && this.state.lords[id].position === index && !this.state.lords[id].relicJourney);
     const fork = t.links.length >= 3 ? `<div class="ip-row">➜ 岔路箭頭：往${this.state.tiles[this.state.forkDirections[index]].name}</div>` : '';
     const people = here.length ? `<div class="ip-row">此地：${here.map((id) => `<span style="color:${LORDS[id].css}">${LORDS[id].name}</span><small>（${this.facingText(this.state.lords[id])}）</small>`).join('、')}</div>` : '';

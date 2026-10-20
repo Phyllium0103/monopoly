@@ -1,9 +1,10 @@
 import * as THREE from 'three';
+import { assetUrl } from '../data/assetUrl';
 import { CELL_SIZE } from '../data/selectedBoard';
 import { FLOOR_SIZE, FLOOR_DEPTH, FLOOR_ROTATION } from '../data/mapView';
 import { BOARD } from '../data/board';
 
-/** A square world plane becomes the required diamond at the fixed 45° azimuth. */
+/** Bright quiet terrain, square in the fixed45°/30° view. */
 export class SelectedTerrain {
   group=new THREE.Group();
   private road: THREE.InstancedMesh;
@@ -14,12 +15,12 @@ export class SelectedTerrain {
   private pulseTime=0;
   constructor() {
     const load=(name:string,rect?:number[])=>{
-      const t=new THREE.TextureLoader().load(`/art/map-selected/${name}`);
+      const t=new THREE.TextureLoader().load(assetUrl(`art/map-selected/${name}`));
       t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;
       if(rect){t.offset.set(rect[0]/1254,1-rect[3]/1254);t.repeat.set((rect[2]-rect[0])/1254,(rect[3]-rect[1])/1254);}
       return t;
     };
-    const ground=new THREE.Mesh(new THREE.PlaneGeometry(FLOOR_SIZE,FLOOR_DEPTH),new THREE.MeshPhongMaterial({map:load('terrain-square-20261020.png'),color:0xffffff,shininess:0,fog:false}));
+    const ground=new THREE.Mesh(new THREE.PlaneGeometry(FLOOR_SIZE,FLOOR_DEPTH),new THREE.MeshBasicMaterial({map:load('terrain-jade-clear-20261020.png'),color:0xffffff,fog:false}));
     ground.rotation.x=-Math.PI/2;ground.rotateOnWorldAxis(new THREE.Vector3(0,1,0),FLOOR_ROTATION);ground.position.y=-.08;ground.receiveShadow=true;this.group.add(ground);
     const edge=new THREE.Mesh(new THREE.BoxGeometry(FLOOR_SIZE,.6,FLOOR_DEPTH),new THREE.MeshPhongMaterial({color:0x536851,shininess:5,fog:false}));
     edge.rotation.y=FLOOR_ROTATION;edge.position.y=-.4;this.group.add(edge);

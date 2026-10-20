@@ -7,11 +7,12 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "node tests/game-rules.cjs && node tests/multiplayer.cjs && node tests/realm-frames.cjs && npm run test:map",
+    "test": "node tests/game-rules.cjs && node tests/multiplayer.cjs && node tests/realm-frames.cjs && npm run test:map && npm run test:assets",
     "test:e2e": "node tests/e2e-supabase.mjs",
     "build:engine": "vite build --config vite.engine.config.ts",
     "deploy:functions": "npm run build:engine && npx -y supabase@latest functions deploy game --project-ref jmesntwspqdpkesmcjea --no-verify-jwt --use-api",
-    "test:map": "node tests/selected-map.cjs && node tests/map-revision.cjs"
+    "test:map": "node tests/selected-map.cjs && node tests/map-revision.cjs",
+    "test:assets": "node tests/deployment-assets.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",

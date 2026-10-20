@@ -1,3 +1,5 @@
+import { assetUrl } from '../data/assetUrl';
+import { forkDirection } from '../data/mapView';
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import type { City, GameState, Tile, Vec2 } from '../game/types';
@@ -37,6 +39,7 @@ export class World {
   private time = 0;
   private eventMarkers: THREE.Group[] = [];
   private facing = new Map<string, THREE.Group>();
+  private roadArrows=Object.fromEntries(['north','east','south','west'].map(d=>{const t=new THREE.TextureLoader().load(assetUrl(`art/map-selected/road-arrow-${d}.png`));t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return[d,t];}));
   private forkArrows = new Map<number, THREE.Group>();
 
   constructor(
@@ -101,7 +104,7 @@ export class World {
 
   setOccupied(indices:number[]) {
     this.terrain.setOccupied(indices);
-    for(const [i,g] of this.forkArrows){const plate=g.userData.plate as THREE.Mesh;if(plate)(plate.material as THREE.MeshPhongMaterial).color.setHex(indices.includes(i)?0xa7e8e8:0xf5fbfa);}
+    for(const [i,g] of this.forkArrows){const plate=g.userData.plate as THREE.Mesh;if(plate)(plate.material as THREE.MeshPhongMaterial).color.setHex(indices.includes(i)?0xa7e8e8:0xffffff);}
   }
 
   /** 依遊戲狀態建立或更新所有城池 */
@@ -262,17 +265,12 @@ export class World {
       .then(() => this.root.remove(beam));
   }
 
-  /** 木頭路牌：立在岔路口通往前進方向的路上（避開城池建築），木板尖端指向目前的前進方向 */
+  /** Same physical road slab, four authored jade-arrow textures. */
   private makeSignpost(): THREE.Group {
     const group=new THREE.Group();
-    const plate=new THREE.Mesh(new THREE.BoxGeometry(CELL_SIZE*.88,.055,CELL_SIZE*.88),new THREE.MeshPhongMaterial({color:0xf5fbfa,shininess:35}));
-    plate.position.y=.025;group.add(plate);group.userData.plate=plate;
-    const rim=new THREE.Mesh(new THREE.RingGeometry(1.08,1.2,8),new THREE.MeshPhongMaterial({color:0xb8a56b,side:THREE.DoubleSide,shininess:70}));
-    rim.rotation.x=-Math.PI/2;rim.position.y=.06;group.add(rim);
-    const sign=new THREE.Group();sign.name='sign';
-    const shape=new THREE.Shape().moveTo(-.8,-.24).lineTo(.2,-.24).lineTo(.2,-.57).lineTo(1.04,0).lineTo(.2,.57).lineTo(.2,.24).lineTo(-.8,.24).closePath();
-    const arrow=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.06,bevelEnabled:true,bevelSize:.035,bevelThickness:.02,bevelSegments:2}).rotateX(-Math.PI/2),new THREE.MeshPhongMaterial({color:0x268f98,emissive:0x0b4044,emissiveIntensity:.2,shininess:40}));
-    arrow.position.y=.14;sign.add(arrow);group.add(sign);return group;
+    const plate=new THREE.Mesh(new THREE.PlaneGeometry(CELL_SIZE*.89,CELL_SIZE*.89).rotateX(-Math.PI/2),new THREE.MeshPhongMaterial({map:this.roadArrows.north,color:0xffffff,shininess:18}));
+    plate.position.y=.025;plate.name='sign';group.add(plate);group.userData.plate=plate;
+    return group;
   }
 
   syncForkArrows(state: GameState) {
@@ -292,7 +290,9 @@ export class World {
       const off = 0;
       const p = this.tilePosition(tile.index);
       sign.position.set(p.x + dx * off, p.y, p.z + dz * off);
-      sign.getObjectByName('sign')!.rotation.y = Math.atan2(-dz, dx);
+      const plate=sign.userData.plate as THREE.Mesh<THREE.PlaneGeometry,THREE.MeshPhongMaterial>;
+      plate.material.map=this.roadArrows[forkDirection(dx,dz)];
+      sign.userData.direction=forkDirection(dx,dz);
     }
   }
 

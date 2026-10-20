@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { MAP_SCALE } from '../data/board';
-import { FLOOR_SIZE, clampMapTarget } from '../data/mapView';
+import { FLOOR_SIZE, clampMapTarget, maximumMapZoom } from '../data/mapView';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 /**
@@ -26,7 +26,8 @@ export class CameraController {
     this.controls.minPolarAngle = this.controls.maxPolarAngle = Math.PI/3;
     this.controls.minAzimuthAngle = this.controls.maxAzimuthAngle = -Math.PI/4;
     this.controls.enableRotate=false;
-    this.controls.minZoom=.2;this.controls.maxZoom=8;
+    this.controls.maxZoom=maximumMapZoom(camera.right-camera.left,camera.top-camera.bottom);
+    this.controls.minZoom=Math.min(.2,this.controls.maxZoom);
     this.controls.screenSpacePanning = false;
     this.controls.mouseButtons = {
       LEFT: THREE.MOUSE.PAN,
@@ -38,7 +39,7 @@ export class CameraController {
     toolbar.innerHTML='<span>45°方位 · 30°俯角</span><button type="button">全圖</button><button type="button">＋</button><button type="button">－</button><button type="button">地名</button><button type="button">純地圖</button>';
     const buttons=toolbar.querySelectorAll('button');
     buttons[0].onclick=()=>{this.focusTarget=null;this.controls.target.set(0,0,0);camera.position.set(-183.7117,150,183.7117);camera.zoom=Math.min((camera.right-camera.left)/FLOOR_SIZE,180/FLOOR_SIZE)*.92;camera.updateProjectionMatrix();this.controls.update();};
-    buttons[1].onclick=()=>{camera.zoom=Math.min(8,camera.zoom*1.3);camera.updateProjectionMatrix();};
+    buttons[1].onclick=()=>{camera.zoom=Math.min(this.controls.maxZoom,camera.zoom*1.3);camera.updateProjectionMatrix();};
     buttons[2].onclick=()=>{camera.zoom=Math.max(.2,camera.zoom/1.3);camera.updateProjectionMatrix();};
     buttons[3].onclick=()=>{document.body.classList.toggle('map-hide-city-names');buttons[3].setAttribute('aria-pressed',String(!document.body.classList.contains('map-hide-city-names')));};
     buttons[4].onclick=()=>{const pure=document.body.classList.toggle('map-inspection');buttons[4].textContent=pure?'返回遊戲':'純地圖';};
@@ -66,6 +67,10 @@ export class CameraController {
   }
 
   update(dt: number) {
+    this.controls.maxZoom=maximumMapZoom(this.camera.right-this.camera.left,this.camera.top-this.camera.bottom);
+    this.controls.minZoom=Math.min(.2,this.controls.maxZoom);
+    if(this.camera.zoom>this.controls.maxZoom){this.camera.zoom=this.controls.maxZoom;this.camera.updateProjectionMatrix();}
+    if(import.meta.env.DEV)document.documentElement.dataset.mapZoom=JSON.stringify({zoom:this.camera.zoom,max:this.controls.maxZoom});
     document.body.classList.toggle('map-overview',this.camera.zoom<1.2);
     const move = new THREE.Vector3();
     const k = this.keys;

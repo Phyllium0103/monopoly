@@ -1,3 +1,4 @@
+import { enterRelic, advanceRelic, leaveRelic } from '../systems/RelicSystem';
 import { MATERIAL_GROUPS, MATERIAL_NAMES, WEAPON_CATALOG, WEAPON_GRADES, WEAPON_PENETRATION, type MaterialGroup } from '../data/weaponCatalog';
 import { materialIncome, materialsText, synthesize, upgradeRequirement, upgradeWeapon } from '../systems/MaterialSystem';
 import { tournamentBracket, tournamentWinner, grantTournamentPrize } from '../systems/TournamentSystem';
@@ -223,6 +224,7 @@ export class Engine {
       // 整備途中改由電腦接手
       if (!this.human(lord)) return this.autoPreroll(lord);
       const a = (await this.ask(lord, { kind: 'preroll' })) as PrerollAction | null;
+      if(lord.relicJourney && a?.type==='items'){this.view.toast('山河圖內禁止使用道具',lord.id);continue;}
       switch (a?.type) {
         case 'roll':
           return { type: 'roll' };
@@ -246,6 +248,7 @@ export class Engine {
   }
 
   private async autoPreroll(lord: Lord): Promise<RollChoice> {
+    if(lord.relicJourney)return {type:'roll'};
     for (const msg of await aiPreroll(this.state, lord, this.itemHooks())) this.view.log(`${LORDS[lord.id].name}：${msg}`, 'ai');
     this.view.syncCities();
     this.view.refresh();
@@ -271,7 +274,7 @@ export class Engine {
 
   private async aiTurn(lord: Lord) {
     await this.wait(350);
-    const logs = await aiPreroll(this.state, lord, this.itemHooks());
+    const logs = lord.relicJourney ? [] : await aiPreroll(this.state, lord, this.itemHooks());
     for (const msg of logs) this.view.log(`${LORDS[lord.id].name}：${msg}`, msg.includes('⚡') || msg.includes('✦') ? 'turn' : 'ai');
     if (logs.some((m) => m.includes('突破至'))) this.view.beam(lord.id);
     this.view.syncCities();
@@ -291,6 +294,7 @@ export class Engine {
 
   /** 移動限制在擲骰時結算；零步與指定落點都走一般落地事件流程。 */
   private async resolveDiceMovement(lord: Lord) {
+    if(lord.relicJourney){await this.moveRelic(lord);return;}
     const steps = await this.rollDice(lord);
     if (lord.stunned > 0) {
       lord.stunned--; lord.stayThisTurn = false;
@@ -379,6 +383,7 @@ export class Engine {
   }
 
   private async teleport(lord: Lord, tile: number) {
+    if(lord.relicJourney){this.view.toast('山河圖尚未走完一圈，不能傳送離開',lord.id);return;}
     await this.view.teleport(lord.id, tile);
     lord.position = tile;
     lord.lastTile = null;
@@ -392,14 +397,30 @@ export class Engine {
     return dests[Math.floor(Math.random() * dests.length)];
   }
 
-  /** 踩到角落的傳送陣：一半機率送往地圖正中的乾坤骰閣，否則隨機傳送到任一格 */
+  /** 進入山河圖：外圈16格試煉，完成後返回原入口。 */
   private async landPortal(lord: Lord) {
-    const casinos = this.state.tiles.filter((t) => t.kind === 'casino');
-    const casino = casinos[Math.floor(Math.random()*casinos.length)];
-    const dest = casino && Math.random() < 0.5 ? casino : this.randomDestination(lord.position);
-    this.view.log(`${LORDS[lord.id].name}踏入傳送陣，被送到「${dest.name}」！`, this.human(lord) ? 'good' : 'ai');
-    if (this.human(lord)) this.view.toast(`傳送陣！被送到「${dest.name}」`, lord.id);
-    await this.teleport(lord, dest.index);
+    if(!enterRelic(lord))return;
+    this.view.log(`${LORDS[lord.id].name}進入山河社稷圖：外圈16格，中央留空，禁用道具，完成一圈才能離開。`,'info');
+    await this.view.relic(lord.id,0,true,lord.relicJourney!.lastResult);this.view.refresh();
+  }
+
+  private async moveRelic(lord:Lord){
+    if(!lord.relicJourney)return;
+    const dice=1+Math.floor(Math.random()*6);
+    await this.view.rollDice(lord.id,[dice],0,1);
+    this.view.log(`${LORDS[lord.id].name}在山河圖擲出 ${dice} 點。`,'info');
+    const count=Math.min(dice,16-lord.relicJourney.steps);
+    for(let i=0;i<count;i++){
+      const r=advanceRelic(this.state,lord);
+      this.view.log(`${LORDS[lord.id].name}：${r.text}`,r.good?'good':'bad');
+      await this.view.relic(lord.id,r.step,true,r.text);this.view.refresh();await this.wait(280);
+    }
+    if(lord.relicJourney?.steps===16){
+      leaveRelic(lord);
+      this.view.log(`${LORDS[lord.id].name}走滿山河圖一圈，回到原入口；本次剩餘步數不帶回大地圖。`,'good');
+      await this.view.relic(lord.id,16,false,'已完成一圈，平安返回原入口。');
+      this.view.placeLord(lord.id,lord.position);this.view.refresh();
+    }
   }
 
   private async land(lord: Lord, tile: number) {
@@ -1236,6 +1257,7 @@ export class Engine {
 
   /** 擲骰前使用物品；用了傳送類物品時回傳目的地 */
   private async useItemPreroll(lord: Lord): Promise<number | null> {
+    if(lord.relicJourney){this.view.toast('山河圖內禁止使用道具',lord.id);return null;}
     if (lord.itemsLocked > 0) { this.view.toast('目前不能使用物品', lord.id); return null; }
     const items = lord.items.filter((i) => usableIn(i, 'preroll') && (!['teleport', 'cloud', 'cushion', 'prison'].includes(i.defId) || (!lord.stunned && lord.forcedTile === null && !lord.stayThisTurn)));
     if (!items.length) {
@@ -1366,6 +1388,9 @@ export class Engine {
 
   private async usePrerollWithReaction(lord: Lord, item: Item, user: General, target: PrerollTarget): Promise<string> {
     const victim = target.lord ?? (target.general?.isLord && target.general.owner ? this.state.lords[target.general.owner] : undefined);
+    if(lord.relicJourney||victim?.relicJourney)return '山河結界內外道具無效，未消耗物品。';
+    const sealedOwner=target.general?.owner?this.state.lords[target.general.owner]:undefined;
+    if(sealedOwner?.relicJourney&&(target.general?.isLord||target.general?.status==='free'))return '山河結界內外道具無效，未消耗物品。';
     const guardian = victim && victim.id !== lord.id ? itemBlockUser(this.state, victim) : undefined;
     let blocked = !!guardian;
     if (!blocked && victim && victim.id !== lord.id && !victim.itemsLocked) {
@@ -1393,7 +1418,7 @@ export class Engine {
   private async protectDeath(g: General): Promise<boolean> {
     if (!g.owner) return false;
     const lord = this.state.lords[g.owner], card = lord.items.find(i => i.defId === 'totem');
-    if (!lord.alive || lord.itemsLocked || !card) return false;
+    if (!lord.alive || lord.relicJourney || lord.itemsLocked || !card) return false;
     if (this.human(lord) && !await this.dlg(lord).confirm('不死圖騰：免疫死亡？', g.name + '即將死亡。使用後回復滿血，保留境界、修為、所屬與功法。', '使用圖騰', '不使用')) return false;
     consumeItem(lord, card); g.hp = maxHp(g);
     this.view.log(g.name + '的不死圖騰生效，滿血復生。', 'good'); return true;

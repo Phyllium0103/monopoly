@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { BOARD_SIDE, CELL_SIZE } from '../data/selectedBoard';
+import { CELL_SIZE } from '../data/selectedBoard';
+import { FLOOR_SIZE, FLOOR_DEPTH, FLOOR_ROTATION } from '../data/mapView';
 import { BOARD } from '../data/board';
 
 /** A square world plane becomes the required diamond at the fixed 45° azimuth. */
@@ -18,10 +19,10 @@ export class SelectedTerrain {
       if(rect){t.offset.set(rect[0]/1254,1-rect[3]/1254);t.repeat.set((rect[2]-rect[0])/1254,(rect[3]-rect[1])/1254);}
       return t;
     };
-    const ground=new THREE.Mesh(new THREE.PlaneGeometry(BOARD_SIDE,BOARD_SIDE),new THREE.MeshPhongMaterial({map:load('selected-terrain.png'),color:0xffffff,shininess:0}));
-    ground.rotation.x=-Math.PI/2;ground.position.y=-.08;ground.receiveShadow=true;this.group.add(ground);
-    const edge=new THREE.Mesh(new THREE.BoxGeometry(BOARD_SIDE,.6,BOARD_SIDE),new THREE.MeshPhongMaterial({color:0x536851,shininess:5}));
-    edge.position.y=-.4;this.group.add(edge);
+    const ground=new THREE.Mesh(new THREE.PlaneGeometry(FLOOR_SIZE,FLOOR_DEPTH),new THREE.MeshPhongMaterial({map:load('terrain-square-20261020.png'),color:0xffffff,shininess:0,fog:false}));
+    ground.rotation.x=-Math.PI/2;ground.rotateOnWorldAxis(new THREE.Vector3(0,1,0),FLOOR_ROTATION);ground.position.y=-.08;ground.receiveShadow=true;this.group.add(ground);
+    const edge=new THREE.Mesh(new THREE.BoxGeometry(FLOOR_SIZE,.6,FLOOR_DEPTH),new THREE.MeshPhongMaterial({color:0x536851,shininess:5,fog:false}));
+    edge.rotation.y=FLOOR_ROTATION;edge.position.y=-.4;this.group.add(edge);
     const shape=new THREE.Shape().moveTo(-.445,-.445).lineTo(.445,-.445).lineTo(.445,.445).lineTo(-.445,.445).closePath();
     const body=new THREE.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:true,bevelThickness:.02,bevelSize:.025,bevelSegments:3,steps:1});
     body.rotateX(-Math.PI/2);body.translate(0,.025,0);body.scale(CELL_SIZE,CELL_SIZE,CELL_SIZE);

@@ -2646,3 +2646,22 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .map-overview:not(.map-all-names) .special-label,.map-overview:not(.map-all-names) .city-label:not(.map-landmark){display:none}
 .map-inspection #ui{visibility:hidden;pointer-events:none}
 .map-inspection .map-camera-tools{z-index:101}
+
+/* 2026-10-20: facilities only reveal names on hover; city names remain visible. */
+.special-label[hidden]{display:none!important}
+.special-label:not([hidden]){display:block!important}
+.city-label{display:block!important}
+.map-hide-city-names .city-label{display:none!important}
+.relic-map{position:fixed;z-index:30;pointer-events:auto;left:50%;top:82px;transform:translateX(-50%);width:min(540px,94vw);max-height:calc(100vh - 110px);overflow:auto;padding:22px;border:2px solid #b7ad79;border-radius:20px;background:linear-gradient(145deg,#fcfaecf7,#e0eaddfa);color:#304b42;box-shadow:0 18px 70px #123b3644;box-sizing:border-box}
+.relic-map[hidden]{display:none!important}.relic-map h2{font-family:serif;margin:0 70px 6px 0;font-size:23px}.relic-map p{font-size:13px;margin:9px 0}
+.relic-close{position:absolute;right:14px;top:18px;border:1px solid #9bb3a6;background:#fffdf0;border-radius:7px;padding:5px 8px;color:#456459;cursor:pointer}
+.relic-board{display:grid;grid-template:repeat(5,1fr)/repeat(5,1fr);gap:6px;aspect-ratio:1;padding:8px;background:linear-gradient(135deg,#aebda4,#e2e8d3,#b4ceba);border-radius:12px;border:1px solid #9dae9d}
+.relic-cell{display:flex;align-items:center;justify-content:center;white-space:pre-line;text-align:center;background:linear-gradient(145deg,#fffef7,#e7eae0);border:1px solid #c7cdb7;border-radius:8px;box-shadow:0 4px 0 #9da89b;color:#506957;font-size:12px;line-height:1.6;transition:background .15s,transform .15s}
+.relic-cell.visited{border-color:#97b6a4}.relic-cell.occupied{background:linear-gradient(145deg,#e2ffff,#79cfce);border:3px solid var(--lord-color,#52a69a);transform:translateY(-3px);box-shadow:0 6px 0 #4f9a9a;color:#183a33;font-weight:bold}
+.relic-center{grid-area:2/2/5/5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;text-align:center;color:#3e6b5d;background:radial-gradient(ellipse,#f5f6e688,transparent);font-family:serif}
+.relic-center b{font-size:23px;letter-spacing:3px}.relic-center span{font-size:14px;line-height:1.9}.relic-result{min-height:40px;padding:9px 12px;background:#fffef4;border-radius:8px;border-left:3px solid #88b7a6}
+.relic-roll{width:100%;padding:10px;border:1px solid #538f80;background:#367e6b;color:#fffce8;border-radius:9px;cursor:pointer}.relic-roll:disabled{background:#c4cfc4;color:#6d8174;cursor:default}
+
+.map-camera-tools{bottom:108px}.map-inspection .map-camera-tools{bottom:24px}
+
+body:has(.relic-map:not([hidden])) .map-camera-tools{display:none}

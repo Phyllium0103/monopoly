@@ -137,6 +137,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
   }
 
   const state: GameState = {
+    rulesVersion: 'map-relic-20261020',
     round: 1,
     maxRounds,
     order,

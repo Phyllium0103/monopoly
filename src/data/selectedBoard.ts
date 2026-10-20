@@ -35,4 +35,4 @@ export function buildSelectedBoard() {
   return {tiles,cities,edges};
 }
 /** Visual progression only; economic rules continue to use the same prosperity value. */
-export const cityModelLevel = (prosperity:number) => prosperity<20?1:prosperity<40?2:prosperity<60?3:prosperity<80?4:prosperity<90?5:6;
+export const cityModelLevel = (prosperity:number) => Math.max(1,Math.min(6,Math.floor((Number.isFinite(prosperity)?prosperity:0)/50)+1));

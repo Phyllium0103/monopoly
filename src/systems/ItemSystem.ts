@@ -27,6 +27,7 @@ export function canUse(item: Item,user: General): {ok:boolean;reason:string} {
 }
 export function usableIn(item: Item,context:'preroll'|'battle'): boolean {const t=def(item).timing;return t==='both'||t===context;}
 export function consumeItem(lord:Lord,item:Item,user?:General):number {
+ if(lord.relicJourney)throw Error('山河圖內禁止使用道具');
  if(lord.itemsLocked>0||!lord.items.some(i=>i.uid===item.uid))throw Error('物品不可使用');
  if(!def(item).noUser&&(!user||!canUse(item,user).ok))throw Error('使用者能力或體力不足');
  const cost=user?requirement(item,user).stamina:0;
@@ -52,6 +53,9 @@ export function changeAptitude(state:GameState,g:General,aptitude:Aptitude):void
 }
 export interface PrerollTarget {general?:General;lord?:Lord;city?:City;ownCity?:City;tile?:number;dice?:number;element?:Element;damagedGeneral?:General;}
 export async function usePreroll(state:GameState,lord:Lord,item:Item,user:General,target:PrerollTarget,blocked=false,onFatal?: (g:General)=>Promise<boolean>):Promise<string> {
+ if(lord.relicJourney)throw Error('山河圖內禁止使用道具');
+ if(target.general?.owner&&state.lords[target.general.owner].relicJourney&&(target.general.isLord||target.general.status==='free'))return '山河結界內外道具無效，未消耗物品。';
+ if(target.lord?.relicJourney)return '山河結界內外道具無效，未消耗物品。';
  if(!usableIn(item,'preroll'))throw Error('此物品不可在擲骰前使用');
  if(item.defId==='five'&&(!target.general||['waste','heaven'].includes(target.general.aptitude)||!target.element))throw Error('五行轉生丹只能對五行靈根使用');
  delete target.damagedGeneral;
@@ -97,7 +101,7 @@ function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:Pr
  case 'thunderward':case 'fiveward':g!.ward=Math.min(.8,g!.ward+(item.defId==='thunderward'?.5:.3));return head+'，'+g!.name+'下次雷劫減傷 '+Math.round(g!.ward*100)+'%。';
  case 'illusion':case 'demon':g!.demon=Math.max(g!.demon,2);return head+'，'+g!.name+'下次突破率 -60%，或雷劫威力 ×2。';
  case 'mend':{const party=freeGenerals(state,lord.id);for(const x of party)x.hp=Math.min(maxHp(x),x.hp+Math.round(maxHp(x)*MEND_HEAL[t]));return head+'，全體隨行武將回血 '+Math.round(MEND_HEAL[t]*100)+'%。';}
- case 'vein':target.city!.prosperity=Math.min(200,target.city!.prosperity+VEIN_PROSPERITY[t]);return head+'，'+target.city!.name+'繁榮度 +'+VEIN_PROSPERITY[t]+'。';
+ case 'vein':target.city!.prosperity=Math.min(300,target.city!.prosperity+VEIN_PROSPERITY[t]);return head+'，'+target.city!.name+'繁榮度 +'+VEIN_PROSPERITY[t]+'。';
  case 'sacrifice':{const c=target.city!,loss=Math.round(c.garrisonSoldiers*SACRIFICE_LOSS[t]);c.garrisonSoldiers-=loss;return head+'，'+c.name+'守軍 -'+loss+'。';}
  case 'seven':g!.sevenLife=true;return head+'，'+g!.name+'下次渡劫若身死，滿血復生，修為減半。';
  case 'lock':case 'freeze':target.lord!.stunned=Math.max(1,target.lord!.stunned);target.lord!.itemsLocked=Math.max(1,target.lord!.itemsLocked);return head+'，'+LORDS[target.lord!.id].name+'下回合擲骰時原地停留並觸發所在格事件，該回合不能使用物品。';

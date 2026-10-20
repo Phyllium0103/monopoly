@@ -1,3 +1,4 @@
+import { RelicMap } from '../ui/RelicMap';
 import { MATERIAL_GROUPS, MATERIAL_NAMES } from '../data/weaponCatalog';
 import { materialIncome } from '../systems/MaterialSystem';
 import { abilityUsers } from '../systems/GeneralAbilities';
@@ -50,6 +51,7 @@ interface ActivePrompt {
 export class Game {
   private sm: SceneManager;
   private world: World;
+  private relicMap = new RelicMap(()=>this.answer({type:'roll'}));
   private ui: GameUI;
   private dialog: Dialog;
   private generalsView: GeneralsView;
@@ -211,6 +213,7 @@ export class Game {
 
   /** 依遊戲狀態擺好地圖、城池與主公棋子 */
   private setupBoard(state: GameState) {
+    this.relicMap.hide();
     this.state = state;
     bindPassiveState(state);
     this.world.clearHighlights();
@@ -223,11 +226,13 @@ export class Game {
       this.sm.scene.add(s.group);
       this.sprites.set(id, s);
       s.setGroundPosition(this.slotPosition(id, state.lords[id].position));
-      s.group.visible = state.lords[id].alive;
+      s.group.visible = state.lords[id].alive && !state.lords[id].relicJourney;
     }
     this.sm.setPickables([...this.world.pickables, ...[...this.sprites.values()].map((s) => s.group)]);
     this.ui.reset();
     this.ui.show();
+    const journey=state.lords[this.me].relicJourney;
+    if(journey)this.relicMap.show(this.me,journey.steps,journey.lastResult);
     // 背景預先載入圖片，避免之後打開名冊、商店時圖片才一張張慢慢冒出來
     preloadArt(Object.values(state.generals).filter((g) => g.owner === this.me).map((g) => g.id));
     this.refresh();
@@ -245,7 +250,7 @@ export class Game {
 
   /** 進入多人對局：me 為本機玩家的主公 */
   startOnline(state: GameState, me: LordId, onExit: () => void) {
-    if(state.tiles.length!==BOARD.tiles.length || state.tiles.some((t,i)=>t.name!==BOARD.tiles[i].name || t.pos.x!==BOARD.tiles[i].pos.x || t.pos.z!==BOARD.tiles[i].pos.z)) {
+    if(state.rulesVersion!=='map-relic-20261020' || state.tiles.length!==BOARD.tiles.length || state.tiles.some((t,i)=>t.name!==BOARD.tiles[i].name || t.pos.x!==BOARD.tiles[i].pos.x || t.pos.z!==BOARD.tiles[i].pos.z)) {
       throw new Error('此房間仍使用舊版地圖。請更新多人伺服器並建立新房間；舊對局資料不會被覆寫。');
     }
     this.reset();
@@ -263,7 +268,7 @@ export class Game {
       const s = this.sprites.get(id);
       if (!s) continue;
       s.setGroundPosition(this.slotPosition(id, state.lords[id].position));
-      s.group.visible = state.lords[id].alive;
+      s.group.visible = state.lords[id].alive && !state.lords[id].relicJourney;
     }
     this.world.syncCities(state);
     this.world.setEventMarkers(state.merchantTile, state.banditTiles);
@@ -327,6 +332,8 @@ export class Game {
       beam: (lord: LordId, color?: number) => this.world.beamEffect(sprite(lord).group.position, color),
       capture: (tile: number, lord: LordId) => this.world.captureEffect(tile, LORDS[lord].color),
       focusTurn: (lord: LordId) => {
+        const journey=this.state.lords[lord].relicJourney;
+        if(journey)this.relicMap.show(lord,journey.steps,journey.lastResult);else this.relicMap.hide();
         const s = sprite(lord);
         for (const x of this.sprites.values()) x.setSelected(x === s);
         this.sm.cameraController.focus(s.group.position);
@@ -352,6 +359,11 @@ export class Game {
       moveStep: async (lord: LordId, _from: number, to: number) => {
         const s = sprite(lord);
         await s.moveAlong([s.group.position.clone(), this.slotPosition(lord, to)], this.sm.animator, (p) => this.sm.cameraController.follow(p));
+      },
+      relic: async (lord:LordId,step:number,active:boolean,text:string)=>{
+        const s=this.sprites.get(lord);if(s)s.group.visible=!active&&this.state.lords[lord].alive;
+        if(active)this.relicMap.show(lord,step,text);else this.relicMap.hide();this.relicMap.setReady(this.me,false);
+        await sleep(180/this.speed);
       },
       rollDice: (_lord: LordId, values: number[], bonus: number, multiplier: number) => this.ui.rollDice(values, bonus, multiplier),
       wait: async (ms: number) => {
@@ -652,7 +664,7 @@ export class Game {
 
   private tileInfoHtml(index: number): string {
     const t = this.state.tiles[index];
-    const here = LORD_IDS.filter((id) => this.state.lords[id].alive && this.state.lords[id].position === index);
+    const here = LORD_IDS.filter((id) => this.state.lords[id].alive && this.state.lords[id].position === index && !this.state.lords[id].relicJourney);
     const fork = t.links.length >= 3 ? `<div class="ip-row">➜ 岔路箭頭：往${this.state.tiles[this.state.forkDirections[index]].name}</div>` : '';
     const people = here.length ? `<div class="ip-row">此地：${here.map((id) => `<span style="color:${LORDS[id].css}">${LORDS[id].name}</span><small>（${this.facingText(this.state.lords[id])}）</small>`).join('、')}</div>` : '';
     const linkText = `${t.links.map((n) => `${TILE_INFO[this.state.tiles[n].kind].icon}${this.state.tiles[n].name}`).join('、') || '不與道路相連'}${t.links.length >= 3 ? '（岔路口）' : ''}`;
@@ -680,6 +692,7 @@ export class Game {
   private refresh() {
     if (!this.state) return;
     this.ui.renderTop(this.state, this.me);
+    for(const [id,sprite] of this.sprites)sprite.group.visible=this.state.lords[id].alive&&!this.state.lords[id].relicJourney;
     this.world.syncForkArrows(this.state);
     this.updateFacing();
     const player = this.state.lords[this.me];
@@ -704,6 +717,10 @@ export class Game {
       buttons.push(roster);
     }
     else if (!player.alive) hint = `觀戰中・${LORDS[current.id].name}行動中……`;
+    else if (preroll && player.relicJourney) {
+      hint=`山河圖 ${player.relicJourney.steps}/16 格：禁用道具，走滿一圈返回入口`;
+      buttons.push({label:'▧ 山河社稷圖',onClick:()=>this.relicMap.show(player.id,player.relicJourney!.steps,player.relicJourney!.lastResult)},roster);
+    }
     else if (preroll) {
       hint = '擲骰前可先整備；擲完骰、處理完事件，回合自動結束';
       fullHint = '擲骰前可先使用物品、合成材料、徵兵或整備武將（宗門每人 10 下品，自己的城池或空城免費；調度駐軍在主公所在城池免費）；擲完骰、處理完落地事件，回合就會自動結束';
@@ -737,6 +754,7 @@ export class Game {
     if (!this.state.over && !this.dispatchTask && player.alive && preroll && !this.auto) this.ui.showRoll(() => this.answer({ type: 'roll' } satisfies PrerollAction));
     else this.ui.hideRoll();
 
+    this.relicMap.setReady(this.me,preroll&&!this.auto);
     this.ui.renderInfo(this.tileInfoHtml(this.hoverTile ?? player.position));
     this.hoverTile = null;
   }

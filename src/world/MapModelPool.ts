@@ -72,7 +72,9 @@ export class MapModelPool {
       const result=[...grouped].map(([material,geometries])=>{
         const geometry=mergeGeometries(geometries,false);if(!geometry)throw Error(`模型材質合批失敗 ${key}`);
         geometries.forEach(g=>g.dispose());
-        return{geometry,material,recolor:/roof|accent|primary|tile.*blue|琉璃|主色/i.test(material.name)};
+        const recolor=key.startsWith('city-') && (/primary|roof|琉璃|主色/i.test(material.name)||(key==='city-1'&&/stoneedge|edge|trim/i.test(material.name)));
+        if(recolor){material=material.clone();if('color' in material)(material as THREE.MeshStandardMaterial).color.setHex(0xffffff);}
+        return{geometry,material,recolor};
       });
       // GLB uses a Y-up floor origin. Preserve authored pivots and floating city height.
       return result;

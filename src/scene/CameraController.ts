@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { MAP_SCALE } from '../data/board';
+import { FLOOR_SIZE, clampMapTarget } from '../data/mapView';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 /**
@@ -36,10 +37,10 @@ export class CameraController {
     const toolbar=document.createElement('div');toolbar.className='map-camera-tools';
     toolbar.innerHTML='<span>45°方位 · 30°俯角</span><button type="button">全圖</button><button type="button">＋</button><button type="button">－</button><button type="button">地名</button><button type="button">純地圖</button>';
     const buttons=toolbar.querySelectorAll('button');
-    buttons[0].onclick=()=>{this.focusTarget=null;this.controls.target.set(0,0,0);camera.position.set(-183.7117,150,183.7117);camera.zoom=Math.min((camera.right-camera.left)/416,180/222)*.92;camera.updateProjectionMatrix();this.controls.update();};
+    buttons[0].onclick=()=>{this.focusTarget=null;this.controls.target.set(0,0,0);camera.position.set(-183.7117,150,183.7117);camera.zoom=Math.min((camera.right-camera.left)/FLOOR_SIZE,180/FLOOR_SIZE)*.92;camera.updateProjectionMatrix();this.controls.update();};
     buttons[1].onclick=()=>{camera.zoom=Math.min(8,camera.zoom*1.3);camera.updateProjectionMatrix();};
     buttons[2].onclick=()=>{camera.zoom=Math.max(.2,camera.zoom/1.3);camera.updateProjectionMatrix();};
-    buttons[3].onclick=()=>{document.body.classList.toggle('map-all-names');buttons[3].setAttribute('aria-pressed',String(document.body.classList.contains('map-all-names')));};
+    buttons[3].onclick=()=>{document.body.classList.toggle('map-hide-city-names');buttons[3].setAttribute('aria-pressed',String(!document.body.classList.contains('map-hide-city-names')));};
     buttons[4].onclick=()=>{const pure=document.body.classList.toggle('map-inspection');buttons[4].textContent=pure?'返回遊戲':'純地圖';};
     toolbar.addEventListener('keydown',e=>e.stopPropagation());
     document.body.append(toolbar);
@@ -94,16 +95,11 @@ export class CameraController {
       if (this.focusTarget.distanceTo(t) < 0.05) this.focusTarget = null;
     }
 
-    // 限制在地圖範圍
-    const t = this.controls.target;
-    const cx = THREE.MathUtils.clamp(t.x, -130, 130) - t.x;
-    const cz = THREE.MathUtils.clamp(t.z, -130, 130) - t.z;
-    if (cx || cz) {
-      t.x += cx;
-      t.z += cz;
-      this.camera.position.x += cx;
-      this.camera.position.z += cz;
-    }
     this.controls.update();
+    const t=this.controls.target;
+    const clamped=clampMapTarget(t.x,t.z,(this.camera.right-this.camera.left)/this.camera.zoom,(this.camera.top-this.camera.bottom)/this.camera.zoom,t.y+.08);
+    const cx=clamped.x-t.x,cz=clamped.z-t.z;
+    t.x+=cx;t.z+=cz;this.camera.position.x+=cx;this.camera.position.z+=cz;
+
   }
 }

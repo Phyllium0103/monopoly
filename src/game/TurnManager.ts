@@ -33,7 +33,7 @@ export async function startTurn(state: GameState, lord: Lord, protect?: (g: Gene
     stones += inc.stones;
     soldiers += inc.soldiers;
     // 每回合成長：+0.5（平原、盆地、水鄉）、+0.4、+0.3
-    city.prosperity = Math.min(200, Math.round((city.prosperity + Math.max(0, 0.4 + terrainOf(city).growth * 0.1)) * 100) / 100);
+    city.prosperity = Math.min(300, Math.round((city.prosperity + Math.max(0, 0.4 + terrainOf(city).growth * 0.1)) * 100) / 100);
     if (city.shieldTurns > 0) city.shieldTurns--;
   }
   lord.stones += stones;

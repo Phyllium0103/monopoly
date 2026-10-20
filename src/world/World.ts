@@ -86,7 +86,7 @@ export class World {
       v.group.rotation.y=lot.rotation;g.add(v.group);this.buildings.push(v);
     }
     const el=document.createElement('div');el.className=`special-label k-${tile.kind}`;
-    el.textContent=`${TILE_INFO[tile.kind].icon} ${tile.name}`;
+    el.textContent=`${TILE_INFO[tile.kind].icon} ${tile.name}`;el.dataset.tile=String(tile.index);el.hidden=true;
     const label=new CSS2DObject(el);label.position.set(0,7,0);g.add(label);
   }
 
@@ -99,7 +99,10 @@ export class World {
       box.position.set(lot.pos.x,2.5,lot.pos.z);box.userData={pick:true,tile:tile.index};this.root.add(box);this.pickables.push(box);}
   }
 
-  setOccupied(indices:number[]) { this.terrain.setOccupied(indices); }
+  setOccupied(indices:number[]) {
+    this.terrain.setOccupied(indices);
+    for(const [i,g] of this.forkArrows){const plate=g.userData.plate as THREE.Mesh;if(plate)(plate.material as THREE.MeshPhongMaterial).color.setHex(indices.includes(i)?0xa7e8e8:0xf5fbfa);}
+  }
 
   /** 依遊戲狀態建立或更新所有城池 */
   syncCities(state: GameState) {
@@ -159,6 +162,10 @@ export class World {
   }
 
   setHover(index: number | null) {
+    for(const el of this.root.children.flatMap(g=>g.children).filter(o=>o instanceof CSS2DObject)) {
+      const element=(el as CSS2DObject).element;
+      if(element.classList.contains('special-label'))element.hidden=element.dataset.tile!==String(index);
+    }
     if (index === null) {
       this.hover.visible = false;
       return;
@@ -257,33 +264,15 @@ export class World {
 
   /** 木頭路牌：立在岔路口通往前進方向的路上（避開城池建築），木板尖端指向目前的前進方向 */
   private makeSignpost(): THREE.Group {
-    const wood = new THREE.MeshStandardMaterial({ color: 0xe0b872, roughness: 0.85 });
-    const dark = new THREE.MeshStandardMaterial({ color: 0x4a2c14, roughness: 0.95 });
-    const paint = new THREE.MeshBasicMaterial({ color: 0xc8281c });
-    const g = new THREE.Group();
-    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 4.4, 8), dark);
-    post.position.y = 2.2;
-    g.add(post);
-    const flat = (pts: [number, number][], depth: number, mat: THREE.Material, y: number, scale = 1) => {
-      const sh = new THREE.Shape();
-      pts.forEach(([x, z], i) => (i ? sh.lineTo(x * scale, z * scale) : sh.moveTo(x * scale, z * scale)));
-      sh.closePath();
-      const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false }).rotateX(-Math.PI / 2), mat);
-      m.position.y = y;
-      return m;
-    };
-    // 指向 +X 的箭頭形木板：深色外框、淺色木板、紅漆箭頭
-    const board: [number, number][] = [[-2.2, -0.9], [1.3, -0.9], [2.9, 0], [1.3, 0.9], [-2.2, 0.9]];
-    const sign = new THREE.Group();
-    sign.add(
-      flat(board, 0.16, dark, 4.3, 1.1),
-      flat(board, 0.3, wood, 4.4),
-      flat([[-1.5, -0.28], [0.6, -0.28], [0.6, -0.6], [2.2, 0], [0.6, 0.6], [0.6, 0.28], [-1.5, 0.28]], 0.06, paint, 4.72),
-    );
-    sign.name = 'sign';
-    g.add(sign);
-    g.scale.setScalar(.28);
-    return g;
+    const group=new THREE.Group();
+    const plate=new THREE.Mesh(new THREE.BoxGeometry(CELL_SIZE*.88,.055,CELL_SIZE*.88),new THREE.MeshPhongMaterial({color:0xf5fbfa,shininess:35}));
+    plate.position.y=.025;group.add(plate);group.userData.plate=plate;
+    const rim=new THREE.Mesh(new THREE.RingGeometry(1.08,1.2,8),new THREE.MeshPhongMaterial({color:0xb8a56b,side:THREE.DoubleSide,shininess:70}));
+    rim.rotation.x=-Math.PI/2;rim.position.y=.06;group.add(rim);
+    const sign=new THREE.Group();sign.name='sign';
+    const shape=new THREE.Shape().moveTo(-.8,-.24).lineTo(.2,-.24).lineTo(.2,-.57).lineTo(1.04,0).lineTo(.2,.57).lineTo(.2,.24).lineTo(-.8,.24).closePath();
+    const arrow=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.06,bevelEnabled:true,bevelSize:.035,bevelThickness:.02,bevelSegments:2}).rotateX(-Math.PI/2),new THREE.MeshPhongMaterial({color:0x268f98,emissive:0x0b4044,emissiveIntensity:.2,shininess:40}));
+    arrow.position.y=.14;sign.add(arrow);group.add(sign);return group;
   }
 
   syncForkArrows(state: GameState) {
@@ -300,7 +289,7 @@ export class World {
         this.forkArrows.set(tile.index, sign);
       }
       // 立在通往目標的路上，離城池或路口一小段距離，才不會被建築蓋住
-      const off = CELL_SIZE*.28;
+      const off = 0;
       const p = this.tilePosition(tile.index);
       sign.position.set(p.x + dx * off, p.y, p.z + dz * off);
       sign.getObjectByName('sign')!.rotation.y = Math.atan2(-dz, dx);

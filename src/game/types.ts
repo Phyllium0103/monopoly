@@ -150,6 +150,8 @@ export interface Lord {
   stones: number;
   soldiers: number;
   position: number;
+  /** 山河圖內圈的持久進度，外圈16格，完成前不能離開。 */
+  relicJourney?: { entryTile:number; steps:number; lastResult:string };
   /** 上一格：辨識進入岔路的方向；傳送後歸零 */
   lastTile: number | null;
   /** 本次經過岔路決定的出口；停下時保留到下回合 */
@@ -223,6 +225,7 @@ export interface Tile {
 }
 
 export interface GameState {
+  rulesVersion?: string;
   round: number;
   /** 最大回合數；null 為無盡模式（直到只剩一位主公沒破產） */
   maxRounds: number | null;

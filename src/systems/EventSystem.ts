@@ -148,7 +148,7 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
         let n = 0;
         for (const c of citiesOf(state, l.id)) {
           n += cityIncomeOf(state, c).stones;
-          c.prosperity = Math.min(200, c.prosperity + 10);
+          c.prosperity = Math.min(300, c.prosperity + 10);
         }
         l.stones += n;
         if (n) lines.push(`${LORDS[l.id].name} 額外收入 ${fmtStones(n)}`);

@@ -27,3 +27,9 @@ const random=Math.random,state=createGameState('liu');let event;
 try{Math.random=()=>.6;event=rollRoadEvent(state,state.lords.liu);}finally{Math.random=random;}
 assert.ok(event);assert.ok(!/白玉驛道|驛道 \d/.test(event.story));
 console.log('PASS roads have no numbered place names; road encounters use generic scenery');
+
+const{BUILDING_LOTS}=require('../src/data/selectedBoard.ts');const{garrisonDispatch}=require('../src/systems/GarrisonSystem.ts');const{Engine}=require('../src/engine/Engine.ts');const{RecordingView}=require('../src/engine/view.ts');
+const state2=createGameState('liu'),lord2=state2.lords.liu,engine2=new Engine(state2,{view:new RecordingView(),send:async()=>null,isAuto:()=>false,multiplayer:false});
+const city=Object.values(state2.cities).find(c=>c.owner==='liu'),lot=BUILDING_LOTS.find(o=>o.id===city.id);lord2.position=lot.triggerTiles[1];assert.equal(garrisonDispatch(state2,lord2,city).fee,0);
+const vein=BUILDING_LOTS.find(o=>o.type==='vein'),before=lord2.stones;for(const i of vein.triggerTiles)engine2.passVein(lord2,i);assert.ok(lord2.stones>before);assert.equal(lord2.veinsTapped.length,1);
+console.log('PASS second city entrance dispatch is free; both vein cells share one reward per round');

@@ -216,6 +216,8 @@ export type TileKind = 'city' | 'realm' | 'treasure' | 'herb' | 'forge' | 'libra
 
 export interface Tile {
   index: number;
+  /** Both frontage cells share one building and reward identity. */
+  eventAnchor?: number;
   kind: TileKind;
   name: string;
   pos: Vec2;

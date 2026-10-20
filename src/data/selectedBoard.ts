@@ -15,7 +15,10 @@ export const BUILDING_LOTS = SELECTED_LAYOUT.objects.map(o => {
   const frontage = o.side === 'above' ? [x,y+2] : [x-1,y];
   const tile = ids.get(key(frontage[0],frontage[1]));
   if (tile === undefined) throw new Error(`建築入口缺少道路：${o.name}`);
-  return { ...o, tile, pos:gridPosition(x+.5,y+.5), rotation:o.side==='above'?0:-Math.PI/2 };
+  const second=o.side==='above'?[x+1,y+2]:[x-1,y+1];
+  const other=ids.get(key(second[0],second[1]));
+  if(other===undefined)throw new Error(`建築第二入口缺少道路：${o.name}`);
+  return { ...o, tile, triggerTiles:[tile,other], pos:gridPosition(x+.5,y+.5), rotation:o.side==='above'?0:-Math.PI/2 };
 });
 export function buildSelectedBoard() {
   const tiles: Tile[] = SELECTED_LAYOUT.roads.map(([x,y],index) => ({
@@ -27,10 +30,14 @@ export function buildSelectedBoard() {
   const claimed = new Set<number>();
   const cities: {id:string;name:string;prosperity:number;owner?:LordId;tile:number}[] = [];
   for (const o of BUILDING_LOTS) {
-    if (claimed.has(o.tile)) throw new Error(`重複建築判定格：${o.name}`);
-    claimed.add(o.tile);
-    const t=tiles[o.tile];t.kind=(kinds[o.type]??o.type) as TileKind;t.name=o.name;
-    if(o.type==='city') { t.cityId=o.id;cities.push({id:o.id,name:o.name,prosperity:o.prosperity!,owner:owners[o.id],tile:o.tile}); }
+    for(const index of o.triggerTiles){
+      if(claimed.has(index))throw new Error(`建築觸發格重疊：${o.name}`);
+      claimed.add(index);
+      const t=tiles[index];t.kind=(kinds[o.type]??o.type) as TileKind;t.name=o.name;
+      Object.assign(t,{eventAnchor:o.tile});
+      if(o.type==='city')t.cityId=o.id;
+    }
+    if(o.type==='city') { cities.push({id:o.id,name:o.name,prosperity:o.prosperity!,owner:owners[o.id],tile:o.tile}); }
   }
   const edges: [number,number][]=[];
   for(const t of tiles) for(const n of t.links) if(n>t.index) edges.push([t.index,n]);

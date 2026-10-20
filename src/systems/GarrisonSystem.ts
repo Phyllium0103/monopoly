@@ -21,7 +21,9 @@ export function garrisonDispatch(state: GameState, lord: Lord, city: City) {
     diameter = Math.max(1, ...state.tiles.flatMap(t => distances(state.tiles, t.index).filter(Number.isFinite)));
     diameters.set(state.tiles, diameter);
   }
-  const distance = distances(state.tiles, lord.position)[city.tile];
+  const from=distances(state.tiles,lord.position);
+  const entrances=state.tiles.filter(t=>t.cityId===city.id).map(t=>t.index);
+  const distance=Math.min(...(entrances.length?entrances:[city.tile]).map(i=>from[i]));
   const fee = distance === 0 ? 0 : Math.min(1000, Math.max(10, Math.round((10 + 990 * distance / diameter) / 10) * 10));
   return { distance, fee };
 }

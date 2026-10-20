@@ -372,8 +372,9 @@ export class Engine {
 
   /** 路過靈脈：不用停下，依主公本人的境界獲得靈石，每輪每位主公只領一次 */
   private passVein(lord: Lord, tile: number) {
-    if (this.state.tiles[tile].kind !== 'vein' || lord.veinsTapped.includes(tile)) return;
-    lord.veinsTapped.push(tile);
+    const anchor=this.state.tiles[tile].eventAnchor??tile;
+    if (this.state.tiles[tile].kind !== 'vein' || lord.veinsTapped.includes(anchor)) return;
+    lord.veinsTapped.push(anchor);
     const lordGen = generalsOf(this.state, lord.id).find((g) => g.isLord);
     const n = veinStones(lordGen?.realm ?? 0);
     lord.stones += n;

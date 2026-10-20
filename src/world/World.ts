@@ -9,7 +9,7 @@ import { BUILDING_LOTS, CELL_SIZE, cityModelLevel } from '../data/selectedBoard'
 import type { MAP_MODELS } from '../data/mapModels';
 import { animateCity, type CityVisual } from './CityMesh';
 import { animateBuilding, buildSpecial, type BuildingVisual } from './Buildings';
-import { ownerColor, ownerCss, ownerName } from '../faction/Faction';
+import { ownerColor, ownerName } from '../faction/Faction';
 import { BOARD, TILE_INFO } from '../data/board';
 import type { Animator } from '../scene/Animator';
 import { easeOut } from '../scene/Animator';
@@ -89,7 +89,7 @@ export class World {
       v.group.rotation.y=lot.rotation;g.add(v.group);this.buildings.push(v);
     }
     const el=document.createElement('div');el.className=`special-label k-${tile.kind}`;
-    el.textContent=`${TILE_INFO[tile.kind].icon} ${tile.name}`;el.dataset.tile=String(tile.index);el.hidden=true;
+    el.textContent=`${TILE_INFO[tile.kind].icon} ${tile.name}`;el.dataset.tile=String(tile.index);el.dataset.tiles=lot.triggerTiles.join(',');el.hidden=true;
     const label=new CSS2DObject(el);label.position.set(0,7,0);g.add(label);
   }
 
@@ -161,14 +161,14 @@ export class World {
   private updateLabel(state: GameState, city: City) {
     const e = this.cities.get(city.id)!;
     const tollText = city.owner === 'neutral' ? '' : `<small class="toll">💰${fmtStones(cityToll(state, city), true)}</small>`;
-    e.label.innerHTML = `<span class="dot" style="background:${ownerCss(city.owner)}"></span>${city.capital ? '★' : ''}${city.name}<small>${ownerName(city.owner)}</small>${tollText}`;
+    e.label.innerHTML = `${city.capital ? '★' : ''}${city.name}<small>${ownerName(city.owner)}</small>${tollText}`;
   }
 
   setHover(index: number | null) {
     if(index!==null&&this.tiles[index].kind==='road')index=null;
     for(const el of this.root.children.flatMap(g=>g.children).filter(o=>o instanceof CSS2DObject)) {
       const element=(el as CSS2DObject).element;
-      if(element.classList.contains('special-label'))element.hidden=element.dataset.tile!==String(index);
+      if(element.classList.contains('special-label'))element.hidden=!element.dataset.tiles?.split(',').includes(String(index));
     }
     if (index === null) {
       this.hover.visible = false;

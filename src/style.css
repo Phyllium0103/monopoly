@@ -76,12 +76,7 @@ img {
   white-space: nowrap;
   text-shadow: 0 1px 2px #000;
 }
-.city-label .dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  border: 1px solid #fff;
-}
+
 .city-label small {
   font-weight: 400;
   font-size: 12px;

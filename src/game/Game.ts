@@ -250,7 +250,7 @@ export class Game {
 
   /** 進入多人對局：me 為本機玩家的主公 */
   startOnline(state: GameState, me: LordId, onExit: () => void) {
-    if(state.rulesVersion!=='map-relic-20261020' || state.tiles.length!==BOARD.tiles.length || state.tiles.some((t,i)=>t.name!==BOARD.tiles[i].name || t.pos.x!==BOARD.tiles[i].pos.x || t.pos.z!==BOARD.tiles[i].pos.z)) {
+    if(state.rulesVersion!=='map-dual-frontage-20261020' || state.tiles.length!==BOARD.tiles.length || state.tiles.some((t,i)=>t.name!==BOARD.tiles[i].name || t.pos.x!==BOARD.tiles[i].pos.x || t.pos.z!==BOARD.tiles[i].pos.z)) {
       throw new Error('此房間仍使用舊版地圖。請更新多人伺服器並建立新房間；舊對局資料不會被覆寫。');
     }
     this.reset();

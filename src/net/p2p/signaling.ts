@@ -36,6 +36,8 @@ export interface Directory {
   lookup(code: string): Promise<HostInfo | null>;
   /** 房主定期回報仍在線上 */
   touch(code: string, peer: string, status: HostInfo['status']): Promise<void>;
+  /** Any player still in the room, including one waiting for the host to reconnect. */
+  present(code: string): Promise<void>;
   close(code: string): Promise<void>;
 }
 
@@ -102,6 +104,9 @@ export class SupabaseDirectory implements Directory {
   close(code: string) {
     return this.rpc<void>('p2p_close', { p_code: code });
   }
+  present(code: string) {
+    return this.rpc<void>('p2p_present', { p_code: code });
+  }
 }
 
 // ───────────────────────── 本機測試（同一個瀏覽器的不同分頁） ─────────────────────────
@@ -135,14 +140,22 @@ export class LocalSignal implements SignalChannel {
   }
 }
 
-type LocalRow = { host_id: string; host_peer: string; status: HostInfo['status']; seen: number };
+type LocalRow = { host_id: string; host_peer: string; status: HostInfo['status']; seen: number; occupied?: number };
 
 export class LocalDirectory implements Directory {
   constructor(private userId: () => string) {}
 
   private read(): Record<string, LocalRow> {
     try {
-      return JSON.parse(localStorage.getItem(DIR_KEY) ?? '{}') as Record<string, LocalRow>;
+      const rows = JSON.parse(localStorage.getItem(DIR_KEY) ?? '{}') as Record<string, LocalRow>;
+      let changed = false;
+      for (const [code, row] of Object.entries(rows)) {
+        if (Date.now() - Math.max(row.seen, row.occupied ?? row.seen) > 300_000) {
+          delete rows[code]; changed = true;
+        }
+      }
+      if (changed) this.write(rows);
+      return rows;
     } catch {
       return {};
     }
@@ -157,7 +170,7 @@ export class LocalDirectory implements Directory {
       const code = String(Math.floor(Math.random() * 100000)).padStart(5, '0');
       const r = rows[code];
       if (r && r.status !== 'closed' && Date.now() - r.seen < 24 * 3600_000) continue;
-      rows[code] = { host_id: this.userId(), host_peer: peer, status, seen: Date.now() };
+      rows[code] = { host_id: this.userId(), host_peer: peer, status, seen: Date.now(), occupied: Date.now() };
       this.write(rows);
       return code;
     }
@@ -167,7 +180,7 @@ export class LocalDirectory implements Directory {
     const rows = this.read();
     const r = rows[code];
     if (r && r.host_id !== this.userId() && r.status !== 'closed') throw new RoomError('ROOM_NOT_FOUND');
-    rows[code] = { host_id: this.userId(), host_peer: peer, status, seen: Date.now() };
+    rows[code] = { host_id: this.userId(), host_peer: peer, status, seen: Date.now(), occupied: Date.now() };
     this.write(rows);
   }
   async lookup(code: string) {
@@ -178,12 +191,16 @@ export class LocalDirectory implements Directory {
     const rows = this.read();
     const r = rows[code];
     if (!r || r.host_id !== this.userId()) return;
-    Object.assign(r, { host_peer: peer, status, seen: Date.now() });
+    Object.assign(r, { host_peer: peer, status, seen: Date.now(), occupied: Date.now() });
     this.write(rows);
   }
   async close(code: string) {
     const rows = this.read();
-    if (rows[code]?.host_id === this.userId()) rows[code].status = 'closed';
+    if (rows[code]?.host_id === this.userId()) Object.assign(rows[code], { status: 'closed', occupied: Date.now() });
     this.write(rows);
+  }
+  async present(code: string) {
+    const rows = this.read();
+    if (rows[code]) { rows[code].occupied = Date.now(); this.write(rows); }
   }
 }

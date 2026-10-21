@@ -2,7 +2,8 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Supabase 連線：網址與公開金鑰來自建置時的環境變數（VITE_ 開頭，見 .env.example）。
- * 只使用 publishable / anon key；service role 金鑰只存在 Edge Function 的伺服器環境。
+ * 只使用 publishable / anon key；私密金鑰不可提供給瀏覽器。
+ * Supabase 僅處理登入、房號目錄、房內有人回報與配對訊息。
  */
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const key = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined;

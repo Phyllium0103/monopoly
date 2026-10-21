@@ -2,6 +2,7 @@ import type { GameState, LordId } from '../game/types';
 import { BOARD } from '../data/board';
 import { HostRoom, type HostSnapshot } from './HostRoom';
 import { dial, listen, type Link } from './p2p/link';
+import { RoomPresence } from './p2p/presence';
 import { LocalDirectory, LocalSignal, SupabaseDirectory, SupabaseSignal, type Directory, type SignalChannel } from './p2p/signaling';
 import { RoomError, codeOf, type EventRow, type GamePublic, type GameResponse, type Member, type Room } from './roomTypes';
 import { localP2P, projectKey, supabase } from './supabase';
@@ -61,6 +62,7 @@ export class RoomService {
   private local = localP2P();
   private sb = this.local ? null : supabase();
   private dir: Directory;
+  private presence = new RoomPresence((code) => this.dir.present(code));
   private secret = '';
   /** 這次開啟頁面的連線識別（重新整理會換新的；房號目錄會跟著更新） */
   private peerId = randomId();
@@ -87,7 +89,9 @@ export class RoomService {
     if (this.local) this.dir = new LocalDirectory(() => this.userId);
     else if (this.sb) this.dir = new SupabaseDirectory(this.sb);
     else throw new RoomError('尚未設定 Supabase（VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY）');
-    window.addEventListener('pagehide', () => this.saveNow());
+    window.addEventListener('pagehide', () => { this.saveNow(); void this.presence.stop(); });
+    window.addEventListener('pageshow', () => { if (this.code) this.presence.start(this.code); });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) void this.presence.ping(); });
   }
 
   /** 匿名登入：同一個瀏覽器會沿用同一個身分，重新整理後仍能回到原本的房間 */
@@ -139,7 +143,9 @@ export class RoomService {
     if (!info.online) throw new RoomError('HOST_OFFLINE');
     this.code = code;
     await this.connect(info.host_peer);
-    return this.call<{ room_id: string; code: string; rejoined: boolean }>('join', { nickname });
+    const joined = await this.call<{ room_id: string; code: string; rejoined: boolean }>('join', { nickname });
+    this.presence.start(code);
+    return joined;
   }
 
   leaveRoom(_roomId: string) {
@@ -147,6 +153,7 @@ export class RoomService {
   }
 
   private async leave() {
+    await this.presence.stop();
     if (this.host) {
       const host = this.host;
       host.leave(this.userId);
@@ -269,6 +276,7 @@ export class RoomService {
     this.hostBeat = setInterval(beat, HOST_BEAT_MS);
     this.saveNow();
     this.setConnected(true);
+    this.presence.start(code);
   }
 
   private acceptLink(link: Link) {
@@ -436,6 +444,7 @@ export class RoomService {
       try {
         const info = await this.dir.lookup(code);
         if (!info || info.status === 'closed') {
+          void this.presence.stop();
           if (this.cache) this.cache.room.status = 'closed';
           this.notifyRoom();
           return;
@@ -452,6 +461,7 @@ export class RoomService {
   }
 
   private closeAll() {
+    void this.presence.stop();
     this.stopHosting(true);
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
     this.reconnectTimer = null;

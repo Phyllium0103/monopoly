@@ -52,7 +52,15 @@
 5. **本機環境變數**：複製 `.env.example` 為 `.env` 填入 `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`。
 6. **GitHub Pages**：repo 的 Settings → Secrets and variables → Actions → **Variables** 新增 `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`（選填 TURN 三項）。沒設定時多人按鈕停用，單人照常。
 
-不再需要部署 Edge Function。舊版的資料表（`rooms`、`room_members`、`game_*`）與 `game` 函式已不使用，確認不需要後可從 Supabase 刪除。
+不再需要部署 Edge Function。舊版的資料表（`rooms`、`room_members`、`game_*`）、19 個 RPC/工具函式、舊 `game:` 頻道政策及 `game` Edge Function，已於 2026-10-22 從正式 Supabase 專案清除。舊資料完整備份僅存於本機，不放進 Git。
+
+### 五分鐘空房清理
+
+既有專案另執行 `supabase/migrations/20261022020000_p2p_empty_room_cleanup.sql`。這會啟用 Supabase `pg_cron`，建立唯一命名的 `p2p-empty-room-cleanup` 工作，每分鐘刪除超過 5 分鐘未收到任何玩家回報的 `p2p_rooms` 記錄，通常在最後回報後第 5～6 分鐘清除；無須任何瀏覽器或此對話保持開啟。
+
+所有房內真人每 20 秒呼叫 `p2p_present`，只傳房號，不傳遊戲狀態；離開房間停止回報，背景分頁回到前景會立即補報。房主原有心跳也會更新佔用時間，保留舊客戶端相容性。房主斷線但仍有其他玩家等候重連時，其他玩家持續回報，因此不會只因房主離線就刪房。`last_seen_at` 仍只表示房主是否在線，`last_occupied_at` 表示房間是否還有人。
+
+自動清理只刪房號目錄，不刪玩家登入帳號、瀏覽器內房主存檔或任何建築資產。超過五分鐘都沒有回報（包含所有分頁被關閉或斷網）才會視為空房。
 
 ### 選填：TURN 轉送
 

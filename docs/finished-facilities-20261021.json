@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-21",
+  "assets": [
+    {
+      "asset": "relic",
+      "version": "v20",
+      "bytes": 16254140,
+      "sha256": "c9b5ed3b5e9f9a73c27944c8a1aed6f2b634cf24a538e6b8a0262bb4878c9e7e",
+      "sourceGLB": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\relic\\blender-native-20261020\\models\\relic-v20-refined.glb",
+      "sourceProject": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\relic\\blender-native-20261020\\models\\relic-v20-standalone.blend",
+      "approvalScope": "current additional refinement, common physical geometry and user-authorized source corrections",
+      "exactSourceMatch": false
+    },
+    {
+      "asset": "vein",
+      "version": "v27",
+      "bytes": 14483976,
+      "sha256": "357afa95d65e3adfd207c7dcb888b67a15bc250a604c1730deab4ea8d2f78135",
+      "sourceGLB": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\vein\\blender-native-20261021\\models\\vein-v27-refined.glb",
+      "sourceProject": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\vein\\blender-native-20261021\\models\\vein-v27-standalone.blend",
+      "approvalScope": "User-authorized redesign of the exterior shoring, with legacy loose fixtures and winch support repaired",
+      "exactSourceMatch": false
+    },
+    {
+      "asset": "secret",
+      "version": "v18",
+      "bytes": 12827816,
+      "sha256": "f5a0ccf42544a19b8211e20dfd298e6c4c32242d7fd9e2e780446c568fbcf9fd",
+      "sourceGLB": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\secret\\blender-native-20261021\\models\\secret-v18-refined.glb",
+      "sourceProject": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\secret\\blender-native-20261021\\models\\secret-v18-standalone.blend",
+      "approvalScope": "user-reported roof centering, embedded crystal roots and complete timber connections",
+      "exactSourceMatch": false
+    }
+  ],
+  "placement": "Existing 2x2 lots, authored Y-up floor origin, unchanged frontage rotations",
+  "sourceGeometryModified": false,
+  "otherModelsChanged": false
+}

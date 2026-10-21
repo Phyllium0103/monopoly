@@ -1,18 +1,19 @@
-import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { LordId } from '../game/types';
 import type { Game } from '../game/Game';
 import { LORDS } from '../faction/Faction';
 import { LobbyView } from '../ui/LobbyView';
-import { projectKey } from './supabase';
-import { RoomError, RoomService, isOnline, type EventRow, type GamePublic, type GameResponse, type Member, type Room } from './RoomService';
+import { localP2P, projectKey } from './supabase';
+import { RoomError, RoomService, isOnline, type EventRow, type GamePublic, type GameResponse, type Member, type Room, type WatchHandle } from './RoomService';
 
 const ROOM_KEY = projectKey('xiantu-room');
 const NICK_KEY = 'xiantu-nickname';
 const HEARTBEAT_MS = 15_000;
 
+/** 開發用的分頁模式（?p2p=local）每個分頁各自保存，才能在同一瀏覽器模擬多位玩家 */
+const storage = () => (localP2P() ? sessionStorage : localStorage);
 const load = <T>(key: string): T | null => {
   try {
-    const raw = localStorage.getItem(key);
+    const raw = storage().getItem(key);
     return raw ? (JSON.parse(raw) as T) : null;
   } catch {
     return null;
@@ -20,8 +21,8 @@ const load = <T>(key: string): T | null => {
 };
 const save = (key: string, value: unknown) => {
   try {
-    if (value === null) localStorage.removeItem(key);
-    else localStorage.setItem(key, JSON.stringify(value));
+    if (value === null) storage().removeItem(key);
+    else storage().setItem(key, JSON.stringify(value));
   } catch { /* 私密模式等無法儲存時略過 */ }
 };
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -29,8 +30,8 @@ const newOpId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-
 
 /**
  * 多人模式流程：選單 → 等待大廳 → 對局。
- * 對局中所有變化都來自權威端：收到事件就依序播放，再讀取最新完整狀態；
- * 輪到自己時顯示抉擇，回答附上操作 ID 送回（網路重試不會重複執行）。
+ * 對局中所有變化都來自權威端（房主的瀏覽器，點對點連線）：收到事件就依序播放，再套用最新完整狀態；
+ * 輪到自己時顯示抉擇，回答附上操作 ID 送回（重送不會重複執行）。
  */
 export class OnlineSession {
   private svc: RoomService | null = null;
@@ -40,8 +41,8 @@ export class OnlineSession {
   private code = '';
   private room: Room | null = null;
   private members: Member[] = [];
-  private roomChannel: RealtimeChannel | null = null;
-  private gameChannel: RealtimeChannel | null = null;
+  private roomChannel: WatchHandle | null = null;
+  private gameChannel: WatchHandle | null = null;
   private heartbeat: number | null = null;
   private poller: number | null = null;
   private online = false;
@@ -255,8 +256,8 @@ export class OnlineSession {
       if (online && !was) this.catchUp();
       this.updateBar();
     }, (update) => {
-      // 伺服器直接推送的新狀態：與自己送出回答後的回應用同一套方式套用（重複的版本會略過）
-      if (update.partial || !update.state) this.catchUp();
+      // 房主直接推送的新狀態：與自己送出回答後的回應用同一套方式套用（重複的版本會略過）
+      if (!update.state) this.catchUp();
       else this.applyResponse(update);
     });
     // 房主剛按開始時，遊戲資料可能還在建立中
@@ -476,7 +477,11 @@ export class OnlineSession {
 
   private leaveGame() {
     const over = this.pub?.over;
-    if (!over && !window.confirm('離開對局？你的座位會保留，用同一個瀏覽器輸入房號即可回來；離線期間房主可將你交由電腦代打。')) return;
+    const iAmHost = this.room?.host_id === this.svc?.userId;
+    const ask = iAmHost
+      ? '離開對局？對局在你的瀏覽器上進行，你離開期間其他玩家會停在原地等待；之後用同一個瀏覽器輸入房號即可接著主持。'
+      : '離開對局？你的座位會保留，用同一個瀏覽器輸入房號即可回來；離線期間房主可將你交由電腦代打。';
+    if (!over && !window.confirm(ask)) return;
     const roomId = this.roomId;
     if (roomId) void this.svc?.leaveRoom(roomId).catch(() => {});
     this.leaveLocal('');

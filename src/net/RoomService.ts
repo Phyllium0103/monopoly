@@ -1,220 +1,465 @@
-import { FunctionRegion, type RealtimeChannel, type SupabaseClient } from '@supabase/supabase-js';
 import type { GameState, LordId } from '../game/types';
-import type { Prompt } from '../engine/prompts';
-import type { ViewEvent } from '../engine/view';
-import { supabase } from './supabase';
 import { BOARD } from '../data/board';
+import { HostRoom, type HostSnapshot } from './HostRoom';
+import { dial, listen, type Link } from './p2p/link';
+import { LocalDirectory, LocalSignal, SupabaseDirectory, SupabaseSignal, type Directory, type SignalChannel } from './p2p/signaling';
+import { RoomError, codeOf, type EventRow, type GamePublic, type GameResponse, type Member, type Room } from './roomTypes';
+import { localP2P, projectKey, supabase } from './supabase';
 
-/** 伺服器傳來的狀態不含固定的地圖格子，這裡補上 */
+export { RoomError, isOnline, OFFLINE_MS } from './roomTypes';
+export type { EventRow, GamePublic, GameResponse, Member, Room } from './roomTypes';
+
+/** 傳輸時省略固定的地圖格子，收到後在這裡補上 */
 export function withTiles(state: GameState): GameState {
   if (!state.tiles?.length) state.tiles = structuredClone(BOARD.tiles);
   return state;
 }
 
-export interface Room {
-  id: string;
-  code: string;
-  host_id: string;
-  status: 'waiting' | 'playing' | 'closed';
-  max_players: number;
-  max_rounds: number | null;
-}
+/** 房主傳給玩家的訊息、玩家送給房主的請求 */
+type Op = 'join' | 'leave' | 'ready' | 'lord' | 'rounds' | 'addAi' | 'removeAi' | 'heartbeat' | 'room' | 'game' | 'events'
+  | 'start' | 'answer' | 'continue' | 'takeover' | 'reclaim';
+type Args = Record<string, unknown>;
+type Msg =
+  | { t: 'req'; id: number; op: Op; args: Args }
+  | { t: 'res'; id: number; ok: boolean; data?: unknown; error?: string }
+  | { t: 'room'; room: Room; members: Member[] }
+  | { t: 'update'; update: GameResponse };
 
-export interface Member {
-  id: string;
-  room_id: string;
-  user_id: string | null;
-  nickname: string;
-  kind: 'human' | 'ai';
-  lord_id: LordId;
-  is_host: boolean;
-  ready: boolean;
-  ai_control: boolean;
-  joined_at: string;
-  last_seen_at: string;
-}
+interface RoomWatch { kind: 'room'; onChange: () => void; onStatus: (online: boolean) => void }
+interface GameWatch { kind: 'game'; onUpdate: (u: GameResponse) => void; onStatus: (online: boolean) => void }
+export type WatchHandle = RoomWatch | GameWatch;
 
-export interface GamePublic {
-  version: number;
-  state: GameState;
-  pending: { lord: LordId; seq: string; prompt: Prompt } | null;
-  over: boolean;
-  paused: boolean;
-}
+const HOST_SAVE = (code: string) => projectKey(`xiantu-p2p-host-${code}`);
+const REQUEST_TIMEOUT = 20_000;
+const HOST_BEAT_MS = 20_000;
 
-export interface EventRow {
-  version: number;
-  events: ViewEvent[];
-}
+const clone = <T>(v: T): T => (v == null ? v : (JSON.parse(JSON.stringify(v)) as T));
+/** 傳輸用：去掉地圖格子（每位玩家本來就有） */
+const wire = <T>(v: T): T => JSON.parse(JSON.stringify(v, (k, val) => (k === 'tiles' ? undefined : val))) as T;
+const randomId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`);
 
-/** 權威端回傳：新的版本、完整狀態與這次產生的畫面事件 */
-export interface GameResponse {
-  ok: boolean;
-  version?: number;
-  duplicate?: boolean;
-  state?: GameState;
-  pending?: GamePublic['pending'];
-  over?: boolean;
-  paused?: boolean;
-  events?: ViewEvent[];
-}
-
-/** 讓 Edge Function 在資料庫所在區域執行，減少跨區往返（例如 ap-south-1） */
-const FUNCTION_REGION = import.meta.env.VITE_SUPABASE_REGION as FunctionRegion | undefined;
-
-/** 超過這段時間沒有心跳就視為離線 */
-export const OFFLINE_MS = 45_000;
-export const isOnline = (m: Member) => m.kind === 'ai' || Date.now() - new Date(m.last_seen_at).getTime() < OFFLINE_MS;
-
-/** 錯誤代碼轉成玩家看得懂的訊息 */
-const MESSAGES: Record<string, string> = {
-  ROOM_NOT_FOUND: '找不到房間，請確認房號',
-  ROOM_STARTED: '這個房間已經開始遊戲，無法加入',
-  ROOM_FULL: '房間已滿',
-  ROOM_CLOSED: '房間已關閉',
-  NOT_HOST: '只有房主可以這麼做',
-  NOT_ALL_READY: '還有玩家尚未準備',
-  NEED_TWO_SEATS: '至少需要兩位玩家（可加入電腦）',
-  ALREADY_STARTED: '遊戲已經開始',
-  LORD_TAKEN: '這個陣營已被選走',
-  NOT_IN_WAITING_ROOM: '房間不在等待狀態',
-  NO_FREE_CODE: '暫時無法產生房號，請再試一次',
-  NOT_SIGNED_IN: '尚未登入，請重新整理頁面',
-  STALE_ANSWER: '這個抉擇已經過時',
-  VERSION_CONFLICT: '其他玩家剛好也在操作，已重新同步',
-  AI_CONTROLLED: '目前由電腦代打中',
-  PLAYER_ONLINE: '該玩家仍在線上',
-  UNAUTHORIZED: '登入已失效，請重新整理頁面',
-  NOT_MEMBER: '你不在這個房間裡',
-};
-
-export class RoomError extends Error {
-  constructor(public code: string) {
-    super(MESSAGES[code] ?? code);
+/** 本機的儲存：開發用的分頁模式改用 sessionStorage，讓同一瀏覽器的兩個分頁是兩位不同玩家 */
+const store = () => (localP2P() ? sessionStorage : localStorage);
+function persistentId(key: string) {
+  try {
+    let v = store().getItem(key);
+    if (!v) store().setItem(key, (v = randomId()));
+    return v;
+  } catch {
+    return randomId();
   }
 }
 
-const codeOf = (e: unknown): string => {
-  const msg = (e as { message?: string })?.message ?? String(e);
-  const known = Object.keys(MESSAGES).find((k) => msg.includes(k));
-  if (known) return known;
-  if (/fetch|network|Failed to fetch|NetworkError/i.test(msg)) return '網路連線失敗，請稍後再試';
-  return msg;
-};
-
-/** 房間與對局的所有雲端操作 */
+/**
+ * 多人連線（點對點）：
+ * - Supabase 只保存「房號 → 開房玩家」，並在建立連線的幾秒內轉交雙方的連線資訊（含 IP）。
+ * - 連上之後，所有遊戲資料直接在玩家與房主之間傳送（WebRTC DataChannel）。
+ * - 房主的瀏覽器就是權威端（HostRoom）：骰子、規則、存檔都在房主這邊；房主自己的操作直接呼叫，不經網路。
+ */
 export class RoomService {
-  private sb: SupabaseClient;
   userId = '';
+  private local = localP2P();
+  private sb = this.local ? null : supabase();
+  private dir: Directory;
+  private secret = '';
+  /** 這次開啟頁面的連線識別（重新整理會換新的；房號目錄會跟著更新） */
+  private peerId = randomId();
+  private code: string | null = null;
+  private connected = false;
+  private watchers = new Set<WatchHandle>();
+  // 房主
+  private host: HostRoom | null = null;
+  private hostSignal: SignalChannel | null = null;
+  private stopListen: (() => void) | null = null;
+  private links = new Set<Link>();
+  private hostBeat: ReturnType<typeof setInterval> | null = null;
+  private saveTimer: ReturnType<typeof setTimeout> | null = null;
+  // 玩家
+  private link: Link | null = null;
+  private nickname = '';
+  private reqId = 0;
+  private waiting = new Map<number, { resolve: (v: unknown) => void; reject: (e: unknown) => void; timer: ReturnType<typeof setTimeout> }>();
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private reconnectDelay = 1000;
+  private cache: { room: Room; members: Member[] } | null = null;
 
   constructor() {
-    const sb = supabase();
-    if (!sb) throw new RoomError('尚未設定 Supabase（VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY）');
-    this.sb = sb;
+    if (this.local) this.dir = new LocalDirectory(() => this.userId);
+    else if (this.sb) this.dir = new SupabaseDirectory(this.sb);
+    else throw new RoomError('尚未設定 Supabase（VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY）');
+    window.addEventListener('pagehide', () => this.saveNow());
   }
 
   /** 匿名登入：同一個瀏覽器會沿用同一個身分，重新整理後仍能回到原本的房間 */
   async signIn(): Promise<string> {
-    const { data } = await this.sb.auth.getSession();
+    this.secret = persistentId(projectKey('xiantu-p2p-seat'));
+    if (this.local) return (this.userId = persistentId('xiantu-p2p-local-user'));
+    const sb = this.sb!;
+    const { data } = await sb.auth.getSession();
     if (data.session?.user) {
       // 確認本機的登入資料仍然有效（例如專案換過金鑰）；失效就丟掉重新登入
-      const { data: check, error } = await this.sb.auth.getUser();
+      const { data: check, error } = await sb.auth.getUser();
       if (!error && check.user) return (this.userId = check.user.id);
-      await this.sb.auth.signOut({ scope: 'local' }).catch(() => {});
+      await sb.auth.signOut({ scope: 'local' }).catch(() => {});
     }
-    const { data: signed, error } = await this.sb.auth.signInAnonymously();
+    const { data: signed, error } = await sb.auth.signInAnonymously();
     if (error || !signed.user) throw new RoomError(error?.message.includes('Anonymous') ? '伺服器尚未開啟匿名登入（Authentication → Anonymous sign-ins）' : codeOf(error));
     return (this.userId = signed.user.id);
   }
 
-  private async rpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {
-    const { data, error } = await this.sb.rpc(fn, args);
-    if (error) throw new RoomError(codeOf(error));
-    return data as T;
+  private signal(code: string): SignalChannel {
+    return this.local ? new LocalSignal(code) : new SupabaseSignal(this.sb!, code);
   }
 
-  createRoom(nickname: string, maxRounds: number | null) {
-    return this.rpc<{ room_id: string; code: string }>('create_room', { p_nickname: nickname, p_max_rounds: maxRounds });
-  }
-  joinRoom(code: string, nickname: string) {
-    return this.rpc<{ room_id: string; code: string; rejoined: boolean }>('join_room', { p_code: code, p_nickname: nickname });
-  }
-  leaveRoom(roomId: string) { return this.rpc<void>('leave_room', { p_room: roomId }); }
-  setReady(roomId: string, ready: boolean) { return this.rpc<void>('set_ready', { p_room: roomId, p_ready: ready }); }
-  setLord(roomId: string, lord: LordId) { return this.rpc<void>('set_lord', { p_room: roomId, p_lord: lord }); }
-  setRounds(roomId: string, rounds: number | null) { return this.rpc<void>('set_room_rounds', { p_room: roomId, p_max_rounds: rounds }); }
-  addAi(roomId: string) { return this.rpc<void>('add_ai', { p_room: roomId }); }
-  removeAi(roomId: string, memberId: string) { return this.rpc<void>('remove_ai', { p_room: roomId, p_member: memberId }); }
-  heartbeat(roomId: string) { return this.rpc<void>('heartbeat', { p_room: roomId }); }
+  // ───────────────────────── 建立與加入 ─────────────────────────
 
-  async fetchRoom(roomId: string): Promise<{ room: Room; members: Member[] }> {
-    const [r, m] = await Promise.all([
-      this.sb.from('rooms').select('*').eq('id', roomId).maybeSingle<Room>(),
-      this.sb.from('room_members').select('*').eq('room_id', roomId).order('joined_at'),
-    ]);
-    if (r.error || m.error) throw new RoomError(codeOf(r.error ?? m.error));
-    if (!r.data) throw new RoomError('ROOM_NOT_FOUND');
-    return { room: r.data, members: (m.data ?? []) as Member[] };
+  async createRoom(nickname: string, maxRounds: number | null) {
+    this.closeAll();
+    const code = await this.dir.create(this.peerId, 'waiting');
+    this.host = HostRoom.create(code, this.userId, this.secret, nickname, maxRounds);
+    await this.startHosting(code);
+    return { room_id: code, code };
   }
 
-  async fetchGame(roomId: string): Promise<GamePublic | null> {
-    const { data, error } = await this.sb.from('game_public').select('version, state, pending, over, paused').eq('room_id', roomId).maybeSingle<GamePublic>();
-    if (error) throw new RoomError(codeOf(error));
-    if (data) withTiles(data.state);
-    return data;
-  }
-
-  async fetchEvents(roomId: string, after: number): Promise<EventRow[]> {
-    const { data, error } = await this.sb.from('game_events').select('version, events').eq('room_id', roomId).gt('version', after).order('version');
-    if (error) throw new RoomError(codeOf(error));
-    return (data ?? []) as EventRow[];
-  }
-
-  /** 呼叫權威端（Edge Function） */
-  async game(action: 'start' | 'answer' | 'continue' | 'takeover' | 'reclaim', roomId: string, extra: Record<string, unknown> = {}) {
-    const { data, error } = await this.sb.functions.invoke('game', { body: { action, roomId, ...extra }, ...(FUNCTION_REGION ? { region: FUNCTION_REGION } : {}) });
-    if (error) {
-      // 從錯誤回應中取出代碼
-      let code = codeOf(error);
-      try {
-        const body = await (error as { context?: Response }).context?.json();
-        if (body?.error) code = body.error;
-      } catch { /* 沒有回應內容 */ }
-      throw new RoomError(code);
+  /** 以房號加入；自己開的房間（本機有存檔）則重新開始主持 */
+  async joinRoom(code: string, nickname: string) {
+    this.nickname = nickname;
+    if (this.code === code && (this.host || this.link?.open)) return this.call<{ room_id: string; code: string; rejoined: boolean }>('join', { nickname });
+    this.closeAll();
+    const saved = this.loadSave(code);
+    if (saved && saved.room.host_id === this.userId && (saved.room.status !== 'closed' || saved.pub?.over)) {
+      this.host = HostRoom.restore(saved);
+      await this.dir.claim(code, this.peerId, this.host.room.status);
+      await this.startHosting(code);
+      return this.host.join(this.userId, this.secret, nickname);
     }
-    const res = data as GameResponse;
+    const info = await this.dir.lookup(code);
+    if (!info) throw new RoomError('ROOM_NOT_FOUND');
+    if (info.status === 'closed' || info.host_id === this.userId) throw new RoomError('ROOM_CLOSED');
+    if (!info.online) throw new RoomError('HOST_OFFLINE');
+    this.code = code;
+    await this.connect(info.host_peer);
+    return this.call<{ room_id: string; code: string; rejoined: boolean }>('join', { nickname });
+  }
+
+  leaveRoom(_roomId: string) {
+    return this.leave();
+  }
+
+  private async leave() {
+    if (this.host) {
+      const host = this.host;
+      host.leave(this.userId);
+      const closed = host.room.status === 'closed';
+      if (closed) await this.dir.close(host.room.code).catch(() => {});
+      // 等待中離開：房間關閉，刪掉存檔；對局中離開：保留存檔，之後輸入房號即可接著主持
+      this.stopHosting(!closed || !!host.pub?.over);
+    } else if (this.link?.open) {
+      await this.request('leave', {}).catch(() => {});
+    }
+    this.closeAll();
+  }
+
+  // ───────────────────────── 房間操作（與舊版 RPC 同名） ─────────────────────────
+
+  setReady(_r: string, ready: boolean) { return this.call<void>('ready', { ready }); }
+  setLord(_r: string, lord: LordId) { return this.call<void>('lord', { lord }); }
+  setRounds(_r: string, rounds: number | null) { return this.call<void>('rounds', { rounds }); }
+  addAi(_r: string) { return this.call<void>('addAi', {}); }
+  removeAi(_r: string, memberId: string) { return this.call<void>('removeAi', { memberId }); }
+  heartbeat(_r: string) { return this.call<void>('heartbeat', {}); }
+
+  async fetchRoom(_r: string): Promise<{ room: Room; members: Member[] }> {
+    if (!this.host && !this.link?.open && this.cache) return clone(this.cache);
+    return this.call<{ room: Room; members: Member[] }>('room', {});
+  }
+
+  async fetchGame(_r: string): Promise<GamePublic | null> {
+    const pub = await this.call<GamePublic | null>('game', {});
+    if (pub) withTiles(pub.state);
+    return pub;
+  }
+
+  fetchEvents(_r: string, after: number) {
+    return this.call<EventRow[]>('events', { after });
+  }
+
+  /** 對局操作：由房主（權威端）執行 */
+  async game(action: 'start' | 'answer' | 'continue' | 'takeover' | 'reclaim', _r: string, extra: Args = {}) {
+    const res = await this.call<GameResponse>(action, extra);
     if (res?.state) withTiles(res.state);
     return res;
   }
 
-  /** 訂閱房間與成員變化 */
-  watchRoom(roomId: string, onChange: () => void, onStatus: (online: boolean) => void): RealtimeChannel {
-    return this.sb
-      .channel(`room:${roomId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `id=eq.${roomId}` }, onChange)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'room_members', filter: `room_id=eq.${roomId}` }, onChange)
-      // 刪除事件無法依欄位過濾，收到就重新讀取
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'room_members' }, onChange)
-      .subscribe((status) => onStatus(status === 'SUBSCRIBED'));
+  watchRoom(_r: string, onChange: () => void, onStatus: (online: boolean) => void): WatchHandle {
+    const w: RoomWatch = { kind: 'room', onChange, onStatus };
+    this.watchers.add(w);
+    queueMicrotask(() => this.watchers.has(w) && onStatus(this.connected));
+    return w;
   }
 
-  /**
-   * 訂閱對局：權威端寫入後會直接推送新狀態（私有頻道，只有房間成員收得到）；
-   * 另外也收資料庫的事件通知作為備援（推送內容過大或漏接時）。
-   */
-  watchGame(roomId: string, onEvent: (row: EventRow) => void, onStatus: (online: boolean) => void, onUpdate: (u: GameResponse & { partial?: boolean }) => void): RealtimeChannel {
-    return this.sb
-      .channel(`game:${roomId}`, { config: { private: true } })
-      .on('broadcast', { event: 'update' }, (msg) => {
-        const u = msg.payload as GameResponse & { partial?: boolean };
-        if (u?.state) withTiles(u.state);
-        onUpdate(u);
-      })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'game_events', filter: `room_id=eq.${roomId}` }, (p) => onEvent(p.new as EventRow))
-      .subscribe((status) => onStatus(status === 'SUBSCRIBED'));
+  /** onEvent 保留舊版介面；點對點時房主直接推送完整更新（onUpdate） */
+  watchGame(_r: string, _onEvent: (row: EventRow) => void, onStatus: (online: boolean) => void, onUpdate: (u: GameResponse) => void): WatchHandle {
+    const w: GameWatch = { kind: 'game', onUpdate, onStatus };
+    this.watchers.add(w);
+    queueMicrotask(() => this.watchers.has(w) && onStatus(this.connected));
+    return w;
   }
 
-  unwatch(channel: RealtimeChannel | null) {
-    if (channel) void this.sb.removeChannel(channel);
+  unwatch(h: WatchHandle | null) {
+    if (h) this.watchers.delete(h);
+  }
+
+  private setConnected(on: boolean) {
+    if (this.connected === on) return;
+    this.connected = on;
+    for (const w of this.watchers) w.onStatus(on);
+  }
+
+  private notifyRoom() {
+    for (const w of this.watchers) if (w.kind === 'room') w.onChange();
+  }
+
+  private notifyUpdate(u: GameResponse) {
+    if (u.state) withTiles(u.state);
+    for (const w of this.watchers) if (w.kind === 'game') w.onUpdate(u);
+  }
+
+  /** 房主直接呼叫本機的權威端；玩家送請求給房主 */
+  private async call<T>(op: Op, args: Args): Promise<T> {
+    if (this.host) return clone((await this.hostCall(this.userId, op, { ...args, secret: this.secret, nickname: args.nickname ?? this.nickname })) as T);
+    return (await this.request(op, args)) as T;
+  }
+
+  // ───────────────────────── 房主 ─────────────────────────
+
+  private async hostCall(userId: string, op: Op, a: Args): Promise<unknown> {
+    const h = this.host!;
+    switch (op) {
+      case 'join': return h.join(userId, (a.secret as string) ?? null, String(a.nickname ?? ''));
+      case 'leave': return h.leave(userId);
+      case 'ready': return h.setReady(userId, !!a.ready);
+      case 'lord': return h.setLord(userId, a.lord as LordId);
+      case 'rounds': return h.setRounds(userId, (a.rounds as number | null) ?? null);
+      case 'addAi': return h.addAi(userId);
+      case 'removeAi': return h.removeAi(userId, String(a.memberId));
+      case 'heartbeat': return h.heartbeat(userId);
+      case 'room': return { room: h.room, members: h.members() };
+      case 'game': return h.getGame();
+      case 'events': return h.getEvents(Number(a.after) || 0);
+      case 'start': return h.start(userId);
+      case 'answer': return h.answer(userId, String(a.seq), a.answer, (a.opId as string) ?? null);
+      case 'continue': return h.continue();
+      case 'takeover': return h.takeover(userId, a.lord as LordId);
+      case 'reclaim': return h.reclaim(userId);
+    }
+  }
+
+  private async startHosting(code: string) {
+    const host = this.host!;
+    this.code = code;
+    host.onRoom = () => this.pushRoom();
+    host.onUpdate = (u) => this.pushUpdate(u);
+    host.onChange = () => this.scheduleSave();
+    this.hostSignal = this.signal(code);
+    this.stopListen = listen(this.hostSignal, this.peerId, (link) => this.acceptLink(link));
+    await this.hostSignal.ready;
+    const beat = () => void this.dir.touch(code, this.peerId, host.room.status === 'closed' && !host.pub?.over ? 'closed' : host.room.status).catch(() => {});
+    beat();
+    this.hostBeat = setInterval(beat, HOST_BEAT_MS);
+    this.saveNow();
+    this.setConnected(true);
+  }
+
+  private acceptLink(link: Link) {
+    this.links.add(link);
+    link.onMessage((m) => void this.onHostMessage(link, m as Msg));
+    link.onClose(() => {
+      this.links.delete(link);
+      if (link.userId) this.host?.markOffline(link.userId);
+    });
+  }
+
+  private async onHostMessage(link: Link, m: Msg) {
+    if (m.t !== 'req' || !this.host) return;
+    try {
+      let data: unknown;
+      if (m.op === 'join') {
+        // 身分由玩家自報，座位鑰匙防止冒用別人的座位
+        const user = String(m.args.userId ?? '');
+        if (!user) throw new RoomError('NOT_SIGNED_IN');
+        data = this.host.join(user, (m.args.secret as string) ?? null, String(m.args.nickname ?? ''));
+        link.userId = user;
+        link.send({ t: 'room', room: this.host.room, members: this.host.members() } satisfies Msg);
+      } else {
+        if (!link.userId) throw new RoomError('NOT_MEMBER');
+        this.host.touch(link.userId);
+        data = await this.hostCall(link.userId, m.op, m.args);
+      }
+      link.send({ t: 'res', id: m.id, ok: true, data: data === undefined ? null : wire(data) } satisfies Msg);
+    } catch (e) {
+      link.send({ t: 'res', id: m.id, ok: false, error: codeOf(e) } satisfies Msg);
+    }
+  }
+
+  private pushRoom() {
+    const h = this.host!;
+    const msg: Msg = { t: 'room', room: h.room, members: h.members() };
+    for (const l of this.links) if (l.userId) l.send(msg);
+    this.cache = clone({ room: h.room, members: h.members() });
+    this.notifyRoom();
+    // 房間狀態改變時同步更新房號目錄
+    if (this.code) void this.dir.touch(this.code, this.peerId, h.room.status === 'closed' && !h.pub?.over ? 'closed' : h.room.status).catch(() => {});
+  }
+
+  private pushUpdate(u: GameResponse) {
+    const msg: Msg = { t: 'update', update: wire(u) };
+    for (const l of this.links) if (l.userId) l.send(msg);
+    this.notifyUpdate(clone(u));
+  }
+
+  private scheduleSave() {
+    if (this.saveTimer) clearTimeout(this.saveTimer);
+    this.saveTimer = setTimeout(() => this.saveNow(), 300);
+  }
+
+  private saveNow() {
+    if (!this.host) return;
+    try {
+      localStorage.setItem(HOST_SAVE(this.host.room.code), JSON.stringify(wire(this.host.snapshot())));
+    } catch (e) {
+      console.warn('無法儲存房主存檔', e);
+    }
+  }
+
+  private loadSave(code: string): HostSnapshot | null {
+    try {
+      const raw = localStorage.getItem(HOST_SAVE(code));
+      if (!raw) return null;
+      const s = JSON.parse(raw) as HostSnapshot;
+      // 存檔省略了地圖格子：補回快照與公開狀態
+      if (s.record) withTiles(s.record.snapshot);
+      if (s.pub) withTiles(s.pub.state);
+      return s;
+    } catch {
+      return null;
+    }
+  }
+
+  private stopHosting(keepSave: boolean) {
+    if (!this.host) return;
+    if (keepSave) this.saveNow();
+    else localStorage.removeItem(HOST_SAVE(this.host.room.code));
+    if (this.saveTimer) clearTimeout(this.saveTimer);
+    if (this.hostBeat) clearInterval(this.hostBeat);
+    this.saveTimer = this.hostBeat = null;
+    this.stopListen?.();
+    this.hostSignal?.close();
+    this.stopListen = null;
+    this.hostSignal = null;
+    for (const l of [...this.links]) l.close();
+    this.links.clear();
+    this.host.dispose();
+    this.host = null;
+  }
+
+  // ───────────────────────── 玩家 ─────────────────────────
+
+  private async connect(hostPeer: string) {
+    const signal = this.signal(this.code!);
+    try {
+      const link = await dial(signal, this.peerId, hostPeer);
+      this.link = link;
+      link.onMessage((m) => this.onClientMessage(m as Msg));
+      link.onClose(() => this.onDisconnected(link));
+      this.reconnectDelay = 1000;
+      this.setConnected(true);
+    } finally {
+      signal.close();
+    }
+  }
+
+  private onClientMessage(m: Msg) {
+    if (m.t === 'res') {
+      const w = this.waiting.get(m.id);
+      if (!w) return;
+      this.waiting.delete(m.id);
+      clearTimeout(w.timer);
+      if (m.ok) w.resolve(m.data);
+      else w.reject(new RoomError(m.error ?? 'UNKNOWN'));
+    } else if (m.t === 'room') {
+      this.cache = { room: m.room, members: m.members };
+      this.notifyRoom();
+    } else if (m.t === 'update') {
+      this.notifyUpdate(m.update);
+    }
+  }
+
+  private request(op: Op, args: Args): Promise<unknown> {
+    const link = this.link;
+    if (!link?.open) return Promise.reject(new RoomError('DISCONNECTED'));
+    const id = ++this.reqId;
+    const full = op === 'join' ? { ...args, userId: this.userId, secret: this.secret } : args;
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.waiting.delete(id);
+        reject(new RoomError('TIMEOUT'));
+      }, REQUEST_TIMEOUT);
+      this.waiting.set(id, { resolve, reject, timer });
+      if (!link.send({ t: 'req', id, op, args: full } satisfies Msg)) {
+        clearTimeout(timer);
+        this.waiting.delete(id);
+        reject(new RoomError('DISCONNECTED'));
+      }
+    });
+  }
+
+  private onDisconnected(link: Link) {
+    if (this.link !== link) return;
+    this.link = null;
+    for (const [id, w] of this.waiting) {
+      clearTimeout(w.timer);
+      w.reject(new RoomError('DISCONNECTED'));
+      this.waiting.delete(id);
+    }
+    this.setConnected(false);
+    this.scheduleReconnect();
+  }
+
+  /** 與房主斷線後自動重連（房主重新整理、網路切換等）；房間關閉則通知畫面 */
+  private scheduleReconnect() {
+    if (this.reconnectTimer || !this.code || this.host) return;
+    this.reconnectTimer = setTimeout(async () => {
+      this.reconnectTimer = null;
+      const code = this.code;
+      if (!code || this.host || this.link) return;
+      try {
+        const info = await this.dir.lookup(code);
+        if (!info || info.status === 'closed') {
+          if (this.cache) this.cache.room.status = 'closed';
+          this.notifyRoom();
+          return;
+        }
+        if (info.online) {
+          await this.connect(info.host_peer);
+          await this.request('join', { nickname: this.nickname });
+          return;
+        }
+      } catch { /* 下次再試 */ }
+      this.reconnectDelay = Math.min(this.reconnectDelay * 1.6, 8000);
+      this.scheduleReconnect();
+    }, this.reconnectDelay);
+  }
+
+  private closeAll() {
+    this.stopHosting(true);
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+    this.reconnectTimer = null;
+    const link = this.link;
+    this.link = null;
+    link?.close();
+    this.code = null;
+    this.cache = null;
+    this.setConnected(false);
   }
 }

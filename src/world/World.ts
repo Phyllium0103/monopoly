@@ -6,9 +6,8 @@ import type { City, GameState, Tile, Vec2 } from '../game/types';
 import { SelectedTerrain } from './SelectedTerrain';
 import { MapModelPool } from './MapModelPool';
 import { BUILDING_LOTS, CELL_SIZE, cityModelLevel } from '../data/selectedBoard';
-import type { MAP_MODELS } from '../data/mapModels';
+import { MAP_MODELS } from '../data/mapModels';
 import { animateCity, type CityVisual } from './CityMesh';
-import { animateBuilding, buildSpecial, type BuildingVisual } from './Buildings';
 import { ownerColor, ownerName } from '../faction/Faction';
 import { BOARD, TILE_INFO } from '../data/board';
 import type { Animator } from '../scene/Animator';
@@ -33,7 +32,6 @@ export class World {
   pickables: THREE.Object3D[] = [];
   tiles: Tile[] = BOARD.tiles;
   private cities = new Map<string, CityEntry>();
-  private buildings: BuildingVisual[] = [];
   private highlights = new THREE.Group();
   private hover: THREE.Mesh;
   private time = 0;
@@ -82,12 +80,6 @@ export class World {
     const lot=BUILDING_LOTS.find(o=>o.tile===tile.index);
     if(!lot) return;
     const g=new THREE.Group();g.position.set(lot.pos.x,0,lot.pos.z);this.root.add(g);
-    if(['vein','secret','relic'].includes(lot.type)) {
-      const v=buildSpecial(tile.kind);
-      const bounds=new THREE.Box3().setFromObject(v.group),size=bounds.getSize(new THREE.Vector3());
-      v.group.scale.setScalar(CELL_SIZE*1.8/Math.max(size.x,size.z,1));
-      v.group.rotation.y=lot.rotation;g.add(v.group);this.buildings.push(v);
-    }
     const el=document.createElement('div');el.className=`special-label k-${tile.kind}`;
     el.textContent=`${TILE_INFO[tile.kind].icon} ${tile.name}`;el.dataset.tile=String(tile.index);el.dataset.tiles=lot.triggerTiles.join(',');el.hidden=true;
     const label=new CSS2DObject(el);label.position.set(0,7,0);g.add(label);
@@ -118,7 +110,7 @@ export class World {
     void this.modelPool.sync(BUILDING_LOTS.flatMap(o=>{
       const city=o.type==='city'?state.cities[o.id]:null;
       const key=(city?`city-${cityModelLevel(city.prosperity)}`:o.type) as keyof typeof MAP_MODELS;
-      if(!['forge','herb','treasure','library','beast','tavern','casino'].includes(o.type)&&!city)return [];
+      if(!(key in MAP_MODELS))return [];
       return [{id:o.id,key,x:o.pos.x,z:o.pos.z,rotation:o.rotation,color:city&&city.owner!=='neutral'?ownerColor(city.owner):0xffffff}];
     }));
   }
@@ -363,7 +355,6 @@ export class World {
     }
     const t = this.time;
     for (const e of this.cities.values()) animateCity(e.visual, t);
-    for (const b of this.buildings) animateBuilding(b, t);
     for (const h of this.highlights.children) {
       if (h.userData.baseScale) h.scale.setScalar(h.userData.baseScale * (1 + Math.sin(t * 5) * 0.08));
     }

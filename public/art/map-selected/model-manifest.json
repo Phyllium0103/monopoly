@@ -89,5 +89,29 @@
     "sha256": "fab96974d8683637a3793727231cb978366e0ce5e2471e76bd36153dad31ef16",
     "status": "in_progress",
     "version": "v8-lotus-detail-draft"
+  },
+  "relic": {
+    "url": "/art/map-selected/relic-v20.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\relic\\blender-native-20261020\\models\\relic-v20-refined.glb",
+    "sha256": "c9b5ed3b5e9f9a73c27944c8a1aed6f2b634cf24a538e6b8a0262bb4878c9e7e",
+    "status": "complete",
+    "version": "v20",
+    "visualApproved": true
+  },
+  "vein": {
+    "url": "/art/map-selected/vein-v27.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\vein\\blender-native-20261021\\models\\vein-v27-refined.glb",
+    "sha256": "357afa95d65e3adfd207c7dcb888b67a15bc250a604c1730deab4ea8d2f78135",
+    "status": "complete",
+    "version": "v27",
+    "visualApproved": true
+  },
+  "secret": {
+    "url": "/art/map-selected/secret-v18.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\secret\\blender-native-20261021\\models\\secret-v18-refined.glb",
+    "sha256": "f5a0ccf42544a19b8211e20dfd298e6c4c32242d7fd9e2e780446c568fbcf9fd",
+    "status": "complete",
+    "version": "v18",
+    "visualApproved": true
   }
 }

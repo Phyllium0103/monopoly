@@ -182,7 +182,7 @@ function drawFigure(c: Figure): HTMLCanvasElement {
 /** 主公代號 → 立繪檔名 */
 const LORD_ART: Record<string, string> = { cao: 'caocao', liu: 'liubei', sun: 'sunquan', dong: 'dongzhuo' };
 /** 棋子高度（世界座標）；寬度按原圖比例設定。 */
-const ART_SIZE = 18.6;
+const ART_SIZE = 9.3;
 
 export class CharacterSprite {
   group = new THREE.Group();
@@ -195,8 +195,8 @@ export class CharacterSprite {
   private phase = Math.random() * Math.PI * 2;
   selected = false;
   /** 棋子目前的大小與朝向（1 朝右、-1 朝左；立繪原本朝右） */
-  private w = 12;
-  private h = 18;
+  private w = 6;
+  private h = 9;
   private facing = 1;
 
   constructor(public character: Figure) {

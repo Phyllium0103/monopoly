@@ -23,11 +23,33 @@ for(const p of [0,19,20,39,40,59,60,79,80,89,90,100,150])assert.ok(cityModelLeve
 const state=createGameState('liu');const lord=state.lords.liu;
 for(let i=0;i<10000;i++){const from=lord.position,next=nextMovementTile(state,lord);assert.ok(state.tiles[from].links.includes(next));lord.position=next;lord.lastTile=from;lord.forkExit=null;enterFork(state,lord,2);}
 const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,'../public/art/map-selected/model-manifest.json'),'utf8'));
-assert.equal(Object.keys(manifest).length,13);
+assert.equal(Object.keys(manifest).length,16);
+const {MAP_MODELS}=require('../src/data/mapModels.ts');
+assert.deepEqual(Object.keys(MAP_MODELS).sort(),Object.keys(manifest).sort());
+for(const lot of BUILDING_LOTS){
+ const model=lot.type==='city'?`city-${cityModelLevel(lot.prosperity)}`:lot.type;
+ assert.ok(MAP_MODELS[model],`missing model for ${lot.name}`);
+ assert.equal(MAP_MODELS[model],manifest[model].url.replace(/^\//,'./'));
+}
 for(const m of Object.values(manifest)){
  const p=path.join(__dirname,'../public',m.url),b=fs.readFileSync(p);assert.equal(b.toString('utf8',0,4),'glTF');assert.equal(b.readUInt32LE(4),2);assert.equal(b.length,b.readUInt32LE(8));
  assert.equal(crypto.createHash('sha256').update(b).digest('hex'),m.sha256);if(process.env.VERIFY_EXTERNAL_SOURCES==='1'||(!process.env.CI&&fs.existsSync(m.source)))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(m.source)).digest('hex'),m.sha256,'Blender source must not change');
 }
+for(const key of ['relic','vein','secret']){
+ const m=manifest[key],b=fs.readFileSync(path.join(__dirname,'../public',m.url));
+ const gltf=JSON.parse(b.toString('utf8',20,20+b.readUInt32LE(12)).trim());
+ assert.equal(m.status,'complete');assert.ok(m.visualApproved);
+ assert.ok(gltf.meshes.length>0&&gltf.materials.length>0&&gltf.images.length>0);
+ assert.ok(gltf.buffers.every(v=>!v.uri),'GLB buffers must be embedded');
+ assert.ok(gltf.images.every(v=>v.bufferView!==undefined&&!v.uri),'GLB textures must be embedded');
+ for(const mesh of gltf.meshes)for(const p of mesh.primitives){
+  assert.ok(p.attributes.POSITION!==undefined&&p.attributes.NORMAL!==undefined,'positions and normals must survive export');
+  const material=gltf.materials[p.material],pbr=material.pbrMetallicRoughness??{};
+  for(const texture of [pbr.baseColorTexture,pbr.metallicRoughnessTexture,material.normalTexture,material.occlusionTexture,material.emissiveTexture]){
+   if(texture)assert.ok(p.attributes[`TEXCOORD_${texture.texCoord??0}`]!==undefined,'textured surfaces must carry their required UV set');
+  }
+ }
+}
 console.log('PASS actual user layout: 300 connected roads, 33 cities, 47 facilities, 11 loops, no overlapping footprints');
 console.log('PASS all80 buildings have two trigger cells (160 total), event types, prosperity values, four capitals and 10,000 legal movement steps');
-console.log('PASS all13 delivered GLB headers and SHA-256; external Blender sources additionally audited when locally available or explicitly required');
+console.log('PASS all16 delivered GLB headers and SHA-256; all80 lots have models, and the three finished facilities carry embedded textures, normals and UVs');

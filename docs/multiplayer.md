@@ -1,101 +1,82 @@
-# 多人連線
+# 多人連線（點對點）
 
-兩位以上玩家（可在不同電腦、不同網路）用 5 位數房號進入同一房間，準備後開始，對局全程由伺服器裁決並即時同步。單人模式不受影響。
+兩位以上玩家（可在不同電腦、不同網路）用 5 位數房號進入同一房間，準備後開始。對局在**房主的瀏覽器**上進行，玩家之間直接連線（WebRTC），Supabase 只負責「房號 → 房主」的查詢與建立連線時的配對。單人模式不受影響。
 
 ## 架構
 
 ```
-瀏覽器（GitHub Pages）                       Supabase
-┌──────────────────────────┐   RPC（房間）    ┌─────────────────────────────┐
-│ LobbyView / OnlineSession│ ───────────────▶ │ PostgreSQL：rooms、room_members │
-│ Game（3D 畫面、播放事件） │ ◀── Realtime ─── │  game_public、game_events     │
-│                          │   回答抉擇        │                              │
-│                          │ ───────────────▶ │ Edge Function「game」         │
-└──────────────────────────┘                  │  └ 遊戲引擎（與單人同一份）     │
-                                              └─────────────────────────────┘
+         Supabase（只在建立連線時用到）
+   ┌──────────────────────────────────────────┐
+   │ p2p_rooms：房號 → 房主的連線識別、是否在線  │
+   │ Realtime 私有頻道 p2p:<房號>：轉交 SDP     │
+   └───────▲──────────────────────▲───────────┘
+     建房／查房號、配對               配對
+           │                          │
+┌──────────┴───────────┐   WebRTC    ┌┴──────────────────────┐
+│ 房主的瀏覽器           │◀══════════▶│ 玩家的瀏覽器            │
+│ HostRoom（權威端）     │ DataChannel │ RoomService（傳送請求） │
+│ └ 遊戲引擎＋快照重播   │  直接連線   │ OnlineSession／Game     │
+│ └ 存檔（localStorage）│            │                        │
+└──────────────────────┘            └────────────────────────┘
 ```
 
-- **遊戲引擎**（`src/engine/Engine.ts`）：完整的回合流程與規則，不碰畫面與網路。玩家的每個決定都是可序列化的「抉擇」（`prompts.ts`），畫面效果都是可重播的「事件」（`view.ts`）。單人時在瀏覽器執行；多人時在伺服器執行。
-- **權威端**（`src/engine/server.ts` → 打包進 `supabase/functions/game`）：每位主公回合開始時存一份快照；玩家每回答一次，伺服器就用同一組亂數種子從快照重跑本回合、依序餵入已記錄的回答，直到下一個需要玩家回答的抉擇。骰子與所有結果只由伺服器產生，玩家只能從伺服器提供的選項中回答。
-- **寫入**：只有 Edge Function（service role）能寫遊戲資料。每次寫入以版本號做樂觀鎖（`commit_game`）；同時兩個操作只有一個成功。每個回答附操作 ID，網路重試不會重複執行。
-- **同步**：每次寫入插入一列 `game_events`，玩家透過 Realtime 收到後依序播放動畫，再讀取 `game_public` 的完整狀態。漏掉的版本會自動補抓；重新連線後一律重新讀取最新狀態。
-- **房間操作**：建立、加入、準備、選陣營、加入／移除電腦、開始、離開、心跳，全部是 PostgreSQL RPC，在交易中鎖住房間列，避免兩人同時搶最後一個空位、重複開始等競態。
+- **建立房間**：房主呼叫 `p2p_create_room` 取得房號，登記自己這次開啟頁面的連線識別（peer id），之後每 20 秒回報一次在線。
+- **加入房間**：玩家用房號呼叫 `p2p_lookup` 取得房主的連線識別，在配對頻道 `p2p:<房號>` 送出 WebRTC offer；房主回 answer。雙方的 SDP 內含各自的 IP 與連接埠候選（先用 STUN 取得公開位址）。配對完成後遊戲資料不再經過 Supabase。
+- **權威端**：`HostRoom`（`src/net/HostRoom.ts`）在房主的瀏覽器上執行原本 Edge Function 的工作：房間規則（加入、準備、選陣營、電腦、開始）與對局推進（沿用 `src/engine/server.ts` 的「快照 + 重播」）。骰子與所有結果只由房主產生，玩家只能從房主提供的選項中回答；每個回答附操作 ID，重送不會重複執行；所有操作依序執行。
+- **同步**：房主每推進一個版本就把「新狀態 + 畫面事件」推送給所有玩家；房主自己的操作直接呼叫，不經網路。超過 15 KB 的訊息自動分段傳送。
+- **身分**：Supabase 匿名登入（同一瀏覽器沿用同一身分）。加入時另帶一把存在瀏覽器裡的「座位鑰匙」，別人無法冒用你的座位。
+- **重新連線**：玩家與房主斷線後自動重連；房主重新整理頁面時，從自己瀏覽器的存檔接著主持，玩家會自動連回來。
 
 ## 檔案
 
 | 檔案 | 用途 |
 |---|---|
-| `src/engine/Engine.ts` | 遊戲引擎（單人與伺服器共用） |
-| `src/engine/prompts.ts` | 抉擇的資料格式、驗證與斷線代打的預設回答 |
-| `src/engine/view.ts`、`snapshots.ts` | 畫面事件、擂台快照、伺服器端的事件記錄 |
-| `src/engine/server.ts` | 權威端：建立多人對局、快照重播、回答、代打、接手 |
-| `supabase/functions/game/index.ts` | Edge Function：start、answer、continue、takeover、reclaim |
-| `supabase/migrations/20261010000000_multiplayer.sql` | 資料表、索引、RLS、房間 RPC、Realtime 設定 |
-| `src/net/supabase.ts` | Supabase 連線（讀取環境變數） |
-| `src/net/RoomService.ts` | 匿名登入、房間 RPC、呼叫 Edge Function、Realtime 訂閱 |
+| `src/net/HostRoom.ts` | 房主端的權威邏輯：房間規則、對局推進、存檔與還原 |
+| `src/net/RoomService.ts` | 建房、加入、主持（接受連線、推送更新、存檔）、玩家端的請求與自動重連 |
+| `src/net/p2p/link.ts` | WebRTC 連線（發起與接受）、訊息分段 |
+| `src/net/p2p/signaling.ts` | 房號目錄與配對頻道：Supabase 版，以及開發用的同瀏覽器分頁版 |
+| `src/net/roomTypes.ts` | 房間、成員、對局的資料格式與錯誤訊息 |
 | `src/net/OnlineSession.ts` | 多人流程：選單 → 大廳 → 對局；事件播放、回答、重試、補抓、代打 |
 | `src/ui/LobbyView.ts` | 多人選單、加入房間、等待大廳、對局中的連線狀態列 |
-| `src/game/Game.ts` | 3D 畫面與輸入；單機時執行引擎，多人時播放伺服器事件 |
-| `vite.engine.config.ts` | 把引擎打包成 Deno 可用的單一模組 |
-| `tests/multiplayer.cjs` | 權威端單元測試（可重現、不卡死、過時回答、代打） |
-| `tests/e2e-supabase.mjs` | 對實際 Supabase 專案的端對端測試 |
-
-## 資料表
-
-| 表 | 內容 | 玩家權限 |
-|---|---|---|
-| `rooms` | 房號（字串，保留前導零）、房主、狀態 waiting／playing／closed、人數上限、回合數、建立與最後活動時間 | 成員可讀 |
-| `room_members` | 暱稱、真人／電腦、陣營、房主、準備、代打中、加入與最後心跳時間 | 成員可讀 |
-| `game_public` | 版本、完整狀態、等待中的抉擇、是否結束 | 成員可讀 |
-| `game_events` | 每個版本的畫面事件（保留最近 300 版） | 成員可讀 |
-| `game_private` | 亂數種子、快照、尚未公開的回答（密封出價） | 無 |
-| `game_ops` | 已執行的操作 ID | 無 |
-
-前端對所有表都沒有寫入權限；未加入房間的使用者讀不到任何資料。房號只在未關閉的房間間唯一（部分唯一索引），建立時碰撞會在資料庫內重試。閒置房間（等待中 2 小時、對局中 24 小時）在下次有人建房或加入時自動關閉。
+| `src/engine/server.ts` | 快照 + 重播的對局推進（房主端使用） |
+| `supabase/migrations/20261022000000_p2p_rooms.sql` | 房號目錄資料表、存取函式、配對頻道的權限 |
+| `tests/p2p-host.cjs` | 房主端邏輯測試：房間規則、多輪對局、過時與重複回答、存檔還原、代打、訊息分段 |
+| `tests/multiplayer.cjs` | 快照重播的可重現性與不卡死 |
 
 ## 設定步驟
 
-1. **建立 Supabase 專案**，記下 Project URL 與 publishable key（Project Settings → API Keys）。
+1. **Supabase 專案**：記下 Project URL 與 publishable key（Project Settings → API Keys）。
 2. **開啟匿名登入**：Authentication → Sign In / Providers → Allow anonymous sign-ins。
-3. **建立資料表**：SQL Editor 貼上 `supabase/migrations/20261010000000_multiplayer.sql` 整份執行（或 `npx supabase db push`）。
-4. **部署 Edge Function**：
-   ```
-   npx supabase login
-   npm run deploy:functions
-   ```
-   （`package.json` 裡的 `--project-ref` 換成自己的專案。函式以 `--no-verify-jwt` 部署，改由函式內驗證玩家身分。service role 金鑰由 Supabase 自動提供給函式，不需要也不可以放到前端。）
-5. **本機環境變數**：複製 `.env.example` 為 `.env` 並填入：
-   ```
-   VITE_SUPABASE_URL=https://your-project-ref.supabase.co
-   VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
-   # 選填但建議設定：讓 Edge Function 在資料庫所在區域執行（Project Settings → General → Region）
-   VITE_SUPABASE_REGION=ap-northeast-1
-   ```
-   專案區域會直接影響反應速度：在台灣遊玩時，東京（ap-northeast-1）的專案每次操作約 0.5 秒，孟買（ap-south-1）約 0.7 秒以上。
-6. **GitHub Pages**：repo 的 Settings → Secrets and variables → Actions → **Variables** 新增 `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY` 與 `VITE_SUPABASE_REGION`。部署流程建置時會讀取；沒設定時多人按鈕停用，單人照常。
+3. **建立房號目錄**：SQL Editor 貼上 `supabase/migrations/20261022000000_p2p_rooms.sql` 整份執行（或 `npx supabase db push`）。
+4. **Realtime 私有頻道**：Realtime → Settings 確認允許私有頻道（預設即可）；配對頻道只開放給登入的玩家、且房間仍開著時使用。
+5. **本機環境變數**：複製 `.env.example` 為 `.env` 填入 `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`。
+6. **GitHub Pages**：repo 的 Settings → Secrets and variables → Actions → **Variables** 新增 `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`（選填 TURN 三項）。沒設定時多人按鈕停用，單人照常。
+
+不再需要部署 Edge Function。舊版的資料表（`rooms`、`room_members`、`game_*`）與 `game` 函式已不使用，確認不需要後可從 Supabase 刪除。
+
+### 選填：TURN 轉送
+
+點對點連線先嘗試直連（含 STUN 打洞）。少數網路（部分公司、學校、行動網路的對稱型 NAT）無法直連，這時需要 TURN 伺服器轉送。設定 `VITE_TURN_URL`（可用逗號分隔多個）、`VITE_TURN_USERNAME`、`VITE_TURN_CREDENTIAL` 後會自動使用。沒設定時，無法直連的玩家會看到「無法與房主建立直接連線」。
 
 ## 本機測試
 
 ```
 npm run dev          # http://localhost:5173
-npm test             # 規則與權威端測試
-npm run test:e2e     # 對 .env 指定的 Supabase 專案做端對端測試
+npm test             # 規則、快照重播、房主端邏輯
 ```
 
-多人手動測試：開兩個不同的瀏覽器（或一般視窗＋無痕視窗，身分才會不同）→ 都選「多人遊戲」→ 一邊建立房間，另一邊輸入房號加入 → 房主可加入電腦 → 雙方按準備 → 房主開始。
+不需要 Supabase 的雙人測試：開 `http://localhost:5173/?p2p=local`，再開第二個分頁到同一網址。這個模式用瀏覽器內建的 BroadcastChannel 配對、每個分頁是不同的玩家，連線本身是真正的 WebRTC。一個分頁建立房間，另一個分頁輸入房號加入。
 
 ## 已驗證
 
-- 單人模式：電腦託管連打 28 輪；手動操作徵兵、名冊、使用物品、指定傳送、乾坤骰閣、商店買賣與刷新、擂台戰，皆無錯誤。
-- 權威端：兩位真人＋一台電腦模擬 12 輪，重播結果每次一致，單次運算最慢約 130 ms。
-- 端對端（實際 Supabase）：建房得 5 位數房號、無效房號報錯、加入與重新加入、非成員讀不到也寫不了、一般玩家不能做房主操作、人數上限、未全部準備不能開始、重複開始被拒、雙方狀態一致、非輪到的玩家與過時回答被拒、同一操作 ID 重送不會重複執行、連續進行數輪、事件依序、房主離開移交房主。
-- 瀏覽器（兩個獨立身分）：大廳即時顯示加入、電腦、準備；開始後雙方進入同一局且狀態完全一致；重新整理後自動回到同一局；斷線 45 秒後房主可交由電腦代打，遊戲繼續。
+- `npm test`：房主端邏輯 6 組（房間規則與舊版資料庫 RPC 一致、兩真人一電腦連打 8 輪以上、過時／非輪到／重複的回答、存檔還原後繼續、代打與接手、訊息分段），以及原有的快照重播測試。
+- 瀏覽器（`?p2p=local`，兩個分頁、兩個身分）：建房、加入、大廳即時同步（準備、加入電腦）、開始後雙方進入同一局；房主擲骰與事件傳到玩家、玩家的抉擇與擲骰傳回房主、電腦回合由房主自動推進；房主重新整理後玩家自動連回並繼續收到更新；房主離開後輸入房號從存檔接著主持；玩家重新整理後用房號回到原座位。主控台無錯誤。
+- 尚未對實際 Supabase 專案驗證（需要專案金鑰與先執行上方的 SQL）。
 
-## 已知限制與後續
+## 已知限制
 
-- **斷線**：輪到斷線玩家時遊戲會等待；房主可交由電腦代打，玩家回來按「接手操作」，於下一位主公的回合開始時生效。尚未做自動逾時代打。
-- **宗門調度**：多人模式只能在自己回合的整備階段使用（單人仍可隨時調度）。
+- **房主必須在線**：對局在房主的瀏覽器上進行。房主離開或關閉頁面時，其他人會停在原地等待；房主用同一個瀏覽器輸入房號即可接著主持（存檔在房主的瀏覽器裡，換電腦無法接手）。房主在等待大廳離開會直接關閉房間。
+- **房主可作弊**：權威端在房主的電腦上，懂技術的房主理論上可以改骰子。只適合朋友之間遊玩。
+- **背景分頁**：瀏覽器會放慢背景分頁的計時器與動畫。玩家的畫面切回前景後會補播；房主長時間把遊戲放在背景時，房號目錄可能短暫顯示房主不在線上（3 分鐘內有回報都算在線）。
+- **斷線**：輪到斷線玩家時遊戲會等待；房主可交由電腦代打，玩家回來按「接手操作」，於下一位主公的回合開始時生效。
 - **觀戰畫面**：擂台、比試、攻城等戰鬥畫面只在參戰雙方的畫面上播放，其他玩家看紀錄。
-- **資訊可見度**：對局狀態對同房玩家完全公開（與單人模式能查看所有主公資料相同）；只有密封出價在揭曉前保密。
-- **運算量**：若真人都已出局、只剩電腦，伺服器每次推進最多 12 個回合，由房主的瀏覽器自動請求繼續。
-- **擴充方向**：自動逾時代打、觀戰模式、房間聊天、斷線玩家的回合計時；若要完全避免重播成本，可把引擎改寫成可序列化的狀態機。

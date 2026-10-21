@@ -20,9 +20,11 @@ export function supabase(): SupabaseClient | null {
   if (!url || !key) return null;
   client ??= createClient(url, key, {
     auth: { persistSession: true, autoRefreshToken: true, storageKey: projectKey('xiantu-auth') },
-    realtime: { params: { eventsPerSecond: 20 } },
   });
   return client;
 }
 
-export const multiplayerAvailable = () => !!url && !!key;
+/** 開發測試：網址加上 ?p2p=local 時，同一瀏覽器的分頁之間直接配對，不需要 Supabase */
+export const localP2P = () => typeof location !== 'undefined' && new URLSearchParams(location.search).get('p2p') === 'local';
+
+export const multiplayerAvailable = () => (!!url && !!key) || localP2P();

@@ -30,7 +30,10 @@ jobs:
           # 公開設定（Settings → Secrets and variables → Actions → Variables）；沒設定時多人模式會停用、單人照常
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
-          VITE_SUPABASE_REGION: ${{ vars.VITE_SUPABASE_REGION }}
+          # 選填：TURN 轉送伺服器（玩家之間無法直連時使用）
+          VITE_TURN_URL: ${{ vars.VITE_TURN_URL }}
+          VITE_TURN_USERNAME: ${{ vars.VITE_TURN_USERNAME }}
+          VITE_TURN_CREDENTIAL: ${{ vars.VITE_TURN_CREDENTIAL }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

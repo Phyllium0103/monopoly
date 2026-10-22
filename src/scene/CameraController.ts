@@ -35,16 +35,6 @@ export class CameraController {
       RIGHT: THREE.MOUSE.PAN,
     };
     this.controls.update();
-    const toolbar=document.createElement('div');toolbar.className='map-camera-tools';
-    toolbar.innerHTML='<span>45°方位 · 30°俯角</span><button type="button">半圖</button><button type="button">＋</button><button type="button">－</button><button type="button">地名</button><button type="button">純地圖</button>';
-    const buttons=toolbar.querySelectorAll('button');
-    buttons[0].onclick=()=>{this.focusTarget=null;this.controls.target.set(0,0,0);camera.position.set(-183.7117,150,183.7117);camera.zoom=this.controls.minZoom;camera.updateProjectionMatrix();this.controls.update();};
-    buttons[1].onclick=()=>{camera.zoom=Math.min(this.controls.maxZoom,camera.zoom*1.3);camera.updateProjectionMatrix();};
-    buttons[2].onclick=()=>{camera.zoom=Math.max(this.controls.minZoom,camera.zoom/1.3);camera.updateProjectionMatrix();};
-    buttons[3].onclick=()=>{document.body.classList.toggle('map-hide-city-names');buttons[3].setAttribute('aria-pressed',String(!document.body.classList.contains('map-hide-city-names')));};
-    buttons[4].onclick=()=>{const pure=document.body.classList.toggle('map-inspection');buttons[4].textContent=pure?'返回遊戲':'純地圖';};
-    toolbar.addEventListener('keydown',e=>e.stopPropagation());
-    document.body.append(toolbar);
 
     window.addEventListener('keydown', (e) => {
       if ((e.target as HTMLElement)?.tagName === 'INPUT') return;

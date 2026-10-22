@@ -26,7 +26,7 @@ import {
 import { bagHtml } from './ItemUI';
 import { LORDS, originKingdom } from '../faction/Faction';
 import { equipIconUrl } from './Icons';
-import { hasHeavenWeapon, rosterArtUrl } from '../data/generalArt';
+import { generalHeadUrl, hasHeavenWeapon, rosterArtUrl } from '../data/generalArt';
 import { WEAPON_CATALOG } from '../data/weaponCatalog';
 import { realmFrameHtml } from './RealmFrame';
 import type { RosterAction } from '../engine/prompts';
@@ -56,6 +56,26 @@ const SORTS: { id: string; name: string; value: (g: General) => number }[] = [
   { id: 'realm', name: '境界', value: (g) => g.realm * 1e6 + g.exp },
 ];
 
+/** 名冊清單的欄位：標題列與每一列共用；sort 對應 SORTS，點欄名即可排序 */
+const COLUMNS: { cls: string; label: string; sort?: string }[] = [
+  { cls: 'c-face', label: '' },
+  { cls: 'c-name', label: '姓名' },
+  { cls: 'c-origin', label: '所屬' },
+  { cls: 'c-realm', label: '境界', sort: 'realm' },
+  { cls: 'c-st', label: '位置' },
+  { cls: 'c-weapon', label: '武器' },
+  { cls: 'c-hp', label: '血量', sort: 'hp' },
+  { cls: 'c-power', label: '戰力', sort: 'power' },
+  { cls: 'c-attack', label: '武力', sort: 'attack' },
+  { cls: 'c-defense', label: '防禦', sort: 'defense' },
+  { cls: 'c-craft', label: '煉丹', sort: 'alchemy' },
+  { cls: 'c-craft', label: '煉器', sort: 'forging' },
+  { cls: 'c-craft', label: '畫符', sort: 'talisman' },
+  { cls: 'c-craft', label: '佈陣', sort: 'formation' },
+  { cls: 'c-passive', label: '被動' },
+  { cls: 'c-caret', label: '' },
+];
+
 export interface RosterMode {
   /** 自己的整備階段：可突破、閉關、升階、換裝 */
   manage: boolean;
@@ -71,6 +91,8 @@ export class GeneralsView {
   private mode: RosterMode = { manage: false, free: false };
   private onAction: ((a: RosterAction) => void) | null = null;
   private current: { state: GameState; lord: Lord } | null = null;
+  /** 目前展開詳細資訊的武將；重繪後保持展開 */
+  private expanded = new Set<string>();
 
   constructor(root: HTMLElement) {
     this.el = document.createElement('div');
@@ -152,6 +174,7 @@ export class GeneralsView {
         <h2 style="color:${LORDS[lord.id].css}">${LORDS[lord.id].name}・武將名冊</h2>
         <span class="muted">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : '・非你的回合，無法突破或閉關'}</span>
         <label class="sort-box">排序 <select class="sort-select">${SORTS.map((x) => `<option value="${x.id}" ${x.id === this.sortId ? 'selected' : ''}>${x.name}</option>`).join('')}</select></label>
+        <button class="btn mini toggle-all">${gens.length && gens.every((g) => this.expanded.has(g.id)) ? '全部收合' : '全部展開'}</button>
         <button class="btn close">關閉 ✕</button>
       </div>
       <div class="ready-section"></div>
@@ -163,6 +186,11 @@ export class GeneralsView {
       </div>
       <div class="sections"></div>`;
     (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
+    (this.el.querySelector('.toggle-all') as HTMLButtonElement).onclick = () => {
+      if (gens.every((g) => this.expanded.has(g.id))) this.expanded.clear();
+      else for (const g of gens) this.expanded.add(g.id);
+      this.render(state, lord);
+    };
     (this.el.querySelector('.sort-select') as HTMLSelectElement).onchange = (e) => {
       this.sortId = (e.target as HTMLSelectElement).value;
       this.render(state, lord);
@@ -178,10 +206,7 @@ export class GeneralsView {
       const h = document.createElement('h3');
       h.className = 'section-title ready-title';
       h.textContent = `✨ 可以突破的武將（${ready.length}）`;
-      const grid = document.createElement('div');
-      grid.className = 'general-grid';
-      for (const g of ready) grid.appendChild(this.card(state, lord, g, manage));
-      readyBox.append(h, grid);
+      readyBox.append(h, this.list(state, lord, ready, manage));
     }
     const readyIds = new Set(ready.map((g) => g.id));
 
@@ -192,12 +217,82 @@ export class GeneralsView {
       const h = document.createElement('h3');
       h.className = 'section-title';
       h.textContent = `${sec.title}（${list.length}${sec.status === 'free' ? `/${PARTY_LIMIT}` : ''}）`;
-      sections.appendChild(h);
-      const grid = document.createElement('div');
-      grid.className = 'general-grid';
-      for (const g of list) grid.appendChild(this.card(state, lord, g, manage));
-      sections.appendChild(grid);
+      sections.append(h, this.list(state, lord, list, manage));
     }
+  }
+
+  /** 條列式名冊：每位武將一列，點一下展開原本的詳細卡片，再點一次收合 */
+  private list(state: GameState, lord: Lord, gens: General[], manage: boolean): HTMLDivElement {
+    const list = document.createElement('div');
+    list.className = 'roster-list';
+    const head = document.createElement('div');
+    head.className = 'roster-head';
+    for (const c of COLUMNS) {
+      const cell = document.createElement(c.sort ? 'button' : 'span');
+      cell.className = `${c.cls}${c.sort === this.sortId ? ' sorted' : ''}`;
+      cell.textContent = c.label;
+      if (c.sort) {
+        const id = c.sort;
+        cell.title = `依${c.label}排序`;
+        cell.onclick = () => {
+          this.sortId = id;
+          this.render(state, lord);
+        };
+      }
+      head.appendChild(cell);
+    }
+    list.appendChild(head);
+
+    for (const g of gens) {
+      const ready = canAttemptBreak(g, state.round).ok;
+      const item = document.createElement('div');
+      item.className = `roster-item s-${g.status}${ready ? ' ready' : ''}${g.isLord ? ' is-lord' : ''}`;
+      const row = document.createElement('button');
+      row.className = 'roster-row';
+      row.innerHTML = this.rowHtml(state, lord, g, ready);
+      item.appendChild(row);
+      const show = (open: boolean) => {
+        item.classList.toggle('open', open);
+        row.setAttribute('aria-expanded', String(open));
+        if (open) item.appendChild(this.card(state, lord, g, manage));
+        else item.querySelector('.general-card')?.remove();
+      };
+      row.onclick = () => {
+        const open = !this.expanded.has(g.id);
+        if (open) this.expanded.add(g.id);
+        else this.expanded.delete(g.id);
+        show(open);
+      };
+      show(this.expanded.has(g.id));
+      list.appendChild(item);
+    }
+    return list;
+  }
+
+  /** 收合時的一列：頭像、姓名、所屬、境界、位置、武器、血量與各項數值 */
+  private rowHtml(state: GameState, lord: Lord, g: General, ready: boolean): string {
+    const city = g.cityId ? state.cities[g.cityId] : null;
+    const trip = lord.expeditions.find((e) => e.generalIds.includes(g.id));
+    const place = g.ghostSourceId ? `冤魂・${g.ghostTurns} 回合` : g.status === 'garrison' ? `${city?.name ?? '駐守'}${g.secluded ? '・閉關' : ''}` : g.status === 'realm' ? `${trip?.realmName ?? '外出'}・${trip?.turnsLeft ?? 0} 回合` : g.status === 'sect' ? '宗門' : '隨行';
+    const p = passiveOf(g);
+    // 頭像用背景圖，避免點頭像時被看圖功能攔下而無法展開
+    return `
+      <span class="c-face" style="background-image:url('${generalHeadUrl(g)}')"></span>
+      <span class="c-name"><b>${g.name}</b>${g.isLord ? '<span class="lord-tag">主公</span>' : ''}${ready ? '<span class="rr-ready" title="修為圓滿，可以突破">✨</span>' : ''}</span>
+      <span class="c-origin">${originKingdom(g.origin)}</span>
+      <span class="c-realm">${realmTag(g.realm)}</span>
+      <span class="c-st">${place}</span>
+      <span class="c-weapon">${g.weapon ? `<span class="rr-icon" title="${tip(g.weapon.name)}" style="background-image:url('${equipIconUrl(g.weapon)}')"></span>` : '<span class="rr-icon empty"></span>'}</span>
+      <span class="c-hp"><span class="bar hp"><i style="width:${Math.min(100, (g.hp / maxHp(g)) * 100)}%"></i><span>${g.hp}/${maxHp(g)}</span></span></span>
+      <span class="c-power"><b>${power(g)}</b></span>
+      <span class="c-attack">${attack(g)}</span>
+      <span class="c-defense">${defense(g)}</span>
+      <span class="c-craft">${craft(g, 'alchemy')}</span>
+      <span class="c-craft">${craft(g, 'forging')}</span>
+      <span class="c-craft">${craft(g, 'talisman')}</span>
+      <span class="c-craft">${craft(g, 'formation')}</span>
+      <span class="c-passive" title="${tip(`【${p.name}】${fxText(p.fx)}`)}">【${p.name}】</span>
+      <span class="c-caret" aria-hidden="true">▸</span>`;
   }
 
   private card(state: GameState, lord: Lord, g: General, manage: boolean): HTMLDivElement {

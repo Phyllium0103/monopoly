@@ -2732,3 +2732,141 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ───────── 武將名冊：條列式，點一列展開詳細卡片 ───────── */
+.drawer-head { flex-wrap: wrap; gap: 6px 12px; }
+.drawer-head .sort-box { margin-right: 0; }
+.roster-list {
+  --roster-cols: 46px minmax(92px, 1.3fr) 44px 76px minmax(84px, 1.2fr) 40px minmax(100px, 1.3fr) repeat(7, minmax(40px, 0.6fr)) minmax(96px, 1.4fr) 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.roster-head, .roster-row {
+  display: grid;
+  grid-template-columns: var(--roster-cols);
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 0 8px;
+}
+.roster-head {
+  position: sticky;
+  top: -16px;
+  z-index: 3;
+  min-height: 30px;
+  border-radius: 6px;
+  background: linear-gradient(#5a3e1c, #3e2a12);
+  border: 1px solid rgba(241, 210, 122, 0.45);
+  font-size: 14px;
+  color: var(--gold-light);
+}
+.roster-head > * {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 4px 0;
+  text-align: center;
+  white-space: nowrap;
+}
+.roster-head > button { cursor: pointer; }
+.roster-head > button:hover { color: #fff; }
+.roster-head > .sorted::after { content: ' ▼'; font-size: 10px; }
+.roster-head .c-name, .roster-head .c-passive, .roster-head .c-st { text-align: left; }
+.roster-item {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 4px solid rgba(241, 210, 122, 0.55);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.roster-item:nth-child(odd) { background: rgba(255, 255, 255, 0.07); }
+.roster-item.s-garrison { border-left-color: rgba(120, 180, 255, 0.75); }
+.roster-item.s-sect { border-left-color: rgba(140, 220, 140, 0.7); }
+.roster-item.s-realm { border-left-color: rgba(120, 220, 255, 0.85); }
+.roster-item.ready { border-color: #ffd65a; box-shadow: 0 0 8px rgba(255, 214, 90, 0.35); }
+.roster-item.open { border-color: rgba(241, 210, 122, 0.6); }
+.roster-row {
+  width: 100%;
+  min-height: 50px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--text);
+  background: none;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.roster-row:hover { background: rgba(241, 210, 122, 0.1); }
+.roster-row:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.roster-item.open > .roster-row { background: rgba(241, 210, 122, 0.14); border-radius: 5px 5px 0 0; }
+.roster-row > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.roster-row .c-face {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06) center / cover no-repeat;
+}
+.roster-row .c-name { display: flex; align-items: center; gap: 4px; text-align: left; }
+.roster-row .c-name b { font-size: 17px; overflow: hidden; text-overflow: ellipsis; }
+.roster-row .c-name .lord-tag { flex: none; font-size: 12px; }
+.roster-row .c-origin, .roster-row .c-st { color: var(--muted); font-size: 14px; }
+.roster-row .c-st { text-align: left; }
+.roster-row .c-realm .realm-tag { font-size: 12.5px; padding: 0 6px; }
+.roster-row .rr-icon {
+  display: block;
+  width: 34px;
+  height: 34px;
+  margin: 0 auto;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.45) center / contain no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.roster-row .c-hp .bar { display: block; margin: 0; height: 18px; }
+.roster-row .c-hp .bar span { font-size: 12.5px; }
+.roster-row .c-power b { color: var(--gold-light); font-size: 16.5px; }
+.roster-row .c-craft { color: #d8ccb0; }
+.roster-row .c-passive { text-align: left; color: #8cd4f0; font-size: 14px; }
+.roster-row .c-caret { color: var(--gold-light); transition: transform 0.15s; }
+.roster-item.open .c-caret { transform: rotate(90deg); }
+
+/* 展開後的詳細卡片：沿用原本卡片內容，改為橫向排列 */
+.roster-item > .general-card {
+  display: block;
+  border: 0;
+  border-top: 1px solid rgba(241, 210, 122, 0.25);
+  border-radius: 0 0 6px 6px;
+  box-shadow: none;
+  background: rgba(0, 0, 0, 0.2);
+}
+.roster-item > .general-card .gc-details { max-width: 1040px; padding: 12px 14px; }
+.roster-item > .general-card .gc-overview { grid-template-columns: 190px minmax(0, 1fr); }
+.roster-item > .general-card .gc-details .gc-body { flex-direction: row; flex-wrap: wrap; align-items: stretch; }
+.roster-item > .general-card .gc-details .gc-slots { flex: none; width: 236px; }
+.roster-item > .general-card .gc-details .gc-table { flex: 1; min-width: 260px; }
+
+@media (max-width: 1180px) {
+  .roster-list { --roster-cols: 46px minmax(90px, 1.3fr) 44px 76px minmax(84px, 1.2fr) 40px minmax(100px, 1.3fr) repeat(3, minmax(44px, 0.6fr)) 16px; }
+  .roster-list .c-craft, .roster-list .c-passive { display: none; }
+}
+@media (max-width: 760px) {
+  .drawer { padding: 12px 10px 24px; }
+  .roster-list { --roster-cols: 40px minmax(0, 1.3fr) 66px minmax(0, 1fr) 46px 12px; }
+  .roster-list .c-origin, .roster-list .c-weapon, .roster-list .c-hp, .roster-list .c-attack, .roster-list .c-defense { display: none; }
+  .roster-head, .roster-row { gap: 6px; padding: 0 6px; }
+  .roster-head { top: -12px; }
+  .roster-row { min-height: 48px; }
+  .roster-row .c-face { width: 36px; height: 36px; }
+  .roster-row .c-name b { font-size: 16px; }
+  .roster-item > .general-card .gc-details { padding: 10px 8px; }
+  .roster-item > .general-card .gc-overview { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr); }
+  .roster-item > .general-card .gc-details .gc-body { flex-direction: column; }
+  .roster-item > .general-card .gc-details .gc-slots { width: auto; }
+  .roster-item > .general-card .gc-details .gc-table { min-width: 0; }
+}
+@media (max-width: 460px) {
+  .roster-list { --roster-cols: 36px minmax(0, 1fr) 66px 46px 12px; }
+  .roster-list .c-st { display: none; }
+}

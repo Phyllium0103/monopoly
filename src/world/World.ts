@@ -112,7 +112,7 @@ export class World {
       const key=(city?`city-${cityModelLevel(city.prosperity)}`:o.type) as keyof typeof MAP_MODELS;
       if(!(key in MAP_MODELS))return [];
       return [{id:o.id,key,x:o.pos.x,z:o.pos.z,rotation:o.rotation,color:city&&city.owner!=='neutral'?ownerColor(city.owner):0xffffff}];
-    }));
+    }),this.tiles[state.lords[state.order[state.turn]]?.position??-1]?.pos);
   }
 
   private createCity(city: City) {

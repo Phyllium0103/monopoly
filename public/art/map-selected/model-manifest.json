@@ -2,116 +2,148 @@
   "forge": {
     "url": "/art/map-selected/forge.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\forge\\blender-refinement-20261016\\天工坊-Blender-精修-v5.glb",
-    "sha256": "ba09aa4ce28a06154671083b4f98c9ba3cf35ddd90035cdec010931152fbd1c1",
+    "sha256": "5ed324d0f6c9ccb4baa668f91c79223434ef2cb9c565242ce3145873b981165b",
     "status": "complete",
-    "version": "v5"
+    "version": "v5",
+    "original": "art-src/map-models/forge.glb",
+    "originalSha256": "ba09aa4ce28a06154671083b4f98c9ba3cf35ddd90035cdec010931152fbd1c1"
   },
   "herb": {
     "url": "/art/map-selected/herb.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\herb\\blender-native-20261016\\百草堂-Blender-v12.glb",
-    "sha256": "91a4f912b2ba546b6fef2cbd9b90a87ef0a1496528c0ad9fcb342065297c865c",
+    "sha256": "9784b6acb5b0fbb3e89f067cadaf6732a626f76e71cc0477b63e56c10be04ba9",
     "status": "complete",
-    "version": "v12"
+    "version": "v12",
+    "original": "art-src/map-models/herb.glb",
+    "originalSha256": "91a4f912b2ba546b6fef2cbd9b90a87ef0a1496528c0ad9fcb342065297c865c"
   },
   "treasure": {
     "url": "/art/map-selected/treasure.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\treasure\\blender-native-20261016\\天寶商行-Blender-v3.glb",
-    "sha256": "d40c8c4e26c58e5cd2b1764f718de078837f3d1bcb838a948f451441969fed60",
+    "sha256": "7262142150f1e92f554b1efa6031571acfca717b600814fca4932ca57b39468e",
     "status": "complete",
-    "version": "v3"
+    "version": "v3",
+    "original": "art-src/map-models/treasure.glb",
+    "originalSha256": "d40c8c4e26c58e5cd2b1764f718de078837f3d1bcb838a948f451441969fed60"
   },
   "library": {
     "url": "/art/map-selected/library.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\library\\blender-native-20261016\\藏經閣-Blender-v4.glb",
-    "sha256": "1b4a7235ace52f5b438c0dc14606f34417a6f07af6417d4382bb5786ae5720b2",
+    "sha256": "9dec50b07606c5cd675b02d6406c366d9e85deb71f704735cc179ce0c6cdd8f5",
     "status": "complete",
-    "version": "v4"
+    "version": "v4",
+    "original": "art-src/map-models/library.glb",
+    "originalSha256": "1b4a7235ace52f5b438c0dc14606f34417a6f07af6417d4382bb5786ae5720b2"
   },
   "beast": {
     "url": "/art/map-selected/beast.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\beast\\blender-native-20261016\\萬獸園-Blender-v3.glb",
-    "sha256": "b369d2e13772d8b34e38354073d42f73d5800e60af14b6a4ad137132aeea7957",
+    "sha256": "6544204456cebe5b668abeee26f0be461f8ec65fff60f5d20d9fbea4bcfce8fb",
     "status": "complete",
-    "version": "v3"
+    "version": "v3",
+    "original": "art-src/map-models/beast.glb",
+    "originalSha256": "b369d2e13772d8b34e38354073d42f73d5800e60af14b6a4ad137132aeea7957"
   },
   "tavern": {
     "url": "/art/map-selected/tavern.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\tavern\\blender-native-20261017\\聽風樓-Blender-v2.glb",
-    "sha256": "f549f443678973c5f3ccbdfcfb284ce86d58305b012b9e750244d8a1cd4a5373",
+    "sha256": "755adaa48b510ea56d9cbf56a71ecd00d71bc232428224127f728896797ab729",
     "status": "complete",
-    "version": "v2"
+    "version": "v2",
+    "original": "art-src/map-models/tavern.glb",
+    "originalSha256": "f549f443678973c5f3ccbdfcfb284ce86d58305b012b9e750244d8a1cd4a5373"
   },
   "casino": {
     "url": "/art/map-selected/casino.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\casino\\blender-native-20261018\\乾坤骰閣-製作中-candidate17.glb",
-    "sha256": "ca4ed2185dc34ec4fc68d0e8e50da21e1fc9f27a673dc7373a7c9b240dfe3cf1",
+    "sha256": "edb6f64115897b9c190faba3f44d689026296f9498e37fa47d18eecb1cd1ac57",
     "status": "in_progress",
-    "version": "candidate17"
+    "version": "candidate17",
+    "original": "art-src/map-models/casino.glb",
+    "originalSha256": "ca4ed2185dc34ec4fc68d0e8e50da21e1fc9f27a673dc7373a7c9b240dfe3cf1"
   },
   "city-1": {
     "url": "/art/map-selected/city-1.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-1\\blender-native-20261018\\荒地-Blender-v6-well-bond-draft.glb",
-    "sha256": "bb50dbd486dd858588c8268d1232cbcde274e9f2a5ef9f8c93bcc4f933f29f1b",
+    "sha256": "ba001850ffa821430854701a61143f9f5d61dbd70958d7686b90ca02bf583cbb",
     "status": "in_progress",
-    "version": "v6-well-bond-draft"
+    "version": "v6-well-bond-draft",
+    "original": "art-src/map-models/city-1.glb",
+    "originalSha256": "bb50dbd486dd858588c8268d1232cbcde274e9f2a5ef9f8c93bcc4f933f29f1b"
   },
   "city-2": {
     "url": "/art/map-selected/city-2.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-2\\blender-native-20261018\\2階・聚落-Blender-v5-source-moss-draft.glb",
-    "sha256": "adc47e49efd2efebb7526da5ebd9118f42317dc591da5932797060200ed1cd4c",
+    "sha256": "db6657d7ebd133319025faddfa2630b225d16da98ef02f4dad05fbd8e55bf879",
     "status": "in_progress",
-    "version": "v5-source-moss-draft"
+    "version": "v5-source-moss-draft",
+    "original": "art-src/map-models/city-2.glb",
+    "originalSha256": "adc47e49efd2efebb7526da5ebd9118f42317dc591da5932797060200ed1cd4c"
   },
   "city-3": {
     "url": "/art/map-selected/city-3.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-3\\blender-native-20261018\\3階・小鎮-Blender-v8-source-roofs-draft.glb",
-    "sha256": "9515b0d797f2b7713d93c833a3560086c112320ac90443aa01e34e7bb832bf67",
+    "sha256": "30564ac87d5ea117c56f9207e4d3cc92f3c6af65a19c522011bf30f7917777b9",
     "status": "in_progress",
-    "version": "v8-source-roofs-draft"
+    "version": "v8-source-roofs-draft",
+    "original": "art-src/map-models/city-3.glb",
+    "originalSha256": "9515b0d797f2b7713d93c833a3560086c112320ac90443aa01e34e7bb832bf67"
   },
   "city-4": {
     "url": "/art/map-selected/city-4.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-4\\blender-native-20261018\\4階・大城-Blender-v8-cypress-inlays-draft.glb",
-    "sha256": "c51d1b110ebc640a8d0c236fa56ef393bbb7ff11cfa64a72c3a1599ca64c91fb",
+    "sha256": "7b825920799a5fc9fa6352477c74e22dc4238685ecf86df307202a833bce2ff5",
     "status": "in_progress",
-    "version": "v8-cypress-inlays-draft"
+    "version": "v8-cypress-inlays-draft",
+    "original": "art-src/map-models/city-4.glb",
+    "originalSha256": "c51d1b110ebc640a8d0c236fa56ef393bbb7ff11cfa64a72c3a1599ca64c91fb"
   },
   "city-5": {
     "url": "/art/map-selected/city-5.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-5\\blender-native-20261018\\5階・高塔-Blender-v6-astral-detail-draft.glb",
-    "sha256": "fe3884df2da71708095607b5005ad50ddc5c631ce6effadd4b4d6b6dc3b1a4f0",
+    "sha256": "a894213982a5eb7188625f1eff10df4991b6e0cc16c0d0b239e19e2060b4b4a9",
     "status": "in_progress",
-    "version": "v6-astral-detail-draft"
+    "version": "v6-astral-detail-draft",
+    "original": "art-src/map-models/city-5.glb",
+    "originalSha256": "fe3884df2da71708095607b5005ad50ddc5c631ce6effadd4b4d6b6dc3b1a4f0"
   },
   "city-6": {
     "url": "/art/map-selected/city-6.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\city-6\\blender-native-20261018\\6階・仙城-Blender-v8-lotus-detail-draft.glb",
-    "sha256": "fab96974d8683637a3793727231cb978366e0ce5e2471e76bd36153dad31ef16",
+    "sha256": "8a6a31e4d3cf92f40e42f8a645032e5c4ec29521a9a6e31903941c86fa25917e",
     "status": "in_progress",
-    "version": "v8-lotus-detail-draft"
+    "version": "v8-lotus-detail-draft",
+    "original": "art-src/map-models/city-6.glb",
+    "originalSha256": "fab96974d8683637a3793727231cb978366e0ce5e2471e76bd36153dad31ef16"
   },
   "relic": {
     "url": "/art/map-selected/relic-v20.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\relic\\blender-native-20261020\\models\\relic-v20-refined.glb",
-    "sha256": "c9b5ed3b5e9f9a73c27944c8a1aed6f2b634cf24a538e6b8a0262bb4878c9e7e",
+    "sha256": "3be61a02b35511c2e8fd28838983fe6c53f496d527708d1ca33679a9ed02f035",
     "status": "complete",
     "version": "v20",
-    "visualApproved": true
+    "visualApproved": true,
+    "original": "art-src/map-models/relic-v20.glb",
+    "originalSha256": "c9b5ed3b5e9f9a73c27944c8a1aed6f2b634cf24a538e6b8a0262bb4878c9e7e"
   },
   "vein": {
     "url": "/art/map-selected/vein-v27.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\vein\\blender-native-20261021\\models\\vein-v27-refined.glb",
-    "sha256": "357afa95d65e3adfd207c7dcb888b67a15bc250a604c1730deab4ea8d2f78135",
+    "sha256": "a17f6f2d3864c7cdb2982b2a68d54311d6eb928e7df1c5823d6f90a02e1f7f36",
     "status": "complete",
     "version": "v27",
-    "visualApproved": true
+    "visualApproved": true,
+    "original": "art-src/map-models/vein-v27.glb",
+    "originalSha256": "357afa95d65e3adfd207c7dcb888b67a15bc250a604c1730deab4ea8d2f78135"
   },
   "secret": {
     "url": "/art/map-selected/secret-v18.glb",
     "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\character-buildings-glb-20261015\\runs-square\\secret\\blender-native-20261021\\models\\secret-v18-refined.glb",
-    "sha256": "f5a0ccf42544a19b8211e20dfd298e6c4c32242d7fd9e2e780446c568fbcf9fd",
+    "sha256": "02f0c4a1147f9e8f174cde65d85647e2675b8f90542a2fc15a134c2e4e279ec6",
     "status": "complete",
     "version": "v18",
-    "visualApproved": true
+    "visualApproved": true,
+    "original": "art-src/map-models/secret-v18.glb",
+    "originalSha256": "f5a0ccf42544a19b8211e20dfd298e6c4c32242d7fd9e2e780446c568fbcf9fd"
   }
 }

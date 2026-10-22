@@ -29,11 +29,15 @@ assert.deepEqual(Object.keys(MAP_MODELS).sort(),Object.keys(manifest).sort());
 for(const lot of BUILDING_LOTS){
  const model=lot.type==='city'?`city-${cityModelLevel(lot.prosperity)}`:lot.type;
  assert.ok(MAP_MODELS[model],`missing model for ${lot.name}`);
- assert.equal(MAP_MODELS[model],manifest[model].url.replace(/^\//,'./'));
+ assert.equal(MAP_MODELS[model],manifest[model].url.replace(/^\//,'./')+`?v=${manifest[model].sha256.slice(0,12)}`,'model URLs carry their content version for the browser cache');
 }
 for(const m of Object.values(manifest)){
  const p=path.join(__dirname,'../public',m.url),b=fs.readFileSync(p);assert.equal(b.toString('utf8',0,4),'glTF');assert.equal(b.readUInt32LE(4),2);assert.equal(b.length,b.readUInt32LE(8));
- assert.equal(crypto.createHash('sha256').update(b).digest('hex'),m.sha256);if(process.env.VERIFY_EXTERNAL_SOURCES==='1'||(!process.env.CI&&fs.existsSync(m.source)))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(m.source)).digest('hex'),m.sha256,'Blender source must not change');
+ assert.equal(crypto.createHash('sha256').update(b).digest('hex'),m.sha256);if(process.env.VERIFY_EXTERNAL_SOURCES==='1'||(!process.env.CI&&fs.existsSync(m.source)))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(m.source)).digest('hex'),m.originalSha256,'Blender source must not change');
+ assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname,'..',m.original))).digest('hex'),m.originalSha256,'the uncompressed original is kept in art-src');
+ const gltf=JSON.parse(b.toString('utf8',20,20+b.readUInt32LE(12)).trim());
+ assert.ok(gltf.extensionsUsed.includes('EXT_meshopt_compression'),'deployed models are compressed (npm run optimize:models)');
+ assert.ok((gltf.images??[]).every(v=>v.mimeType==='image/webp'),'deployed textures are WebP');
 }
 for(const key of ['relic','vein','secret']){
  const m=manifest[key],b=fs.readFileSync(path.join(__dirname,'../public',m.url));

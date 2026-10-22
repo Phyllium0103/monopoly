@@ -33,3 +33,9 @@ const state2=createGameState('liu'),lord2=state2.lords.liu,engine2=new Engine(st
 const city=Object.values(state2.cities).find(c=>c.owner==='liu'),lot=BUILDING_LOTS.find(o=>o.id===city.id);lord2.position=lot.triggerTiles[1];assert.equal(garrisonDispatch(state2,lord2,city).fee,0);
 const vein=BUILDING_LOTS.find(o=>o.type==='vein'),before=lord2.stones;for(const i of vein.triggerTiles)engine2.passVein(lord2,i);assert.ok(lord2.stones>before);assert.equal(lord2.veinsTapped.length,1);
 console.log('PASS second city entrance dispatch is free; both vein cells share one reward per round');
+
+const{WEAPON_CATALOG}=require('../src/data/weaponCatalog.ts');const{WEAPON_TYPES,WEAPON_TYPE_BY_GENERAL}=require('../src/data/weaponTypes.ts');
+for(const t of WEAPON_TYPES){const b=fs.readFileSync(path.join(__dirname,'../public/art/icons/兵器',`${t}.webp`));assert.equal(b.subarray(8,12).toString(),'WEBP');}
+for(const [id,d] of Object.entries(WEAPON_CATALOG))assert.ok(WEAPON_TYPES.includes(WEAPON_TYPE_BY_GENERAL[id]),`${d.name} ${d.names[0]} has no weapon type`);
+assert.equal(WEAPON_TYPE_BY_GENERAL.gaoshun,'盾牌');assert.equal(WEAPON_TYPE_BY_GENERAL.guanxing,'長柄刀');assert.equal(WEAPON_TYPE_BY_GENERAL.zhangxingcai,'雙槍矛');assert.equal(WEAPON_TYPE_BY_GENERAL.zhurongfuren,'暗器');
+console.log(`PASS all ${Object.keys(WEAPON_CATALOG).length} personal weapons map to one of ${WEAPON_TYPES.length} weapon-type icons`);

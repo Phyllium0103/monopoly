@@ -39,7 +39,7 @@ test('Five-element techniques: speed, force, skill multiplier, price and names b
     close(items.techniqueForce(tech), force[t], `force tier ${t}`);
     assert.equal(items.techniqueSkillPower(tech), skill[t]);
     assert.equal(tech.price, price[t] * 100, 'prices are in 中品 (100 下品 each)');
-    assert.equal(items.techniqueKeepPill(tech), 0);
+    assert.equal(items.techniqueKeep(tech), 0);
   }
   const names = { metal: ['庚金劍訣', '辟邪神雷', '九轉暗金身', '神劍御雷真訣'], wood: ['長春功', '青元劍訣', '草木皆兵訣', '青天化龍訣'],
     water: ['玄冰訣', '寒門養念訣', '龍象化海經', '水澤國度'], fire: ['離火訣', '焚天火焰刀', '焚香玉冊', '太陽真經'], earth: ['人山訣', '元磁神光', '源天書', '大荒蕪經'] };
@@ -52,7 +52,7 @@ test('Five-element techniques: speed, force, skill multiplier, price and names b
   });
 });
 
-test('Craft techniques: only 地/天, no element, speed and alchemy pill keep chance', () => {
+test('Craft techniques: only 地/天, no element, speed and a keep chance for their own item category', () => {
   const names = { alchemy: ['紫氣馭鼎功', '太上丹經'], forging: ['大衍訣', '暗器百解'], talisman: ['銀蝌文', '金篆文'], formation: ['組字秘', '禁制本源'] };
   const speed = [0.3, 0.34, 0.38, 0.4, 0.44, 0.48];
   const keep = [0.05, 0.07, 0.1, 0.1, 0.12, 0.15];
@@ -63,10 +63,37 @@ test('Craft techniques: only 地/天, no element, speed and alchemy pill keep ch
     assert.equal(tech.skillName, list[t < 9 ? 0 : 1]);
     close(items.techniqueSpeed(tech), speed[t - 6], `${art} speed tier ${t}`);
     assert.equal(items.techniqueForce(tech), 0);
-    close(items.techniqueKeepPill(tech), art === 'alchemy' ? keep[t - 6] : 0, `${art} keep tier ${t}`);
+    close(items.techniqueKeep(tech), keep[t - 6], `${art} keep tier ${t}`);
+    const own = { alchemy: '丹藥', forging: '法器', talisman: '符籙', formation: '陣法' }[art];
+    for (const cat of ['丹藥', '法器', '符籙', '陣法']) close(items.techniqueKeep(tech, cat), cat === own ? keep[t - 6] : 0, `${art} on ${cat}`);
   }
   assert.equal(items.makeTechnique('x', 2, 'alchemy').tier, 6, 'craft techniques start at 地階下品');
   for (let i = 0; i < 300; i++) assert.ok(items.makeTechnique('x', 3).element, 'below 地階 only element techniques drop');
+});
+
+test('Using items: each craft technique can save its own item category, and only that category', () => {
+  const { consumeItem } = require('../src/systems/ItemSystem.ts');
+  const { fx } = require('../src/data/passives.ts');
+  const state = createGameState('cao', 40);
+  bindPassiveState(state);
+  const lord = state.lords.cao;
+  const g = Object.values(state.generals).find((x) => x.status !== 'dead' && !['keepPill', 'keepArtifact', 'keepTalisman', 'keepFormation'].some((k) => fx(x)[k]));
+  for (const k of ['alchemy', 'forging', 'talisman', 'formation']) g.base[k] = 9999;
+  const own = { alchemy: '丹藥', forging: '法器', talisman: '符籙', formation: '陣法' };
+  const random = Math.random;
+  try {
+    Math.random = () => 0.01; // below the 5% 地階下品 chance
+    for (const [art, cat] of Object.entries(own)) {
+      g.technique = items.makeTechnique('t', 6, art);
+      for (const other of Object.values(own)) {
+        const defId = Object.keys(items.ITEM_DEFS).find((id) => items.ITEM_DEFS[id].category === other && !items.ITEM_DEFS[id].noUser);
+        const item = items.makeItem(`i-${art}-${other}`, defId, 0);
+        lord.items = [item]; lord.itemsLocked = 0; g.stamina = 9999;
+        consumeItem(lord, item, g);
+        assert.equal(lord.items.length, other === cat ? 1 : 0, `${art} using ${other}`);
+      }
+    }
+  } finally { Math.random = random; }
 });
 
 test('Learning: element techniques need a matching aptitude; craft techniques any aptitude except waste', () => {

@@ -1,5 +1,5 @@
 import type { Aptitude, City, Element, GameState, General, Item, Lord } from '../game/types';
-import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, BREAK_BOOST, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemId, rollItemTier, techniqueKeepPill, type ItemDef } from '../data/items';
+import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, BREAK_BOOST, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemId, rollItemTier, techniqueKeep, type ItemDef } from '../data/items';
 import { freeGenerals, killGeneral, nextUid, reviveGeneral } from '../game/GameState';
 import { addExp, craft, expCap, maxHp, maxStamina } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
@@ -32,8 +32,9 @@ export function consumeItem(lord:Lord,item:Item,user?:General):number {
  if(!def(item).noUser&&(!user||!canUse(item,user).ok))throw Error('使用者能力或體力不足');
  const cost=user?requirement(item,user).stamina:0;
  if(user)user.stamina-=cost;
- // 煉丹功法：服用丹藥時另有一次不消耗的機會
- const keep=user ? ({'丹藥':1-(1-(fx(user).keepPill??0))*(1-techniqueKeepPill(user.technique)),'法器':fx(user).keepArtifact,'符籙':fx(user).keepTalisman,'陣法':fx(user).keepFormation}[def(item).category]??0) : 0;
+ // 技藝功法：使用對應道具時另有一次不消耗的機會（與人物被動分別判定）
+ const passive=user ? ({'丹藥':fx(user).keepPill,'法器':fx(user).keepArtifact,'符籙':fx(user).keepTalisman,'陣法':fx(user).keepFormation}[def(item).category]??0) : 0;
+ const keep=user ? 1-(1-passive)*(1-techniqueKeep(user.technique,def(item).category)) : 0;
  if (!(keep>0 && Math.random()<keep)) lord.items=lord.items.filter(i=>i.uid!==item.uid);
  return user?addExp(user,cost*ITEM_USE_EXP):0;
 }

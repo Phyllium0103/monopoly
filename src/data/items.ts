@@ -183,9 +183,12 @@ export function techniqueForce(t: Technique | null): number {
   return Math.round(([0.05, 0.1, 0.2, 0.35][major(t)] + SUB_FORCE[minor(t)]) * 100) / 100;
 }
 
-/** 煉丹功法：服用丹藥時不消耗的機率 +5/10%（地／天），下中上品再 +0/2/5% */
-export function techniqueKeepPill(t: Technique | null): number {
-  if (!t || t.art !== 'alchemy') return 0;
+/** 技藝功法對應的道具：煉丹→丹藥、煉器→法器、畫符→符籙、佈陣→陣法 */
+export const CRAFT_ITEM: Record<CraftStat, '丹藥' | '陣法' | '符籙' | '法器'> = { alchemy: '丹藥', forging: '法器', talisman: '符籙', formation: '陣法' };
+
+/** 技藝功法：使用對應道具時不消耗的機率 +5/10%（地／天），下中上品再 +0/2/5%；給 category 時只算該類道具 */
+export function techniqueKeep(t: Technique | null, category?: string): number {
+  if (!t?.art || (category !== undefined && CRAFT_ITEM[t.art] !== category)) return 0;
   return Math.round(([0.05, 0.1][Math.max(0, major(t) - 2)] + SUB_KEEP[minor(t)]) * 100) / 100;
 }
 
@@ -246,7 +249,7 @@ export function techniqueDesc(t: Technique): string {
     : `<b style="color:${tag.css}">【${tag.text}】功法</b>（無五行）`;
   const parts = [`修練速度 +${Math.round(techniqueSpeed(t) * 100)}%`];
   if (techniqueForce(t)) parts.push(`武力 +${Math.round(techniqueForce(t) * 100)}%`);
-  if (techniqueKeepPill(t)) parts.push(`服用丹藥 ${Math.round(techniqueKeepPill(t) * 100)}% 不消耗`);
+  if (t.art) parts.push(`使用${CRAFT_ITEM[t.art]}時 ${Math.round(techniqueKeep(t) * 100)}% 不消耗`);
   return `${head}｜${parts.join('、')}<br>技能「${techniqueBaseName(t)}」造成 ×${techniqueSkillPower(t)} 傷害（能量滿 100 施放）`;
 }
 

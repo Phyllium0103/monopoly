@@ -2,7 +2,7 @@ import { GENERAL_SEEDS, HIDDEN_SEEDS } from '../data/generals';
 import { DEFAULT_ROUNDS, PARTY_LIMIT, START_SOLDIERS, START_STONES } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS, REALM_EXP } from '../data/generals';
-import { BEASTS, ELEMENT_NAMES, ITEM_CATEGORIES, ITEM_DEFS, PILL_GRADES, STAT_NAMES, beastPower, describeBeast, EQUIP_DESIGNS, ELEMENT_LIST, CRAFT_LIST, equipRealm, makeTechnique, techniqueBaseName, techniqueKeepPill, techniqueSkillPower, techniqueSpeed, techniqueForce, tierName, tierPrice } from '../data/items';
+import { BEASTS, ELEMENT_NAMES, ITEM_CATEGORIES, ITEM_DEFS, PILL_GRADES, STAT_NAMES, beastPower, describeBeast, EQUIP_DESIGNS, ELEMENT_LIST, CRAFT_LIST, equipRealm, makeTechnique, techniqueBaseName, techniqueKeep, techniqueSkillPower, techniqueSpeed, techniqueForce, tierName, tierPrice } from '../data/items';
 import { MIN_GARRISON, GARRISON_STRENGTH, SOLDIER_PRICE } from '../systems/CitySystem';
 import { CONTEST_SOLDIERS, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE } from '../systems/BattleSystem';
 import { TRIBULATION_BOLTS } from '../systems/GeneralSystem';
@@ -38,13 +38,13 @@ function techniqueTable(): string {
   const rows = Array.from({ length: 12 }, (_, t) => {
     const el = makeTechnique('', t as never, 'metal');
     const art = t >= 6 ? makeTechnique('', t as never, 'alchemy') : null;
-    return `<tr><td>${tierName(t, '階')}</td><td>${pct(techniqueSpeed(el))}</td><td>${pct(techniqueForce(el))}</td><td>${art ? pct(techniqueSpeed(art)) : '—'}</td><td>${art ? pct(techniqueKeepPill(art)) : '—'}</td><td>×${techniqueSkillPower(el)}</td><td>${fmtStones(el.price, true)}</td></tr>`;
+    return `<tr><td>${tierName(t, '階')}</td><td>${pct(techniqueSpeed(el))}</td><td>${pct(techniqueForce(el))}</td><td>${art ? pct(techniqueSpeed(art)) : '—'}</td><td>${art ? pct(techniqueKeep(art)) : '—'}</td><td>×${techniqueSkillPower(el)}</td><td>${fmtStones(el.price, true)}</td></tr>`;
   });
   const names = (kind: (typeof ELEMENT_LIST)[number] | (typeof CRAFT_LIST)[number], tiers: number[]) =>
     tiers.map((t) => techniqueBaseName(makeTechnique('', t as never, kind))).join('、');
-  return `<table class="terrain-table"><tr><th>品階</th><th>五行・修練速度</th><th>五行・武力</th><th>技藝・修練速度</th><th>煉丹・丹藥不消耗</th><th>技能傷害</th><th>價格</th></tr>${rows.join('')}</table>
+  return `<table class="terrain-table"><tr><th>品階</th><th>五行・修練速度</th><th>五行・武力</th><th>技藝・修練速度</th><th>技藝・道具不消耗</th><th>技能傷害</th><th>價格</th></tr>${rows.join('')}</table>
     <p>技能名稱就是功法名稱。五行功法黃、玄、地、天各一種：${ELEMENT_LIST.map((e) => `<b>${ELEMENT_NAMES[e]}</b> ${names(e, [0, 3, 6, 9])}`).join('；')}。</p>
-    <p>技藝功法只有地階與天階，沒有五行、不受相生相剋影響、任何靈根（廢靈根除外）都能修習：${CRAFT_LIST.map((k) => `<b>${STAT_NAMES[k]}</b> ${names(k, [6, 9])}`).join('；')}。煉丹功法另外讓武將服用丹藥時有機率不消耗。價格比照同品階的五行功法。</p>`;
+    <p>技藝功法只有地階與天階，沒有五行、不受相生相剋影響、任何靈根（廢靈根除外）都能修習：${CRAFT_LIST.map((k) => `<b>${STAT_NAMES[k]}</b> ${names(k, [6, 9])}`).join('；')}。修習的武將使用對應道具時有機率不消耗：煉丹→丹藥、煉器→法器、畫符→符籙、佈陣→陣法（與諸葛亮等人物被動分別判定）。價格比照同品階的五行功法。</p>`;
 }
 
 /** 寶衣十二階：以「基準值」說明，各款式再乘上自己的比例 */
@@ -277,7 +277,7 @@ const PAGES: Page[] = [
       <h4>功法</h4>
       ${list([
         '每位武將只能修習一種功法；可用<b>散功丹</b>卸下功法並保留境界與修為，或<b>自廢修為</b>（境界歸零）。在武將名冊「學習功法」。',
-        '功法分<b>天地玄黃 × 上中下</b>共 12 階。<b>五行功法</b>（金木水火土）黃、玄、地、天各一種，提升<b>修練速度</b>與<b>武力</b>；<b>技藝功法</b>（煉丹、煉器、畫符、佈陣）只有地階與天階，提升修練速度，沒有五行；煉丹功法另讓服用丹藥時有機率不消耗。',
+        '功法分<b>天地玄黃 × 上中下</b>共 12 階。<b>五行功法</b>（金木水火土）黃、玄、地、天各一種，提升<b>修練速度</b>與<b>武力</b>；<b>技藝功法</b>（煉丹、煉器、畫符、佈陣）只有地階與天階，提升修練速度，沒有五行，並讓使用對應道具（丹藥、法器、符籙、陣法）時有機率不消耗。',
         '<b>修練速度</b>：周天吐納（每回合修為，含駐城靈氣與閉關）按比例增加。數值依品階，見下表。',
         '<b>技能</b>：擂台戰攻擊累積能量，能量滿 100 就能施放功法技能，造成 ×技能倍率的傷害。',
         `<b>五行</b>：${ELEMENT_NAMES.metal}剋${ELEMENT_NAMES.wood}、${ELEMENT_NAMES.wood}剋${ELEMENT_NAMES.earth}、${ELEMENT_NAMES.earth}剋${ELEMENT_NAMES.water}、${ELEMENT_NAMES.water}剋${ELEMENT_NAMES.fire}、${ELEMENT_NAMES.fire}剋${ELEMENT_NAMES.metal}：剋制方傷害 ×1.35，被剋 ×0.75，相生 ×0.9。五行輪轉事件期間，當令屬性傷害再 +30%。`,

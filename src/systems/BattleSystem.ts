@@ -1,6 +1,6 @@
 import type { Beast, City, CraftStat, Element, GameState, General, Lord, LordId } from '../game/types';
 import { attack, craft, defense, maxHp, power } from './GeneralSystem';
-import { beastPower, elementMod } from '../data/items';
+import { beastPower, elementMod, techniqueSkillPower, techniqueBaseName } from '../data/items';
 import { beastSiegeBonus, garrisonPower } from './CitySystem';
 import { WORLD } from './WorldMods';
 import { fx, passiveOf } from '../data/passives';
@@ -238,8 +238,8 @@ export class Duel {
     if (act === 'skill' && this.canSkill(side)) {
       me.energy = 0;
       const t = me.general.technique!;
-      const r = this.strike(side, t.skillPower, true, wounded);
-      events.push({ text: `${me.general.name}施展【${t.skillName}】！${r.crit ? '【暴擊】' : ''}造成 ${r.dmg} 傷害${r.elem ? `（${r.elem}）` : ''}`, target: foe.side, damage: r.dmg, kind: 'skill', crit: r.crit });
+      const r = this.strike(side, techniqueSkillPower(t), true, wounded);
+      events.push({ text: `${me.general.name}施展【${techniqueBaseName(t)}】！${r.crit ? '【暴擊】' : ''}造成 ${r.dmg} 傷害${r.elem ? `（${r.elem}）` : ''}`, target: foe.side, damage: r.dmg, kind: 'skill', crit: r.crit });
       if (r.heal) events.push({ text: `${me.general.name}吸取 ${r.heal} 血量`, target: side, heal: r.heal, kind: 'info' });
     } else {
       const mine = fx(me.general);

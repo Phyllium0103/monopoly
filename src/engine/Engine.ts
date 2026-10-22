@@ -17,8 +17,7 @@ import { portraitUrl, equipIconUrl } from '../ui/Icons';
 import { CASINO_MIN_BET, CASINO_NAME, aiCasinoBet, diceTotal, maxBet, playCasino, type CasinoResult } from '../systems/CasinoSystem';
 import { REALMS } from '../data/generals';
 import { bindPassiveState, passiveOf, fx, lordHas } from '../data/passives';
-import { ELEMENT_CSS, ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, equipDesc, equipRealm, techniqueDesc } from '../data/items';
-import { terrainEffects, terrainOf } from '../data/terrain';
+import { CRAFT_CSS, ELEMENT_CSS, ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, equipDesc, equipRealm, techniqueDesc } from '../data/items';
 import { GARRISON_STRENGTH, MIN_GARRISON, canOccupy, cityIncome, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll, visitingToll } from '../systems/CitySystem';
 import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, equip, unequip, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
@@ -237,6 +236,7 @@ export class Engine {
           break;
         }
         case 'abilities': await this.generalAbilities(lord); break;
+        case 'ability': await this.useAbilityOf(lord, a.generalId); break;
         case 'materials': await this.materialsFlow(lord); break;
         case 'recruit': await this.recruitSoldiers(lord); break;
         case 'garrison': await this.manageGarrison(lord); break;
@@ -635,7 +635,6 @@ export class Engine {
         `抵達${city.name}・是否佔領？`,
         facts([
           ['佔領費', `<b>${fmtStones(occupyCost(city))}</b>（持有 ${fmtStones(lord.stones)}）`],
-          ['地貌', `${terrainOf(city).icon} ${terrainOf(city).name}・${terrainEffects(terrainOf(city))}`],
           ['繁榮度', fmtProsperity(city.prosperity)],
           ['每回合收入', `${fmtStones(inc.stones)}、士兵 +${inc.soldiers}`],
           ['佔領後過路費', fmtStones(toll(city, citiesOf(this.state, lord.id).length + 1))],
@@ -656,7 +655,7 @@ export class Engine {
           initial: Math.min(lord.soldiers, Math.max(MIN_GARRISON, Math.round(city.prosperity * 30))),
           unit: ' 名',
           confirm: '派駐',
-          preview: (v) => `守軍戰力約 ${v * GARRISON_STRENGTH}（未計駐將與地貌）・留在身邊 ${lord.soldiers - v} 名`,
+          preview: (v) => `守軍戰力約 ${v * GARRISON_STRENGTH}（未計駐將）・留在身邊 ${lord.soldiers - v} 名`,
         },
         '🏯',
       );
@@ -960,7 +959,7 @@ export class Engine {
             initial: Math.min(attacker.soldiers, Math.max(MIN_GARRISON, Math.round(attacker.soldiers * 0.4))),
             unit: ' 名',
             confirm: '派駐',
-            preview: (v) => `守軍戰力約 ${v * GARRISON_STRENGTH}（未計駐將與地貌）・留在身邊 ${attacker.soldiers - v} 名`,
+            preview: (v) => `守軍戰力約 ${v * GARRISON_STRENGTH}（未計駐將）・留在身邊 ${attacker.soldiers - v} 名`,
           },
           '🏯',
         );
@@ -1246,14 +1245,35 @@ export class Engine {
       if (!abilityUsers(this.state, lord).length) break;
       const user = await this.dlg(lord).choose('方外神通', '隨行人物可在整備期間使用，不限所在位置。製物／起死回生耗 100 體力，冤魂召喚每五個自身回合一次。', abilityUsers(this.state, lord).map(g => { const r = abilityReady(this.state, lord, g); return { label: g.name, icon: portraitUrl(g), sub: generalBrief(g, `<span class="gb-line gb-passive">${passiveOf(g).effectText}</span>`, { passive: false }), value: g, disabled: !r.ok, reason: r.reason }; }));
       if (!user) break;
-      let target: General | undefined;
-      if (!fx(user).produceCategory) {
-        const selected = await this.dlg(lord).choose(fx(user).reviveAbility ? '起死回生：選擇我方亡將' : '召喚冤魂：選擇亡將', '取消返回神通列表。', abilityTargets(this.state, lord, user).map(g => ({ label: g.name, icon: portraitUrl(g), sub: generalBrief(g, statCells([['戰力', power(g)], ['修為', g.exp]])), value: g })), '返回');
-        if (!selected) continue; target = selected;
-      }
-      this.view.log(useGeneralAbility(this.state, lord, user, target), 'good'); this.view.refresh();
+      await this.castAbility(lord, user, '取消返回神通列表。');
     }
     this.view.refresh();
+  }
+
+  /** 右下角點選某位隨行武將：直接施展他的神通 */
+  private async useAbilityOf(lord: Lord, generalId: string) {
+    const user = this.state.generals[generalId];
+    if (!user || !abilityUsers(this.state, lord).includes(user)) return;
+    const ready = abilityReady(this.state, lord, user);
+    if (!ready.ok) {
+      this.view.toast(`${user.name}：${ready.reason}`, lord.id);
+      return;
+    }
+    await this.castAbility(lord, user, '取消則不施展。');
+    this.view.refresh();
+  }
+
+  /** 施展神通；需要目標（起死回生、召喚冤魂）時先選擇亡將，取消回傳 false */
+  private async castAbility(lord: Lord, user: General, cancelText: string): Promise<boolean> {
+    let target: General | undefined;
+    if (!fx(user).produceCategory) {
+      const selected = await this.dlg(lord).choose(fx(user).reviveAbility ? '起死回生：選擇我方亡將' : '召喚冤魂：選擇亡將', cancelText, abilityTargets(this.state, lord, user).map(g => ({ label: g.name, icon: portraitUrl(g), sub: generalBrief(g, statCells([['戰力', power(g)], ['修為', g.exp]])), value: g })), '返回');
+      if (!selected) return false;
+      target = selected;
+    }
+    this.view.log(useGeneralAbility(this.state, lord, user, target), 'good');
+    this.view.refresh();
+    return true;
   }
 
   /** 擲骰前使用物品；用了傳送類物品時回傳目的地 */
@@ -1791,12 +1811,12 @@ export class Engine {
         if (away || g.technique || !lord.scrolls.length || g.aptitude === 'waste') return;
         const s = await ask.choose(
           `${g.name}・學習功法`,
-          '每位武將只能修習一種功法；五行靈根須與功法屬性相符，天靈根不限屬性，廢靈根無法修習。學會後不可更換，除非自廢修為。',
+          '每位武將只能修習一種功法；五行靈根須與功法屬性相符，天靈根不限屬性，煉丹、煉器、畫符、佈陣功法不限靈根，廢靈根無法修習。學會後不可更換，除非自廢修為。',
           lord.scrolls.map((x) => ({
             label: x.name,
             sub: techniqueDesc(x),
             value: x,
-            color: ELEMENT_CSS[x.element],
+            color: x.element ? ELEMENT_CSS[x.element] : CRAFT_CSS,
             disabled: !canLearn(g, x).ok,
             reason: canLearn(g, x).reason,
           })),

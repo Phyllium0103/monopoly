@@ -135,69 +135,97 @@ export function equipDesc(e: Equipment, withValue = true): string {
 
 // ───────────────────────── 功法 ─────────────────────────
 
-/** 每個屬性 5 種功法名稱與技能：同一品階的五種功法屬性各不相同 */
-const TECHNIQUES: Record<Element, { name: string; skill: string }[]> = {
-  metal: [
-    { name: '庚金劍訣', skill: '萬劍歸宗' },
-    { name: '太白劍經', skill: '太白貫日' },
-    { name: '金剛不壞功', skill: '金剛伏魔' },
-    { name: '白虎斷岳訣', skill: '虎嘯金風' },
-    { name: '天罡劍典', skill: '天罡鎮世' },
-  ],
-  wood: [
-    { name: '青木長生功', skill: '萬木回春' },
-    { name: '乙木神雷訣', skill: '青雷破空' },
-    { name: '枯榮禪功', skill: '一葉枯榮' },
-    { name: '九轉青蓮訣', skill: '青蓮化生' },
-    { name: '藤甲纏龍訣', skill: '古藤縛龍' },
-  ],
-  water: [
-    { name: '玄水真經', skill: '滄海橫流' },
-    { name: '癸水天罡訣', skill: '天河倒懸' },
-    { name: '寒冰掌', skill: '冰封千里' },
-    { name: '北冥神功', skill: '北冥吞海' },
-    { name: '洗心訣', skill: '清波滌塵' },
-  ],
-  fire: [
-    { name: '離火焚天訣', skill: '焚天烈焰' },
-    { name: '赤陽神功', skill: '大日焚身' },
-    { name: '三昧真火訣', skill: '三昧真火' },
-    { name: '朱雀涅槃經', skill: '浴火重生' },
-    { name: '烈焰天劍訣', skill: '火雲焚野' },
-  ],
-  earth: [
-    { name: '厚土玄功', skill: '山崩地裂' },
-    { name: '戊土鎮岳訣', skill: '五岳鎮壓' },
-    { name: '不動明王經', skill: '明王怒' },
-    { name: '玄龜負山訣', skill: '玄龜鎮海' },
-    { name: '黃沙裂地訣', skill: '黃沙漫天' },
-  ],
+/** 五行功法：黃、玄、地、天各一種；技能名稱即功法名稱 */
+const ELEMENT_TECHNIQUES: Record<Element, [string, string, string, string]> = {
+  metal: ['庚金劍訣', '辟邪神雷', '九轉暗金身', '神劍御雷真訣'],
+  wood: ['長春功', '青元劍訣', '草木皆兵訣', '青天化龍訣'],
+  water: ['玄冰訣', '寒門養念訣', '龍象化海經', '水澤國度'],
+  fire: ['離火訣', '焚天火焰刀', '焚香玉冊', '太陽真經'],
+  earth: ['人山訣', '元磁神光', '源天書', '大荒蕪經'],
 };
 
-/** 各屬性的偏重：金偏攻、土水偏守、火的技能更猛 */
-export const ELEMENT_BIAS: Record<Element, { atk: number; def: number; skill: number }> = {
-  metal: { atk: 1.15, def: 0.9, skill: 1 },
-  wood: { atk: 1, def: 1, skill: 1 },
-  water: { atk: 0.95, def: 1.15, skill: 1 },
-  fire: { atk: 1.05, def: 0.85, skill: 1.1 },
-  earth: { atk: 0.9, def: 1.3, skill: 1 },
+/** 技藝功法：只有地階與天階，沒有五行 */
+const CRAFT_TECHNIQUES: Record<CraftStat, [string, string]> = {
+  alchemy: ['紫氣馭鼎功', '太上丹經'],
+  forging: ['大衍訣', '暗器百解'],
+  talisman: ['銀蝌文', '金篆文'],
+  formation: ['組字秘', '禁制本源'],
 };
+export const CRAFT_LIST: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
+export const CRAFT_CSS = '#d9c7f0';
 
 export const ELEMENT_LIST: Element[] = ['metal', 'wood', 'water', 'fire', 'earth'];
 
-/** 某品階某屬性的功法（每個品階共五種，屬性各不相同） */
-export function makeTechnique(uid: string, tier: Tier, element?: Element): Technique {
-  const el = element ?? pick(ELEMENT_LIST);
-  const t = TECHNIQUES[el][tier % 5];
+/** 技能倍率（黃階下品 … 天階上品） */
+const SKILL_POWER = [1.8, 1.9, 2.0, 2.3, 2.4, 2.5, 2.8, 2.9, 3.0, 3.3, 3.4, 3.5];
+/** 價格（中品，黃階下品 … 天階上品）；技藝功法比照同品階 */
+const TECHNIQUE_PRICE = [6, 9, 12, 20, 25, 40, 60, 75, 100, 150, 250, 400];
+/** 同一階的下、中、上品再加的比例 */
+const SUB_SPEED = [0, 0.04, 0.08];
+const SUB_FORCE = [0, 0.02, 0.05];
+const SUB_KEEP = [0, 0.02, 0.05];
+/** 技藝功法最低品階：地階下品 */
+export const CRAFT_MIN_TIER = 6;
+
+const major = (t: Technique) => Math.floor(t.tier / 3);
+const minor = (t: Technique) => t.tier % 3;
+
+/** 修練速度加成：五行 +10/20/30/40%，技藝 +30/40%（地／天）；下中上品再 +0/4/8% */
+export function techniqueSpeed(t: Technique | null): number {
+  if (!t) return 0;
+  const base = t.art ? [0.3, 0.4][Math.max(0, major(t) - 2)] : [0.1, 0.2, 0.3, 0.4][major(t)];
+  return Math.round((base + SUB_SPEED[minor(t)]) * 100) / 100;
+}
+
+/** 武力加成（只有五行功法）：+5/10/20/35%，下中上品再 +0/2/5% */
+export function techniqueForce(t: Technique | null): number {
+  if (!t || t.art) return 0;
+  return Math.round(([0.05, 0.1, 0.2, 0.35][major(t)] + SUB_FORCE[minor(t)]) * 100) / 100;
+}
+
+/** 煉丹功法：服用丹藥時不消耗的機率 +5/10%（地／天），下中上品再 +0/2/5% */
+export function techniqueKeepPill(t: Technique | null): number {
+  if (!t || t.art !== 'alchemy') return 0;
+  return Math.round(([0.05, 0.1][Math.max(0, major(t) - 2)] + SUB_KEEP[minor(t)]) * 100) / 100;
+}
+
+/** 技能倍率依品階 */
+export function techniqueSkillPower(t: Technique): number {
+  return SKILL_POWER[Math.max(0, Math.min(11, t.tier))];
+}
+
+/** 功法本名（不含品階）；技能名稱與功法名稱相同 */
+export function techniqueBaseName(t: Technique): string {
+  if (t.art) return CRAFT_TECHNIQUES[t.art][Math.max(0, major(t) - 2)];
+  return t.element ? ELEMENT_TECHNIQUES[t.element][major(t)] : t.skillName;
+}
+
+/** 功法顯示的五行或技藝類別 */
+export function techniqueTag(t: Technique): { text: string; css: string } {
+  if (t.art) return { text: STAT_NAMES[t.art], css: CRAFT_CSS };
+  return t.element ? { text: ELEMENT_NAMES[t.element], css: ELEMENT_CSS[t.element] } : { text: '無', css: CRAFT_CSS };
+}
+
+/**
+ * 某品階的功法。kind 可指定五行或技藝；省略時隨機——地階以上五行與四種技藝一起抽。
+ * 技藝功法只有地階、天階，指定更低品階時會提升到地階下品。
+ */
+export function makeTechnique(uid: string, tier: Tier, kind?: Element | CraftStat): Technique {
+  const pool: (Element | CraftStat)[] = tier >= CRAFT_MIN_TIER ? [...ELEMENT_LIST, ...CRAFT_LIST] : ELEMENT_LIST;
+  const k = kind ?? pick(pool);
+  const art = (CRAFT_LIST as string[]).includes(k) ? (k as CraftStat) : undefined;
+  const element = art ? null : (k as Element);
+  const finalTier = (art ? Math.max(CRAFT_MIN_TIER, tier) : tier) as Tier;
+  const t: Technique = { uid, name: '', tier: finalTier, element, art, power: 0, skillName: '', skillPower: 0, price: 0 };
+  const base = techniqueBaseName(t);
+  const tag = techniqueTag(t);
   return {
-    uid,
-    name: `${tierName(tier, '階')}・【${ELEMENT_NAMES[el]}】${t.name}`,
-    tier,
-    element: el,
-    power: Math.round((0.05 + tier * 0.03) * 100) / 100,
-    skillName: t.skill,
-    skillPower: Math.round((1.6 + tier * 0.15) * ELEMENT_BIAS[el].skill * 100) / 100,
-    price: Math.round((tierPrice(tier, 600)) / 10) * 10,
+    ...t,
+    name: `${tierName(finalTier, '階')}・【${tag.text}】${base}`,
+    power: techniqueForce(t),
+    skillName: base,
+    skillPower: techniqueSkillPower(t),
+    price: TECHNIQUE_PRICE[finalTier] * 100,
   };
 }
 
@@ -207,16 +235,19 @@ export function elementRelation(e: Element): { beats: Element; beatenBy: Element
   return { beats: OVERCOME[e], beatenBy };
 }
 
-/** 功法說明（可含 HTML）：屬性、相剋、能力加成、每回合修為、技能 */
+/** 功法說明（可含 HTML）：屬性或技藝、修練速度、武力、技能 */
 export function techniqueDesc(t: Technique): string {
-  const r = elementRelation(t.element);
-  return `<b style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】屬性</b>（剋${ELEMENT_NAMES[r.beats]}、被${ELEMENT_NAMES[r.beatenBy]}剋）｜武力 +${Math.round(t.power * ELEMENT_BIAS[t.element].atk * 100)}%、防禦 +${Math.round(t.power * 0.5 * ELEMENT_BIAS[t.element].def * 100)}%｜每回合修為 +${techniqueExp(t)}<br>技能「${t.skillName}」造成 ×${t.skillPower} 傷害（能量滿 100 施放）`;
-}
-
-/** 功法帶來的每回合修為：黃階 +20、玄階 +40、地階 +70、天階 +100，同階上中下品再遞增 */
-export function techniqueExp(t: Technique | null): number {
-  if (!t) return 0;
-  return Math.round(([20, 40, 70, 100][Math.floor(t.tier / 3)] + (t.tier % 3) * 5));
+  const tag = techniqueTag(t);
+  const head = t.element
+    ? (() => {
+      const r = elementRelation(t.element);
+      return `<b style="color:${tag.css}">【${tag.text}】屬性</b>（剋${ELEMENT_NAMES[r.beats]}、被${ELEMENT_NAMES[r.beatenBy]}剋）`;
+    })()
+    : `<b style="color:${tag.css}">【${tag.text}】功法</b>（無五行）`;
+  const parts = [`修練速度 +${Math.round(techniqueSpeed(t) * 100)}%`];
+  if (techniqueForce(t)) parts.push(`武力 +${Math.round(techniqueForce(t) * 100)}%`);
+  if (techniqueKeepPill(t)) parts.push(`服用丹藥 ${Math.round(techniqueKeepPill(t) * 100)}% 不消耗`);
+  return `${head}｜${parts.join('、')}<br>技能「${techniqueBaseName(t)}」造成 ×${techniqueSkillPower(t)} 傷害（能量滿 100 施放）`;
 }
 
 // ───────────────────────── 靈獸 ─────────────────────────

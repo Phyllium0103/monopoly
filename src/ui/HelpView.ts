@@ -2,38 +2,19 @@ import { GENERAL_SEEDS, HIDDEN_SEEDS } from '../data/generals';
 import { DEFAULT_ROUNDS, PARTY_LIMIT, START_SOLDIERS, START_STONES } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
 import { APTITUDE_DESC, APTITUDE_NAMES, REALMS, REALM_EXP } from '../data/generals';
-import { BEASTS, ELEMENT_NAMES, ITEM_CATEGORIES, ITEM_DEFS, PILL_GRADES, STAT_NAMES, beastPower, describeBeast, EQUIP_DESIGNS, equipRealm, techniqueExp, tierName, tierPrice } from '../data/items';
+import { BEASTS, ELEMENT_NAMES, ITEM_CATEGORIES, ITEM_DEFS, PILL_GRADES, STAT_NAMES, beastPower, describeBeast, EQUIP_DESIGNS, ELEMENT_LIST, CRAFT_LIST, equipRealm, makeTechnique, techniqueBaseName, techniqueKeepPill, techniqueSkillPower, techniqueSpeed, techniqueForce, tierName, tierPrice } from '../data/items';
 import { MIN_GARRISON, GARRISON_STRENGTH, SOLDIER_PRICE } from '../systems/CitySystem';
 import { CONTEST_SOLDIERS, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE } from '../systems/BattleSystem';
 import { TRIBULATION_BOLTS } from '../systems/GeneralSystem';
 import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY } from '../systems/RealmSystem';
 import { DISASTER_AFTER, EVENT_INTERVAL, FIXED_WORLD_EVENTS, WORLD_EVENTS, type EventCategory } from '../systems/EventSystem';
-import { BOARD, TILE_INFO } from '../data/board';
-import { CITY_TERRAIN, TERRAIN, type TerrainId } from '../data/terrain';
+import { TILE_INFO } from '../data/board';
 import { MATERIAL_GROUPS, MATERIAL_NAMES, WEAPON_GRADES, WEAPON_PENETRATION, WEAPON_UPGRADE_COST } from '../data/weaponCatalog';
 import { LORDS, LORD_IDS } from '../faction/Faction';
 
 interface Page {
   title: string;
   html: () => string;
-}
-
-const BOARD_NAMES = Object.fromEntries(BOARD.cities.map((c) => [c.id, c.name]));
-
-/** 地貌對照表 */
-function terrainTable(): string {
-  const cell = (v: number) => (v ? `<span class="${v > 0 ? 'up' : 'down'}">${v > 0 ? '+' : '−'}${Math.round(Math.abs(v) * 100)}%</span>` : '—');
-  const cities = (id: TerrainId) =>
-    Object.entries(CITY_TERRAIN)
-      .filter(([, t]) => t === id)
-      .map(([c]) => BOARD_NAMES[c])
-      .join('、');
-  const rows = (Object.keys(TERRAIN) as TerrainId[]).map((id) => {
-    const t = TERRAIN[id];
-    const growth = t.growth > 0 ? '<span class="up">較快</span>' : t.growth < 0 ? '<span class="down">較慢</span>' : '—';
-    return `<tr><td>${t.icon} ${t.name}</td><td>${cell(t.stones)}</td><td>${cell(t.soldiers)}</td><td>${cell(t.defense)}</td><td>${cell(t.spirit)}</td><td>${growth}</td><td class="cities">${cities(id)}</td></tr>`;
-  });
-  return `<table class="terrain-table"><tr><th>地貌</th><th>靈石</th><th>士兵</th><th>城防</th><th>靈氣</th><th>繁榮</th><th>城池</th></tr>${rows.join('')}</table>`;
 }
 
 /** 各類物品的效果、使用時機、能力門檻與體力消耗 */
@@ -51,14 +32,19 @@ function itemTable(category: (typeof ITEM_CATEGORIES)[number]): string {
   return `<table class="terrain-table item-table"><tr><th>名稱</th><th>時機</th><th>效果</th><th>能力門檻</th><th>體力</th><th>價格</th></tr>${rows.join('')}</table>`;
 }
 
-/** 功法十二階：能力加成、技能倍率、每回合修為與價格 */
+/** 功法十二階：五行功法的修練速度、武力、技能倍率與價格；技藝功法只有地階、天階 */
 function techniqueTable(): string {
+  const pct = (v: number) => `+${Math.round(v * 100)}%`;
   const rows = Array.from({ length: 12 }, (_, t) => {
-    const power = Math.round((0.05 + t * 0.03) * 100);
-    const skill = Math.round((1.6 + t * 0.15) * 100) / 100;
-    return `<tr><td>${tierName(t, '階')}</td><td>+${power}%</td><td>×${skill}</td><td>+${techniqueExp({ tier: t } as never)}</td><td>${fmtStones(tierPrice(t, 700), true)}</td></tr>`;
+    const el = makeTechnique('', t as never, 'metal');
+    const art = t >= 6 ? makeTechnique('', t as never, 'alchemy') : null;
+    return `<tr><td>${tierName(t, '階')}</td><td>${pct(techniqueSpeed(el))}</td><td>${pct(techniqueForce(el))}</td><td>${art ? pct(techniqueSpeed(art)) : '—'}</td><td>${art ? pct(techniqueKeepPill(art)) : '—'}</td><td>×${techniqueSkillPower(el)}</td><td>${fmtStones(el.price, true)}</td></tr>`;
   });
-  return `<table class="terrain-table"><tr><th>品階</th><th>武力加成</th><th>技能傷害</th><th>每回合修為</th><th>價格</th></tr>${rows.join('')}</table>`;
+  const names = (kind: (typeof ELEMENT_LIST)[number] | (typeof CRAFT_LIST)[number], tiers: number[]) =>
+    tiers.map((t) => techniqueBaseName(makeTechnique('', t as never, kind))).join('、');
+  return `<table class="terrain-table"><tr><th>品階</th><th>五行・修練速度</th><th>五行・武力</th><th>技藝・修練速度</th><th>煉丹・丹藥不消耗</th><th>技能傷害</th><th>價格</th></tr>${rows.join('')}</table>
+    <p>技能名稱就是功法名稱。五行功法黃、玄、地、天各一種：${ELEMENT_LIST.map((e) => `<b>${ELEMENT_NAMES[e]}</b> ${names(e, [0, 3, 6, 9])}`).join('；')}。</p>
+    <p>技藝功法只有地階與天階，沒有五行、不受相生相剋影響、任何靈根（廢靈根除外）都能修習：${CRAFT_LIST.map((k) => `<b>${STAT_NAMES[k]}</b> ${names(k, [6, 9])}`).join('；')}。煉丹功法另外讓武將服用丹藥時有機率不消耗。價格比照同品階的五行功法。</p>`;
 }
 
 /** 寶衣十二階：以「基準值」說明，各款式再乘上自己的比例 */
@@ -97,7 +83,7 @@ const PAGES: Page[] = [
       <h4>每回合流程</h4>
       ${list([
         '<b>回合開始</b>：城池收入靈石、士兵與挖掘材料、武將周天吐納增加修為、秘境倒數。',
-        '<b>擲骰前</b>：使用物品可先選丹藥、陣法、符籙、法器或全部分類，選使用者或目標時取消會逐層返回；可以使用物品、合成材料、徵兵、整備武將（裝備、功法、突破）；方外神通可在此耗費體力製物、復活或召喚冤魂；宗門可隨時調度，每人每次 10 下品，在自己的城池或空城免費；「🏯 調度駐軍」也在擲骰前使用（左下角按鈕）。',
+        '<b>擲骰前</b>：使用物品可先選丹藥、陣法、符籙、法器或全部分類，選使用者或目標時取消會逐層返回；可以使用物品、合成材料、徵兵、整備武將（裝備、功法、突破）；右下角排列隨行武將的頭像（滑鼠移上去看資訊），有神通可用的頭像會發光，在擲骰前點擊即可耗費體力製物、復活或召喚冤魂；宗門可隨時調度，每人每次 10 下品，在自己的城池或空城免費；「🏯 調度駐軍」也在擲骰前使用（左下角按鈕）。',
         '<b>擲骰移動</b>：迷魂指定移動及定身原地停留，都在受影響主公下回合擲骰時執行，仍觸發落點事件；悟道蒲團與畫地為牢符可使己方主公本回合原地停留。正常移動走骰子點數的格數，<b>只有停下的那一格</b>會觸發效果；路上遇到<b>岔路</b>時依<b>箭頭</b>行走，每次路過後箭頭換方向。',
         '<b>回合結束</b>：擲骰移動、處理完落地事件，回合就<b>自動結束</b>，沒有結束回合的按鈕；要整備請在擲骰前進行。',
       ])}
@@ -146,7 +132,7 @@ const PAGES: Page[] = [
       ${list([
         '骰子停在<b>無主城池</b>時，可以支付佔領費（一定高於該城當前的過路費，繁榮度越高越貴），派 1～5 名隨行武將與士兵駐守；駐將越多守城越強、收入加成也會相加。<b>城池至少要有一名駐將</b>；駐將全部陣亡（擂台戰死、渡劫身死）後，城池就成為<b>空城</b>，守軍離開、回到主公身邊。',
         `守軍至少 ${MIN_GARRISON} 人；一名城池守軍約等於 ${GARRISON_STRENGTH} 名隨行士兵。`,
-        '城池每回合為主人帶來靈石與士兵，繁榮度每回合成長，最高300；城池每滿50繁榮度提升一個外觀階級（250以上為第六階），過路費也隨之上漲（過路費 ≈ 繁榮度^1.2 × 7）。',
+        '城池每回合為主人帶來靈石與士兵；繁榮度每回合成長 0.5 + 該城繁榮度的 0.5%，最高300；城池每滿50繁榮度提升一個外觀階級（250以上為第六階），過路費也隨之上漲（過路費 ≈ 繁榮度^1.4 × 7，首都 ×1.2）。',
         '同一位主公擁有的城池越多，每座城的過路費越貴。',
       ])}
       <h4>踏入他人城池</h4>
@@ -154,9 +140,6 @@ const PAGES: Page[] = [
         '<b>繳納過路費</b>後離開；或是發起<b>戰鬥</b>。',
         '戰鬥獲勝免繳過路費（攻城戰獲勝則直接奪城）；<b>戰敗須付雙倍過路費</b>。',
       ])}
-      <h4>地貌</h4>
-      <p>每座城池依真實地理有不同地貌，影響靈石與士兵收入、守城戰力、駐守武將吸收的靈氣與繁榮成長：</p>
-      ${terrainTable()}
       <h4>繁榮度與城池榜</h4>
       ${list([
         '每座城池的繁榮度依東漢末年的實際盛衰各不相同：洛陽、成都、許昌、建業、長安、鄴城是天下名都；北平、武威、建寧等邊遠之地最為荒涼。',
@@ -206,7 +189,7 @@ const PAGES: Page[] = [
       <p>括號為該境界修為上限。修為滿了進入<b>瓶頸</b>，不再增加，需要在武將名冊手動<b>突破</b>。</p>
       <h4>修為來源</h4>
       ${list([
-        '<b>周天吐納</b>：每回合自動增加，功法品階越高越多（黃階 +20 … 天階 +100）。',
+        '<b>周天吐納</b>：每回合自動增加 30 點，駐城再依繁榮度增加；功法的修練速度按比例提高（黃階 +10% … 天階 +48%）。',
         '<b>駐守城池</b>：依城池繁榮度額外增加，洛陽、長安為極品靈脈加倍；<b>閉關</b>再加倍，但城破會走火入魔。',
         '<b>生死歷練</b>：戰鬥勝利掠奪敗者修為。',
         '<b>秘境奇遇</b>：從秘境歸來獲得大量修為，低階者可能當場頓悟突破。',
@@ -294,8 +277,8 @@ const PAGES: Page[] = [
       <h4>功法</h4>
       ${list([
         '每位武將只能修習一種功法；可用<b>散功丹</b>卸下功法並保留境界與修為，或<b>自廢修為</b>（境界歸零）。在武將名冊「學習功法」。',
-        '功法分<b>天地玄黃 × 上中下</b>共 12 階；<b>每個品階有五種功法，金木水火土屬性各一</b>，每個屬性共有 5 種名稱與技能。能力加成、技能威力、每回合修為與價格依品階與屬性決定。各屬性有所偏重：金偏攻、土水偏守、火的技能更猛。',
-        '<b>能力加成</b>：武力提升（防禦提升其一半）；<b>每回合修為</b>：功法品階越高，周天吐納越多。',
+        '功法分<b>天地玄黃 × 上中下</b>共 12 階。<b>五行功法</b>（金木水火土）黃、玄、地、天各一種，提升<b>修練速度</b>與<b>武力</b>；<b>技藝功法</b>（煉丹、煉器、畫符、佈陣）只有地階與天階，提升修練速度，沒有五行；煉丹功法另讓服用丹藥時有機率不消耗。',
+        '<b>修練速度</b>：周天吐納（每回合修為，含駐城靈氣與閉關）按比例增加。數值依品階，見下表。',
         '<b>技能</b>：擂台戰攻擊累積能量，能量滿 100 就能施放功法技能，造成 ×技能倍率的傷害。',
         `<b>五行</b>：${ELEMENT_NAMES.metal}剋${ELEMENT_NAMES.wood}、${ELEMENT_NAMES.wood}剋${ELEMENT_NAMES.earth}、${ELEMENT_NAMES.earth}剋${ELEMENT_NAMES.water}、${ELEMENT_NAMES.water}剋${ELEMENT_NAMES.fire}、${ELEMENT_NAMES.fire}剋${ELEMENT_NAMES.metal}：剋制方傷害 ×1.35，被剋 ×0.75，相生 ×0.9。五行輪轉事件期間，當令屬性傷害再 +30%。`,
         '買得到的地方：藏經閣；也可能從秘境、驛道奇遇（黃、玄階）、拍賣會取得。',

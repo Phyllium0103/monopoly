@@ -4,7 +4,7 @@ import { fxText, passiveOf } from '../data/passives';
 import { REALMS } from '../data/generals';
 import { generalBrief, realmTag, statCells } from './GeneralInfo';
 import { portraitBigUrl, portraitUrl } from './Icons';
-import { ELEMENT_CSS, ELEMENT_NAMES, STAT_NAMES } from '../data/items';
+import { STAT_NAMES, techniqueBaseName, techniqueTag } from '../data/items';
 import { TRIBULATION_BOLTS, attack, craft, defense, power, type TribulationResult } from '../systems/GeneralSystem';
 import { WOUNDED_HP, WOUNDED_REDUCE, type ContestResult, type DuelEvent, type SiegeResult, type Side } from '../systems/BattleSystem';
 import type { DuelSnapshot, FighterSnapshot } from '../engine/snapshots';
@@ -50,7 +50,7 @@ export class BattleView {
         <div class="f-portrait ${f.side === 'b' ? 'flip' : ''}"><img src="${portraitBigUrl(g)}" alt="" onerror="this.style.visibility='hidden'"></div>
         <div class="f-lord">${LORDS[f.lord].name}</div>
         <div class="f-name">${g.name} ${realmTag(g.realm)}</div>
-        <div class="f-elem">${t ? `<span style="color:${ELEMENT_CSS[t.element]}">【${ELEMENT_NAMES[t.element]}】${t.skillName}</span>` : '<span class="muted">無功法</span>'}</div>
+        <div class="f-elem">${t ? `<span style="color:${techniqueTag(t).css}">【${techniqueTag(t).text}】${techniqueBaseName(t)}</span>` : '<span class="muted">無功法</span>'}</div>
         <div class="bar hp big"><i style="width:${hpPct}%"></i><em style="width:${shieldPct}%"></em><span>${Math.round(f.hp)} / ${f.maxHp}</span></div>
         <div class="bar energy ${f.energy >= 100 ? 'full' : ''}"><i style="width:${f.energy}%"></i><span>能量 ${f.energy}%</span></div>
         <div class="f-stats">武 ${f.atk} · 防 ${f.def}${f.beast ? ` · 🐾${f.beast.name.split('・')[1]}` : ''}</div>
@@ -158,7 +158,7 @@ export class BattleView {
     const me = snap[side];
     const g = gens[side];
     add('🗡️ 攻擊', 'attack', 'primary');
-    add(g.technique ? `✨ ${g.technique.skillName}` : '✨ 功法（未修習）', 'skill', 'danger', !snap.canSkill[side]);
+    add(g.technique ? `✨ ${techniqueBaseName(g.technique)}` : '✨ 功法（未修習）', 'skill', 'danger', !snap.canSkill[side]);
     add('🎒 使用物品', 'item', 'free', me.itemsSealed);
   }
 
@@ -184,7 +184,7 @@ export class BattleView {
       this.duelRender();
       if (e.target && e.damage && e.kind !== 'item') {
         const atk = d.gens[e.target === 'a' ? 'b' : 'a'];
-        const el = atk.technique ? ELEMENT_CSS[atk.technique.element] : undefined;
+        const el = atk.technique ? techniqueTag(atk.technique).css : undefined;
         this.slash(e.target, e.kind === 'skill' || !!e.crit, e.kind === 'skill' ? el : undefined);
       }
       if (e.target && e.damage) this.float(e.target, `${e.crit ? '暴擊 ' : ''}-${e.damage}`, e.kind === 'skill' || e.crit ? 'dmg crit' : 'dmg');

@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "node tests/game-rules.cjs && node tests/multiplayer.cjs && node tests/p2p-host.cjs && node tests/realm-frames.cjs && npm run test:map && npm run test:assets",
+    "test": "node tests/game-rules.cjs && node tests/multiplayer.cjs && node tests/p2p-host.cjs && node tests/balance-rules.cjs && node tests/realm-frames.cjs && npm run test:map && npm run test:assets",
     "test:map": "node tests/selected-map.cjs && node tests/map-revision.cjs",
     "test:assets": "node tests/deployment-assets.cjs"
   },

@@ -56,6 +56,8 @@ export type PrerollAction =
   | { type: 'auto' }
   | { type: 'items' }
   | { type: 'abilities' }
+  /** 直接由某位隨行武將施展神通（右下角武將圖示） */
+  | { type: 'ability'; generalId: string }
   | { type: 'materials' }
   | { type: 'recruit' }
   | { type: 'garrison' }

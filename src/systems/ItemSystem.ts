@@ -1,5 +1,5 @@
 import type { Aptitude, City, Element, GameState, General, Item, Lord } from '../game/types';
-import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, BREAK_BOOST, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemId, rollItemTier, type ItemDef } from '../data/items';
+import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, BREAK_BOOST, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemId, rollItemTier, techniqueKeepPill, type ItemDef } from '../data/items';
 import { freeGenerals, killGeneral, nextUid, reviveGeneral } from '../game/GameState';
 import { addExp, craft, expCap, maxHp, maxStamina } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
@@ -32,7 +32,8 @@ export function consumeItem(lord:Lord,item:Item,user?:General):number {
  if(!def(item).noUser&&(!user||!canUse(item,user).ok))throw Error('使用者能力或體力不足');
  const cost=user?requirement(item,user).stamina:0;
  if(user)user.stamina-=cost;
- const keep=user ? ({'丹藥':fx(user).keepPill,'法器':fx(user).keepArtifact,'符籙':fx(user).keepTalisman,'陣法':fx(user).keepFormation}[def(item).category]??0) : 0;
+ // 煉丹功法：服用丹藥時另有一次不消耗的機會
+ const keep=user ? ({'丹藥':1-(1-(fx(user).keepPill??0))*(1-techniqueKeepPill(user.technique)),'法器':fx(user).keepArtifact,'符籙':fx(user).keepTalisman,'陣法':fx(user).keepFormation}[def(item).category]??0) : 0;
  if (!(keep>0 && Math.random()<keep)) lord.items=lord.items.filter(i=>i.uid!==item.uid);
  return user?addExp(user,cost*ITEM_USE_EXP):0;
 }
@@ -49,7 +50,7 @@ export function unloadTechnique(state:GameState,g:General):void {
 }
 export function changeAptitude(state:GameState,g:General,aptitude:Aptitude):void {
  g.aptitude=aptitude;
- if(g.technique&&aptitude!=='heaven'&&aptitude!==g.technique.element)unloadTechnique(state,g);
+ if(g.technique?.element&&aptitude!=='heaven'&&aptitude!==g.technique.element)unloadTechnique(state,g);
 }
 export interface PrerollTarget {general?:General;lord?:Lord;city?:City;ownCity?:City;tile?:number;dice?:number;element?:Element;damagedGeneral?:General;}
 export async function usePreroll(state:GameState,lord:Lord,item:Item,user:General,target:PrerollTarget,blocked=false,onFatal?: (g:General)=>Promise<boolean>):Promise<string> {

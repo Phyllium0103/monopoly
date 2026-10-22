@@ -19,6 +19,24 @@ export interface ActionButton {
 
 const DICE = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
+/** 右下角的隨行武將圖示 */
+export interface PartyIcon {
+  id: string;
+  img: string;
+  name: string;
+  /** 外框顏色 */
+  color: string;
+  hpPct: number;
+  staPct: number;
+  /** 滑鼠移上去顯示的說明（「｜」分行） */
+  tip: string;
+  /** 有神通且此刻可以施展：發光，點擊施展 */
+  ready: boolean;
+  /** 有主動神通（不論此刻能否施展） */
+  hasSkill: boolean;
+  onClick: () => void;
+}
+
 export class GameUI {
   private hud: HTMLDivElement;
   private top: HTMLDivElement;
@@ -31,6 +49,7 @@ export class GameUI {
   private report: HTMLDivElement;
   private overlay: HTMLDivElement;
   private rollBtn: HTMLButtonElement;
+  private party: HTMLDivElement;
   private logPanel: HTMLDivElement;
   private logOpen = true;
   private closeReport: (() => void) | null = null;
@@ -57,6 +76,7 @@ export class GameUI {
       <div class="toast"></div>
       <div class="report-overlay hidden"></div>
       <div class="turn-report hidden"></div>
+      <div class="party-dock hidden"></div>
       <button class="roll-btn hidden" title="擲骰（空白鍵）"><span class="roll-dice">🎲</span><b>擲骰</b><small>空白鍵</small></button>
       <div class="dice hidden"></div>
       <div class="tooltip hidden"></div>
@@ -73,6 +93,7 @@ export class GameUI {
     this.report = q('.turn-report');
     this.overlay = q('.report-overlay');
     this.rollBtn = q('.roll-btn');
+    this.party = q('.party-dock');
     this.logPanel = q('.log-panel');
     // 點擊任何地方都能立刻關閉電腦行動結果
     this.overlay.addEventListener('click', () => this.closeReport?.());
@@ -193,6 +214,31 @@ export class GameUI {
       row.appendChild(btn);
     }
     this.actions.appendChild(row);
+  }
+
+  /** 右下角排列隨行武將；可施展神通的會發光，點擊施展，滑鼠移上去才顯示資訊 */
+  renderParty(icons: PartyIcon[]) {
+    this.party.classList.toggle('hidden', !icons.length);
+    const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), i.tip, i.ready, i.hasSkill]));
+    // 內容沒變就不重畫，避免滑鼠停在圖示上時提示閃爍
+    if (this.party.dataset.key === key) {
+      this.party.querySelectorAll<HTMLButtonElement>('.pd-gen').forEach((b, i) => (b.onclick = () => icons[i]?.onClick()));
+      return;
+    }
+    this.party.dataset.key = key;
+    this.party.innerHTML = '';
+    for (const i of icons) {
+      const b = document.createElement('button');
+      b.className = `pd-gen${i.ready ? ' ready' : ''}${i.hasSkill ? ' skill' : ''}`;
+      b.style.setProperty('--pc', i.color);
+      b.dataset.tip = i.tip;
+      b.innerHTML = `<img src="${i.img}" alt="" onerror="this.style.visibility='hidden'">` +
+        (i.hasSkill ? '<span class="pd-skill">✨</span>' : '') +
+        `<span class="pd-bars"><i class="hp" style="width:${Math.max(0, Math.min(100, i.hpPct))}%"></i><i class="sta" style="width:${Math.max(0, Math.min(100, i.staPct))}%"></i></span>` +
+        `<span class="pd-name">${i.name}</span>`;
+      b.onclick = () => i.onClick();
+      this.party.appendChild(b);
+    }
   }
 
   renderInfo(html: string | null) {

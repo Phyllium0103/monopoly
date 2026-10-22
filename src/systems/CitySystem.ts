@@ -4,7 +4,6 @@ import { craft, defense, generalSaleValue, generalValue, power, unequip } from '
 import { beastPower } from '../data/items';
 import { fmtProsperity, fmtStones } from '../game/Currency';
 import { WORLD } from './WorldMods';
-import { terrainOf } from '../data/terrain';
 import { fx, lordAura, passiveState } from '../data/passives';
 import { preferredMining } from './MaterialSystem';
 
@@ -25,9 +24,14 @@ export const MIN_GARRISON = 300;
 /** 一名城池守軍約等於十五名隨行士兵 */
 export const GARRISON_STRENGTH = 15;
 
-/** 過路費：隨繁榮度加速成長（前期便宜、後期昂貴），同一主公城池越多也越貴 */
+/** 每回合繁榮成長：+0.5 再加上該城繁榮度的 0.5%（上限 300） */
+export function prosperityGrowth(city: City): number {
+  return 0.5 + city.prosperity * 0.005;
+}
+
+/** 過路費：繁榮度^1.4 ×7（前期便宜、後期昂貴），首都 ×1.2，同一主公城池越多也越貴 */
 export function toll(city: City, ownerCities = 1): number {
-  return Math.round(Math.pow(city.prosperity, 1.2) * 7 * (city.capital ? 1.2 : 1) * (1 + 0.1 * Math.max(0, ownerCities - 1)));
+  return Math.round(Math.pow(city.prosperity, 1.4) * 7 * (city.capital ? 1.2 : 1) * (1 + 0.1 * Math.max(0, ownerCities - 1)));
 }
 
 export function cityToll(state: GameState, city: City): number {
@@ -38,11 +42,11 @@ export function cityToll(state: GameState, city: City): number {
   return Math.round(toll(city,count)*(1+bonus));
 }
 
-/** 城池收入，受地貌與駐將被動增減 */
+/** 路過的主公實付過路費（扣除隊伍光環的減免） */
 export function visitingToll(state: GameState, city: City, visitor: Lord): number { return Math.round(cityToll(state,city)*Math.max(0,1-lordAura(visitor.id,'partyToll'))); }
 
+/** 城池收入，受駐將被動增減 */
 export function cityIncome(city: City, garrison: General[] = []) {
-  const t = terrainOf(city);
   // 多名駐將的收入加成相加
   const f = { cityStones: 0, citySoldiers: 0 };
   for (const g of garrison) {
@@ -50,8 +54,8 @@ export function cityIncome(city: City, garrison: General[] = []) {
     f.citySoldiers += fx(g).citySoldiers ?? 0;
   }
   return {
-    stones: Math.round(city.prosperity * 3 * (1 + t.stones) * (1 + (f.cityStones ?? 0)) * WORLD.incomeMult),
-    soldiers: Math.round(city.prosperity * 2 * (1 + t.soldiers) * (1 + (f.citySoldiers ?? 0))),
+    stones: Math.round(city.prosperity * 3 * (1 + (f.cityStones ?? 0)) * WORLD.incomeMult),
+    soldiers: Math.round(city.prosperity * 2 * (1 + (f.citySoldiers ?? 0))),
   };
 }
 
@@ -59,14 +63,14 @@ export function cityIncomeOf(state: GameState, city: City) {
   return cityIncome(city, garrisonOf(state, city));
 }
 
-/** 守城戰力：守軍 ×10，駐將防禦越高加成越多，再加上駐將本身戰力；受地貌影響，護城大陣 ×1.5 */
+/** 守城戰力：守軍 ×10，駐將防禦越高加成越多，再加上駐將本身戰力；護城大陣 ×1.5 */
 export function garrisonPower(state: GameState, city: City): number {
   const gens = garrisonOf(state, city);
   // 駐將越多、防禦越高，守軍加成越大；兵力及守城正加成取最高，守城負面效果全部生效
   const command = 1 + gens.reduce((sum, g) => sum + defense(g), 0) / 450;
   const f = { troops: Math.max(0, ...gens.map((g) => fx(g).troops ?? 0)), garrisonDef: Math.max(0,...gens.map(g=>fx(g).garrisonDef??0)) + gens.reduce((sum,g)=>sum+Math.min(0,fx(g).garrisonDef??0),0) };
   const base = city.garrisonSoldiers * GARRISON_STRENGTH * (1 + f.troops) * command + gens.reduce((sum, g) => sum + power(g) * 2, 0);
-  return Math.round(base * (1 + terrainOf(city).defense) * Math.max(0,1 + f.garrisonDef) * (city.shieldTurns > 0 ? 1.5 : 1));
+  return Math.round(base * Math.max(0,1 + f.garrisonDef) * (city.shieldTurns > 0 ? 1.5 : 1));
 }
 
 /** 依駐將的專長挑一種對自己最有利的鬥法（電腦佔領時使用） */
@@ -250,10 +254,10 @@ export interface RankDef {
 
 export const RANK_METRICS: RankDef[] = [
   { id: 'prosperity', name: '繁榮度', icon: '🏮', note: '城池的富庶與人氣，影響收入、過路費、靈氣濃度與佔領費', value: (_s, c) => c.prosperity, format: (n) => fmtProsperity(n) },
-  { id: 'stones', name: '靈石收入', icon: '💎', note: '每回合為主人帶來的靈石（含地貌、駐將被動與九州風雲）；無主城池為佔領後的預估值', value: (s, c) => cityIncomeOf(s, c).stones, format: (n) => fmtStones(n) },
+  { id: 'stones', name: '靈石收入', icon: '💎', note: '每回合為主人帶來的靈石（含駐將被動與九州風雲）；無主城池為佔領後的預估值', value: (s, c) => cityIncomeOf(s, c).stones, format: (n) => fmtStones(n) },
   { id: 'soldiers', name: '士兵收入', icon: '⚔️', note: '每回合為主人帶來的士兵；無主城池為佔領後的預估值', value: (s, c) => cityIncomeOf(s, c).soldiers, format: (n) => `+${n}` },
   { id: 'toll', name: '過路費', icon: '💰', note: '他人踏入時要繳的費用；無主城池為佔領後的預估值', value: (s, c) => (c.owner === 'neutral' ? toll(c) : cityToll(s, c)), format: (n) => fmtStones(n) },
-  { id: 'defense', name: '守城戰力', icon: '🏯', note: '守軍、駐將、地貌與護城大陣的綜合戰力；無主城池無守軍', value: (s, c) => (c.owner === 'neutral' ? 0 : garrisonPower(s, c)), format: (n) => (n ? String(n) : '—') },
+  { id: 'defense', name: '守城戰力', icon: '🏯', note: '守軍、駐將與護城大陣的綜合戰力；無主城池無守軍', value: (s, c) => (c.owner === 'neutral' ? 0 : garrisonPower(s, c)), format: (n) => (n ? String(n) : '—') },
 ];
 
 export interface RankEntry {

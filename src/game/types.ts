@@ -50,8 +50,11 @@ export interface Technique extends PurchasedAsset {
   uid: string;
   name: string;
   tier: Tier;
-  element: Element;
-  /** 能力加成比例 */
+  /** 五行功法的屬性；技藝功法（煉丹、煉器、畫符、佈陣）為 null */
+  element: Element | null;
+  /** 技藝功法的類別；五行功法沒有 */
+  art?: CraftStat;
+  /** 武力加成比例（建立時的快照；實際以 techniqueForce 依品階計算） */
   power: number;
   skillName: string;
   skillPower: number;

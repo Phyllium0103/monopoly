@@ -5,7 +5,6 @@ import { aliveLords } from '../game/TurnManager';
 import { cityIncomeOf, totalAssets } from './CitySystem';
 import { addExp, expCap, inBottleneck, maxHp } from './GeneralSystem';
 import { ELEMENT_NAMES, ITEM_DEFS, equipDesc, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, rollItemId, techniqueDesc } from '../data/items';
-import { CITY_TERRAIN } from '../data/terrain';
 import { LORDS } from '../faction/Faction';
 import { fmtStones } from '../game/Currency';
 import type { Offer } from './ShopSystem';
@@ -269,14 +268,15 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
       break;
     case 'flood': {
       let n = 0;
+      // 洪水隨機淹沒有主城池（每座三成機率）
       for (const c of Object.values(state.cities)) {
-        if (c.owner === 'neutral' || !['waterland', 'coast'].includes(CITY_TERRAIN[c.id])) continue;
+        if (c.owner === 'neutral' || Math.random() >= 0.3) continue;
         c.prosperity = Math.max(20, c.prosperity - 12);
         c.garrisonSoldiers -= Math.round(c.garrisonSoldiers * 0.1);
         lines.push(`${c.name}（${LORDS[c.owner as LordId].name}）遭洪水所困，繁榮 -12`);
         n++;
       }
-      if (!n) lines.push('所幸水鄉濱海之地尚無有主城池。');
+      if (!n) lines.push('所幸洪水未波及任何有主城池。');
       break;
     }
     case 'mutiny': {

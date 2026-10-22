@@ -5,7 +5,7 @@ import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES } from '../data/generals';
 import { realmTag } from './GeneralInfo';
 import { fxText, passiveOf, fx } from '../data/passives';
-import { ELEMENT_CSS, equipDesc, techniqueDesc } from '../data/items';
+import { equipDesc, techniqueDesc, techniqueTag } from '../data/items';
 import {
   attack,
   boltCount,
@@ -144,7 +144,7 @@ export class GeneralsView {
 
     const bag = bagHtml(lord.items);
     const gear = lord.gear.map((e) => `<span class="chip" title="${tip(equipDesc(e))}">${e.name}</span>`).join('') || '<span class="muted">無</span>';
-    const scrolls = lord.scrolls.map((t) => `<span class="chip" style="border-color:${ELEMENT_CSS[t.element]}" title="${tip(`${t.name.split('・')[0]}｜${techniqueDesc(t)}`)}">${t.name.split('・').slice(1).join('・')}</span>`).join('') || '<span class="muted">無</span>';
+    const scrolls = lord.scrolls.map((t) => `<span class="chip" style="border-color:${techniqueTag(t).css}" title="${tip(`${t.name.split('・')[0]}｜${techniqueDesc(t)}`)}">${t.name.split('・').slice(1).join('・')}</span>`).join('') || '<span class="muted">無</span>';
     const party = gens.filter((g) => g.status === 'free').length;
 
     this.el.innerHTML = `
@@ -262,7 +262,7 @@ export class GeneralsView {
       <div class="bar hp"><i style="width:${(g.hp / maxHp(g)) * 100}%"></i><span>血量 ${g.hp} / ${maxHp(g)}</span></div>
       <div class="bar sta"><i style="width:${g.stamina / maxStamina(g) * 100}%"></i><span>體力 ${g.stamina} / ${maxStamina(g)}</span></div>
       <div class="equip">
-        <div class="eq-row" data-slot="technique"><span class="eq-info" ${t ? `title="${tip(`${t.name.split('・')[0]}｜${techniqueDesc(t)}`)}"` : ''}>功法：${t ? `<span style="color:${ELEMENT_CSS[t.element]}">${t.name.split('・').slice(1).join('・')}</span>` : '<span class="muted">未修習</span>'}</span></div>
+        <div class="eq-row" data-slot="technique"><span class="eq-info" ${t ? `title="${tip(`${t.name.split('・')[0]}｜${techniqueDesc(t)}`)}"` : ''}>功法：${t ? `<span style="color:${techniqueTag(t).css}">${t.name.split('・').slice(1).join('・')}</span>` : '<span class="muted">未修習</span>'}</span></div>
       </div>
       <div class="gc-actions"></div>
       </div>`;

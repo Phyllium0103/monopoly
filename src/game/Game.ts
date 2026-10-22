@@ -1,19 +1,19 @@
 import { RelicMap } from '../ui/RelicMap';
 import { MATERIAL_GROUPS, MATERIAL_NAMES } from '../data/weaponCatalog';
 import { materialIncome } from '../systems/MaterialSystem';
-import { abilityUsers } from '../systems/GeneralAbilities';
+import { abilityReady, abilityUsers } from '../systems/GeneralAbilities';
 import { sectDispatchFee } from '../systems/SectSystem';
 import * as THREE from 'three';
 import type { GameState, General, Lord, LordId } from './types';
-import { DEFAULT_ROUNDS, citiesOf, createGameState, currentLord, garrisonOf, generalsOf, nextUid } from './GameState';
+import { DEFAULT_ROUNDS, citiesOf, createGameState, currentLord, freeGenerals, garrisonOf, generalsOf, nextUid } from './GameState';
 import { fmtProsperity, fmtStones } from './Currency';
 import { SceneManager } from '../scene/SceneManager';
 import { World } from '../world/World';
 import { CharacterSprite } from '../character/CharacterSprite';
 import { LORDS, LORD_IDS, ownerCss, ownerName } from '../faction/Faction';
-import { GameUI, type ActionButton } from '../ui/GameUI';
+import { GameUI, type ActionButton, type PartyIcon } from '../ui/GameUI';
 import { Dialog } from '../ui/Dialog';
-import { preloadArt } from '../ui/Icons';
+import { portraitUrl, preloadArt } from '../ui/Icons';
 import { GeneralsView } from '../ui/GeneralsView';
 import { BattleView } from '../ui/BattleView';
 import { ShopPanel } from '../ui/ShopView';
@@ -24,11 +24,10 @@ import { LordView } from '../ui/LordView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { BOARD, TILE_INFO } from '../data/board';
-import { terrainEffects, terrainOf } from '../data/terrain';
 import { RANK_METRICS, cityIncomeOf, cityRanks, cityToll, garrisonPower, recruitCost, toll } from '../systems/CitySystem';
-import { canAttemptBreak, maxHp, maxStamina, power } from '../systems/GeneralSystem';
+import { attack, canAttemptBreak, defense, maxHp, maxStamina, power, realmName } from '../systems/GeneralSystem';
 import { realmTag } from '../ui/GeneralInfo';
-import { bindPassiveState } from '../data/passives';
+import { bindPassiveState, fxText, passiveOf } from '../data/passives';
 import { Engine } from '../engine/Engine';
 import { previewAt, type PrerollAction, type Prompt, type RosterAction } from '../engine/prompts';
 import type { EngineView, LogKind, ViewEvent } from '../engine/view';
@@ -198,6 +197,7 @@ export class Game {
     this.engine?.stop();
     this.engine = null;
     this.online = null;
+    this.shownForks = null;
     this.autoPlay = false;
     this.ui.auto = false;
     this.active = null;
@@ -262,6 +262,8 @@ export class Game {
   /** 換上伺服器最新的完整狀態；placeSprites 為 false 時棋子留在原地（接著要播放移動動畫） */
   syncOnlineState(state: GameState, placeSprites = true) {
     if (!this.online) return;
+    // 接著要播放移動動畫：岔路箭頭先維持原本的方向，等棋子實際走到該岔路才換成新方向
+    this.shownForks = placeSprites ? null : { ...(this.state?.forkDirections ?? state.forkDirections) };
     this.state = state;
     bindPassiveState(state);
     if (placeSprites) for (const id of LORD_IDS) {
@@ -307,6 +309,9 @@ export class Game {
     this.ui.stopRolling();
     if (this.state) this.refresh();
   }
+
+  /** 多人播放動畫期間畫面上顯示的岔路箭頭（null 表示直接顯示目前狀態） */
+  private shownForks: Record<number, number> | null = null;
 
   /** 多人：顯示等待誰行動 */
   setWaiting(text: string | null) {
@@ -359,6 +364,11 @@ export class Game {
       moveStep: async (lord: LordId, _from: number, to: number) => {
         const s = sprite(lord);
         await s.moveAlong([s.group.position.clone(), this.slotPosition(lord, to)], this.sm.animator, (p) => this.sm.cameraController.follow(p));
+        // 多人：棋子走到岔路，這座岔路的箭頭才換成新方向
+        if (this.shownForks && this.state.tiles[to]?.links.length >= 3) {
+          this.shownForks[to] = this.state.forkDirections[to];
+          this.world.syncForkArrows(this.state, this.shownForks);
+        }
       },
       relic: async (lord:LordId,step:number,active:boolean,text:string)=>{
         const s=this.sprites.get(lord);if(s)s.group.visible=!active&&this.state.lords[lord].alive;
@@ -653,7 +663,7 @@ export class Game {
     let text = `<b>${TILE_INFO[t.kind].icon} ${t.name}</b>`;
     if (t.kind === 'city') {
       const c = this.state.cities[t.cityId!];
-      text += `（${ownerName(c.owner)}）<br>${terrainOf(c).icon} ${terrainOf(c).name}・${terrainEffects(terrainOf(c))}<br>繁榮 ${fmtProsperity(c.prosperity)}（第 ${cityRanks(this.state, c.id).prosperity} 名）${c.owner === 'neutral' ? '' : `・過路費 ${fmtStones(cityToll(this.state, c))}`}`;
+      text += `（${ownerName(c.owner)}）<br>繁榮 ${fmtProsperity(c.prosperity)}（第 ${cityRanks(this.state, c.id).prosperity} 名）${c.owner === 'neutral' ? '' : `・過路費 ${fmtStones(cityToll(this.state, c))}`}`;
     } else text += `<br>${TILE_INFO[t.kind].desc}`;
     if (t.links.length >= 3) text += `<br>➜ 岔路箭頭：往${this.state.tiles[this.state.forkDirections[tile]].name}`;
     text += `<br><span class="tt-links">通往：${t.links.map((n) => this.state.tiles[n].name).join('、') || '不與道路相連（經由傳送陣或指定傳送抵達）'}</span>`;
@@ -680,7 +690,6 @@ export class Game {
     return `
       <div class="ip-head" style="--fc:${ownerCss(c.owner)}"><b>${c.capital ? '★ ' : ''}${c.name}</b><span>${ownerName(c.owner)}</span></div>
       <table>
-        <tr><td>地貌</td><td title="${terrainOf(c).desc}｜${terrainEffects(terrainOf(c))}">${terrainOf(c).icon} ${terrainOf(c).name}</td></tr>
         <tr><td>繁榮度</td><td title="全圖第 ${ranks.prosperity} / ${Object.keys(this.state.cities).length} 名">${fmtProsperity(c.prosperity)}<small class="terrain-fx">第 ${ranks.prosperity} 名</small></td></tr>
         <tr><td>過路費</td><td>${c.owner === 'neutral' ? `佔領後約 ${fmtStones(toll(c))}` : fmtStones(cityToll(this.state, c))}</td></tr>
         <tr><td>每回合</td><td title="${RANK_METRICS.filter((m) => m.id === 'stones' || m.id === 'soldiers').map((m) => `${m.name}第 ${ranks[m.id]} 名`).join('・')}">${fmtStones(inc.stones)}・兵 +${inc.soldiers}</td></tr>
@@ -692,11 +701,43 @@ export class Game {
       </table>${links}${fork}${people}`;
   }
 
+  /** 右下角的隨行武將：有神通且此刻能施展的發光、點擊施展；其餘點擊開啟武將名冊；滑鼠移上去看資訊 */
+  private partyIcons(player: Lord, preroll: boolean): PartyIcon[] {
+    if (!player.alive || this.state.over) return [];
+    const users = abilityUsers(this.state, player);
+    const canAct = preroll && !this.auto && !this.dispatchTask && !player.relicJourney;
+    const plain = (s: string) => s.replace(/<[^>]+>/g, '');
+    return freeGenerals(this.state, player.id)
+      .sort((a, b) => Number(b.isLord) - Number(a.isLord))
+      .map((g) => {
+        const p = passiveOf(g);
+        const hasSkill = users.includes(g);
+        const r = hasSkill ? abilityReady(this.state, player, g) : null;
+        const ready = !!r?.ok && canAct;
+        const effect = plain(p.effectText ?? fxText(p.fx));
+        const tip = [
+          `${g.name}${g.isLord ? '（主公）' : ''}・${realmName(g)}`,
+          `戰力 ${power(g)}・武力 ${attack(g)}・防禦 ${defense(g)}`,
+          `血量 ${Math.round(g.hp)}/${maxHp(g)}・體力 ${Math.round(g.stamina)}/${maxStamina(g)}`,
+          `功法：${g.technique?.name ?? '未修習'}`,
+          `【${p.name}】${effect}`,
+          hasSkill ? (r!.ok ? (canAct ? '✨ 神通可施展：點擊使用' : '✨ 神通：自己的整備階段可點擊施展') : `✨ 神通暫不可用：${r!.reason}`) : '',
+          ready ? '' : '點擊開啟武將名冊',
+        ].filter(Boolean).join('｜');
+        return {
+          id: g.id, img: portraitUrl(g), name: g.name, color: LORDS[player.id].css,
+          hpPct: (g.hp / Math.max(1, maxHp(g))) * 100, staPct: (g.stamina / Math.max(1, maxStamina(g))) * 100,
+          tip, ready, hasSkill,
+          onClick: () => (ready ? this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction) : this.openRoster()),
+        };
+      });
+  }
+
   private refresh() {
     if (!this.state) return;
     this.ui.renderTop(this.state, this.me);
     for(const [id,sprite] of this.sprites)sprite.group.visible=this.state.lords[id].alive&&!this.state.lords[id].relicJourney;
-    this.world.syncForkArrows(this.state);
+    this.world.syncForkArrows(this.state, this.shownForks ?? this.state.forkDirections);
     this.updateFacing();
     const player = this.state.lords[this.me];
     const current = currentLord(this.state);
@@ -728,7 +769,6 @@ export class Game {
       hint = '擲骰前可先整備；擲完骰、處理完事件，回合自動結束';
       fullHint = '擲骰前可先使用物品、合成材料、徵兵或整備武將（宗門每人 10 下品，自己的城池或空城免費；調度駐軍在主公所在城池免費）；擲完骰、處理完落地事件，回合就會自動結束';
       buttons.push(
-        { label: '✨ 方外神通', sub: '製物・起死回生・冤魂召喚', disabled: !abilityUsers(this.state, player).length, onClick: act({ type: 'abilities' }) },
         { label: '🎒 使用物品', sub: `${player.items.length} 件`, onClick: act({ type: 'items' }) },
         { label: '⛏️ 材料合成', sub: `${MATERIAL_GROUPS.reduce((n, k) => n + player.materials[k].reduce((a, b) => a + b, 0), 0)} 顆`, onClick: act({ type: 'materials' }) },
         { label: '⚔️ 徵兵', sub: `${(recruitCost(player.id, 100) / 100).toFixed(2).replace(/\.?0+$/, '')}/名`, onClick: act({ type: 'recruit' }) },
@@ -753,6 +793,7 @@ export class Game {
     });
     if (this.dispatchTask) for (const button of buttons) button.disabled = true;
     this.ui.renderActions(buttons, hint, fullHint);
+    this.ui.renderParty(this.partyIcons(player, preroll));
     // 擲骰：右側偏下的大圓鈕
     if (!this.state.over && !this.dispatchTask && player.alive && preroll && !this.auto) this.ui.showRoll(() => this.answer({ type: 'roll' } satisfies PrerollAction));
     else this.ui.hideRoll();

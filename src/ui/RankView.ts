@@ -1,6 +1,5 @@
 import type { GameState } from '../game/types';
 import { ownerCss, ownerName } from '../faction/Faction';
-import { terrainOf } from '../data/terrain';
 import { RANK_METRICS, rankCities, type RankMetric } from '../systems/CitySystem';
 
 type Tab = RankMetric | 'all';
@@ -47,10 +46,9 @@ export class RankView {
     const max = Math.max(1, ...rows.map((r) => r.value));
     const body = rows
       .map((r) => {
-        const t = terrainOf(r.city);
         return `<tr data-city="${r.city.id}">
           <td class="rk-rank">${this.rankBadge(r.rank)}</td>
-          <td class="rk-city"><b>${r.city.capital ? '★' : ''}${r.city.name}</b><small>${t.icon}${t.name}</small></td>
+          <td class="rk-city"><b>${r.city.capital ? '★' : ''}${r.city.name}</b></td>
           <td style="color:${ownerCss(r.city.owner)}">${ownerName(r.city.owner)}</td>
           <td class="rk-bar"><i style="width:${(r.value / max) * 100}%;background:${ownerCss(r.city.owner)}"></i></td>
           <td class="rk-val">${def.format(r.value)}</td>
@@ -65,13 +63,12 @@ export class RankView {
     for (const m of RANK_METRICS) ranks.set(m.id, new Map(rankCities(state, m.id).map((r) => [r.city.id, r.rank])));
     const rows = rankCities(state, 'prosperity')
       .map((r) => {
-        const t = terrainOf(r.city);
         const cells = RANK_METRICS.map((m) => {
           const rk = ranks.get(m.id)!.get(r.city.id)!;
           const cls = rk <= 3 ? 'top' : rk > Object.keys(state.cities).length - 3 ? 'low' : '';
           return `<td class="rk-cell ${cls}">${rk}</td>`;
         }).join('');
-        return `<tr data-city="${r.city.id}"><td class="rk-city"><b>${r.city.capital ? '★' : ''}${r.city.name}</b><small>${t.icon}${t.name}</small></td><td style="color:${ownerCss(r.city.owner)}">${ownerName(r.city.owner)}</td>${cells}</tr>`;
+        return `<tr data-city="${r.city.id}"><td class="rk-city"><b>${r.city.capital ? '★' : ''}${r.city.name}</b></td><td style="color:${ownerCss(r.city.owner)}">${ownerName(r.city.owner)}</td>${cells}</tr>`;
       })
       .join('');
     return `<p class="rk-note">📋 <b>總表</b>：每座城池在各項指標的名次（前三名標金色、後三名標灰色）。點選城池可移動鏡頭過去。</p>

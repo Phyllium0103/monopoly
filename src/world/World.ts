@@ -266,10 +266,11 @@ export class World {
     return group;
   }
 
-  syncForkArrows(state: GameState) {
+  /** forkDirections 可另外指定（多人播放動畫時，顯示棋子尚未走到的岔路的舊方向） */
+  syncForkArrows(state: GameState, forkDirections = state.forkDirections) {
     for (const tile of this.tiles) {
       if (tile.links.length < 3) continue;
-      const target = this.tiles[state.forkDirections[tile.index]];
+      const target = this.tiles[forkDirections[tile.index]];
       const len = Math.hypot(target.pos.x - tile.pos.x, target.pos.z - tile.pos.z) || 1;
       const dx = (target.pos.x - tile.pos.x) / len;
       const dz = (target.pos.z - tile.pos.z) / len;

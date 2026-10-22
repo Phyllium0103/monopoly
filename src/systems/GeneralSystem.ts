@@ -1,8 +1,7 @@
 import type { City, CraftStat, Equipment, General, Lord, LordId, Technique } from '../game/types';
 import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
-import { ELEMENT_BIAS, techniqueExp } from '../data/items';
+import { techniqueForce, techniqueSpeed } from '../data/items';
 import { WORLD } from './WorldMods';
-import { terrainOf } from '../data/terrain';
 import { fx, lordAura, passiveState } from '../data/passives';
 
 /** Avoid floating point half-rounding differences from the editable spreadsheet. */
@@ -20,13 +19,12 @@ export function expMultiplier(g: General): number {
   return Math.max(0,1+(fx(g).exp??0)+aura);
 }
 export function attack(g: General): number {
-  const t = (g.technique?.power ?? 0) * (g.technique ? ELEMENT_BIAS[g.technique.element].atk : 1);
+  const t = techniqueForce(g.technique);
   return roundStat((g.base.force + g.bonusForce + (g.armor?.force ?? 0)) * realmMultiplier(g) * (1 + t) * (1 + (fx(g).atk ?? 0)) * (1 + (fx(g).allStats ?? 0)));
 }
 
 export function defense(g: General): number {
-  const t = (g.technique?.power ?? 0) * (g.technique ? ELEMENT_BIAS[g.technique.element].def : 1);
-  return roundStat((g.base.defense + g.bonusDefense + (g.armor?.defense ?? 0)) * realmMultiplier(g) * (1 + t * 0.5) * (1 + (fx(g).def ?? 0)) * (1 + (fx(g).allStats ?? 0)));
+  return roundStat((g.base.defense + g.bonusDefense + (g.armor?.defense ?? 0)) * realmMultiplier(g) * (1 + (fx(g).def ?? 0)) * (1 + (fx(g).allStats ?? 0)));
 }
 
 export function maxHp(g: General): number {
@@ -69,16 +67,16 @@ const APTITUDE_MULT = { waste: 0.8, metal: 1, wood: 1, water: 1, fire: 1, earth:
 /** 極品靈脈：駐守者修為加倍 */
 export const SPIRIT_VEINS = new Set(['luoyang', 'changan']);
 
-/** 周天吐納：每回合被動修為；駐守城池依繁榮度（靈氣濃度）額外增加，閉關再加倍 */
+/** 周天吐納：每回合被動修為；駐守城池依繁榮度（靈氣濃度）額外增加，閉關再加倍；功法提高修練速度 */
 export function passiveExp(g: General, city: City | null): number {
   if (g.ghostSourceId) return 0;
-  let n = 30 + techniqueExp(g.technique);
+  let n = 30;
   if (g.status === 'garrison' && city) {
-    // 繁榮度即靈氣濃度，再依地貌增減（山地、丘陵最宜修行）
-    n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1) * (1 + terrainOf(city).spirit);
+    // 繁榮度即靈氣濃度
+    n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1);
     if (g.secluded) n *= 2 * WORLD.seclusionMult;
   }
-  return Math.round(n * APTITUDE_MULT[g.aptitude] * WORLD.expMult);
+  return Math.round(n * (1 + techniqueSpeed(g.technique)) * APTITUDE_MULT[g.aptitude] * WORLD.expMult);
 }
 
 // ───────────────────────── 突破 ─────────────────────────
@@ -297,7 +295,8 @@ export function canLearn(g: General, t: Technique): { ok: boolean; reason: strin
   if (g.ghostSourceId) return {ok:false,reason:'冤魂無法裝備功法'};
   if (g.technique) return { ok: false, reason: '已修習功法，須先自廢修為' };
   if (g.aptitude === 'waste') return { ok: false, reason: '廢靈根無法裝備功法' };
-  if (g.aptitude !== 'heaven' && g.aptitude !== t.element) return { ok: false, reason: '靈根與功法五行不符' };
+  // 技藝功法（煉丹、煉器、畫符、佈陣）沒有五行，任何靈根都能修習
+  if (t.element && g.aptitude !== 'heaven' && g.aptitude !== t.element) return { ok: false, reason: '靈根與功法五行不符' };
   return { ok: true, reason: '' };
 }
 

@@ -1,8 +1,7 @@
 import { tickGeneralAbilities } from '../systems/GeneralAbilities';
 import type { GameState, General, Lord } from './types';
 import { citiesOf, generalsOf } from './GameState';
-import { cityIncomeOf } from '../systems/CitySystem';
-import { terrainOf } from '../data/terrain';
+import { cityIncomeOf, prosperityGrowth } from '../systems/CitySystem';
 import { addExp, inBottleneck, passiveExp, recover } from '../systems/GeneralSystem';
 import { advanceExpeditions, type RealmOutcome, type RealmEscapeDecision } from '../systems/RealmSystem';
 import { ITEM_DEFS, PILL_IDS, beastPower, rollItemId } from '../data/items';
@@ -32,8 +31,7 @@ export async function startTurn(state: GameState, lord: Lord, protect?: (g: Gene
     report.lines.push({ text: `${city.name}挖掘 ${MATERIAL_NAMES[city.mining][0]} +${mined} 顆`, kind: 'good' });
     stones += inc.stones;
     soldiers += inc.soldiers;
-    // 每回合成長：+0.5（平原、盆地、水鄉）、+0.4、+0.3
-    city.prosperity = Math.min(300, Math.round((city.prosperity + Math.max(0, 0.4 + terrainOf(city).growth * 0.1)) * 100) / 100);
+    city.prosperity = Math.min(300, Math.round((city.prosperity + prosperityGrowth(city)) * 100) / 100);
     if (city.shieldTurns > 0) city.shieldTurns--;
   }
   lord.stones += stones;

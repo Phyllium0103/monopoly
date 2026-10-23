@@ -1,6 +1,6 @@
 import { generalArtUrl, generalHeadUrl } from '../data/generalArt';
 import { WEAPON_CATALOG } from '../data/weaponCatalog';
-import { WEAPON_TYPE_BY_GENERAL, WEAPON_TYPES } from '../data/weaponTypes';
+import { WEAPON_ICON_BY_GENERAL, WEAPON_ICON_IDS } from '../data/weaponIcons';
 import { BEASTS, EQUIP_DESIGNS, ITEM_DEFS } from '../data/items';
 import type { Beast, Equipment } from '../game/types';
 
@@ -45,10 +45,10 @@ export const itemIconUrl = (defId: string) => ['realmkey', 'realmescape'].includ
   ? `${BASE}art/icons/realm/${defId}.svg`
   : url(`icons/${ITEM_DEFS[defId].category}`, ITEM_DEFS[defId].name);
 /** 專屬武器與寶衣 */
-/** 專屬武器依外型分類用 22 張圖示之一；分類不到時退回材料圖示 */
+/** 專屬武器依第一階外型使用已選插畫，升階後仍保留相同種類。 */
 const weaponIconUrl = (generalId: string) => {
-  const type = WEAPON_TYPE_BY_GENERAL[generalId];
-  return type ? url('icons/兵器', type) : `${BASE}art/icons/weapons/${WEAPON_CATALOG[generalId].material}.svg`;
+  const iconId = WEAPON_ICON_BY_GENERAL[generalId];
+  return iconId ? url('icons/weapon-illustrated', iconId) : `${BASE}art/icons/weapons/${WEAPON_CATALOG[generalId]?.material ?? '魄'}.svg`;
 };
 export const equipIconUrl = (e: Equipment) => e.fixedGeneralId ? weaponIconUrl(e.fixedGeneralId) : url('icons/寶衣', baseName(e.name));
 /** 靈獸 */
@@ -95,9 +95,11 @@ export function preloadArt(firstGeneralIds: string[]) {
       for (const d of Object.values(ITEM_DEFS)) files.push(dirs(d.category, d.name));
       for (const e of EQUIP_DESIGNS) files.push(dirs('寶衣', e.name));
       for (const b of BEASTS) files.push(dirs('靈獸', b.name));
-      for (const t of WEAPON_TYPES) files.push(dirs('兵器', t));
       preload(files);
     }
+    // 舊圖片包或圖片包缺少新版武器時，也要補載，不能只看整包是否為空。
+    preload(WEAPON_ICON_IDS.filter((id) => !packUrls.has(`icons/weapon-illustrated/${id}`))
+      .map((id) => url('icons/weapon-illustrated', id)));
   });
   preload([...['liubei', 'caocao', 'sunquan', 'dongzhuo'].map(big), ...firstGeneralIds.map((id) => generalHeadUrl({ id }))]);
 }

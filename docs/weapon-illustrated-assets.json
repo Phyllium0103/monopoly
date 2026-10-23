@@ -1,0 +1,1071 @@
+{
+  "edition": "07平面插畫・斜向重修選定版",
+  "generalCount": 175,
+  "baseWeaponNames": 115,
+  "iconCount": 62,
+  "sourceBytes": 99476204,
+  "gameBytes": 470130,
+  "preservedCanvasAndBackground": true,
+  "aliases": {
+    "使節杖": "17-01，直柄節杖外型",
+    "藜杖": "17-05，拐杖類外型",
+    "籌盤": "16-03，算籌類文房器具",
+    "雙手戟": "08-04，雙持戟類外型"
+  },
+  "assets": [
+    {
+      "id": "01-01",
+      "name": "直刃單劍",
+      "sourceFile": "01-01-直刃單劍-v1.png",
+      "sourceSHA256": "33b0626f53a9fd204413ed19aabf892577857b611617e0db69fec89afd70b10b",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/01-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 4702,
+      "sha256": "600a547c098e2854de0c12f49ef647fef4d066de351f352b5d26707654aee54d"
+    },
+    {
+      "id": "02-01",
+      "name": "雙股直劍",
+      "sourceFile": "02-01-雙股直劍-v1.png",
+      "sourceSHA256": "f752b5c56ae715ec14468bd87625d60ab70e98c28ff93f69dada86a02e6b6ef3",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/02-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 7308,
+      "sha256": "1c1f33aaecee11b08b448a43c690d1477826549b15cb4b4ec681ab13f5b55e19"
+    },
+    {
+      "id": "03-01",
+      "name": "單刃彎刀",
+      "sourceFile": "03-01-單刃彎刀-v1.png",
+      "sourceSHA256": "410faa3838d3e0563e8e374d4c4f9f73ea1e40b9c2e0927189e3817696fb7025",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/03-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 5536,
+      "sha256": "e8c1f5dc325d2e9f3611523c8bff9b4b089ba6ae36a13dccc0d28e59834a4ea4"
+    },
+    {
+      "id": "03-02",
+      "name": "寬刃大刀",
+      "sourceFile": "03-02-寬刃大刀-v1.png",
+      "sourceSHA256": "1f8002c5f0f5438002d429471bf25c90d1a3953f6820436b420a501ddbc897bd",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/03-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 6252,
+      "sha256": "12b1e35195f7e88d56577aaf4ee3a4f27889a7f504b8bc8695875b86eb4b189b"
+    },
+    {
+      "id": "03-03",
+      "name": "九環大刀",
+      "sourceFile": "03-03-九環大刀-v1.png",
+      "sourceSHA256": "9c7bdea162f972c711932660d1836402cc8e66f8895eb9f3427c76ec5e606249",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/03-03.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 7142,
+      "sha256": "1c20db86fe2b721ca66d233561a3f1e0e31cc02c53a754cea8b165f8c811e317"
+    },
+    {
+      "id": "03-04",
+      "name": "截頭大刀",
+      "sourceFile": "03-04-截頭大刀-v2.png",
+      "sourceSHA256": "2ba2754b9fbce0c6fa9a84a6a714db01e11ed64707507a844f056e936a45a64e",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/03-04.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 6876,
+      "sha256": "d4dc978650a2da4affb5f39c637854c01e0ac6ca4686f64ddce5699054eceae5"
+    },
+    {
+      "id": "04-01",
+      "name": "日月雙刀",
+      "sourceFile": "04-01-日月雙刀-v6.png",
+      "sourceSHA256": "131ba183dedebb0d46dd2c96fec434332fed97fa02e07c5431911a614acf5f80",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/04-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 8612,
+      "sha256": "2f735746660f30d19474e96c18d844a0422717eb59d6d7df1bca2088c7dc5ff5"
+    },
+    {
+      "id": "04-02",
+      "name": "雙短刀",
+      "sourceFile": "04-02-雙短刀-v3.png",
+      "sourceSHA256": "1a425f3403f97e28de545f84c785f24139d5534ee49c90fccc1b5d00682c1247",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/04-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 8252,
+      "sha256": "5c04891641c7c49d07ec2aa5be1e4230fd48b73f6e4a6dd755c44e87b64369a7"
+    },
+    {
+      "id": "05-01",
+      "name": "偃月刀",
+      "sourceFile": "05-01-偃月刀-v1.png",
+      "sourceSHA256": "b8aa48de3512e70a91da89029d8cf56dadb21d5dec5858aaf22750ddbba46351",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/05-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 4662,
+      "sha256": "40aa98e997e95ae01405809515fd65e077c413d64d650302ae9330a87704b8cf"
+    },
+    {
+      "id": "05-02",
+      "name": "三尖兩刃刀",
+      "sourceFile": "05-02-三尖兩刃刀-v1.png",
+      "sourceSHA256": "3de897e68ecc515ccf26ab4474ceca6040a43dd2af415612a9821db250763da7",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/05-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 4868,
+      "sha256": "a116a66588641787609a5a1b2093f39085799cba18d9f588de244ae2851bd8bb"
+    },
+    {
+      "id": "06-01",
+      "name": "直鋒長槍矛",
+      "sourceFile": "06-01-直鋒長槍矛-v1.png",
+      "sourceSHA256": "43a6e21568df742a936fb3bf46928abad2426f95584260bb01dc6ae517cb848a",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/06-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 3936,
+      "sha256": "eeba9c908046303d98c772f8a002cca9c5392259ccc9bc759415031fea63b0b0"
+    },
+    {
+      "id": "06-02",
+      "name": "蛇矛",
+      "sourceFile": "06-02-蛇矛-v1.png",
+      "sourceSHA256": "41f840d03e138c9c1cc4f174cdc89864f10ce279e68998b0b2449bb0e47ac566",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/06-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 4024,
+      "sha256": "1644372806c0ffea1de31c6a124e7824e559b02c7aa0afbf840090948945ad6d"
+    },
+    {
+      "id": "06-03",
+      "name": "馬槊",
+      "sourceFile": "06-03-馬槊-v1.png",
+      "sourceSHA256": "d2666921730e9049889cec8278ed1c0c1848c86b5af27e8942379bea59a90d6e",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/06-03.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 4174,
+      "sha256": "565a69486b153c27e217f9b7e721db2211d9bb8f180f15cf1b16ea2f12e54b89"
+    },
+    {
+      "id": "06-04",
+      "name": "雙頭馬槊",
+      "sourceFile": "06-04-雙頭馬槊-v1.png",
+      "sourceSHA256": "b9e42a565dc90ebd82ab91086b7344ca8aa3108e204640d2711bc2a10b8d3a0e",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/06-04.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 4174,
+      "sha256": "76e3bca336458df8441a7d1309144cec8973d5750a7b1f199c1d100e991ae398"
+    },
+    {
+      "id": "07-01",
+      "name": "丈八雙矛",
+      "sourceFile": "07-01-丈八雙矛-v1.png",
+      "sourceSHA256": "2e1e8c8c75b6006643db531747e24443f599419bef2b55806874aedd0495b2b2",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/07-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 6956,
+      "sha256": "7a13673f46cb1f689e5f1e7aa9bd98c5474f39a6a4940bd4975631907d4c6766"
+    },
+    {
+      "id": "08-01",
+      "name": "長戟",
+      "sourceFile": "08-01-長戟-v1.png",
+      "sourceSHA256": "c2a0820cd0abad4ff9df4aca25f132ea712b3bf018846e09ae7ab157876684b4",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/08-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 5236,
+      "sha256": "c364f536551d5830ce4b08c0e6e2d3ab6c6dad36955e78b99d5c263916a8c15c"
+    },
+    {
+      "id": "08-02",
+      "name": "方天畫戟",
+      "sourceFile": "08-02-方天畫戟-v1.png",
+      "sourceSHA256": "83a67363ef1b01b05d374e64ea3a3588cb1ab985393b98cf8915b00074934e78",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/08-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 5604,
+      "sha256": "ffbaa2158a737a7a716406783788fb7b3092bf38fad5f92f986bb0127ab989bd"
+    },
+    {
+      "id": "08-03",
+      "name": "十字戟",
+      "sourceFile": "08-03-十字戟-v7.png",
+      "sourceSHA256": "2ea7721a4c5115e49481d2634c214d431e7e799388f92faca4c05ee730786926",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/08-03.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 5238,
+      "sha256": "fe52d07ea6ed68534c62cb80850e1aac59f7001ec0395876e92d312289e25c14"
+    },
+    {
+      "id": "08-04",
+      "name": "雙鐵戟",
+      "sourceFile": "08-04-雙鐵戟-v1.png",
+      "sourceSHA256": "7f44da5b151c97391c193fafcf8f08c5c541f829532c75fd684194e8bfa5cbba",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/08-04.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 7426,
+      "sha256": "0b42a814fa67be407dfd9b7a869f393bfd127d249483fbbf4c81c6df81a3b18a"
+    },
+    {
+      "id": "08-05",
+      "name": "雙鉤",
+      "sourceFile": "08-05-雙鉤-v1.png",
+      "sourceSHA256": "42a9de045ac7428d0d83b7fc85335397db07d4e73af56a1d58c1e9c88e57b3f8",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/08-05.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 7706,
+      "sha256": "41d27e5caf7809ba8a2cb787aeda40e1ed0cec8e4737dcf666cebd18a23f306b"
+    },
+    {
+      "id": "09-01",
+      "name": "大斧開山斧",
+      "sourceFile": "09-01-大斧開山斧-v1.png",
+      "sourceSHA256": "0ba61e5a9614917e20fa473175b7edad86974bb4658e64af4538848389313b98",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/09-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 7414,
+      "sha256": "d28d02dce5cd0fd973db36f7a1095b765cceb84d6d3e165969da78b6d4930d2c"
+    },
+    {
+      "id": "09-02",
+      "name": "雙鉞",
+      "sourceFile": "09-02-雙鉞-v1.png",
+      "sourceSHA256": "7132ccdfe24f24f6491a2c25b24a7ea68f1292f55ba7bce755eb70111f7ca925",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/09-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 9672,
+      "sha256": "8e7f2013fe4c3d13524177c287ead8554dde97977cb1c2c3e763a2cd45579943"
+    },
+    {
+      "id": "10-01",
+      "name": "狼牙棒",
+      "sourceFile": "10-01-狼牙棒-v6.png",
+      "sourceSHA256": "9931632ba33c801d33b4b45563e980f0a59f36877f905e1677e0eb00fa992d92",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/10-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 6456,
+      "sha256": "f6fd7f23378a84a80da7f0bbda823afdda3251551e421ed953e36c71566f1401"
+    },
+    {
+      "id": "10-02",
+      "name": "骨朵",
+      "sourceFile": "10-02-骨朵-v1.png",
+      "sourceSHA256": "8a67a1c6ec6b147f618c308efe696cf8e13ffd67532ca42bb49a47c21d5a60c7",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/10-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 7834,
+      "sha256": "65382cf94e2151dc2451972e9a8d439f9c4d6b773a5f4a75a09dcbe20def435a"
+    },
+    {
+      "id": "10-03",
+      "name": "鐵椎",
+      "sourceFile": "10-03-鐵椎-v1.png",
+      "sourceSHA256": "9aa002a8bab01028ba612acdef320cb6e3c3494a5682b9554362f4d35a718ca6",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/10-03.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 6478,
+      "sha256": "3f68feb1e3ed500c9ce4375abe191fe61f687afb3e004e7ee51ee8490a53697a"
+    },
+    {
+      "id": "10-04",
+      "name": "流星錘",
+      "sourceFile": "10-04-流星錘-v1.png",
+      "sourceSHA256": "e308528fc6a560f8d1942db035537b5bc9f30d8edca19f5ef114153b0e1b6d2b",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/10-04.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 8934,
+      "sha256": "556d6c1aab4b7bed6916f453dbef8de0068034af5cc18398d9f843368af8df7f"
+    },
+    {
+      "id": "10-05",
+      "name": "鐵鞭",
+      "sourceFile": "10-05-鐵鞭-v1.png",
+      "sourceSHA256": "c2fe4f6be4d5416ea51c44be2b3fab54a5b808c7ed4b5f67e4f4464af2e30381",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/10-05.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 5660,
+      "sha256": "f39811702f1d85a1683f4cb9177984b136b39a08439c6ba4e4d9fc107ca64068"
+    },
+    {
+      "id": "10-06",
+      "name": "多節軟鞭",
+      "sourceFile": "10-06-多節軟鞭-v1.png",
+      "sourceSHA256": "cc563684d189622f6dc0a0ae051e92229428b7b8cf661fbe359d199261c38cea",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/10-06.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 7260,
+      "sha256": "9e82c21b11dc38108b8c2b72f5953b11687055785606c3ec0900bbdadcd33460"
+    },
+    {
+      "id": "11-01",
+      "name": "長弓寶弓騎弓",
+      "sourceFile": "11-01-長弓寶弓騎弓-v1.png",
+      "sourceSHA256": "84692405ea3688feaf437bf926236d95d91a5707dd19bc294ebf193ff28fc9b2",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/11-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 6278,
+      "sha256": "28f47264daa1ffd4c5ae25b2f90a535b2d0f62fd1e6937ee8449a178b50a121e"
+    },
+    {
+      "id": "12-01",
+      "name": "連弩",
+      "sourceFile": "12-01-連弩-v1.png",
+      "sourceSHA256": "31a8a1f69973ca00a5330a9245cc0f07434ae88740b0d3dc6b3abc35d2fa2ba7",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/12-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 8938,
+      "sha256": "a597abdf60fbc0c7f1bdee494903746e3b2c71eab05c6b3a7ddfffc2bf6072de"
+    },
+    {
+      "id": "12-02",
+      "name": "強弩大黃弩",
+      "sourceFile": "12-02-強弩大黃弩-v1.png",
+      "sourceSHA256": "3cb433d050329a2ff1951d5b4c8a6974d79e87f222259e01a5c62028f6fc369d",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/12-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 8816,
+      "sha256": "c42408a5866a7e9101269e64b5002ef86e8ade9e4062ccb320677d667cfb7319"
+    },
+    {
+      "id": "13-01",
+      "name": "圓形鐵盾",
+      "sourceFile": "13-01-圓形鐵盾-v1.png",
+      "sourceSHA256": "6208863af4404e08c43dee96f90990af1b31d5dac9a128f891bd0a763d3a983e",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/13-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 17830,
+      "sha256": "08973d8da354a7d89b9afbc8295ce15ebe8926382e16a9de59d156f108dbd1e1"
+    },
+    {
+      "id": "13-02",
+      "name": "牙門大盾",
+      "sourceFile": "13-02-牙門大盾-v1.png",
+      "sourceSHA256": "1aa914f7d4527359c7c73adbbcf52a58150f0fdc4311fa5e3cbe348497176c22",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/13-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 11142,
+      "sha256": "91d4d428c4aba7f8e79c9db3c24318104d9f2bb24fa181bb82dfcd979db31e51"
+    },
+    {
+      "id": "13-03",
+      "name": "刀盾組",
+      "sourceFile": "13-03-刀盾組-v1.png",
+      "sourceSHA256": "2e8cdd496003c2919def485c4fa01db894e727c30c26f92a4f9436d64b5cc50c",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/13-03.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 12656,
+      "sha256": "6e87956bb5490e02d9fff20d64ee7c817b17930fca840070c3bd9704f81ac7df"
+    },
+    {
+      "id": "14-01",
+      "name": "羽扇",
+      "sourceFile": "14-01-羽扇-v1.png",
+      "sourceSHA256": "0152942d07207a0b23f85f3fbe78f99eb1a933ff14f53d330a0bed9ea63d8ca1",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/14-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 12558,
+      "sha256": "0ef0879b3a739dffb5170dcac7be0dcf4280e7cc4dc1b832cc77851cb756cab9"
+    },
+    {
+      "id": "14-02",
+      "name": "雙扇",
+      "sourceFile": "14-02-雙扇-v1.png",
+      "sourceSHA256": "d5f313aaa2347f1d319d7fc53bacbfbf86c17dc69212ec30ae82cc68f7c21e53",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/14-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 12140,
+      "sha256": "0ba6ee6835316c7286bf4dc67406c99bdadd73615a80c2dcdc8071180a5d98e6"
+    },
+    {
+      "id": "15-01",
+      "name": "古琴",
+      "sourceFile": "15-01-古琴-v2.png",
+      "sourceSHA256": "6e2b00e68bd7df6d1d36569ee08342406f0f079cc261ac357d242d238fa49539",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/15-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 9926,
+      "sha256": "1a5a839e2850d4c674d844f3fe8b19f604c9bbd2ff1d773c60e01862ffcfeeab"
+    },
+    {
+      "id": "15-02",
+      "name": "胡笳",
+      "sourceFile": "15-02-胡笳-v1.png",
+      "sourceSHA256": "41afbd401c3bd4ac48f1aa0a98c051072bb66085feec17a507852f28507e392f",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/15-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 5594,
+      "sha256": "eb66c6d3d6f8c651ebe62ef95fd3dd3e9914b1b5a6beccd29af2d1fce3bb377e"
+    },
+    {
+      "id": "15-03",
+      "name": "玉笛",
+      "sourceFile": "15-03-玉笛-v1.png",
+      "sourceSHA256": "4479eb3f47286c1fadc32719575071b63a3a0ffbca31090d2e0162024c4dcec7",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/15-03.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 4756,
+      "sha256": "0d558dae68e1664fa189666f23ff415a4a224f3c929bfc79e7a77eb2f503255e"
+    },
+    {
+      "id": "16-01",
+      "name": "毛筆",
+      "sourceFile": "16-01-毛筆-v1.png",
+      "sourceSHA256": "910d85a8fc0095d9b11602aa630575a011548b930acbb15c5ef84bb3f8e667ac",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/16-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 4556,
+      "sha256": "31e0be20dab6b7a5b5e5585409e900c781271ece993ad76d5fdedbf7384fdaa6"
+    },
+    {
+      "id": "16-02",
+      "name": "竹簡",
+      "sourceFile": "16-02-竹簡-v1.png",
+      "sourceSHA256": "7d3c7a39032b09ea3036910bb5b43261bbd03d8dcb98b404b1a35d1fac4bdf5c",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/16-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 11484,
+      "sha256": "459464ff1a68999bac8cc609eda85867becba80fe8ee3888b267bd80a5126695"
+    },
+    {
+      "id": "16-03",
+      "name": "算籌",
+      "sourceFile": "16-03-算籌-v1.png",
+      "sourceSHA256": "e41ccdabfbf5361b659bfead466ff7873b37fc289c9fdfa91b6568880e9d3e3e",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/16-03.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 10868,
+      "sha256": "66e3a0045e9241e93a545402b587dda69e9795154f50c3261bf6805392f2162a"
+    },
+    {
+      "id": "16-04",
+      "name": "棋盤",
+      "sourceFile": "16-04-棋盤-v1.png",
+      "sourceSHA256": "dc4a0814f4ef38dcef926b42de9c40ead63888735595279d2900669db0a8ef6d",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/16-04.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 10210,
+      "sha256": "b0ef5e489c89a639f18bd3f29fae9a41ce36b578d5f56d88dd9f63ec171fe026"
+    },
+    {
+      "id": "16-05",
+      "name": "笏板",
+      "sourceFile": "16-05-笏板-v1.png",
+      "sourceSHA256": "6b5bb5845409cd293ee38f9a1bee3e4b54a110da1e187cc9f8a7c6ea1349322d",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/16-05.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 5370,
+      "sha256": "565d70c6ce4f1abc892006cca24540a2907e89c8f42570f141bca551f0ce6e25"
+    },
+    {
+      "id": "16-06",
+      "name": "戒尺",
+      "sourceFile": "16-06-戒尺-v1.png",
+      "sourceSHA256": "2354364fb7ca7faf5ff1fbcd69c8e1e5c1f15907103e332f0f223e33b08668a0",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/16-06.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 6562,
+      "sha256": "a44b7205a587613d5c2317e83afdab0c6d338b32ee928918c3d107e24dde0d7d"
+    },
+    {
+      "id": "17-01",
+      "name": "九節杖",
+      "sourceFile": "17-01-九節杖-v1.png",
+      "sourceSHA256": "008a6041012cc427e5ca238db52cf41cdc5092cdd804cd375a875c13828d3542",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/17-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 4650,
+      "sha256": "6284be91b6f531a8cbb94f80ad81ecb04141017bedd16497c8c0d0613bbc00c9"
+    },
+    {
+      "id": "17-02",
+      "name": "獸骨杖",
+      "sourceFile": "17-02-獸骨杖-v4.png",
+      "sourceSHA256": "ec1ed86b9de65dc3a8355982cdc09eb2b02f3b33b2ac885e6002b27b3ea5e96e",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/17-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 5048,
+      "sha256": "0257ea8891b0d23a3ff73237a421ac180ec9b4ab802828dd7f2dda15de7ce9ff"
+    },
+    {
+      "id": "17-03",
+      "name": "鐵索杖",
+      "sourceFile": "17-03-鐵索杖-v1.png",
+      "sourceSHA256": "3192befe4531ad0911563f5c96fec46d1477807607c6df91af496c48c9116cbd",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/17-03.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 5524,
+      "sha256": "4fd002d5d7a687815e32f5214d6f14f801f4eed6577a1fc2a3783b6ea6b049a0"
+    },
+    {
+      "id": "17-04",
+      "name": "鳩杖",
+      "sourceFile": "17-04-鳩杖-v1.png",
+      "sourceSHA256": "c13be5d8986c08d82e44e8739416ec56d67276dd9caacaa320f0e97d30d24ad7",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/17-04.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 4406,
+      "sha256": "1dfce8d9f86d0e52c837a57e066d4e5a30cb9eba20c8e46264c1cfedbed234ca"
+    },
+    {
+      "id": "17-05",
+      "name": "拐杖",
+      "sourceFile": "17-05-拐杖-v1.png",
+      "sourceSHA256": "3bc6b9653873ae64d0c8d5b23b7ad0af434aadebca015dd41016af21c46f2182",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/17-05.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 4516,
+      "sha256": "f75b8534dd1ca953976c33b2654f77210549cf73bb404855d42ffc2ac32c6913"
+    },
+    {
+      "id": "18-01",
+      "name": "拂塵",
+      "sourceFile": "18-01-拂塵-v1.png",
+      "sourceSHA256": "704ef36f60b2c1cb15184a5edb46e511b4acd874d362681c4844056f5f337a9e",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/18-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 8072,
+      "sha256": "5af971bca54cd5a15294e5e6463669685c96dcdcba460e74f724a9d012dc553d"
+    },
+    {
+      "id": "18-02",
+      "name": "幡旗",
+      "sourceFile": "18-02-幡旗-v1.png",
+      "sourceSHA256": "5b8d5c8c54dd5a345ab69e330a1e6ea9dfb188bec8618bac4bc70c3888a7daaa",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/18-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 6806,
+      "sha256": "45306a40208c40f1a81946dfd407549301ad2aeaa9f9e9ad51b2671a6d8ee558"
+    },
+    {
+      "id": "18-03",
+      "name": "羅傘",
+      "sourceFile": "18-03-羅傘-v1.png",
+      "sourceSHA256": "8ef544ac95505b4bf5db48eb9a33939ca995baa8a4fd6c95179218c96ab9642b",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/18-03.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 13522,
+      "sha256": "501baafaca71ae1778ce4079750385d7ac26235046963bf8028d2f7579c58a9f"
+    },
+    {
+      "id": "19-01",
+      "name": "飛刀",
+      "sourceFile": "19-01-飛刀-v1.png",
+      "sourceSHA256": "b6632a211f51356d7997eee263230d2fcfac6999de3a1ea483c0a9c52466fc2f",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/19-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 5532,
+      "sha256": "7209a4a48561a2f84b58cc65283c38719c9ad4a2a14a3fac6e237445f1f5fd2e"
+    },
+    {
+      "id": "19-02",
+      "name": "短刺簪",
+      "sourceFile": "19-02-短刺簪-v4.png",
+      "sourceSHA256": "32eae1d91efe043608530d3ec6dc37ec4d85cc12ad1399df46c52c1fab8accc1",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/19-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 3422,
+      "sha256": "47cf7035a9f9be43a1c531c518b9e6bd4048eaa70ee8b26845055be596465972"
+    },
+    {
+      "id": "19-03",
+      "name": "銀針",
+      "sourceFile": "19-03-銀針-v1.png",
+      "sourceSHA256": "8a24ce5ad6abb387ee46735239ba362deb68501c0d9128a509d49ebb0defe50c",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/19-03.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 3396,
+      "sha256": "5ec242fc90052e178e2c8b0f713d7041076a9eef25f8a775a1ef2738692a0f58"
+    },
+    {
+      "id": "20-01",
+      "name": "毒酒壺",
+      "sourceFile": "20-01-毒酒壺-v1.png",
+      "sourceSHA256": "0b1d58f9b1c5aa8ee1172182a9b1b06bf22c430cc72166b178e9270aa82c7254",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/20-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 11788,
+      "sha256": "df84510cfabed0d17a9cd3335444e618caea6d7aca35b7fdd6df0169c729fd62"
+    },
+    {
+      "id": "20-02",
+      "name": "藥葫蘆",
+      "sourceFile": "20-02-藥葫蘆-v1.png",
+      "sourceSHA256": "2696c64bbe1e929de4e8f0b9b9b2ab68ae3dd973fa50f3a8a6f25f45493fdd97",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/20-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 7354,
+      "sha256": "8ea3d13c9aa7323eeb5bd131108cf0190f1b6760a479ff75ab5b8b9b29956d4c"
+    },
+    {
+      "id": "20-03",
+      "name": "藥箱",
+      "sourceFile": "20-03-藥箱-v1.png",
+      "sourceSHA256": "185139fc4fd207a74d3ea491f75dc0b3c54b495aa8a0e776aa05c72d052f14f7",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/20-03.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 11648,
+      "sha256": "b1da751c267ba39a13d0bed2b61545a689039dd2d84873056d686e37f1e4717b"
+    },
+    {
+      "id": "21-01",
+      "name": "傳國玉璽",
+      "sourceFile": "21-01-傳國玉璽-v1.png",
+      "sourceSHA256": "05e4fa9f667572eff0eb0c291217109097516488b00e20a8aed36743e5e1267d",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/21-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 12640,
+      "sha256": "5f7c2ee2802c6594f46e686c1a30d330814f46af3a2784e2dfe098a7773de423"
+    },
+    {
+      "id": "21-02",
+      "name": "占卜龜甲",
+      "sourceFile": "21-02-占卜龜甲-v1.png",
+      "sourceSHA256": "57fb28ecf3369a3b2881ba97cdace34ba11c78309503a9838987196ecde86af0",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/21-02.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 13914,
+      "sha256": "8e3bc03bcda99670b8981a7be78d4e0e405fda984981be2f261e8e642ceaeabe"
+    },
+    {
+      "id": "22-01",
+      "name": "念珠",
+      "sourceFile": "22-01-念珠-v1.png",
+      "sourceSHA256": "e4b1aa987fedd5180451ec31eb5fe82a1d2a877d8e80f75377b0c63656186032",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "file": "art/icons/weapon-illustrated/22-01.webp",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 9816,
+      "sha256": "30f8f0e306d6f6c382e90a5aa9bf7279b0c3f99186149b0e09c6912ed3684dde"
+    }
+  ]
+}

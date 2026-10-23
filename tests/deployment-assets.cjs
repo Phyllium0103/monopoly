@@ -34,8 +34,40 @@ const city=Object.values(state2.cities).find(c=>c.owner==='liu'),lot=BUILDING_LO
 const vein=BUILDING_LOTS.find(o=>o.type==='vein'),before=lord2.stones;for(const i of vein.triggerTiles)engine2.passVein(lord2,i);assert.ok(lord2.stones>before);assert.equal(lord2.veinsTapped.length,1);
 console.log('PASS second city entrance dispatch is free; both vein cells share one reward per round');
 
-const{WEAPON_CATALOG}=require('../src/data/weaponCatalog.ts');const{WEAPON_TYPES,WEAPON_TYPE_BY_GENERAL}=require('../src/data/weaponTypes.ts');
-for(const t of WEAPON_TYPES){const b=fs.readFileSync(path.join(__dirname,'../public/art/icons/兵器',`${t}.webp`));assert.equal(b.subarray(8,12).toString(),'WEBP');}
+const{WEAPON_CATALOG,makePersonalWeapon}=require('../src/data/weaponCatalog.ts');const{WEAPON_TYPES,WEAPON_TYPE_BY_GENERAL}=require('../src/data/weaponTypes.ts');
 for(const [id,d] of Object.entries(WEAPON_CATALOG))assert.ok(WEAPON_TYPES.includes(WEAPON_TYPE_BY_GENERAL[id]),`${d.name} ${d.names[0]} has no weapon type`);
 assert.equal(WEAPON_TYPE_BY_GENERAL.gaoshun,'盾牌');assert.equal(WEAPON_TYPE_BY_GENERAL.guanxing,'長柄刀');assert.equal(WEAPON_TYPE_BY_GENERAL.zhangxingcai,'雙槍矛');assert.equal(WEAPON_TYPE_BY_GENERAL.zhurongfuren,'暗器');
-console.log(`PASS all ${Object.keys(WEAPON_CATALOG).length} personal weapons map to one of ${WEAPON_TYPES.length} weapon-type icons`);
+const{WEAPON_ICON_IDS,WEAPON_ICON_BY_GENERAL,classifyWeaponIcon}=require('../src/data/weaponIcons.ts');
+const{equipIconUrl}=require('../src/ui/Icons.ts');
+const illustrated=JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/weapon-illustrated-assets.json'),'utf8'));
+assert.equal(illustrated.generalCount,Object.keys(WEAPON_CATALOG).length);
+assert.equal(illustrated.iconCount,WEAPON_ICON_IDS.length);
+assert.equal(WEAPON_ICON_IDS.length,new Set(WEAPON_ICON_IDS).size);
+assert.equal(classifyWeaponIcon('沒有此類的名稱'),undefined);
+for(const[id,expected]of Object.entries({liubei:'02-01',guanyu:'05-01',zhangfei:'06-02',gongsunzan:'06-04',zhangxingcai:'07-01',dianwei:'08-04',lvlingqi:'08-03',zhangliao:'09-02',gaoshun:'13-03',huangyueying:'12-01',zhouyu:'15-01',caiwenji:'15-02',zhenji:'15-03',mulu:'17-02',zuoci:'18-01',yuji:'18-02',bulianshi:'18-03',diaochan:'10-06',sunluban:'19-02',liru:'20-01',huatuo:'19-03',yuanshu:'21-01',guanlu:'21-02',pujing:'22-01'}))assert.equal(WEAPON_ICON_BY_GENERAL[id],expected,id);
+const imageHashes=[];
+for(const a of illustrated.assets){
+ const b=fs.readFileSync(path.join(__dirname,'../public',a.file));
+ assert.equal(b.subarray(8,12).toString(),'WEBP',a.id);
+ const hash=crypto.createHash('sha256').update(b).digest('hex');
+ assert.equal(hash,a.sha256,a.id);imageHashes.push(hash);
+}
+assert.equal(new Set(imageHashes).size,WEAPON_ICON_IDS.length,'Every silhouette has its own actual image');
+for(const[id,d]of Object.entries(WEAPON_CATALOG)){
+ const iconId=WEAPON_ICON_BY_GENERAL[id];assert.ok(WEAPON_ICON_IDS.includes(iconId),`${d.name} ${d.names[0]} missing illustration`);
+ for(let grade=0;grade<4;grade++){
+  const u=new URL(equipIconUrl(makePersonalWeapon(id,grade)),'https://example.test/monopoly/');
+  assert.equal(u.pathname,`/monopoly/art/icons/weapon-illustrated/${iconId}.webp`,`${d.name} grade ${grade}`);
+ }
+}
+// Rebuilt pack must contain the actual current bytes, including the new weapon silhouettes.
+const pack=JSON.parse(fs.readFileSync(path.join(__dirname,'../public/art/pack.json'),'utf8'));
+const bin=fs.readFileSync(path.join(__dirname,'../public/art/pack.bin'));let end=0;
+for(const[key,[offset,length]]of Object.entries(pack)){
+ assert.equal(offset,end,key);end+=length;assert.ok(end<=bin.length,key);
+ assert.deepEqual(bin.subarray(offset,end),fs.readFileSync(path.join(__dirname,'../public/art',key+'.webp')),key);
+}
+assert.equal(end,bin.length);
+for(const id of WEAPON_ICON_IDS)assert.ok(pack[`icons/weapon-illustrated/${id}`],id);
+assert.ok(Object.keys(pack).every(k=>!k.startsWith('icons/兵器/')));
+console.log(`PASS ${Object.keys(WEAPON_CATALOG).length} generals / 700 grade-specific weapon names use ${WEAPON_ICON_IDS.length} distinct reviewed illustrations; precise subtypes, GitHub Pages URLs and packed bytes verified`);

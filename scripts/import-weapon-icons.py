@@ -3,8 +3,8 @@ Usage: python scripts/import-weapon-icons.py --source <selected-60-folder> --sup
 Requires Pillow. Native PNGs remain in the supplied source folders.
 """
 from pathlib import Path
-import argparse, collections, csv, hashlib, json, re
-from PIL import Image
+import argparse, collections, csv, hashlib, json, re, shutil
+from PIL import Image, ImageChops
 
 REPO = Path(__file__).resolve().parents[1]
 # Specific silhouettes must precede generic knife/sword/staff matches.
@@ -38,9 +38,9 @@ RULES = [
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
  ap=argparse.ArgumentParser()
- ap.add_argument('--source',type=Path,required=True);ap.add_argument('--supplements',type=Path)
+ ap.add_argument('--source',type=Path,required=True);ap.add_argument('--supplements',type=Path);ap.add_argument('--transparent',action='store_true')
  args=ap.parse_args()
- groups=[(args.source,'製作清單與提示詞.json')]
+ groups=[(args.source,'manifest.json' if args.transparent else '製作清單與提示詞.json')]
  if args.supplements:groups.append((args.supplements,'manifest.json'))
  source_assets={}
  for folder,manifest in groups:
@@ -66,10 +66,22 @@ def main():
   with Image.open(src) as im:
    im.load();assert im.format=='PNG',src
    native_size=list(im.size)
-   # Format/size conversion only: preserve the complete canvas, background, angle and silhouette.
-   im.convert('RGBA').resize((256,256),Image.Resampling.LANCZOS).save(dest,'WEBP',quality=90,method=6,exact=True)
+   # The transparent edition follows the full-body general-art WebP recipe.
+   height=1024 if args.transparent else 256
+   game_size=(round(im.width*height/im.height),height)
+   resized=im.convert('RGBA').resize(game_size,Image.Resampling.LANCZOS)
+   if args.transparent:assert resized.getchannel('A').getextrema()==(0,255),src
+   if args.transparent:
+    # Reuse the already reviewed compressed delivery bytes instead of recompressing them.
+    compressed=folder/a['compressedFile'];assert sha(compressed)==a['webpSHA256'],compressed
+    shutil.copy2(compressed,dest)
+   else:resized.save(dest,'WEBP',quality=90,method=6,exact=True)
+   with Image.open(dest) as decoded:
+    assert ImageChops.difference(decoded.convert('RGBA').getchannel('A'),resized.getchannel('A')).getbbox() is None,'Compressed alpha mismatch: '+aid
   native_bytes+=src.stat().st_size
-  assets.append({'id':aid,'name':a['name'],'sourceFile':src.name,'sourceSHA256':sha(src),'sourceSize':native_size,'file':'art/icons/weapon-illustrated/'+aid+'.webp','size':[256,256],'bytes':dest.stat().st_size,'sha256':sha(dest)})
+  record={'id':aid,'name':a['name'],'sourceFile':src.name,'sourceSHA256':sha(src),'sourceSize':native_size,'file':'art/icons/weapon-illustrated/'+aid+'.webp','size':list(game_size),'bytes':dest.stat().st_size,'sha256':sha(dest)}
+  if args.transparent:record.update(alphaPreservedExactly=True,originalSHA256=a['originalSHA256'],originalRGBPreservedExactly=a['qa'].get('originalRGBPreservedExactly'),processingMethod=a['method'])
+  assets.append(record)
  ids=[r['id'] for r in assets]
  ts="""import { WEAPON_CATALOG } from './weaponCatalog';
 
@@ -98,9 +110,22 @@ export const WEAPON_ICON_BY_GENERAL: Readonly<Record<string, WeaponIconId | unde
  docs=REPO/'docs';docs.mkdir(exist_ok=True)
  with (docs/'weapon-illustrated-generals.csv').open('w',encoding='utf-8-sig',newline='') as f:
   writer=csv.DictWriter(f,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
- report={'edition':'07平面插畫・斜向重修選定版','generalCount':len(rows),'baseWeaponNames':len(base_map),'iconCount':len(assets),'sourceBytes':native_bytes,'gameBytes':sum(a['bytes'] for a in assets),'preservedCanvasAndBackground':True,'aliases':{'使節杖':'17-01，直柄節杖外型','藜杖':'17-05，拐杖類外型','籌盤':'16-03，算籌類文房器具','雙手戟':'08-04，雙持戟類外型'},'assets':assets}
+ report={'edition':'07平面插畫・透明去背版' if args.transparent else '07平面插畫・斜向重修選定版','generalCount':len(rows),'baseWeaponNames':len(base_map),'iconCount':len(assets),'sourceBytes':native_bytes,'gameBytes':sum(a['bytes'] for a in assets),'preservedCanvasAndBackground':not args.transparent,'transparent':args.transparent,'compression':{'format':'WEBP','height':1024 if args.transparent else 256,'quality':80 if args.transparent else 90,'method':6,'resampling':'LANCZOS','alphaPreservedExactly':True},'aliases':{'使節杖':'17-01，直柄節杖外型','藜杖':'17-05，拐杖類外型','籌盤':'16-03，算籌類文房器具','雙手戟':'08-04，雙持戟類外型'},'assets':assets}
  (docs/'weapon-illustrated-assets.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
- (docs/'weapon-icon-update.md').write_text(f"""# 專屬武器插畫更新
+ if args.transparent:
+  (docs/'weapon-icon-update.md').write_text(f"""# 專屬武器透明插畫更新
+
+175位武將的115種初階武器名稱對應62種外型，四階升級沿用相同武器種類。名冊摘要列不顯示武器；展開詳細卡片後顯示128像素武器圖。
+
+使用者已明確指定本機程式精準去背與傘桿幾何對軸。61張從原始選定PNG只修改透明通道，保留原始RGB、方向與細節；羅傘保留接受的外側傘面角度，將可見傘桿對齊金色傘頭的中軸。原始版本仍保留。
+
+壓縮依武將全身圖：WebP，高度1024、等比例寬度、quality=80、method=6、LANCZOS；每張壓縮後透明通道與縮放PNG完全一致。透明原生PNG共{native_bytes:,} bytes；遊戲圖共{report['gameBytes']:,} bytes。
+
+對照與SHA：weapon-illustrated-generals.csv、weapon-illustrated-assets.json。弓弦內、九環、鏈環、念珠與壺柄等空洞逐類核對；白色刀刃及羽毛、象牙色器物保持不透明。
+
+重新匯入：`python scripts/import-weapon-icons.py --source <transparent-v3-20261024資料夾> --transparent`，再執行`npm run build:art-pack`。
+""",encoding='utf-8')
+ else:(docs/'weapon-icon-update.md').write_text(f"""# 專屬武器插畫更新
 
 依目前選定的60張插畫與2張遊戲補圖，將175位武將、115種第一階名稱對應到62種外型。以第一階武器判定種類，四階升級名稱皆沿用同一種類圖片；武器名稱、升階材料與能力沒有變更。
 

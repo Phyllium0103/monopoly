@@ -2737,7 +2737,7 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .drawer-head { flex-wrap: wrap; gap: 6px 12px; }
 .drawer-head .sort-box { margin-right: 0; }
 .roster-list {
-  --roster-cols: 46px minmax(92px, 1.3fr) 44px 76px minmax(84px, 1.2fr) 40px minmax(100px, 1.3fr) repeat(7, minmax(40px, 0.6fr)) minmax(96px, 1.4fr) 16px;
+  --roster-cols: 46px minmax(92px, 1.3fr) 44px 76px minmax(84px, 1.2fr) minmax(100px, 1.3fr) repeat(7, minmax(40px, 0.6fr)) minmax(96px, 1.4fr) 16px;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -2815,15 +2815,6 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .roster-row .c-origin, .roster-row .c-st { color: var(--muted); font-size: 14px; }
 .roster-row .c-st { text-align: left; }
 .roster-row .c-realm .realm-tag { font-size: 12.5px; padding: 0 6px; }
-.roster-row .rr-icon {
-  display: block;
-  width: 34px;
-  height: 34px;
-  margin: 0 auto;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.45) center / contain no-repeat;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
 .roster-row .c-hp .bar { display: block; margin: 0; height: 18px; }
 .roster-row .c-hp .bar span { font-size: 12.5px; }
 .roster-row .c-power b { color: var(--gold-light); font-size: 16.5px; }
@@ -2844,17 +2835,23 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .roster-item > .general-card .gc-details { max-width: 1040px; padding: 12px 14px; }
 .roster-item > .general-card .gc-overview { grid-template-columns: 190px minmax(0, 1fr); }
 .roster-item > .general-card .gc-details .gc-body { flex-direction: row; flex-wrap: wrap; align-items: stretch; }
-.roster-item > .general-card .gc-details .gc-slots { flex: none; width: 236px; }
+.roster-item > .general-card .gc-details .gc-slots { flex: none; width: 296px; }
+.roster-item > .general-card .gc-details .gc-slot[data-slot="weapon"] .slot-icon {
+  width: 128px;
+  height: 128px;
+  max-width: 100%;
+  object-fit: contain;
+}
 .roster-item > .general-card .gc-details .gc-table { flex: 1; min-width: 260px; }
 
 @media (max-width: 1180px) {
-  .roster-list { --roster-cols: 46px minmax(90px, 1.3fr) 44px 76px minmax(84px, 1.2fr) 40px minmax(100px, 1.3fr) repeat(3, minmax(44px, 0.6fr)) 16px; }
+  .roster-list { --roster-cols: 46px minmax(90px, 1.3fr) 44px 76px minmax(84px, 1.2fr) minmax(100px, 1.3fr) repeat(3, minmax(44px, 0.6fr)) 16px; }
   .roster-list .c-craft, .roster-list .c-passive { display: none; }
 }
 @media (max-width: 760px) {
   .drawer { padding: 12px 10px 24px; }
   .roster-list { --roster-cols: 40px minmax(0, 1.3fr) 66px minmax(0, 1fr) 46px 12px; }
-  .roster-list .c-origin, .roster-list .c-weapon, .roster-list .c-hp, .roster-list .c-attack, .roster-list .c-defense { display: none; }
+  .roster-list .c-origin, .roster-list .c-hp, .roster-list .c-attack, .roster-list .c-defense { display: none; }
   .roster-head, .roster-row { gap: 6px; padding: 0 6px; }
   .roster-head { top: -12px; }
   .roster-row { min-height: 48px; }

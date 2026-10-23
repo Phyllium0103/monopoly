@@ -63,7 +63,6 @@ const COLUMNS: { cls: string; label: string; sort?: string }[] = [
   { cls: 'c-origin', label: '所屬' },
   { cls: 'c-realm', label: '境界', sort: 'realm' },
   { cls: 'c-st', label: '位置' },
-  { cls: 'c-weapon', label: '武器' },
   { cls: 'c-hp', label: '血量', sort: 'hp' },
   { cls: 'c-power', label: '戰力', sort: 'power' },
   { cls: 'c-attack', label: '武力', sort: 'attack' },
@@ -269,7 +268,7 @@ export class GeneralsView {
     return list;
   }
 
-  /** 收合時的一列：頭像、姓名、所屬、境界、位置、武器、血量與各項數值 */
+  /** 收合時只顯示摘要；武器圖片與名稱在展開後的詳細卡片顯示。 */
   private rowHtml(state: GameState, lord: Lord, g: General, ready: boolean): string {
     const city = g.cityId ? state.cities[g.cityId] : null;
     const trip = lord.expeditions.find((e) => e.generalIds.includes(g.id));
@@ -282,7 +281,6 @@ export class GeneralsView {
       <span class="c-origin">${originKingdom(g.origin)}</span>
       <span class="c-realm">${realmTag(g.realm)}</span>
       <span class="c-st">${place}</span>
-      <span class="c-weapon">${g.weapon ? `<span class="rr-icon" title="${tip(g.weapon.name)}" style="background-image:url('${equipIconUrl(g.weapon)}')"></span>` : '<span class="rr-icon empty"></span>'}</span>
       <span class="c-hp"><span class="bar hp"><i style="width:${Math.min(100, (g.hp / maxHp(g)) * 100)}%"></i><span>${g.hp}/${maxHp(g)}</span></span></span>
       <span class="c-power"><b>${power(g)}</b></span>
       <span class="c-attack">${attack(g)}</span>

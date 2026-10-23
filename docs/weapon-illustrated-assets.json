@@ -1,11 +1,20 @@
 {
-  "edition": "07平面插畫・斜向重修選定版",
+  "edition": "07平面插畫・透明去背版",
   "generalCount": 175,
   "baseWeaponNames": 115,
   "iconCount": 62,
-  "sourceBytes": 99476204,
-  "gameBytes": 470130,
-  "preservedCanvasAndBackground": true,
+  "sourceBytes": 88242845,
+  "gameBytes": 4036268,
+  "preservedCanvasAndBackground": false,
+  "transparent": true,
+  "compression": {
+    "format": "WEBP",
+    "height": 1024,
+    "quality": 80,
+    "method": 6,
+    "resampling": "LANCZOS",
+    "alphaPreservedExactly": true
+  },
   "aliases": {
     "使節杖": "17-01，直柄節杖外型",
     "藜杖": "17-05，拐杖類外型",
@@ -16,1056 +25,1304 @@
     {
       "id": "01-01",
       "name": "直刃單劍",
-      "sourceFile": "01-01-直刃單劍-v1.png",
-      "sourceSHA256": "33b0626f53a9fd204413ed19aabf892577857b611617e0db69fec89afd70b10b",
+      "sourceFile": "01-01-直刃單劍-transparent.png",
+      "sourceSHA256": "eb609b6ac04c38d67a29667b7a584ac8b171fdc3c92ef5690ca9f2c488f9d77e",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/01-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 4702,
-      "sha256": "600a547c098e2854de0c12f49ef647fef4d066de351f352b5d26707654aee54d"
+      "bytes": 43758,
+      "sha256": "257238a67d772e47fcace3e8ee9954857cd542dcc4026a034c877c7f81ee64e9",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "33b0626f53a9fd204413ed19aabf892577857b611617e0db69fec89afd70b10b",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "02-01",
       "name": "雙股直劍",
-      "sourceFile": "02-01-雙股直劍-v1.png",
-      "sourceSHA256": "f752b5c56ae715ec14468bd87625d60ab70e98c28ff93f69dada86a02e6b6ef3",
+      "sourceFile": "02-01-雙股直劍-transparent.png",
+      "sourceSHA256": "f5b66b8fdf450967b211e86461ed6b13c0a9762301c880bdd8d3820bbf909f34",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/02-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 7308,
-      "sha256": "1c1f33aaecee11b08b448a43c690d1477826549b15cb4b4ec681ab13f5b55e19"
+      "bytes": 71486,
+      "sha256": "1f7097b201932da831f92eca2280bfa3c993dcab0d2237efb7f33f14303f87c8",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "f752b5c56ae715ec14468bd87625d60ab70e98c28ff93f69dada86a02e6b6ef3",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "03-01",
       "name": "單刃彎刀",
-      "sourceFile": "03-01-單刃彎刀-v1.png",
-      "sourceSHA256": "410faa3838d3e0563e8e374d4c4f9f73ea1e40b9c2e0927189e3817696fb7025",
+      "sourceFile": "03-01-單刃彎刀-transparent.png",
+      "sourceSHA256": "ffb7a9dcc66e0accd9c756f5899d0a07621b740f75d14e3b020b2c271e952e28",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/03-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 5536,
-      "sha256": "e8c1f5dc325d2e9f3611523c8bff9b4b089ba6ae36a13dccc0d28e59834a4ea4"
+      "bytes": 47976,
+      "sha256": "f9c1fc455eaf2c330d546802589df618017050598c06a33152c533f89e3bd6a2",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "410faa3838d3e0563e8e374d4c4f9f73ea1e40b9c2e0927189e3817696fb7025",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "03-02",
       "name": "寬刃大刀",
-      "sourceFile": "03-02-寬刃大刀-v1.png",
-      "sourceSHA256": "1f8002c5f0f5438002d429471bf25c90d1a3953f6820436b420a501ddbc897bd",
+      "sourceFile": "03-02-寬刃大刀-transparent.png",
+      "sourceSHA256": "cbacbe83863b892e16af54648655e7baec278878a5bdba46e07d29ae41dca37c",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/03-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 6252,
-      "sha256": "12b1e35195f7e88d56577aaf4ee3a4f27889a7f504b8bc8695875b86eb4b189b"
+      "bytes": 52978,
+      "sha256": "22f8d4f613b3e20ead8da4064fc9329621cffab0b0d4517525bab35c95a655ea",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "1f8002c5f0f5438002d429471bf25c90d1a3953f6820436b420a501ddbc897bd",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "03-03",
       "name": "九環大刀",
-      "sourceFile": "03-03-九環大刀-v1.png",
-      "sourceSHA256": "9c7bdea162f972c711932660d1836402cc8e66f8895eb9f3427c76ec5e606249",
+      "sourceFile": "03-03-九環大刀-transparent.png",
+      "sourceSHA256": "8abeb6702464eebdadfeeb205abef2b48294e456ca544fa924d9bb11371cbcda",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/03-03.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 7142,
-      "sha256": "1c20db86fe2b721ca66d233561a3f1e0e31cc02c53a754cea8b165f8c811e317"
+      "bytes": 69680,
+      "sha256": "1c2692221291753118a74b754abbea0085208df1c916ab7271f5eb54eac01c1a",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "9c7bdea162f972c711932660d1836402cc8e66f8895eb9f3427c76ec5e606249",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "03-04",
       "name": "截頭大刀",
-      "sourceFile": "03-04-截頭大刀-v2.png",
-      "sourceSHA256": "2ba2754b9fbce0c6fa9a84a6a714db01e11ed64707507a844f056e936a45a64e",
+      "sourceFile": "03-04-截頭大刀-transparent.png",
+      "sourceSHA256": "120a5ada22596f73f1c6d4d107d270c0d192e52ff8ec9808fb3ff3779a87b163",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/03-04.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 6876,
-      "sha256": "d4dc978650a2da4affb5f39c637854c01e0ac6ca4686f64ddce5699054eceae5"
+      "bytes": 56226,
+      "sha256": "c277a3afc8e09a72280ec1d3573ec56d5c88ec8f6b463cb57752a905518399a2",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "2ba2754b9fbce0c6fa9a84a6a714db01e11ed64707507a844f056e936a45a64e",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "04-01",
       "name": "日月雙刀",
-      "sourceFile": "04-01-日月雙刀-v6.png",
-      "sourceSHA256": "131ba183dedebb0d46dd2c96fec434332fed97fa02e07c5431911a614acf5f80",
+      "sourceFile": "04-01-日月雙刀-transparent.png",
+      "sourceSHA256": "5ec58c15425a6befbd19690271a89079751e07e8a254789433747d23c7cd8569",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/04-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 8612,
-      "sha256": "2f735746660f30d19474e96c18d844a0422717eb59d6d7df1bca2088c7dc5ff5"
+      "bytes": 80554,
+      "sha256": "b2833a3c17220fdcebeda970c19fb48192d79d6778de93ab09fd814f9354f81d",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "131ba183dedebb0d46dd2c96fec434332fed97fa02e07c5431911a614acf5f80",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "04-02",
       "name": "雙短刀",
-      "sourceFile": "04-02-雙短刀-v3.png",
-      "sourceSHA256": "1a425f3403f97e28de545f84c785f24139d5534ee49c90fccc1b5d00682c1247",
+      "sourceFile": "04-02-雙短刀-transparent.png",
+      "sourceSHA256": "ec05e69ee89b65bf22f38d696b280654a63ee090a8296ebc4eab22eaf126a07a",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/04-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 8252,
-      "sha256": "5c04891641c7c49d07ec2aa5be1e4230fd48b73f6e4a6dd755c44e87b64369a7"
+      "bytes": 71858,
+      "sha256": "4f2977e52575c16f5985412be8ac9ed963c20e9ad74ddf1adde677bcdba331d9",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "1a425f3403f97e28de545f84c785f24139d5534ee49c90fccc1b5d00682c1247",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "05-01",
       "name": "偃月刀",
-      "sourceFile": "05-01-偃月刀-v1.png",
-      "sourceSHA256": "b8aa48de3512e70a91da89029d8cf56dadb21d5dec5858aaf22750ddbba46351",
+      "sourceFile": "05-01-偃月刀-transparent.png",
+      "sourceSHA256": "9cb2f55dc0f9a07643ae5bac78316f674d0ff6cf3e3706ca2dc7db6ed87a3740",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/05-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 4662,
-      "sha256": "40aa98e997e95ae01405809515fd65e077c413d64d650302ae9330a87704b8cf"
+      "bytes": 43534,
+      "sha256": "0a376beeb87c96e57ae2ea3a1dec0cde4aaa6e451f33c7066c23df7faecf4a7a",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "b8aa48de3512e70a91da89029d8cf56dadb21d5dec5858aaf22750ddbba46351",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "05-02",
       "name": "三尖兩刃刀",
-      "sourceFile": "05-02-三尖兩刃刀-v1.png",
-      "sourceSHA256": "3de897e68ecc515ccf26ab4474ceca6040a43dd2af415612a9821db250763da7",
+      "sourceFile": "05-02-三尖兩刃刀-transparent.png",
+      "sourceSHA256": "fb15227d5406e73ee7994073b322fd913988ba625bbd3dbf82c84b8447806564",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/05-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 4868,
-      "sha256": "a116a66588641787609a5a1b2093f39085799cba18d9f588de244ae2851bd8bb"
+      "bytes": 49672,
+      "sha256": "c49774d64f08dde3ed76606b8d49932c184a5a794b28f5501162a87cc4f93bc0",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "3de897e68ecc515ccf26ab4474ceca6040a43dd2af415612a9821db250763da7",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "06-01",
       "name": "直鋒長槍矛",
-      "sourceFile": "06-01-直鋒長槍矛-v1.png",
-      "sourceSHA256": "43a6e21568df742a936fb3bf46928abad2426f95584260bb01dc6ae517cb848a",
+      "sourceFile": "06-01-直鋒長槍矛-transparent.png",
+      "sourceSHA256": "73ba304dd36639406c2205dfb4558e8596a239d2efa5242f61e4a4c4e42445fd",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/06-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 3936,
-      "sha256": "eeba9c908046303d98c772f8a002cca9c5392259ccc9bc759415031fea63b0b0"
+      "bytes": 37748,
+      "sha256": "b128661b0916a56c63bac349a15b2461c9bd93f581c0fefe1da75432618cdbfb",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "43a6e21568df742a936fb3bf46928abad2426f95584260bb01dc6ae517cb848a",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "06-02",
       "name": "蛇矛",
-      "sourceFile": "06-02-蛇矛-v1.png",
-      "sourceSHA256": "41f840d03e138c9c1cc4f174cdc89864f10ce279e68998b0b2449bb0e47ac566",
+      "sourceFile": "06-02-蛇矛-transparent.png",
+      "sourceSHA256": "4dd66a50b90708fdeb765f0c624005fc6eb61f29b55499139d2e7d281230b98b",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/06-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 4024,
-      "sha256": "1644372806c0ffea1de31c6a124e7824e559b02c7aa0afbf840090948945ad6d"
+      "bytes": 39974,
+      "sha256": "db17de3c92f96908da5bfa7d04ecbcd7b6a7b779c21fce523b886aece68a7d73",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "41f840d03e138c9c1cc4f174cdc89864f10ce279e68998b0b2449bb0e47ac566",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "06-03",
       "name": "馬槊",
-      "sourceFile": "06-03-馬槊-v1.png",
-      "sourceSHA256": "d2666921730e9049889cec8278ed1c0c1848c86b5af27e8942379bea59a90d6e",
+      "sourceFile": "06-03-馬槊-transparent.png",
+      "sourceSHA256": "2287630d6a48552fb0114833befd41fd9390873e4fe0b3884b9ca51f4f2ed1c2",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/06-03.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 4174,
-      "sha256": "565a69486b153c27e217f9b7e721db2211d9bb8f180f15cf1b16ea2f12e54b89"
+      "bytes": 41294,
+      "sha256": "ef998c30f0f870521ab1a9b108d9291a9d938f194d14be6b2bd28c83aea37c7f",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "d2666921730e9049889cec8278ed1c0c1848c86b5af27e8942379bea59a90d6e",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "06-04",
       "name": "雙頭馬槊",
-      "sourceFile": "06-04-雙頭馬槊-v1.png",
-      "sourceSHA256": "b9e42a565dc90ebd82ab91086b7344ca8aa3108e204640d2711bc2a10b8d3a0e",
+      "sourceFile": "06-04-雙頭馬槊-transparent.png",
+      "sourceSHA256": "f374dcc6720f9b99cb1659f3ccaaa905f6b0ab1fc662eb0d7d94baf36d454299",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/06-04.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 4174,
-      "sha256": "76e3bca336458df8441a7d1309144cec8973d5750a7b1f199c1d100e991ae398"
+      "bytes": 42304,
+      "sha256": "1aab8e63e42627a84372c1044867bed69e07d0620f5f3e2c30e68ad74d0bc362",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "b9e42a565dc90ebd82ab91086b7344ca8aa3108e204640d2711bc2a10b8d3a0e",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "07-01",
       "name": "丈八雙矛",
-      "sourceFile": "07-01-丈八雙矛-v1.png",
-      "sourceSHA256": "2e1e8c8c75b6006643db531747e24443f599419bef2b55806874aedd0495b2b2",
+      "sourceFile": "07-01-丈八雙矛-transparent.png",
+      "sourceSHA256": "f4061f7f40e27abd4bcff5bbaa2ea2f27d5d386afa8e3aa54b2899e336998ea1",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/07-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 6956,
-      "sha256": "7a13673f46cb1f689e5f1e7aa9bd98c5474f39a6a4940bd4975631907d4c6766"
+      "bytes": 73708,
+      "sha256": "3a9fb464710f5f97fe97506db7f29f0061cf2738ab3a8c42152f7811d88e20da",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "2e1e8c8c75b6006643db531747e24443f599419bef2b55806874aedd0495b2b2",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "08-01",
       "name": "長戟",
-      "sourceFile": "08-01-長戟-v1.png",
-      "sourceSHA256": "c2a0820cd0abad4ff9df4aca25f132ea712b3bf018846e09ae7ab157876684b4",
+      "sourceFile": "08-01-長戟-transparent.png",
+      "sourceSHA256": "57a8d66f5b90a71b89a55e2416ecb9431a5ae9d3173e1b42d46ed64f9682e8ad",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/08-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 5236,
-      "sha256": "c364f536551d5830ce4b08c0e6e2d3ab6c6dad36955e78b99d5c263916a8c15c"
+      "bytes": 51630,
+      "sha256": "f596ba320e56d2c4f4b3a7ab0e7db5f6c2f959b9f75d9cd579f0253cbbe9692a",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "c2a0820cd0abad4ff9df4aca25f132ea712b3bf018846e09ae7ab157876684b4",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "08-02",
       "name": "方天畫戟",
-      "sourceFile": "08-02-方天畫戟-v1.png",
-      "sourceSHA256": "83a67363ef1b01b05d374e64ea3a3588cb1ab985393b98cf8915b00074934e78",
+      "sourceFile": "08-02-方天畫戟-transparent.png",
+      "sourceSHA256": "659f718c00e9fe99ab3ee42779fe27bf996583da20c84e211d7eada1a6adaccc",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/08-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 5604,
-      "sha256": "ffbaa2158a737a7a716406783788fb7b3092bf38fad5f92f986bb0127ab989bd"
+      "bytes": 60384,
+      "sha256": "25bee631071360069122a4b054d47504ddb4919a151d6db52c473cac9a1ae641",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "83a67363ef1b01b05d374e64ea3a3588cb1ab985393b98cf8915b00074934e78",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "08-03",
       "name": "十字戟",
-      "sourceFile": "08-03-十字戟-v7.png",
-      "sourceSHA256": "2ea7721a4c5115e49481d2634c214d431e7e799388f92faca4c05ee730786926",
+      "sourceFile": "08-03-十字戟-transparent.png",
+      "sourceSHA256": "e893cc10052b444f49d165d99e1796155cf55b0c10e4ec2bef66ccb6d3b441db",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/08-03.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 5238,
-      "sha256": "fe52d07ea6ed68534c62cb80850e1aac59f7001ec0395876e92d312289e25c14"
+      "bytes": 52584,
+      "sha256": "65c7bcc2def238d93f5e610ae9a65e9b4a6ae96b30be6ec063aa549d169e9ce1",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "2ea7721a4c5115e49481d2634c214d431e7e799388f92faca4c05ee730786926",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "08-04",
       "name": "雙鐵戟",
-      "sourceFile": "08-04-雙鐵戟-v1.png",
-      "sourceSHA256": "7f44da5b151c97391c193fafcf8f08c5c541f829532c75fd684194e8bfa5cbba",
+      "sourceFile": "08-04-雙鐵戟-transparent.png",
+      "sourceSHA256": "b894325e7263fd5e34372c2edf415e054d702b4d2df05b8eff4140a05b4de4f2",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/08-04.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 7426,
-      "sha256": "0b42a814fa67be407dfd9b7a869f393bfd127d249483fbbf4c81c6df81a3b18a"
+      "bytes": 78076,
+      "sha256": "408107d5f88ef40619e88f76df9d282779b81c04afc83f8635ccea3f3e9de11d",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "7f44da5b151c97391c193fafcf8f08c5c541f829532c75fd684194e8bfa5cbba",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "08-05",
       "name": "雙鉤",
-      "sourceFile": "08-05-雙鉤-v1.png",
-      "sourceSHA256": "42a9de045ac7428d0d83b7fc85335397db07d4e73af56a1d58c1e9c88e57b3f8",
+      "sourceFile": "08-05-雙鉤-transparent.png",
+      "sourceSHA256": "aaad5ad3a6d4f37e253e0f156e7382ba28d08ac30c221d9e7716868722ce15fd",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/08-05.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 7706,
-      "sha256": "41d27e5caf7809ba8a2cb787aeda40e1ed0cec8e4737dcf666cebd18a23f306b"
+      "bytes": 77540,
+      "sha256": "ebb06e3306905e4c72fa4a2be1b0b3466ff3b70409a2076ec5e6001387e7c673",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "42a9de045ac7428d0d83b7fc85335397db07d4e73af56a1d58c1e9c88e57b3f8",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "09-01",
       "name": "大斧開山斧",
-      "sourceFile": "09-01-大斧開山斧-v1.png",
-      "sourceSHA256": "0ba61e5a9614917e20fa473175b7edad86974bb4658e64af4538848389313b98",
+      "sourceFile": "09-01-大斧開山斧-transparent.png",
+      "sourceSHA256": "46bbb7f7200fd11ba8c763c893c08f4dd2d91397147b6c7f26bf21fb9948f13b",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/09-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 7414,
-      "sha256": "d28d02dce5cd0fd973db36f7a1095b765cceb84d6d3e165969da78b6d4930d2c"
+      "bytes": 65354,
+      "sha256": "f12dbe846c3a6a0d1da2b7e6aaef8fd43178c397883d122ede2846e6eaf0f087",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "0ba61e5a9614917e20fa473175b7edad86974bb4658e64af4538848389313b98",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "09-02",
       "name": "雙鉞",
-      "sourceFile": "09-02-雙鉞-v1.png",
-      "sourceSHA256": "7132ccdfe24f24f6491a2c25b24a7ea68f1292f55ba7bce755eb70111f7ca925",
+      "sourceFile": "09-02-雙鉞-transparent.png",
+      "sourceSHA256": "e43eb1e4a0d22a4dbec4b3529fd8604e60c5982cb09a8bb6c2e2779e3122d21c",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/09-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 9672,
-      "sha256": "8e7f2013fe4c3d13524177c287ead8554dde97977cb1c2c3e763a2cd45579943"
+      "bytes": 85082,
+      "sha256": "f0556392259702221b74b718aff77d034c65264796760ba247c3f27c16c0814e",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "7132ccdfe24f24f6491a2c25b24a7ea68f1292f55ba7bce755eb70111f7ca925",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "10-01",
       "name": "狼牙棒",
-      "sourceFile": "10-01-狼牙棒-v6.png",
-      "sourceSHA256": "9931632ba33c801d33b4b45563e980f0a59f36877f905e1677e0eb00fa992d92",
+      "sourceFile": "10-01-狼牙棒-transparent.png",
+      "sourceSHA256": "71c6655b6c2c91a7a84991c295dd98008ecc2abb0810825c7a8ec902fb996a28",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/10-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 6456,
-      "sha256": "f6fd7f23378a84a80da7f0bbda823afdda3251551e421ed953e36c71566f1401"
+      "bytes": 56848,
+      "sha256": "81b4336a9bd150ba3116d2fb817e2e5a2247ed9efea2e3abd0eaf9ae1a71334f",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "9931632ba33c801d33b4b45563e980f0a59f36877f905e1677e0eb00fa992d92",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "10-02",
       "name": "骨朵",
-      "sourceFile": "10-02-骨朵-v1.png",
-      "sourceSHA256": "8a67a1c6ec6b147f618c308efe696cf8e13ffd67532ca42bb49a47c21d5a60c7",
+      "sourceFile": "10-02-骨朵-transparent.png",
+      "sourceSHA256": "dd8be952da0f77d2bad0a264a9223a3105f83be47453feeeb6df3bffe6bc4725",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/10-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 7834,
-      "sha256": "65382cf94e2151dc2451972e9a8d439f9c4d6b773a5f4a75a09dcbe20def435a"
+      "bytes": 66818,
+      "sha256": "1c9c81ee8529f77b6671d1896aa0cca76990f86a2f0075486a33e8677937bc34",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "8a67a1c6ec6b147f618c308efe696cf8e13ffd67532ca42bb49a47c21d5a60c7",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "10-03",
       "name": "鐵椎",
-      "sourceFile": "10-03-鐵椎-v1.png",
-      "sourceSHA256": "9aa002a8bab01028ba612acdef320cb6e3c3494a5682b9554362f4d35a718ca6",
+      "sourceFile": "10-03-鐵椎-transparent.png",
+      "sourceSHA256": "c811b43967b2738e7cc1dc1bfd44630b732e0939fb82bfe7429f3fabc6fb3e1e",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/10-03.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 6478,
-      "sha256": "3f68feb1e3ed500c9ce4375abe191fe61f687afb3e004e7ee51ee8490a53697a"
+      "bytes": 52058,
+      "sha256": "ba923e09cb6087e48df47ea457d96c948d04abb26e53a7974f646e18f434491f",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "9aa002a8bab01028ba612acdef320cb6e3c3494a5682b9554362f4d35a718ca6",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "10-04",
       "name": "流星錘",
-      "sourceFile": "10-04-流星錘-v1.png",
-      "sourceSHA256": "e308528fc6a560f8d1942db035537b5bc9f30d8edca19f5ef114153b0e1b6d2b",
+      "sourceFile": "10-04-流星錘-transparent.png",
+      "sourceSHA256": "ce92da331d1d9e7a6f013789c4eb2698b59ff5a36c51cddd8721c9a394d1d1ff",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/10-04.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 8934,
-      "sha256": "556d6c1aab4b7bed6916f453dbef8de0068034af5cc18398d9f843368af8df7f"
+      "bytes": 88322,
+      "sha256": "81469a810a8aaddfb8d586fb7a3647cca2a0f02ef512beed714b7ac8e649b1e6",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "e308528fc6a560f8d1942db035537b5bc9f30d8edca19f5ef114153b0e1b6d2b",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "10-05",
       "name": "鐵鞭",
-      "sourceFile": "10-05-鐵鞭-v1.png",
-      "sourceSHA256": "c2fe4f6be4d5416ea51c44be2b3fab54a5b808c7ed4b5f67e4f4464af2e30381",
+      "sourceFile": "10-05-鐵鞭-transparent.png",
+      "sourceSHA256": "7252e2a1a83079446d3ebe63ae307b45c2df193c5a641148cb8998621bab7a83",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/10-05.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 5660,
-      "sha256": "f39811702f1d85a1683f4cb9177984b136b39a08439c6ba4e4d9fc107ca64068"
+      "bytes": 51616,
+      "sha256": "e8d4cfb1f28a49afbbca383abb1b3ad63d0c1006069da7aee95a3ff0c336142e",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "c2fe4f6be4d5416ea51c44be2b3fab54a5b808c7ed4b5f67e4f4464af2e30381",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "10-06",
       "name": "多節軟鞭",
-      "sourceFile": "10-06-多節軟鞭-v1.png",
-      "sourceSHA256": "cc563684d189622f6dc0a0ae051e92229428b7b8cf661fbe359d199261c38cea",
+      "sourceFile": "10-06-多節軟鞭-transparent.png",
+      "sourceSHA256": "109908e6b78e410005557609c1f3999e810ea1940f3e49e6647f2e705a8b2f35",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/10-06.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 7260,
-      "sha256": "9e82c21b11dc38108b8c2b72f5953b11687055785606c3ec0900bbdadcd33460"
+      "bytes": 80600,
+      "sha256": "de2762e17844ca3f550e5cb5bcc7fd62c47eda7b623d8161a5654b0895d4f2e3",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "cc563684d189622f6dc0a0ae051e92229428b7b8cf661fbe359d199261c38cea",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "11-01",
       "name": "長弓寶弓騎弓",
-      "sourceFile": "11-01-長弓寶弓騎弓-v1.png",
-      "sourceSHA256": "84692405ea3688feaf437bf926236d95d91a5707dd19bc294ebf193ff28fc9b2",
+      "sourceFile": "11-01-長弓寶弓騎弓-transparent.png",
+      "sourceSHA256": "ff598357e9e38e268b850b4750c3e050ead2645be43f6daf03946a206ae2a15f",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/11-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 6278,
-      "sha256": "28f47264daa1ffd4c5ae25b2f90a535b2d0f62fd1e6937ee8449a178b50a121e"
+      "bytes": 69118,
+      "sha256": "7ba1e015f490304f3a4c70967591446fff8cb57e4fe5530bc602e2d2e38a8068",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "84692405ea3688feaf437bf926236d95d91a5707dd19bc294ebf193ff28fc9b2",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "12-01",
       "name": "連弩",
-      "sourceFile": "12-01-連弩-v1.png",
-      "sourceSHA256": "31a8a1f69973ca00a5330a9245cc0f07434ae88740b0d3dc6b3abc35d2fa2ba7",
+      "sourceFile": "12-01-連弩-transparent.png",
+      "sourceSHA256": "fc010fea43ca701c1b67b72225fc4b6eb8f2a2b5233bc24c8a04b0b11c19dc41",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/12-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 8938,
-      "sha256": "a597abdf60fbc0c7f1bdee494903746e3b2c71eab05c6b3a7ddfffc2bf6072de"
+      "bytes": 94930,
+      "sha256": "76292eb9eb8a3b9cb520168a913e1e6540f5675cb112a4d6a0894b37b3dafadc",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "31a8a1f69973ca00a5330a9245cc0f07434ae88740b0d3dc6b3abc35d2fa2ba7",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "12-02",
       "name": "強弩大黃弩",
-      "sourceFile": "12-02-強弩大黃弩-v1.png",
-      "sourceSHA256": "3cb433d050329a2ff1951d5b4c8a6974d79e87f222259e01a5c62028f6fc369d",
+      "sourceFile": "12-02-強弩大黃弩-transparent.png",
+      "sourceSHA256": "e56403c1effedbb0dc3726d94bf84909d8d3c7b1b5fbba0944fae17594b4f566",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/12-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 8816,
-      "sha256": "c42408a5866a7e9101269e64b5002ef86e8ade9e4062ccb320677d667cfb7319"
+      "bytes": 88264,
+      "sha256": "5f40a1d5ccdb2a3118e85a8004bfa9cdd3aa240c0dea1bf7baaf5498ecb4bdf7",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "3cb433d050329a2ff1951d5b4c8a6974d79e87f222259e01a5c62028f6fc369d",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "13-01",
       "name": "圓形鐵盾",
-      "sourceFile": "13-01-圓形鐵盾-v1.png",
-      "sourceSHA256": "6208863af4404e08c43dee96f90990af1b31d5dac9a128f891bd0a763d3a983e",
+      "sourceFile": "13-01-圓形鐵盾-transparent.png",
+      "sourceSHA256": "ec8d5846141de5b54805bc08a3d4dbd7e2815d12e066534dcfd1b13efe0acb43",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/13-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 17830,
-      "sha256": "08973d8da354a7d89b9afbc8295ce15ebe8926382e16a9de59d156f108dbd1e1"
+      "bytes": 120140,
+      "sha256": "2eb6288be02fda47a7d194d158562370520d1375b402cea21c9b23c86628a161",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "6208863af4404e08c43dee96f90990af1b31d5dac9a128f891bd0a763d3a983e",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "13-02",
       "name": "牙門大盾",
-      "sourceFile": "13-02-牙門大盾-v1.png",
-      "sourceSHA256": "1aa914f7d4527359c7c73adbbcf52a58150f0fdc4311fa5e3cbe348497176c22",
+      "sourceFile": "13-02-牙門大盾-transparent.png",
+      "sourceSHA256": "026060cf2e31341cd67aa49d607fb9772d2839c66db64ff6ea207e72913052e7",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/13-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 11142,
-      "sha256": "91d4d428c4aba7f8e79c9db3c24318104d9f2bb24fa181bb82dfcd979db31e51"
+      "bytes": 71862,
+      "sha256": "b815922b7c84f547636ad5d8a7bf5022d22b03e5ff26da53f005fce185f4f7e6",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "1aa914f7d4527359c7c73adbbcf52a58150f0fdc4311fa5e3cbe348497176c22",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "13-03",
       "name": "刀盾組",
-      "sourceFile": "13-03-刀盾組-v1.png",
-      "sourceSHA256": "2e8cdd496003c2919def485c4fa01db894e727c30c26f92a4f9436d64b5cc50c",
+      "sourceFile": "13-03-刀盾組-transparent.png",
+      "sourceSHA256": "ca00cb23fd14c2b602f25b0aa4164ccc070d88f9c254a259b78b44078437a2fc",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/13-03.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 12656,
-      "sha256": "6e87956bb5490e02d9fff20d64ee7c817b17930fca840070c3bd9704f81ac7df"
+      "bytes": 99062,
+      "sha256": "4c458b5fac8bdc6b2b3876acff3c049d3c4fb83b28ad4d30cd812c8b655f98eb",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "2e8cdd496003c2919def485c4fa01db894e727c30c26f92a4f9436d64b5cc50c",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "14-01",
       "name": "羽扇",
-      "sourceFile": "14-01-羽扇-v1.png",
-      "sourceSHA256": "0152942d07207a0b23f85f3fbe78f99eb1a933ff14f53d330a0bed9ea63d8ca1",
+      "sourceFile": "14-01-羽扇-transparent.png",
+      "sourceSHA256": "17b9f9436991e592f520171e594550838154bb460197e1598ceed9a5eae75f9f",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/14-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 12558,
-      "sha256": "0ef0879b3a739dffb5170dcac7be0dcf4280e7cc4dc1b832cc77851cb756cab9"
+      "bytes": 101104,
+      "sha256": "858c375bf3ec56fa5d7fffdc599ef5a6010161fda431b97141b5437767a4f1c4",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "0152942d07207a0b23f85f3fbe78f99eb1a933ff14f53d330a0bed9ea63d8ca1",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "14-02",
       "name": "雙扇",
-      "sourceFile": "14-02-雙扇-v1.png",
-      "sourceSHA256": "d5f313aaa2347f1d319d7fc53bacbfbf86c17dc69212ec30ae82cc68f7c21e53",
+      "sourceFile": "14-02-雙扇-transparent.png",
+      "sourceSHA256": "b1ffb7567ecb0728425acee60d73eb0309e7dac08ed65af83d00dd1da11fc5b9",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/14-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 12140,
-      "sha256": "0ba6ee6835316c7286bf4dc67406c99bdadd73615a80c2dcdc8071180a5d98e6"
+      "bytes": 102248,
+      "sha256": "399ff569e2356fb0712586d1547e08f31e844693d464047df734805530b241b5",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "d5f313aaa2347f1d319d7fc53bacbfbf86c17dc69212ec30ae82cc68f7c21e53",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "15-01",
       "name": "古琴",
-      "sourceFile": "15-01-古琴-v2.png",
-      "sourceSHA256": "6e2b00e68bd7df6d1d36569ee08342406f0f079cc261ac357d242d238fa49539",
+      "sourceFile": "15-01-古琴-transparent.png",
+      "sourceSHA256": "5f2443d773c9905c2a27b09a1710b2374e4328c3051eb559e8142bbc11804ef7",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/15-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 9926,
-      "sha256": "1a5a839e2850d4c674d844f3fe8b19f604c9bbd2ff1d773c60e01862ffcfeeab"
+      "bytes": 66848,
+      "sha256": "31c7f9525f558c8fa19eb325b14edc0ed3f24c08e138e3136a08fbf4bf1b59bf",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "6e2b00e68bd7df6d1d36569ee08342406f0f079cc261ac357d242d238fa49539",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "15-02",
       "name": "胡笳",
-      "sourceFile": "15-02-胡笳-v1.png",
-      "sourceSHA256": "41afbd401c3bd4ac48f1aa0a98c051072bb66085feec17a507852f28507e392f",
+      "sourceFile": "15-02-胡笳-transparent.png",
+      "sourceSHA256": "0191c2020b8d359dcb173535c209b9bb4f671b6f8b80521e2524e710c2d37c8a",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/15-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 5594,
-      "sha256": "eb66c6d3d6f8c651ebe62ef95fd3dd3e9914b1b5a6beccd29af2d1fce3bb377e"
+      "bytes": 43072,
+      "sha256": "cdb7b17c147096f3a6dfbe209decabaecb7e8a5a43c92550627d4904e1903717",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "41afbd401c3bd4ac48f1aa0a98c051072bb66085feec17a507852f28507e392f",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "15-03",
       "name": "玉笛",
-      "sourceFile": "15-03-玉笛-v1.png",
-      "sourceSHA256": "4479eb3f47286c1fadc32719575071b63a3a0ffbca31090d2e0162024c4dcec7",
+      "sourceFile": "15-03-玉笛-transparent.png",
+      "sourceSHA256": "c05bde02f68b843f3b6e5dde6a836a7d7fe80be86e8410d6232128b07c24e0d5",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/15-03.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 4756,
-      "sha256": "0d558dae68e1664fa189666f23ff415a4a224f3c929bfc79e7a77eb2f503255e"
+      "bytes": 38716,
+      "sha256": "48ae8b153c61e0ab4f0008af5503caf173cf28b0247f1926eed48d76e323540f",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "4479eb3f47286c1fadc32719575071b63a3a0ffbca31090d2e0162024c4dcec7",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "16-01",
       "name": "毛筆",
-      "sourceFile": "16-01-毛筆-v1.png",
-      "sourceSHA256": "910d85a8fc0095d9b11602aa630575a011548b930acbb15c5ef84bb3f8e667ac",
+      "sourceFile": "16-01-毛筆-transparent.png",
+      "sourceSHA256": "e21a6e1bde6773449729c79ba856bbe6168cc3e241e98a35211fe51bee51bed4",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/16-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 4556,
-      "sha256": "31e0be20dab6b7a5b5e5585409e900c781271ece993ad76d5fdedbf7384fdaa6"
+      "bytes": 39938,
+      "sha256": "74f609f88132d40bf0aab47b81b5bbd2400d23c64f44470bada9ac211e9e1a11",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "910d85a8fc0095d9b11602aa630575a011548b930acbb15c5ef84bb3f8e667ac",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "16-02",
       "name": "竹簡",
-      "sourceFile": "16-02-竹簡-v1.png",
-      "sourceSHA256": "7d3c7a39032b09ea3036910bb5b43261bbd03d8dcb98b404b1a35d1fac4bdf5c",
+      "sourceFile": "16-02-竹簡-transparent.png",
+      "sourceSHA256": "48764204cdc74b6f21a310751b53333faed929dfd40cffa0b9457b08760c4cb8",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/16-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 11484,
-      "sha256": "459464ff1a68999bac8cc609eda85867becba80fe8ee3888b267bd80a5126695"
+      "bytes": 84852,
+      "sha256": "42a34c11f61c0f887d90ef4e83266972a844528c462c33a296311a0c3e277dc5",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "7d3c7a39032b09ea3036910bb5b43261bbd03d8dcb98b404b1a35d1fac4bdf5c",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "16-03",
       "name": "算籌",
-      "sourceFile": "16-03-算籌-v1.png",
-      "sourceSHA256": "e41ccdabfbf5361b659bfead466ff7873b37fc289c9fdfa91b6568880e9d3e3e",
+      "sourceFile": "16-03-算籌-transparent.png",
+      "sourceSHA256": "b2d1c475b2415252c5cfde2e69fbbabf82367c5ae88e0becec948b2c3642af06",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/16-03.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 10868,
-      "sha256": "66e3a0045e9241e93a545402b587dda69e9795154f50c3261bf6805392f2162a"
+      "bytes": 109938,
+      "sha256": "ae76e3f833149d959a2306d080d0a665bbdef2706a4ccc909a18e56ea86ee054",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "e41ccdabfbf5361b659bfead466ff7873b37fc289c9fdfa91b6568880e9d3e3e",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "16-04",
       "name": "棋盤",
-      "sourceFile": "16-04-棋盤-v1.png",
-      "sourceSHA256": "dc4a0814f4ef38dcef926b42de9c40ead63888735595279d2900669db0a8ef6d",
+      "sourceFile": "16-04-棋盤-transparent.png",
+      "sourceSHA256": "8948b5a5ca21072d4553f0b8ef1b0c475acd5a930d7a4cb71b947ed8d62173ce",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/16-04.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 10210,
-      "sha256": "b0ef5e489c89a639f18bd3f29fae9a41ce36b578d5f56d88dd9f63ec171fe026"
+      "bytes": 44164,
+      "sha256": "cff154fa437b2582b74f695d34399ea000858b298ff9059369c5b680267f4f6e",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "dc4a0814f4ef38dcef926b42de9c40ead63888735595279d2900669db0a8ef6d",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "16-05",
       "name": "笏板",
-      "sourceFile": "16-05-笏板-v1.png",
-      "sourceSHA256": "6b5bb5845409cd293ee38f9a1bee3e4b54a110da1e187cc9f8a7c6ea1349322d",
+      "sourceFile": "16-05-笏板-transparent.png",
+      "sourceSHA256": "7d0a8aa2eef3e2cf843d5a0cc333389db5367b4d4dd90a22bd77301ecd1dd5e2",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/16-05.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 5370,
-      "sha256": "565d70c6ce4f1abc892006cca24540a2907e89c8f42570f141bca551f0ce6e25"
+      "bytes": 47726,
+      "sha256": "0659ba53c0faff566b166a4640a992f77bdaa9a9b7a60729d2977c22ba61cd9d",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "6b5bb5845409cd293ee38f9a1bee3e4b54a110da1e187cc9f8a7c6ea1349322d",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "16-06",
       "name": "戒尺",
-      "sourceFile": "16-06-戒尺-v1.png",
-      "sourceSHA256": "2354364fb7ca7faf5ff1fbcd69c8e1e5c1f15907103e332f0f223e33b08668a0",
+      "sourceFile": "16-06-戒尺-transparent.png",
+      "sourceSHA256": "67393925a261b1541673824d8f2682d4c329d60542a7ad25cf2b772f013d6bf3",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/16-06.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 6562,
-      "sha256": "a44b7205a587613d5c2317e83afdab0c6d338b32ee928918c3d107e24dde0d7d"
+      "bytes": 51096,
+      "sha256": "cf500321a5ac56678f81c83f40b6c11327990a9573c7ab2e0ccd79467e5a9c40",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "2354364fb7ca7faf5ff1fbcd69c8e1e5c1f15907103e332f0f223e33b08668a0",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "17-01",
       "name": "九節杖",
-      "sourceFile": "17-01-九節杖-v1.png",
-      "sourceSHA256": "008a6041012cc427e5ca238db52cf41cdc5092cdd804cd375a875c13828d3542",
+      "sourceFile": "17-01-九節杖-transparent.png",
+      "sourceSHA256": "49a1ae57621c12cfc02027e85b7aa5a217fe9346498fe705c4f065ea3f9580c5",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/17-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 4650,
-      "sha256": "6284be91b6f531a8cbb94f80ad81ecb04141017bedd16497c8c0d0613bbc00c9"
+      "bytes": 41240,
+      "sha256": "e5ecd740ef6692909e1b87aa3ab81327faf140311a78f1425ef6f05a4ace5a2f",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "008a6041012cc427e5ca238db52cf41cdc5092cdd804cd375a875c13828d3542",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "17-02",
       "name": "獸骨杖",
-      "sourceFile": "17-02-獸骨杖-v4.png",
-      "sourceSHA256": "ec1ed86b9de65dc3a8355982cdc09eb2b02f3b33b2ac885e6002b27b3ea5e96e",
+      "sourceFile": "17-02-獸骨杖-transparent.png",
+      "sourceSHA256": "cdabb323b6c8caf3af8a632453a1334f4c10312c1db61200d869e7e862940557",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/17-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 5048,
-      "sha256": "0257ea8891b0d23a3ff73237a421ac180ec9b4ab802828dd7f2dda15de7ce9ff"
+      "bytes": 45510,
+      "sha256": "8cace4470f69ef57f38af4711ebccb0001c08e2e60513a4cfb5fd933aa26e77e",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "ec1ed86b9de65dc3a8355982cdc09eb2b02f3b33b2ac885e6002b27b3ea5e96e",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "17-03",
       "name": "鐵索杖",
-      "sourceFile": "17-03-鐵索杖-v1.png",
-      "sourceSHA256": "3192befe4531ad0911563f5c96fec46d1477807607c6df91af496c48c9116cbd",
+      "sourceFile": "17-03-鐵索杖-transparent.png",
+      "sourceSHA256": "991061e2b07d27c92ccffd8ac82854350b54f8f94e6cd3c63d83d5c520a35622",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/17-03.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 5524,
-      "sha256": "4fd002d5d7a687815e32f5214d6f14f801f4eed6577a1fc2a3783b6ea6b049a0"
+      "bytes": 55876,
+      "sha256": "0fca942d6a6a17eed8b458dcdf8ec5fa0fdcdb0ae8829ecbea0c3324f499ebd5",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "3192befe4531ad0911563f5c96fec46d1477807607c6df91af496c48c9116cbd",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "17-04",
       "name": "鳩杖",
-      "sourceFile": "17-04-鳩杖-v1.png",
-      "sourceSHA256": "c13be5d8986c08d82e44e8739416ec56d67276dd9caacaa320f0e97d30d24ad7",
+      "sourceFile": "17-04-鳩杖-transparent.png",
+      "sourceSHA256": "22ed58a0b86cdbcc4de097e786ac09f0eec2cc3716503ce98f6ca5f0e649ec12",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/17-04.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 4406,
-      "sha256": "1dfce8d9f86d0e52c837a57e066d4e5a30cb9eba20c8e46264c1cfedbed234ca"
+      "bytes": 41446,
+      "sha256": "fb833b2b0b5efeb68a44f2288173db95f83cc89e06127f51d49ee3e18925bea8",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "c13be5d8986c08d82e44e8739416ec56d67276dd9caacaa320f0e97d30d24ad7",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "17-05",
       "name": "拐杖",
-      "sourceFile": "17-05-拐杖-v1.png",
-      "sourceSHA256": "3bc6b9653873ae64d0c8d5b23b7ad0af434aadebca015dd41016af21c46f2182",
+      "sourceFile": "17-05-拐杖-transparent.png",
+      "sourceSHA256": "250c985c22f0e4abe7dbded6457f75aa8e6593d674fdf7cb05734fa9acc11def",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/17-05.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 4516,
-      "sha256": "f75b8534dd1ca953976c33b2654f77210549cf73bb404855d42ffc2ac32c6913"
+      "bytes": 42054,
+      "sha256": "990e851998227479c4540d41fa1bb51be9b3e6a2c5e1083bc8f0d0be79a4ebc0",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "3bc6b9653873ae64d0c8d5b23b7ad0af434aadebca015dd41016af21c46f2182",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "18-01",
       "name": "拂塵",
-      "sourceFile": "18-01-拂塵-v1.png",
-      "sourceSHA256": "704ef36f60b2c1cb15184a5edb46e511b4acd874d362681c4844056f5f337a9e",
+      "sourceFile": "18-01-拂塵-transparent.png",
+      "sourceSHA256": "343a7dccca5a56cd300035bbf86c157c3a69b961fa777925b5fe5cdb89897d36",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/18-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 8072,
-      "sha256": "5af971bca54cd5a15294e5e6463669685c96dcdcba460e74f724a9d012dc553d"
+      "bytes": 78798,
+      "sha256": "edfdc16cd1aa62fe4ff1ce82bf97ce81a3364534ce37ed52cfdf1b2f68caf0d9",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "704ef36f60b2c1cb15184a5edb46e511b4acd874d362681c4844056f5f337a9e",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "18-02",
       "name": "幡旗",
-      "sourceFile": "18-02-幡旗-v1.png",
-      "sourceSHA256": "5b8d5c8c54dd5a345ab69e330a1e6ea9dfb188bec8618bac4bc70c3888a7daaa",
+      "sourceFile": "18-02-幡旗-transparent.png",
+      "sourceSHA256": "2b3204dda17af5a8660cc02c362869ea4e78797eb4dba732f54f4fccedc4b57e",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/18-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 6806,
-      "sha256": "45306a40208c40f1a81946dfd407549301ad2aeaa9f9e9ad51b2671a6d8ee558"
+      "bytes": 59292,
+      "sha256": "bbbc792033fd27bb1b574dc90345dea0452bead92953acbca67c0dfbd1b0e261",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "5b8d5c8c54dd5a345ab69e330a1e6ea9dfb188bec8618bac4bc70c3888a7daaa",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "18-03",
       "name": "羅傘",
-      "sourceFile": "18-03-羅傘-v1.png",
-      "sourceSHA256": "8ef544ac95505b4bf5db48eb9a33939ca995baa8a4fd6c95179218c96ab9642b",
+      "sourceFile": "18-03-羅傘-transparent.png",
+      "sourceSHA256": "ada374e6ea8abf5640a6161fc75f506b9a1ff1462513ba501ad972cc5a6b7274",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/18-03.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 13522,
-      "sha256": "501baafaca71ae1778ce4079750385d7ac26235046963bf8028d2f7579c58a9f"
+      "bytes": 105778,
+      "sha256": "3cf992aff0cc4180dc7d2414b6ffc2817aa6e037becb98d39dfe6fd8eb04b6c1",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "8ef544ac95505b4bf5db48eb9a33939ca995baa8a4fd6c95179218c96ab9642b",
+      "originalRGBPreservedExactly": null,
+      "processingMethod": "local rigid shaft alignment of accepted canopy"
     },
     {
       "id": "19-01",
       "name": "飛刀",
-      "sourceFile": "19-01-飛刀-v1.png",
-      "sourceSHA256": "b6632a211f51356d7997eee263230d2fcfac6999de3a1ea483c0a9c52466fc2f",
+      "sourceFile": "19-01-飛刀-transparent.png",
+      "sourceSHA256": "353f1d8ee8dbcd3867875801ed6003a381688ab4f4eee2296b7dac41619dad9e",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/19-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 5532,
-      "sha256": "7209a4a48561a2f84b58cc65283c38719c9ad4a2a14a3fac6e237445f1f5fd2e"
+      "bytes": 48586,
+      "sha256": "ede2864fce47f569edd89c93d838ce371687fd0395225de0a9f74c0787488864",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "b6632a211f51356d7997eee263230d2fcfac6999de3a1ea483c0a9c52466fc2f",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "19-02",
       "name": "短刺簪",
-      "sourceFile": "19-02-短刺簪-v4.png",
-      "sourceSHA256": "32eae1d91efe043608530d3ec6dc37ec4d85cc12ad1399df46c52c1fab8accc1",
+      "sourceFile": "19-02-短刺簪-transparent.png",
+      "sourceSHA256": "520f017d496133f915abbe5dfee3a58d805ce0f63496488fa88348d01ee192cd",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/19-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 3422,
-      "sha256": "47cf7035a9f9be43a1c531c518b9e6bd4048eaa70ee8b26845055be596465972"
+      "bytes": 33648,
+      "sha256": "ec41755d2825309e9a43f2ad463792ca6f851858b1ffddb6fdc566c659161a1e",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "32eae1d91efe043608530d3ec6dc37ec4d85cc12ad1399df46c52c1fab8accc1",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "19-03",
       "name": "銀針",
-      "sourceFile": "19-03-銀針-v1.png",
-      "sourceSHA256": "8a24ce5ad6abb387ee46735239ba362deb68501c0d9128a509d49ebb0defe50c",
+      "sourceFile": "19-03-銀針-transparent.png",
+      "sourceSHA256": "31bc98e1921b42a3717517eba26dfe4585d5dad9733d6f0d62aea34c5ae15b00",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/19-03.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 3396,
-      "sha256": "5ec242fc90052e178e2c8b0f713d7041076a9eef25f8a775a1ef2738692a0f58"
+      "bytes": 33814,
+      "sha256": "a447a64686d096d82f2ae3ea79c664924dbde806890c07381af59882ffb17f44",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "8a24ce5ad6abb387ee46735239ba362deb68501c0d9128a509d49ebb0defe50c",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "20-01",
       "name": "毒酒壺",
-      "sourceFile": "20-01-毒酒壺-v1.png",
-      "sourceSHA256": "0b1d58f9b1c5aa8ee1172182a9b1b06bf22c430cc72166b178e9270aa82c7254",
+      "sourceFile": "20-01-毒酒壺-transparent.png",
+      "sourceSHA256": "14afa5663c47b0aaeb0050df39dfe679afc1e2e256f5ef8ea0fbf5143159216a",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/20-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 11788,
-      "sha256": "df84510cfabed0d17a9cd3335444e618caea6d7aca35b7fdd6df0169c729fd62"
+      "bytes": 92888,
+      "sha256": "669c89b73723ff5698c2b9c7ff1c43104caf8d18b55e2bf41ce31a8a191c7d67",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "0b1d58f9b1c5aa8ee1172182a9b1b06bf22c430cc72166b178e9270aa82c7254",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "20-02",
       "name": "藥葫蘆",
-      "sourceFile": "20-02-藥葫蘆-v1.png",
-      "sourceSHA256": "2696c64bbe1e929de4e8f0b9b9b2ab68ae3dd973fa50f3a8a6f25f45493fdd97",
+      "sourceFile": "20-02-藥葫蘆-transparent.png",
+      "sourceSHA256": "0932b4f8a8b0dac2f745f37af3609d8b53efaeb700516488fd407cc8bd723247",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/20-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 7354,
-      "sha256": "8ea3d13c9aa7323eeb5bd131108cf0190f1b6760a479ff75ab5b8b9b29956d4c"
+      "bytes": 49944,
+      "sha256": "45a9a379dec8c78e49704cc19cad600e7bb02fb71f2d6d13ba64054803e50c1f",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "2696c64bbe1e929de4e8f0b9b9b2ab68ae3dd973fa50f3a8a6f25f45493fdd97",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "20-03",
       "name": "藥箱",
-      "sourceFile": "20-03-藥箱-v1.png",
-      "sourceSHA256": "185139fc4fd207a74d3ea491f75dc0b3c54b495aa8a0e776aa05c72d052f14f7",
+      "sourceFile": "20-03-藥箱-transparent.png",
+      "sourceSHA256": "e9b54bd5f297b7c0f0b2e64929cd9e3b0809a6d1ee60ec66e4df3ee9a2482e3a",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/20-03.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 11648,
-      "sha256": "b1da751c267ba39a13d0bed2b61545a689039dd2d84873056d686e37f1e4717b"
+      "bytes": 69908,
+      "sha256": "64a2a004d067bbb1782c1a1b15d881def3ed0a13c7549bf8cbf563d71976e41b",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "185139fc4fd207a74d3ea491f75dc0b3c54b495aa8a0e776aa05c72d052f14f7",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "21-01",
       "name": "傳國玉璽",
-      "sourceFile": "21-01-傳國玉璽-v1.png",
-      "sourceSHA256": "05e4fa9f667572eff0eb0c291217109097516488b00e20a8aed36743e5e1267d",
+      "sourceFile": "21-01-傳國玉璽-transparent.png",
+      "sourceSHA256": "144a6f3b0600c93ab03a802959114a7653b014e25a047fa8493dd1610479a75c",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/21-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 12640,
-      "sha256": "5f7c2ee2802c6594f46e686c1a30d330814f46af3a2784e2dfe098a7773de423"
+      "bytes": 95920,
+      "sha256": "a0e97f003f2ecb2139ada5567ce6d6f27a269210090d6a7ce1e4faf11929d6a9",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "05e4fa9f667572eff0eb0c291217109097516488b00e20a8aed36743e5e1267d",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "21-02",
       "name": "占卜龜甲",
-      "sourceFile": "21-02-占卜龜甲-v1.png",
-      "sourceSHA256": "57fb28ecf3369a3b2881ba97cdace34ba11c78309503a9838987196ecde86af0",
+      "sourceFile": "21-02-占卜龜甲-transparent.png",
+      "sourceSHA256": "33320f40178e7cea5041118c21751420a5f000fedd72f8a04eb57ca078b9d1f6",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/21-02.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 13914,
-      "sha256": "8e3bc03bcda99670b8981a7be78d4e0e405fda984981be2f261e8e642ceaeabe"
+      "bytes": 97752,
+      "sha256": "f19d5466b707f8ec9c09bb7ca662a26ee1a7447e7d56452cdf44ed2890b39c18",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "57fb28ecf3369a3b2881ba97cdace34ba11c78309503a9838987196ecde86af0",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     },
     {
       "id": "22-01",
       "name": "念珠",
-      "sourceFile": "22-01-念珠-v1.png",
-      "sourceSHA256": "e4b1aa987fedd5180451ec31eb5fe82a1d2a877d8e80f75377b0c63656186032",
+      "sourceFile": "22-01-念珠-transparent.png",
+      "sourceSHA256": "85f37a2c1358c562604aba7695018f98851f2876665eb78df4ca66dde49a455a",
       "sourceSize": [
         1254,
         1254
       ],
       "file": "art/icons/weapon-illustrated/22-01.webp",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
-      "bytes": 9816,
-      "sha256": "30f8f0e306d6f6c382e90a5aa9bf7279b0c3f99186149b0e09c6912ed3684dde"
+      "bytes": 81074,
+      "sha256": "d5afa554283988a29d2fadaeab31db7f224b7dc1e92a30e68fa2a5bd120f4576",
+      "alphaPreservedExactly": true,
+      "originalSHA256": "e4b1aa987fedd5180451ec31eb5fe82a1d2a877d8e80f75377b0c63656186032",
+      "originalRGBPreservedExactly": true,
+      "processingMethod": "local precise alpha-only cutout"
     }
   ]
 }

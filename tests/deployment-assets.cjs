@@ -43,12 +43,20 @@ const illustrated=JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/weapon
 assert.equal(illustrated.generalCount,Object.keys(WEAPON_CATALOG).length);
 assert.equal(illustrated.iconCount,WEAPON_ICON_IDS.length);
 assert.equal(WEAPON_ICON_IDS.length,new Set(WEAPON_ICON_IDS).size);
+assert.equal(illustrated.transparent,true,'Current weapon edition has no paper backgrounds');
+assert.deepEqual(illustrated.compression,{format:'WEBP',height:1024,quality:80,method:6,resampling:'LANCZOS',alphaPreservedExactly:true});
+assert.equal(illustrated.assets.filter(a=>a.originalRGBPreservedExactly===true).length,61,'All unchanged weapons retain their selected original RGB pixels');
 assert.equal(classifyWeaponIcon('沒有此類的名稱'),undefined);
 for(const[id,expected]of Object.entries({liubei:'02-01',guanyu:'05-01',zhangfei:'06-02',gongsunzan:'06-04',zhangxingcai:'07-01',dianwei:'08-04',lvlingqi:'08-03',zhangliao:'09-02',gaoshun:'13-03',huangyueying:'12-01',zhouyu:'15-01',caiwenji:'15-02',zhenji:'15-03',mulu:'17-02',zuoci:'18-01',yuji:'18-02',bulianshi:'18-03',diaochan:'10-06',sunluban:'19-02',liru:'20-01',huatuo:'19-03',yuanshu:'21-01',guanlu:'21-02',pujing:'22-01'}))assert.equal(WEAPON_ICON_BY_GENERAL[id],expected,id);
 const imageHashes=[];
 for(const a of illustrated.assets){
  const b=fs.readFileSync(path.join(__dirname,'../public',a.file));
  assert.equal(b.subarray(8,12).toString(),'WEBP',a.id);
+ assert.equal(b.subarray(12,16).toString(),'VP8X',a.id+' extended WebP header');
+ assert.ok(b[20]&0x10,a.id+' carries a real alpha channel');
+ assert.equal(b.readUIntLE(24,3)+1,a.size[0],a.id+' actual width');
+ assert.equal(b.readUIntLE(27,3)+1,1024,a.id+' full-body-art compression height');
+ assert.equal(a.alphaPreservedExactly,true,a.id);
  const hash=crypto.createHash('sha256').update(b).digest('hex');
  assert.equal(hash,a.sha256,a.id);imageHashes.push(hash);
 }

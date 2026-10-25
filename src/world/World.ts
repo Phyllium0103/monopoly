@@ -7,6 +7,7 @@ import { SelectedTerrain } from './SelectedTerrain';
 import { MapModelPool } from './MapModelPool';
 import { BUILDING_LOTS, CELL_SIZE, cityModelLevel } from '../data/selectedBoard';
 import { MAP_MODELS } from '../data/mapModels';
+import { DISPLAY_FACILITY_LOTS } from '../data/displayFacilities';
 import { animateCity, type CityVisual } from './CityMesh';
 import { ownerColor, ownerName } from '../faction/Faction';
 import { BOARD, TILE_INFO } from '../data/board';
@@ -55,6 +56,7 @@ export class World {
       if (tile.kind !== 'city') this.addSpecial(tile);
       this.addPicker(tile);
     }
+    for (const lot of DISPLAY_FACILITY_LOTS) this.addDisplayFacility(lot);
 
     this.hover = new THREE.Mesh(
       new THREE.RingGeometry(1.3, 1.55, 32),
@@ -94,6 +96,17 @@ export class World {
       box.position.set(lot.pos.x,2.5,lot.pos.z);box.userData={pick:true,tile:tile.index};this.root.add(box);this.pickables.push(box);}
   }
 
+  /** 純展示建築的選取面只用來顯示名稱，不對應任何遊戲事件格。 */
+  private addDisplayFacility(lot: (typeof DISPLAY_FACILITY_LOTS)[number]) {
+    const g=new THREE.Group();g.position.set(lot.pos.x,0,lot.pos.z);this.root.add(g);
+    const el=document.createElement('div');el.className='special-label display-facility-label';
+    el.textContent=lot.name;el.dataset.facility=lot.id;el.hidden=true;
+    const label=new CSS2DObject(el);label.position.set(0,12,0);g.add(label);
+    const box=new THREE.Mesh(new THREE.BoxGeometry(CELL_SIZE*2,5,CELL_SIZE*2),new THREE.MeshBasicMaterial({visible:false}));
+    box.position.set(lot.pos.x,2.5,lot.pos.z);box.userData={pick:true,displayFacility:lot.id};
+    this.root.add(box);this.pickables.push(box);
+  }
+
   setOccupied(indices:number[]) {
     this.terrain.setOccupied(indices);
     for(const [i,g] of this.forkArrows){const plate=g.userData.plate as THREE.Mesh;if(plate)(plate.material as THREE.MeshPhongMaterial).color.setHex(indices.includes(i)?0xa7e8e8:0xffffff);}
@@ -107,12 +120,14 @@ export class World {
       else if (entry.owner !== city.owner) this.rebuildCity(city);
       this.updateLabel(state, city);
     }
-    void this.modelPool.sync(BUILDING_LOTS.flatMap(o=>{
+    const placements=BUILDING_LOTS.flatMap(o=>{
       const city=o.type==='city'?state.cities[o.id]:null;
       const key=(city?`city-${cityModelLevel(city.prosperity)}`:o.type) as keyof typeof MAP_MODELS;
       if(!(key in MAP_MODELS))return [];
       return [{id:o.id,key,x:o.pos.x,z:o.pos.z,rotation:o.rotation,color:city&&city.owner!=='neutral'?ownerColor(city.owner):0xffffff}];
-    }),this.tiles[state.lords[state.order[state.turn]]?.position??-1]?.pos);
+    });
+    const displayPlacements=DISPLAY_FACILITY_LOTS.map(o=>({id:o.id,key:o.type,x:o.pos.x,z:o.pos.z,rotation:o.rotation,color:0xffffff}));
+    void this.modelPool.sync([...placements,...displayPlacements],this.tiles[state.lords[state.order[state.turn]]?.position??-1]?.pos);
   }
 
   private createCity(city: City) {
@@ -156,11 +171,13 @@ export class World {
     e.label.innerHTML = `${city.capital ? '★' : ''}${city.name}<small>${ownerName(city.owner)}</small>${tollText}`;
   }
 
-  setHover(index: number | null) {
+  setHover(index: number | null, displayFacility: string | null = null) {
     if(index!==null&&this.tiles[index].kind==='road')index=null;
     for(const el of this.root.children.flatMap(g=>g.children).filter(o=>o instanceof CSS2DObject)) {
       const element=(el as CSS2DObject).element;
-      if(element.classList.contains('special-label'))element.hidden=!element.dataset.tiles?.split(',').includes(String(index));
+      if(element.classList.contains('special-label'))element.hidden=element.dataset.facility
+        ? element.dataset.facility!==displayFacility
+        : !element.dataset.tiles?.split(',').includes(String(index));
     }
     if (index === null) {
       this.hover.visible = false;

@@ -654,7 +654,7 @@ export class Game {
     if (!this.state) return;
     const tile = this.tileOf(o);
     const road=tile!==null&&this.state.tiles[tile].kind==='road';
-    this.world.setHover(road?null:tile);
+    this.world.setHover(road?null:tile,o?.userData.displayFacility??null);
     if (tile === null || road) {
       this.ui.showTooltip(null);
       return;

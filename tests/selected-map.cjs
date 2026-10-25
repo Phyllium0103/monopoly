@@ -23,7 +23,7 @@ for(const p of [0,19,20,39,40,59,60,79,80,89,90,100,150])assert.ok(cityModelLeve
 const state=createGameState('liu');const lord=state.lords.liu;
 for(let i=0;i<10000;i++){const from=lord.position,next=nextMovementTile(state,lord);assert.ok(state.tiles[from].links.includes(next));lord.position=next;lord.lastTile=from;lord.forkExit=null;enterFork(state,lord,2);}
 const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,'../public/art/map-selected/model-manifest.json'),'utf8'));
-assert.equal(Object.keys(manifest).length,16);
+assert.equal(Object.keys(manifest).length,20);
 const {MAP_MODELS}=require('../src/data/mapModels.ts');
 assert.deepEqual(Object.keys(MAP_MODELS).sort(),Object.keys(manifest).sort());
 for(const lot of BUILDING_LOTS){
@@ -56,4 +56,4 @@ for(const key of ['relic','vein','secret']){
 }
 console.log('PASS actual user layout: 300 connected roads, 33 cities, 47 facilities, 11 loops, no overlapping footprints');
 console.log('PASS all80 buildings have two trigger cells (160 total), event types, prosperity values, four capitals and 10,000 legal movement steps');
-console.log('PASS all16 delivered GLB headers and SHA-256; all80 lots have models, and the three finished facilities carry embedded textures, normals and UVs');
+console.log('PASS all20 delivered GLB headers and SHA-256; all80 event lots have models, and the three finished facilities carry embedded textures, normals and UVs');

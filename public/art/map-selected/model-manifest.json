@@ -145,5 +145,49 @@
     "visualApproved": true,
     "original": "art-src/map-models/secret-v18.glb",
     "originalSha256": "f5a0ccf42544a19b8211e20dfd298e6c4c32242d7fd9e2e780446c568fbcf9fd"
+  },
+  "martial": {
+    "url": "/art/map-selected/martial-v23-user-accepted.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\four-facilities-blender-20261024\\martial-r2\\models\\martial-v23-user-accepted.glb",
+    "version": "v23-user-accepted",
+    "name": "淬體武院",
+    "status": "display_only",
+    "visualApproved": true,
+    "original": "art-src/map-models/martial-v23-user-accepted.glb",
+    "originalSha256": "aeac591b1f86d6f7398941103ef266f4e2e7b43336dc7c3b8f4543f8be1669c5",
+    "sha256": "c5f46216270dcacd1f3ad74a5d0ca451406e9ff99a1fa8eb078f8f004c0064c8"
+  },
+  "arts": {
+    "url": "/art/map-selected/arts-r6-v24.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\four-facilities-blender-20261024\\arts-r6\\models\\arts-r6-r6-v24-review.glb",
+    "version": "r6-v24",
+    "name": "四藝道院",
+    "status": "display_only",
+    "visualApproved": false,
+    "original": "art-src/map-models/arts-r6-v24.glb",
+    "originalSha256": "25cb3190ef0a36346c0c7a0696907238844c31643265d4b388246e2641e90368",
+    "sha256": "9d48b46907714182d3fb66e4996ff95c67db9e060346e51e3b4826be92fdae14"
+  },
+  "appraisal": {
+    "url": "/art/map-selected/appraisal-v50.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\four-facilities-blender-20261024\\appraisal\\models\\appraisal-v50-review.glb",
+    "version": "v50",
+    "name": "萬寶鑑定所",
+    "status": "display_only",
+    "visualApproved": false,
+    "original": "art-src/map-models/appraisal-v50.glb",
+    "originalSha256": "2fc37e51ffb8933b4e9c0c0e4d2ac8b4e2be540200103e80c84c248adfe56800",
+    "sha256": "a80eea20f31cbc6658660cdff8a015dbb18977b1a6e3d3e05d389e8fc9d72fb1"
+  },
+  "ghost": {
+    "url": "/art/map-selected/ghost-stack-v13.glb",
+    "source": "C:\\Users\\User\\Documents\\Codex\\2026-10-07\\new-chat\\outputs\\four-facilities-blender-20261024\\ghost-stack-r5\\models\\ghost-stack-r5-stack-v13-review.glb",
+    "version": "stack-v13",
+    "name": "鬼市",
+    "status": "display_only",
+    "visualApproved": false,
+    "original": "art-src/map-models/ghost-stack-v13.glb",
+    "originalSha256": "053f3b79cb55fe6d0142a91b7a5f688469aa3805211dbdbecaf25c2b842c8644",
+    "sha256": "84027c46002f30ef44e895fbb0810fae9605ac4e79edfabc728b31377afe3287"
   }
 }

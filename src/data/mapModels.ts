@@ -16,5 +16,9 @@ export const MAP_MODELS = {
   "city-6": assetUrl("/art/map-selected/city-6.glb?v=8a6a31e4d3cf"),
   "relic": assetUrl("/art/map-selected/relic-v20.glb?v=3be61a02b355"),
   "vein": assetUrl("/art/map-selected/vein-v27.glb?v=a17f6f2d3864"),
-  "secret": assetUrl("/art/map-selected/secret-v18.glb?v=02f0c4a1147f")
+  "secret": assetUrl("/art/map-selected/secret-v18.glb?v=02f0c4a1147f"),
+  "martial": assetUrl("/art/map-selected/martial-v23-user-accepted.glb?v=c5f46216270d"),
+  "arts": assetUrl("/art/map-selected/arts-r6-v24.glb?v=9d48b4690771"),
+  "appraisal": assetUrl("/art/map-selected/appraisal-v50.glb?v=a80eea20f31c"),
+  "ghost": assetUrl("/art/map-selected/ghost-stack-v13.glb?v=84027c46002f")
 } as const;

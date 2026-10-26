@@ -2,7 +2,8 @@ import { assetUrl } from '../data/assetUrl';
 import { forkDirection } from '../data/mapView';
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-import type { City, GameState, Tile, Vec2 } from '../game/types';
+import type { City, ElementalSpirit, GameState, Tile, Vec2 } from '../game/types';
+import { ElementalSpiritLayer } from './ElementalSpirits';
 import { SelectedTerrain } from './SelectedTerrain';
 import { MapModelPool } from './MapModelPool';
 import { BUILDING_LOTS, CELL_SIZE, cityModelLevel } from '../data/selectedBoard';
@@ -37,6 +38,7 @@ export class World {
   private hover: THREE.Mesh;
   private time = 0;
   private eventMarkers: THREE.Group[] = [];
+  private spirits = new ElementalSpiritLayer(index => this.tilePosition(index));
   private facing = new Map<string, THREE.Group>();
   private roadArrows=Object.fromEntries(['north','east','south','west'].map(d=>{const t=new THREE.TextureLoader().load(assetUrl(`art/map-selected/road-arrow-${d}.png`));t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return[d,t];}));
   private forkArrows = new Map<number, THREE.Group>();
@@ -47,6 +49,7 @@ export class World {
     private invalidateShadows:()=>void,
   ) {
     scene.add(this.root);
+    this.root.add(this.spirits.group);
     this.terrain = new SelectedTerrain();
     this.root.add(this.modelPool.group);
     this.root.add(this.terrain.group);
@@ -70,6 +73,9 @@ export class World {
   ground(x: number, z: number) {
     return Math.max(this.terrain.heightAt(x, z), 0);
   }
+
+  syncSpirits(spirits: readonly ElementalSpirit[]) { this.spirits.sync(spirits); }
+  clearSpirits() { this.spirits.clear(); }
 
   tilePosition(index: number): THREE.Vector3 {
     const p = this.tiles[index].pos;
@@ -366,6 +372,7 @@ export class World {
   }
 
   update(dt: number) {
+    this.spirits.update();
     this.time += dt;
     for (const m of this.eventMarkers) {
       const flag = m.children.find((c) => c.userData.wave);

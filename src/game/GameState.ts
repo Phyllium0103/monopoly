@@ -156,6 +156,9 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     merchantTile: null,
     banditTiles: [],
     favoredElement: null,
+    elementalSpirits: [],
+    elementalSpiritSpawnRound: 0,
+    mapOccupants: [],
   };
   bindPassiveState(state);
   for (const g of Object.values(generals)) if (g.owner && fx(g).fixedParty) joinLord(state,g.owner,g);

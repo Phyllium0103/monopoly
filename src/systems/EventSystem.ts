@@ -9,6 +9,7 @@ import { LORDS } from '../faction/Faction';
 import { fmtStones } from '../game/Currency';
 import type { Offer } from './ShopSystem';
 import { WORLD } from './WorldMods';
+import { occupiedMapTiles } from './ElementalSpiritSystem';
 
 export { WORLD };
 
@@ -126,7 +127,9 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
   const alive = aliveLords(state);
   switch (def.id) {
     case 'merchant': {
-      const candidates = state.tiles.filter((t) => t.kind === 'road' || t.kind === 'city');
+      const occupied = occupiedMapTiles(state);
+      const candidates = state.tiles.filter((t) => (t.kind === 'road' || t.kind === 'city') && !occupied.has(t.index));
+      if (!candidates.length) break;
       const tile = candidates[Math.floor(Math.random() * candidates.length)];
       state.merchantTile = tile.index;
       lines.push(`商隊落腳於「${tile.name}」，第一位走到那裡的主公可以向他們買東西。`);
@@ -199,7 +202,7 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
       break;
     }
     case 'bandits': {
-      const occupied = new Set(alive.map((l) => l.position));
+      const occupied = occupiedMapTiles(state);
       state.banditTiles = shuffle(state.tiles.filter((t) => t.kind === 'road' && !occupied.has(t.index)).map((t) => t.index)).slice(0, 4);
       lines.push(`賊窩出現在 ${state.banditTiles.map((i) => state.tiles[i].name + `（第 ${i} 格）`).join('、')}。`);
       break;

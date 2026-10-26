@@ -1,4 +1,4 @@
-import type { LordId } from '../game/types';
+import type { ElementalSpirit, LordId } from '../game/types';
 import type { ContestResult, DuelEvent, SiegeResult } from '../systems/BattleSystem';
 import type { TribulationResult } from '../systems/GeneralSystem';
 import type { CasinoResult } from '../systems/CasinoSystem';
@@ -18,6 +18,7 @@ export interface EngineView {
   refresh(): void;
   syncCities(): void;
   setEventMarkers(): void;
+  syncSpirits(spirits: ElementalSpirit[]): void;
   beam(lord: LordId, color?: number): void;
   capture(tile: number, lord: LordId): void;
   /** 輪到某位主公：鏡頭對準 */
@@ -63,6 +64,7 @@ export class RecordingView implements EngineView {
   refresh() {}
   syncCities() { this.push({ t: 'syncCities', a: [] }); }
   setEventMarkers() { this.push({ t: 'setEventMarkers', a: [] }); }
+  syncSpirits(...a: Parameters<EngineView['syncSpirits']>) { this.push({ t: 'syncSpirits', a }); }
   beam(...a: Parameters<EngineView['beam']>) { this.push({ t: 'beam', a }); }
   capture(...a: Parameters<EngineView['capture']>) { this.push({ t: 'capture', a }); }
   focusTurn(...a: Parameters<EngineView['focusTurn']>) { this.push({ t: 'focusTurn', a }); }

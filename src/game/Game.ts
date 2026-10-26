@@ -193,6 +193,7 @@ export class Game {
 
   /** 清掉上一局的引擎、視窗與棋子 */
   private reset() {
+    this.world.clearSpirits();
     this.token++;
     this.engine?.stop();
     this.engine = null;
@@ -218,6 +219,7 @@ export class Game {
     bindPassiveState(state);
     this.world.clearHighlights();
     this.world.setEventMarkers(state.merchantTile, state.banditTiles);
+    this.world.syncSpirits(state.elementalSpirits ?? []);
     this.world.syncCities(state);
     for (const s of this.sprites.values()) s.dispose();
     this.sprites.clear();
@@ -274,6 +276,8 @@ export class Game {
     }
     this.world.syncCities(state);
     this.world.setEventMarkers(state.merchantTile, state.banditTiles);
+    // During replay, the syncSpirits event follows the final landing instead.
+    if (placeSprites) this.world.syncSpirits(state.elementalSpirits ?? []);
     this.generalsView.refresh(state, state.lords[this.me]);
     this.refresh();
   }
@@ -334,6 +338,7 @@ export class Game {
       refresh: () => this.refresh(),
       syncCities: () => this.world.syncCities(this.state),
       setEventMarkers: () => this.world.setEventMarkers(this.state.merchantTile, this.state.banditTiles),
+      syncSpirits: spirits => this.world.syncSpirits(spirits),
       beam: (lord: LordId, color?: number) => this.world.beamEffect(sprite(lord).group.position, color),
       capture: (tile: number, lord: LordId) => this.world.captureEffect(tile, LORDS[lord].color),
       focusTurn: (lord: LordId) => {

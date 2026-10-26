@@ -1,4 +1,5 @@
 import { enterRelic, advanceRelic, leaveRelic } from '../systems/RelicSystem';
+import { collectElementalSpirits, reconcileElementalSpirits, spawnElementalSpirits } from '../systems/ElementalSpiritSystem';
 import { MATERIAL_GROUPS, MATERIAL_NAMES, WEAPON_CATALOG, WEAPON_GRADES, WEAPON_PENETRATION, type MaterialGroup } from '../data/weaponCatalog';
 import { materialIncome, materialsText, synthesize, upgradeRequirement, upgradeWeapon } from '../systems/MaterialSystem';
 import { tournamentBracket, tournamentWinner, grantTournamentPrize } from '../systems/TournamentSystem';
@@ -130,6 +131,9 @@ export class Engine {
       this.view.log(`── 第 ${this.state.round} 輪 ──`, 'turn');
       await this.newRoundEvents();
       if (this.stopped || this.state.over) return false;
+      reconcileElementalSpirits(this.state);
+      spawnElementalSpirits(this.state);
+      this.view.syncSpirits(this.state.elementalSpirits ?? []);
     }
     return true;
   }
@@ -161,6 +165,7 @@ export class Engine {
   // ───────────────────────── 回合 ─────────────────────────
 
   private async takeTurn(lord: Lord) {
+    if (reconcileElementalSpirits(this.state)) this.view.syncSpirits(this.state.elementalSpirits ?? []);
     const name = LORDS[lord.id].name;
     this.view.focusTurn(lord.id);
     this.view.refresh();
@@ -427,6 +432,7 @@ export class Engine {
   private async land(lord: Lord, tile: number) {
     await this.wait(0);
     if (this.state.over) return;
+    if (collectElementalSpirits(this.state, tile)) this.view.syncSpirits(this.state.elementalSpirits ?? []);
     const t = this.state.tiles[tile];
     this.view.refresh();
     if (tile === this.state.merchantTile) {
@@ -1616,6 +1622,7 @@ export class Engine {
     const def = pickWorldEvent(this.state);
     const before = new Map(LORD_IDS.map((id) => [id, this.state.lords[id].position]));
     const lines = applyWorldEvent(this.state, def);
+    if (reconcileElementalSpirits(this.state)) this.view.syncSpirits(this.state.elementalSpirits ?? []);
     this.view.log(`【九州風雲】${def.icon} ${def.name}：${def.desc}`, 'turn');
     for (const l of lines) this.view.log(l, 'info');
     this.view.toast(`九州風雲・${def.icon} ${def.name}`);

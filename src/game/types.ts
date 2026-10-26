@@ -230,6 +230,12 @@ export interface Tile {
 }
 
 export interface GameState {
+  /** 地圖蒐集精靈；舊快照缺省時視為空陣列。 */
+  elementalSpirits?: ElementalSpirit[];
+  /** 已處理的五輪生成批次（以完成的整輪數計算）。 */
+  elementalSpiritSpawnRound?: number;
+  /** 新增地圖物件時登記佔用格，精靈與事件標記共用避讓。 */
+  mapOccupants?: { id: string; tiles: number[] }[];
   rulesVersion?: string;
   round: number;
   /** 最大回合數；null 為無盡模式（直到只剩一位主公沒破產） */
@@ -261,4 +267,11 @@ export interface ActiveEvent {
   name: string;
   icon: string;
   roundsLeft: number;
+}
+
+export interface ElementalSpirit {
+  id: string;
+  element: Element;
+  tile: number;
+  bornRound: number;
 }

@@ -70,6 +70,13 @@ export class ElementalSpiritLayer {
     this.update(now);
   }
 
+  playAtTile(tile: number, now = performance.now()): boolean {
+    const entry = [...this.entries.values()].find(e => e.spirit.tile === tile);
+    if (!entry || !entry.clock.trigger(now)) return false;
+    this.update(now);
+    return true;
+  }
+
   update(now = performance.now()) {
     for (const entry of this.entries.values()) {
       const pose = entry.clock.sample(now), key = pose.action === null ? 'idle' : pose.action + ':' + pose.frame;

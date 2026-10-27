@@ -1,6 +1,6 @@
 import type { Lord } from '../game/types';
 
-/** 地圖正中、不與道路相連，經由傳送陣或指定傳送抵達的賭場 */
+/** 道路旁的骰殿，離開時留在原格。 */
 export const CASINO_NAME = '乾坤骰閣';
 
 /** 最低賭注：1 中品 */

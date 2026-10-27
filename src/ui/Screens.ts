@@ -1,5 +1,5 @@
 import type { GameState, LordId } from '../game/types';
-import { materialsText } from '../systems/MaterialSystem';
+import { materialsHtml } from './MaterialArt';
 import { LORDS, LORD_IDS } from '../faction/Faction';
 import { GENERAL_SEEDS } from '../data/generals';
 import { citiesOf, generalsOf } from '../game/GameState';
@@ -174,7 +174,7 @@ function assetDetails(state: GameState, id: LordId, me: LordId): string {
     ${list('丹藥、陣法、符籙與法器', lord.items.map(i => row(`${nameOf(i)}`, i.price * .5)))}
     ${list('行囊寶衣', lord.gear.map(i => row(i.name, i.price * .5)))}
     ${list('功法秘笈', lord.scrolls.map(i => row(i.name, i.price * .5)))}
-    <h4>升階材料（不計入靈石估值）</h4><p>${materialsText(lord)}</p>
+    <h4>升階材料（不計入靈石估值）</h4>${materialsHtml(lord)}
     ${list('靈獸', lord.beast ? [row(lord.beast.name, lord.beast.price * .5)] : [])}
   </details>`;
 }

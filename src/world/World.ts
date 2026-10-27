@@ -75,6 +75,7 @@ export class World {
   }
 
   syncSpirits(spirits: readonly ElementalSpirit[]) { this.spirits.sync(spirits); }
+  animateSpiritAtTile(tile: number) { return this.spirits.playAtTile(tile); }
   clearSpirits() { this.spirits.clear(); }
 
   tilePosition(index: number): THREE.Vector3 {

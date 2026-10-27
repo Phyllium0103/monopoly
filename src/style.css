@@ -2867,3 +2867,12 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
   .roster-list { --roster-cols: 36px minmax(0, 1fr) 66px 46px 12px; }
   .roster-list .c-st { display: none; }
 }
+.material-label { display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; line-height: 1.35; }
+.material-icon { width: 32px; height: 32px; object-fit: contain; flex: 0 0 32px; vertical-align: middle; }
+.materials-grid { display: grid; gap: 8px; }
+.material-family { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.material-quantity { display: flex; flex-direction: column; gap: 2px; font-size: 12px; }
+.material-quantity > b { padding-left: 37px; color: inherit; }
+.weapon-material-cost { grid-column: 1 / -1; font-size: 11px; color: #cbbf9d; }
+.weapon-material-cost .material-icon { width: 24px; height: 24px; flex-basis: 24px; }
+@media (max-width: 600px) { .material-family { grid-template-columns: 1fr; } .material-quantity { flex-direction: row; align-items: center; justify-content: space-between; } .material-quantity > b { padding-left: 0; } }

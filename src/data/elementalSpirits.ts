@@ -3,7 +3,6 @@ import type { Element } from '../game/types';
 
 // Generated from the reviewed 08 sprites by scripts/import-elemental-spirits.mjs.
 export const SPIRIT_ICON_SIZE = 80;
-export const SPIRIT_IDLE_INTERVAL_MS = 30_000;
 export interface SpiritAnimationAsset { letter: string; url: string; columns: number; rows: number; frames: number; durationsMs: readonly number[]; }
 export interface SpiritArt { idle: string; center: { x: number; y: number }; foot: { x: number; y: number }; actions: readonly SpiritAnimationAsset[]; }
 const sources = {

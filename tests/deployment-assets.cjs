@@ -77,5 +77,6 @@ for(const[key,[offset,length]]of Object.entries(pack)){
 }
 assert.equal(end,bin.length);
 for(const id of WEAPON_ICON_IDS)assert.ok(pack[`icons/weapon-illustrated/${id}`],id);
+for(const a of JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/material-icon-assets.json'),'utf8')).assets)assert.ok(pack[a.file.replace(/^art\//,'').replace(/\.webp$/,'')],a.name);
 assert.ok(Object.keys(pack).every(k=>!k.startsWith('icons/兵器/')));
 console.log(`PASS ${Object.keys(WEAPON_CATALOG).length} generals / 700 grade-specific weapon names use ${WEAPON_ICON_IDS.length} distinct reviewed illustrations; precise subtypes, GitHub Pages URLs and packed bytes verified`);

@@ -7,7 +7,7 @@ registerHooks({
 });
 const {createGameState}=require('../src/game/GameState.ts');
 const {spawnElementalSpirits,collectElementalSpirits,reconcileElementalSpirits,occupiedMapTiles,SPIRIT_CAP}=require('../src/systems/ElementalSpiritSystem.ts');
-const {ELEMENTAL_SPIRIT_ART,SPIRIT_ICON_SIZE,SPIRIT_IDLE_INTERVAL_MS}=require('../src/data/elementalSpirits.ts');
+const {ELEMENTAL_SPIRIT_ART,SPIRIT_ICON_SIZE}=require('../src/data/elementalSpirits.ts');
 const {SpiritAnimationClock}=require('../src/world/SpiritAnimation.ts');
 const {Engine}=require('../src/engine/Engine.ts'),{RecordingView}=require('../src/engine/view.ts');
 const {applyWorldEvent,eventDef}=require('../src/systems/EventSystem.ts');
@@ -114,22 +114,29 @@ let passed=0;async function test(name,run){await run();console.log('PASS '+name)
   const sync=a.events.find(e=>e.t==='syncSpirits'&&e.a[0].length===3);assert.ok(sync);
   const original=structuredClone(sync.a[0]);a.state.elementalSpirits.splice(0);assert.deepEqual(sync.a[0],original);
  });
- await test('Idle 30 real seconds, play one of four animations once, then freeze; no catch-up bursts',()=>{
-  assert.equal(SPIRIT_ICON_SIZE,80);assert.equal(SPIRIT_IDLE_INTERVAL_MS,30000);
+ await test('Idle indefinitely, click to play once; repeated clicks neither restart nor queue an action',()=>{
+  assert.equal(SPIRIT_ICON_SIZE,80);
   const actions=ELEMENTAL_SPIRIT_ART.metal.actions;let draws=0;
   const clock=new SpiritAnimationClock(1000,actions,()=>{draws++;return .6});
-  assert.deepEqual(clock.sample(30999),{action:null,frame:0});
+  assert.deepEqual(clock.sample(31000),{action:null,frame:0});assert.equal(draws,0);
+  assert.equal(clock.trigger(31000),true);
   assert.deepEqual(clock.sample(31000),{action:2,frame:0});assert.equal(draws,1);
+  assert.equal(clock.trigger(31001),false);assert.equal(draws,1);
   assert.equal(clock.sample(31000+actions[2].durationsMs[0]).frame,1);
   const duration=actions[2].durationsMs.reduce((a,b)=>a+b,0);
+  assert.equal(clock.trigger(31000+duration-1),false);assert.equal(draws,1);
   assert.deepEqual(clock.sample(31000+duration),{action:null,frame:0});assert.equal(draws,1);
-  assert.equal(clock.sample(61000).action,2);assert.equal(draws,2);
-  assert.equal(clock.sample(500000).action,2);assert.equal(draws,3);
-  assert.equal(clock.sample(500001).action,2);assert.equal(draws,3);
+  assert.deepEqual(clock.sample(500000),{action:null,frame:0});assert.equal(draws,1);
+  assert.equal(clock.trigger(500000),true);assert.equal(draws,2);
+  assert.equal(clock.sample(500001).action,2);
+  assert.deepEqual(clock.sample(999999),{action:null,frame:0});assert.equal(draws,2);
+  // At the exact end a click may start a fresh action, even without an intervening render.
+  assert.equal(clock.trigger(999999),true);assert.equal(clock.trigger(999999+duration),true);assert.equal(draws,4);
+  const empty=new SpiritAnimationClock(0,[],()=>{throw Error('no actions')});assert.equal(empty.trigger(100),false);
  });
  await test('Visual animation never consumes Math.random used by the deterministic game simulation',()=>{
   const original=Math.random;try{Math.random=()=>{throw Error('visual touched authoritative RNG')};
-   const clock=new SpiritAnimationClock(0,ELEMENTAL_SPIRIT_ART.fire.actions);assert.notEqual(clock.sample(30000).action,null);
+   const clock=new SpiritAnimationClock(0,ELEMENTAL_SPIRIT_ART.fire.actions);assert.equal(clock.trigger(30000),true);assert.notEqual(clock.sample(30000).action,null);
   }finally{Math.random=original}
  });
  await test('World sprites scale with roads at all zoom levels and keep resting feet at the road-cell centre',()=>{
@@ -172,7 +179,15 @@ let passed=0;async function test(name,run){await run();console.log('PASS '+name)
      if(i===0){if(previousZoom)assert.ok(Math.abs(width/previousHeight-zoom/previousZoom)<1e-10);previousHeight=width;previousZoom=zoom}
     }
    }
-   layer.clear();assert.equal(layer.group.children.length,0);
+   assert.equal(layer.playAtTile(999,0),false);
+   const duration=Math.max(...Object.values(ELEMENTAL_SPIRIT_ART).flatMap(a=>a.actions.map(x=>x.durationsMs.reduce((n,v)=>n+v,0))));
+   layer.update(100000);assert.ok([...layer.entries.values()].every(e=>e.canvas.dataset.animation==='idle'));
+   assert.equal(layer.playAtTile(2,100000),true);assert.equal(layer.playAtTile(2,100001),false);
+   assert.notEqual([...layer.entries.values()][2].canvas.dataset.animation,'idle');
+   assert.ok([...layer.entries.values()].filter((_,i)=>i!==2).every(e=>e.canvas.dataset.animation==='idle'));
+   layer.update(100000+duration);assert.ok([...layer.entries.values()].every(e=>e.canvas.dataset.animation==='idle'));
+   assert.equal(layer.playAtTile(2,100000+duration),true);
+   layer.clear();assert.equal(layer.group.children.length,0);assert.equal(layer.playAtTile(2,200000),false);
   }finally{global.document=savedDocument;global.Image=savedImage}
  });
  await test('25 compressed transparent WebPs, four 16-frame atlases per element, exact file SHA and Pages URLs',()=>{

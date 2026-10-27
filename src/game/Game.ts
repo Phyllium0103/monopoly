@@ -1,5 +1,6 @@
 import { RelicMap } from '../ui/RelicMap';
-import { MATERIAL_GROUPS, MATERIAL_NAMES } from '../data/weaponCatalog';
+import { MATERIAL_GROUPS } from '../data/weaponCatalog';
+import { materialLabel } from '../ui/MaterialArt';
 import { materialIncome } from '../systems/MaterialSystem';
 import { abilityReady, abilityUsers } from '../systems/GeneralAbilities';
 import { sectDispatchFee } from '../systems/SectSystem';
@@ -650,6 +651,7 @@ export class Game {
       else this.answer(tile);
       return;
     }
+    if (this.world.animateSpiritAtTile(tile)) return;
     if(this.state.tiles[tile].kind==='road')return;
     this.hoverTile = tile;
     this.refresh();
@@ -698,7 +700,7 @@ export class Game {
         <tr><td>繁榮度</td><td title="全圖第 ${ranks.prosperity} / ${Object.keys(this.state.cities).length} 名">${fmtProsperity(c.prosperity)}<small class="terrain-fx">第 ${ranks.prosperity} 名</small></td></tr>
         <tr><td>過路費</td><td>${c.owner === 'neutral' ? `佔領後約 ${fmtStones(toll(c))}` : fmtStones(cityToll(this.state, c))}</td></tr>
         <tr><td>每回合</td><td title="${RANK_METRICS.filter((m) => m.id === 'stones' || m.id === 'soldiers').map((m) => `${m.name}第 ${ranks[m.id]} 名`).join('・')}">${fmtStones(inc.stones)}・兵 +${inc.soldiers}</td></tr>
-        <tr><td>挖掘</td><td>${c.mining ? `${MATERIAL_NAMES[c.mining][0]}・每個自身回合 ${materialIncome(c)} 顆` : '佔領時指定基礎材料'}</td></tr>
+        <tr><td>挖掘</td><td>${c.mining ? `${materialLabel(c.mining, 0)}・每個自身回合 ${materialIncome(c)} 顆` : '佔領時指定基礎材料'}</td></tr>
         <tr><td>駐將</td><td>${gens.length ? gens.map((g) => `${g.name} ${realmTag(g.realm)} 戰力 ${power(g)}`).join('<br>') : '無'}</td></tr>
         <tr><td>比試</td><td>擂台戰（固定）＋${STAT_NAMES[c.contest]}比試</td></tr>
         <tr><td>守軍</td><td>${c.garrisonSoldiers}${c.shieldTurns ? `・護城大陣 ${c.shieldTurns}` : ''}</td></tr>

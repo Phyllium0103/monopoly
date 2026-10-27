@@ -1,6 +1,6 @@
 import type { GameState, General, LordId } from '../game/types';
-import { MATERIAL_NAMES } from '../data/weaponCatalog';
-import { materialIncome, materialsText } from '../systems/MaterialSystem';
+import { materialIncome } from '../systems/MaterialSystem';
+import { materialLabel, materialsHtml } from './MaterialArt';
 import { LORDS, LORD_IDS } from '../faction/Faction';
 import { realmTag } from './GeneralInfo';
 import { passiveOf } from '../data/passives';
@@ -58,7 +58,7 @@ export class LordView {
       .map((c) => {
         const inc = cityIncomeOf(state, c);
         const guards = garrisonOf(state, c);
-        return `<tr><td><b>${c.capital ? '★ ' : ''}${c.name}</b></td><td>${fmtProsperity(c.prosperity)}</td><td>${fmtStones(inc.stones, true)}・兵 +${inc.soldiers}<br>${c.mining ? MATERIAL_NAMES[c.mining][0] : '待指定'} +${materialIncome(c)} 顆</td><td>${c.garrisonSoldiers}</td><td>${guards.map((g) => g.name).join('、') || '—'}</td><td>${garrisonPower(state, c)}</td><td>${fmtStones(cityToll(state, c), true)}</td><td>擂台戰＋${STAT_NAMES[c.contest]}比試</td></tr>`;
+        return `<tr><td><b>${c.capital ? '★ ' : ''}${c.name}</b></td><td>${fmtProsperity(c.prosperity)}</td><td>${fmtStones(inc.stones, true)}・兵 +${inc.soldiers}<br>${c.mining ? materialLabel(c.mining, 0) : '待指定'} +${materialIncome(c)} 顆</td><td>${c.garrisonSoldiers}</td><td>${guards.map((g) => g.name).join('、') || '—'}</td><td>${garrisonPower(state, c)}</td><td>${fmtStones(cityToll(state, c), true)}</td><td>擂台戰＋${STAT_NAMES[c.contest]}比試</td></tr>`;
       })
       .join('');
 
@@ -84,7 +84,7 @@ export class LordView {
             <table class="terrain-table"><tr><th>靈石</th><th>士兵</th><th>城池</th><th>武將</th><th>總資產</th><th>所在</th><th>面向</th></tr>
               <tr><td>${fmtStones(lord.stones)}</td><td>${lord.soldiers}</td><td>${assets.cities} 座</td><td>${assets.generals} 名</td><td>${fmtStones(assets.total, true)}</td><td>${here.name}</td><td>${this.facingText?.(id) ?? '—'}</td></tr></table>
             <p>行囊：${bag}｜行囊寶衣 ${lord.gear.length} 件｜功法 ${lord.scrolls.length} 本｜靈獸：${lord.beast ? lord.beast.name : '無'}${lord.expeditions.length ? `｜秘境探索中 ${lord.expeditions.length} 隊` : ''}</p>
-            <h4>升階材料</h4><p>${materialsText(lord)}</p>
+            <h4>升階材料</h4>${materialsHtml(lord)}
             <h4>城池（${assets.cities}）</h4>
             <table class="terrain-table rank-detail"><tr><th>城池</th><th>繁榮</th><th>每回合收入</th><th>守軍</th><th>駐將</th><th>守城戰力</th><th>過路費</th><th>擂台與比試</th></tr>${cities || '<tr><td colspan="8">沒有城池</td></tr>'}</table>
             <h4>武將（${assets.generals}）</h4>

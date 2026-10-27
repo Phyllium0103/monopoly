@@ -1,7 +1,8 @@
 import { enterRelic, advanceRelic, leaveRelic } from '../systems/RelicSystem';
 import { collectElementalSpirits, reconcileElementalSpirits, spawnElementalSpirits } from '../systems/ElementalSpiritSystem';
 import { MATERIAL_GROUPS, MATERIAL_NAMES, WEAPON_CATALOG, WEAPON_GRADES, WEAPON_PENETRATION, type MaterialGroup } from '../data/weaponCatalog';
-import { materialIncome, materialsText, synthesize, upgradeRequirement, upgradeWeapon } from '../systems/MaterialSystem';
+import { materialIncome, synthesize, upgradeRequirement, upgradeWeapon } from '../systems/MaterialSystem';
+import { materialLabel, materialsHtml } from '../ui/MaterialArt';
 import { tournamentBracket, tournamentWinner, grantTournamentPrize } from '../systems/TournamentSystem';
 import { abilityUsers, abilityReady, abilityTargets, useGeneralAbility, seclusionUser, startSeclusion, itemBlockUser, triggerItemBlock } from '../systems/GeneralAbilities';
 import { sectDispatchFee, sectTransferRequirement, transferSectGeneral } from '../systems/SectSystem';
@@ -397,14 +398,12 @@ export class Engine {
     await this.land(lord, tile);
   }
 
-  /** 隨機傳送的落點：不含傳送陣、乾坤骰閣與目前所在格 */
-  private randomDestination(here: number) {
-    const dests = this.state.tiles.filter((t) => t.kind !== 'portal' && t.kind !== 'casino' && t.index !== here);
-    return dests[Math.floor(Math.random() * dests.length)];
-  }
-
   /** 進入山河圖：外圈16格試煉，完成後返回原入口。 */
   private async landPortal(lord: Lord) {
+    if (lord.relicJourney) return;
+    if (this.human(lord) && !await this.dlg(lord).confirm('進入山河社稷圖？',
+      '可選擇留在大地圖。進入後須走滿外圈16格才可返回原入口，圖內不能使用道具，每格都會觸發吉凶。',
+      '進入試煉', '暫不進入', '▧')) return;
     if(!enterRelic(lord))return;
     this.view.log(`${LORDS[lord.id].name}進入山河社稷圖：外圈16格，中央留空，禁用道具，完成一圈才能離開。`,'info');
     await this.view.relic(lord.id,0,true,lord.relicJourney!.lastResult);this.view.refresh();
@@ -1135,12 +1134,7 @@ export class Engine {
       this.view.log(`${LORDS[lord.id].name}在${CASINO_NAME}押 ${fmtStones(r.bet)}：莊家 ${diceTotal(r.dealer)} 點、自己 ${diceTotal(r.player)} 點${r.outcome === 'triple' ? '（豹子）' : ''}，${tail}。`, human ? (r.net >= 0 ? 'good' : 'bad') : 'ai');
     } else if (!human) this.view.log(`${LORDS[lord.id].name}在${CASINO_NAME}沒有下注。`, 'ai');
     this.view.refresh();
-    // 離開後被隨機送往地圖其他地點，並觸發該地事件
-    if (this.state.over || !lord.alive) return;
-    const dest = this.randomDestination(lord.position);
-    this.view.log(`${LORDS[lord.id].name}離開${CASINO_NAME}，被送到「${dest.name}」。`, human ? 'good' : 'ai');
-    if (human) this.view.toast(`離開${CASINO_NAME}，被送到「${dest.name}」`, lord.id);
-    await this.teleport(lord, dest.index);
+    // 留在原道路格，保留來路與出口；下回合照常擲骰離開。
   }
 
   private async landShop(lord: Lord, kind: ShopKind) {
@@ -1486,7 +1480,7 @@ export class Engine {
     let group = await this.dlg(lord).choose<MaterialGroup>(
       `${city.name}・挖掘材料`,
       `每個自身回合收入 ${materialIncome(city)} 顆。選擇此城挖掘的材料。`,
-      MATERIAL_GROUPS.map(k => ({ label: MATERIAL_NAMES[k][0] + (city.mining === k ? '（目前）' : ''), value: k })),
+      MATERIAL_GROUPS.map(k => ({ label: materialLabel(k, 0) + (city.mining === k ? '（目前）' : ''), value: k })),
       required ? null : '返回調度', '⛏️',
     );
     // 必選卻沒有有效回答（斷線代打）：沿用第一種材料
@@ -1501,16 +1495,16 @@ export class Engine {
     for (;;) {
       const selected = await this.dlg(lord).choose(
         '⛏️ 材料與合成',
-        materialsText(lord) + '<br><br>城池挖掘提供基礎材料；更換種類請使用「調度駐軍」。每 10 顆合成下一階 1 顆；武器在「武將」名冊升階。',
+        materialsHtml(lord) + '<br>城池挖掘提供基礎材料；更換種類請使用「調度駐軍」。每 10 顆合成下一階 1 顆；武器在「武將」名冊升階。',
         MATERIAL_GROUPS.flatMap(group => [0, 1].map(stage => ({
-          label: `${MATERIAL_NAMES[group][stage]} → ${MATERIAL_NAMES[group][stage + 1]}`,
+          label: `${materialLabel(group, stage)} → ${materialLabel(group, stage + 1)}`,
           sub: `10：1・可合成 ${Math.floor(lord.materials[group][stage] / 10)} 顆`,
           disabled: lord.materials[group][stage] < 10, reason: '材料不足 10 顆', value: { group, stage },
         }))), '關閉', '⛏️',
       );
       if (!selected) return;
       const { group, stage } = selected;
-      const count = await this.dlg(lord).slider('合成多少顆？', `每顆消耗 10 顆${MATERIAL_NAMES[group][stage]}，獲得${MATERIAL_NAMES[group][stage + 1]}。`, {
+      const count = await this.dlg(lord).slider('合成多少顆？', `每顆消耗 10 顆${materialLabel(group, stage)}，獲得${materialLabel(group, stage + 1)}。`, {
         min: 1, max: Math.floor(lord.materials[group][stage] / 10), step: 1, initial: 1, unit: ' 顆', confirm: '合成',
         preview: n => `消耗 ${n * 10} 顆，獲得 ${n} 顆；剩餘 ${lord.materials[group][stage] - n * 10} 顆原材料。`,
       }, '⛏️');
@@ -1544,7 +1538,7 @@ export class Engine {
         const action = await this.dlg(lord).choose(`調度${city.name}`, `${fee === 0 ? '免費調度' : `已付費 ${fmtStones(fee)}`}・本次操作不再收費。守軍 ${city.garrisonSoldiers}・隨行士兵 ${lord.soldiers}`, [
           { label: '增派士兵', sub: `從隨行士兵調入（目前 ${lord.soldiers}）`, value: 'add', disabled: lord.soldiers < 100, reason: '士兵不足' },
           { label: '撤回士兵', sub: `至少保留 ${MIN_GARRISON} 守軍`, value: 'remove', disabled: city.garrisonSoldiers - MIN_GARRISON < 100, reason: '守軍已達下限' },
-          { label: '更換挖掘材料', sub: `${city.mining ? MATERIAL_NAMES[city.mining][0] : '尚未指定'}・每個自身回合 ${materialIncome(city)} 顆`, value: 'mining' },
+          { label: '更換挖掘材料', sub: `${city.mining ? materialLabel(city.mining, 0) : '尚未指定'}・每個自身回合 ${materialIncome(city)} 顆`, value: 'mining' },
           { label: '調整駐將', sub: `最多 ${GARRISON_LIMIT} 人：從隨行武將派駐，或撤回駐將`, value: 'swap', disabled: !free.length && !city.garrisonGenerals.length, reason: '沒有隨行武將，也沒有駐將' },
         ], '關閉調度');
         if (!action || city.owner !== lord.id) break;
@@ -1791,7 +1785,7 @@ export class Engine {
         if (away || !r.ok || r.stage === undefined || !r.group || !r.cost) return;
         const name = WEAPON_CATALOG[g.id].names[r.stage + 1];
         const ok = await ask.confirm(`${g.name}・武器升階`,
-          `${g.weapon!.name} → ${WEAPON_GRADES[r.stage + 1]}・${name}。\n消耗 ${r.cost} 顆${MATERIAL_NAMES[r.group][r.stage]}；無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage] * 100)}% → ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%。`,
+          `${g.weapon!.name} → ${WEAPON_GRADES[r.stage + 1]}・${name}。\n消耗 ${r.cost} 顆${materialLabel(r.group, r.stage)}；無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage] * 100)}% → ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%。`,
           '消耗材料・升階', '返回名冊', '⚔️');
         if (ok && upgradeRequirement(lord, g).ok) await ask.message('武器升階完成', upgradeWeapon(lord, g), '⚔️');
         break;

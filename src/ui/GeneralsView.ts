@@ -1,4 +1,5 @@
 import { upgradeRequirement, weaponUpgradeTip } from '../systems/MaterialSystem';
+import { materialLabel } from './MaterialArt';
 import { generalCooldownText } from '../systems/GeneralAbilities';
 import type { GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
@@ -389,6 +390,12 @@ export class GeneralsView {
     rowBtn('weapon', req.reason === '已達天階' ? '已達天階' : (g.weapon ? '武器升階' : '無專屬武器'), !manage || away || !req.ok, () => this.emit({ type: 'upgrade', generalId: g.id }));
     const weaponButton = card.querySelector<HTMLButtonElement>('.eq-row[data-slot="weapon"] button');
     if (weaponButton) weaponButton.title = req.reason;
+    if (g.weapon && req.group && req.stage !== undefined && req.cost) {
+      const cost = document.createElement('div');
+      cost.className = 'weapon-material-cost';
+      cost.innerHTML = `升階：${materialLabel(req.group, req.stage)} × ${req.cost}`;
+      card.querySelector('.eq-row[data-slot="weapon"]')!.appendChild(cost);
+    }
     const pool = lord.gear.filter((e) => e.kind === 'armor');
     rowBtn('armor', g.armor ? '更換／卸下' : '裝備', !manage || away || (!pool.length && !g.armor), () => this.emit({ type: 'equip', generalId: g.id }));
     // 已經修習功法就不再顯示學習按鈕

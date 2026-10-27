@@ -24,7 +24,7 @@ for(const g of Object.values(restored.generals).filter(g=>g.owner==='liu'&&g.sta
 assert.ok(restored.lords.liu.stones>=0&&restored.lords.liu.soldiers>=0);
 (async()=>{
  const state=createGameState('liu'),lord=state.lords.liu,view=new RecordingView();lord.position=entrance;
- const engine=new Engine(state,{view,send:async()=>null,isAuto:()=>false,multiplayer:false});
+ const engine=new Engine(state,{view,send:async(_lord,p)=>p.kind==='confirm',isAuto:()=>false,multiplayer:false});
  await engine.landPortal(lord);
  const attacker=state.lords.cao,user=freeGenerals(state,'cao')[0],target=freeGenerals(state,'liu').find(g=>!g.isLord);
  const attackItem=makeItem('blocked-relic','cloud',0);attacker.items.push(attackItem);

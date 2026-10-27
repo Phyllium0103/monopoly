@@ -299,7 +299,7 @@ export class CasinoPanel {
               <li>點數大：<b>1 賠 1</b></li>
               <li><b>豹子</b>（三顆相同）勝過任何點數：<b>1 賠 3</b>；雙方都是豹子時比點數</li>
               <li>點數相同：和局，退還賭注</li>
-              <li>每次只能賭一把；離開後會被送往地圖上的隨機地點</li>
+              <li>每次只能賭一把；離開後留在原格，下回合沿道路繼續前進</li>
             </ul>
             <div class="wallet">持有靈石：<b class="cz-wallet">${fmtStones(lord.stones)}</b></div>
             <div class="casino-stage">

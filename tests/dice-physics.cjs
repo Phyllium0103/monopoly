@@ -15,6 +15,12 @@ function rng(seed){return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/0
   contacts+=roll.dieContacts;maxAttempts=Math.max(maxAttempts,roll.attempts);
   minDuration=Math.min(minDuration,roll.duration);maxDuration=Math.max(maxDuration,roll.duration);
   const end=sampleDicePhysics(roll,roll.duration);
+  assert.ok(roll.playbackDuration<=roll.duration);
+  sampleDicePhysics(roll,roll.playbackDuration).forEach((pose,i)=>{
+   assert.equal(upperDiceFace(pose.rotation).value,values[i]);
+   assert.ok(pose.position.distanceTo(end[i].position)<.0021,'trim only the verified stationary tail');
+   assert.ok(pose.rotation.angleTo(end[i].rotation)<.0101);
+  });
   for(const q of roll.labelRotations)for(const axis of [[1,0,0],[0,1,0],[0,0,1]]){
    const {Vector3}=require('three');const p=new Vector3(...axis).applyQuaternion(q);
    assert.ok(Math.abs(Math.max(Math.abs(p.x),Math.abs(p.y),Math.abs(p.z))-1)<1e-6,'label orientation must be a constant symmetry of the cube collider');

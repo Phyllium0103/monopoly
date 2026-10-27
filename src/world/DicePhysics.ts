@@ -30,6 +30,8 @@ export interface PhysicsDiePose {
 export interface PhysicalDiceRoll {
   frames: PhysicsDiePose[][];
   duration: number;
+  /** Omit only the verified stationary tail while Rapier waits to flag sleep. */
+  playbackDuration: number;
   /** One constant cube symmetry per die, applied before any frame is shown. */
   labelRotations: Quaternion[];
   values: readonly number[];
@@ -122,7 +124,16 @@ export async function simulateDiceRoll(values: readonly number[], random: () => 
       };
       if (bounds.maxX - bounds.minX > 4.8 || bounds.maxZ - bounds.minZ > 4) { failures.push('outside'); continue; }
       const labelRotations = end.map((pose, i) => resultQuaternion(upperDiceFace(pose.rotation).value).invert().multiply(resultQuaternion(values[i])));
-      return { frames, duration: (frames.length - 1) * DICE_PHYSICS_STEP, values: [...values], labelRotations,
+      let stationaryStart = frames.length - 1;
+      for (let i = frames.length - 2; i >= 0; i--) {
+        const stationary = frames[i].every((pose, die) => pose.linearVelocity.length() < .025 && pose.angularVelocity.length() < .06
+          && pose.position.distanceTo(end[die].position) < .002 && pose.rotation.angleTo(end[die].rotation) < .01
+          && upperDiceFace(pose.rotation).alignment > .9995);
+        if (!stationary) break;
+        stationaryStart = i;
+      }
+      const playbackEnd = Math.min(frames.length - 1, stationaryStart + Math.ceil(.1 / DICE_PHYSICS_STEP));
+      return { frames, duration: (frames.length - 1) * DICE_PHYSICS_STEP, playbackDuration: playbackEnd * DICE_PHYSICS_STEP, values: [...values], labelRotations,
         groundContacts, dieContacts, firstGroundContact, firstContact, attempts: attempt, bounds };
     } finally { events.free(); world.free(); }
   }

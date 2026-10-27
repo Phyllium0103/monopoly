@@ -60,7 +60,7 @@ export class DiceRoller {
   startWaiting(): void {
     if (document.hidden) return;
     if (!this.stage.hidden) return;
-    this.cancel(); this.open(); this.caption.textContent = '擲骰中…';
+    this.cancel(); this.open(); this.caption.replaceChildren();
     void this.prepare();
     this.safety = window.setTimeout(() => this.cancel(), 10000);
   }
@@ -77,7 +77,7 @@ export class DiceRoller {
   roll(values: readonly number[], bonus = 0, multiplier = 1, speed = 1, holdPreview = false): Promise<void> {
     this.cancel(); const token = this.version;
     if (document.hidden || !values.length || values.some(v => !Number.isInteger(v) || v < 1 || v > 6)) return Promise.resolve();
-    this.open(); this.caption.textContent = '擲骰中…';
+    this.open(); this.caption.replaceChildren();
     return new Promise(resolve => {
       this.finish = resolve;
       void this.animate(values, bonus, multiplier, Math.max(.25, speed), token, holdPreview).catch(error => {
@@ -156,7 +156,7 @@ export class DiceRoller {
   private clearDice(): void { this.dice.forEach(d => this.scene.remove(d)); this.dice = []; }
 
   private draw(progress: number): void {
-    const poses = this.physics ? sampleDicePhysics(this.physics, progress * this.physics.duration) : [];
+    const poses = this.physics ? sampleDicePhysics(this.physics, progress * this.physics.playbackDuration) : [];
     this.dice.forEach((die, i) => {
       const pose = poses[i]; if (!pose) return;
       die.position.copy(pose.position); die.quaternion.copy(pose.rotation);
@@ -199,8 +199,8 @@ export class DiceRoller {
     this.setDice(values); this.resize();
     if (!this.physics) this.clearDice();
     const playbackRate = dicePlaybackRate(speed);
-    const duration = this.reducedMotion || !this.physics ? 0 : this.physics.duration * 1000 / playbackRate;
-    const hold = Math.max(750, 1050 / playbackRate); const start = performance.now();
+    const duration = this.reducedMotion || !this.physics ? 0 : this.physics.playbackDuration * 1000 / playbackRate;
+    const hold = 180; const start = performance.now();
     const { total, detail } = diceRollResult(values, bonus, multiplier);
     let resultShown = false;
     const tick = (now: number) => {

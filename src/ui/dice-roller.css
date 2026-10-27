@@ -6,21 +6,8 @@
 .dice-roll-stage[hidden] { display: none; }
 .dice-roll-stage canvas { width: 100%; height: 100%; display: block; }
 .dice-roll-caption {
-  position: absolute; top: calc(50% + clamp(85px, 14vh, 145px)); left: 50%;
-  transform: translateX(-50%); padding: 10px 24px; border-radius: 16px;
-  text-align: center; color: #f5dfac; font-size: 20px; white-space: nowrap;
-  background: #101820d9; box-shadow: 0 6px 30px #0004;
-  border: 1px solid #dfc49144; font-family: inherit;
-}
-.dice-roll-caption strong { display: block; font-size: clamp(28px, 4vw, 42px); letter-spacing: .04em; }
-.dice-roll-caption small { display: block; margin-top: 3px; color: #c8c3b7; font-size: 14px; }
-/* Keep the result announcement for screen readers; show only the physical dice. */
-.dice-roll-stage.is-result .dice-roll-caption {
-  top: 0; left: 0; transform: none; width: 1px; height: 1px; margin: -1px;
+  /* Results remain accessible without showing a card during any phase. */
+  position: absolute; top: 0; left: 0; width: 1px; height: 1px; margin: -1px;
   padding: 0; border: 0; overflow: hidden; clip-path: inset(50%);
   white-space: nowrap; box-shadow: none;
-}
-@media (max-height: 500px) {
-  .dice-roll-caption { top: calc(50% + 65px); padding: 5px 20px; }
-  .dice-roll-caption strong { font-size: 25px; }
 }

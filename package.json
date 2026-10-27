@@ -8,13 +8,15 @@
     "build": "npm run build:art-pack && tsc --noEmit && vite build",
     "build:art-pack": "node scripts/build-art-pack.mjs",
     "preview": "vite preview",
-    "test": "node tests/game-rules.cjs && node tests/multiplayer.cjs && node tests/p2p-host.cjs && node tests/p2p-presence.cjs && node tests/balance-rules.cjs && node tests/realm-frames.cjs && npm run test:map && npm run test:spirits && npm run test:assets",
+    "test": "node tests/game-rules.cjs && node tests/multiplayer.cjs && node tests/p2p-host.cjs && node tests/p2p-presence.cjs && node tests/balance-rules.cjs && node tests/realm-frames.cjs && npm run test:map && npm run test:spirits && npm run test:assets && npm run test:dice",
+    "test:dice": "node tests/dice-motion.cjs && node tests/dice-physics.cjs && node tests/dice-presentation.cjs",
     "test:spirits": "node tests/elemental-spirits.cjs",
     "test:map": "node tests/selected-map.cjs && node tests/map-revision.cjs && node tests/display-facilities.cjs && node tests/map-interactions-materials.cjs",
     "test:assets": "node tests/deployment-assets.cjs",
     "optimize:models": "node scripts/optimize-map-models.mjs"
   },
   "dependencies": {
+    "@dimforge/rapier3d-compat": "0.21.0",
     "@supabase/supabase-js": "^2.117.3",
     "three": "^0.186.1"
   },

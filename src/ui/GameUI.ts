@@ -1,5 +1,6 @@
 import { totalAssets } from '../systems/CitySystem';
 import { music } from './Music';
+import { DiceRoller } from './DiceRoller';
 import './Bubble';
 import type { GameState, LordId } from '../game/types';
 import { LORDS } from '../faction/Faction';
@@ -17,7 +18,7 @@ export interface ActionButton {
   onClick: () => void;
 }
 
-const DICE = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+
 
 /** 右下角的隨行武將圖示 */
 export interface PartyIcon {
@@ -45,7 +46,7 @@ export class GameUI {
   private logEl: HTMLDivElement;
   private toastEl: HTMLDivElement;
   private tooltip: HTMLDivElement;
-  private dice: HTMLDivElement;
+  private dice: DiceRoller;
   private report: HTMLDivElement;
   private overlay: HTMLDivElement;
   private rollBtn: HTMLButtonElement;
@@ -78,7 +79,7 @@ export class GameUI {
       <div class="turn-report hidden"></div>
       <div class="party-dock hidden"></div>
       <button class="roll-btn hidden" title="擲骰（空白鍵）"><span class="roll-dice">🎲</span><b>擲骰</b><small>空白鍵</small></button>
-      <div class="dice hidden"></div>
+
       <div class="tooltip hidden"></div>
 `;
     root.appendChild(this.hud);
@@ -89,7 +90,7 @@ export class GameUI {
     this.logEl = q('.log-list');
     this.toastEl = q('.toast');
     this.tooltip = q('.tooltip');
-    this.dice = q('.dice');
+    this.dice = new DiceRoller(this.hud);
     this.report = q('.turn-report');
     this.overlay = q('.report-overlay');
     this.rollBtn = q('.roll-btn');
@@ -105,10 +106,12 @@ export class GameUI {
   }
 
   hide() {
+    this.dice.cancel();
     this.hud.classList.add('hidden');
   }
 
   reset() {
+    this.dice.cancel();
     this.logEl.innerHTML = '';
     this.info.classList.add('hidden');
     this.closeReport?.();
@@ -325,58 +328,12 @@ export class GameUI {
     this.tooltip.style.top = `${y + 14}px`;
   }
 
-  /** 擲骰動畫 */
-  private spin: { timer: number; safety: number } | null = null;
+  /** 等待房主的權威結果；結果收到後才掉落真正 3D 骰子。 */
+  startRolling(_count = 1) { this.dice.startWaiting(); }
 
-  /** 先讓骰子轉起來（多人模式等伺服器結果時），之後 rollDice 再停在結果上 */
-  startRolling(count = 1) {
-    if (this.spin) return;
-    this.dice.classList.remove('hidden');
-    this.dice.classList.add('rolling');
-    const timer = window.setInterval(() => {
-      this.dice.textContent = Array.from({ length: count }, () => DICE[Math.floor(Math.random() * 6)]).join('');
-    }, 60);
-    // 結果一直沒來（例如回答被拒）就收起來
-    const safety = window.setTimeout(() => this.stopRolling(), 10000);
-    this.spin = { timer, safety };
-  }
-
-  stopRolling() {
-    if (!this.spin) return;
-    clearInterval(this.spin.timer);
-    clearTimeout(this.spin.safety);
-    this.spin = null;
-    this.dice.classList.remove('rolling');
-    this.dice.classList.add('hidden');
-  }
+  stopRolling() { this.dice.cancel(); }
 
   rollDice(values: number[], bonus = 0, multiplier = 1): Promise<void> {
-    // 已經在轉：直接收尾，只再閃幾下
-    const spinning = !!this.spin;
-    if (this.spin) {
-      clearInterval(this.spin.timer);
-      clearTimeout(this.spin.safety);
-      this.spin = null;
-    }
-    const flicker = spinning ? 3 : 10;
-    const interval = 60 / this.speed;
-    return new Promise((resolve) => {
-      this.dice.classList.remove('hidden');
-      this.dice.classList.add('rolling');
-      let n = 0;
-      const timer = setInterval(() => {
-        this.dice.textContent = values.map(() => DICE[Math.floor(Math.random() * 6)]).join('');
-        if (++n > flicker) {
-          clearInterval(timer);
-          this.dice.classList.remove('rolling');
-          const sum = (values.reduce((a, b) => a + b, 0) + bonus) * multiplier;
-          this.dice.innerHTML = `${values.map((v) => DICE[v - 1]).join('')}<small>${sum} 步${multiplier > 1 ? `（遁地梭 ×${multiplier}）` : bonus ? `（額外 +${bonus}）` : ''}</small>`;
-          setTimeout(() => {
-            this.dice.classList.add('hidden');
-            resolve();
-          }, 650 / this.speed);
-        }
-      }, interval);
-    });
+    return this.dice.roll(values, bonus, multiplier, this.speed);
   }
 }

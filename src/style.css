@@ -400,32 +400,6 @@ img {
   }
 }
 
-.dice {
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 230px;
-  line-height: 1;
-  color: #fffaf0;
-  text-shadow: 0 0 20px rgba(241, 210, 122, 0.9), 0 4px 10px #000;
-  text-align: center;
-  pointer-events: none;
-}
-.dice small {
-  display: block;
-  font-size: 54px;
-  color: var(--gold-light);
-}
-.dice.rolling {
-  animation: shake 0.12s infinite;
-}
-@keyframes shake {
-  50% {
-    transform: translate(-50%, -50%) rotate(12deg);
-  }
-}
-
 .tooltip {
   position: fixed;
   padding: 5px 10px;

@@ -1,12 +1,8 @@
-import { totalAssets } from '../systems/CitySystem';
 import { music } from './Music';
-import { DiceRoller } from './DiceRoller';
+import { DiceRoller, type DiceHandOrigin } from './DiceRoller';
+import { LordActorHud } from './LordActorHud';
 import './Bubble';
 import type { GameState, LordId } from '../game/types';
-import { LORDS } from '../faction/Faction';
-import { citiesOf, generalsOf } from '../game/GameState';
-import { fmtStones } from '../game/Currency';
-import { canAttemptBreak } from '../systems/GeneralSystem';
 
 export interface ActionButton {
   label: string;
@@ -47,6 +43,8 @@ export class GameUI {
   private toastEl: HTMLDivElement;
   private tooltip: HTMLDivElement;
   private dice: DiceRoller;
+  private actors: LordActorHud;
+  private currentLord: LordId | null = null;
   private report: HTMLDivElement;
   private overlay: HTMLDivElement;
   private rollBtn: HTMLButtonElement;
@@ -90,7 +88,8 @@ export class GameUI {
     this.logEl = q('.log-list');
     this.toastEl = q('.toast');
     this.tooltip = q('.tooltip');
-    this.dice = new DiceRoller(this.hud);
+    this.dice = new DiceRoller(this.hud,{centerFinal:true,gentle:true});
+    this.actors = new LordActorHud(this.hud,()=>this.speed,id=>this.onLord?.(id));
     this.report = q('.turn-report');
     this.overlay = q('.report-overlay');
     this.rollBtn = q('.roll-btn');
@@ -103,15 +102,18 @@ export class GameUI {
 
   show() {
     this.hud.classList.remove('hidden');
+    this.actors.show(true);
   }
 
   hide() {
     this.dice.cancel();
     this.hud.classList.add('hidden');
+    this.actors.show(false);
   }
 
   reset() {
     this.dice.cancel();
+    this.actors.reset();
     this.logEl.innerHTML = '';
     this.info.classList.add('hidden');
     this.closeReport?.();
@@ -121,23 +123,8 @@ export class GameUI {
 
   renderTop(state: GameState, me: LordId = state.player) {
     const current = state.order[state.turn];
-    const lords = state.order
-      .filter((id) => !state.lords[id].absent)
-      .map((id) => {
-        const l = state.lords[id];
-        const d = LORDS[id];
-        const status = !l.alive ? '<span class="tag dead">出局</span>' : l.stunned ? `<span class="tag stun">定身 ${l.stunned}</span>` : '';
-        const realm = l.expeditions.length ? `<span class="tag realm">🌀${l.expeditions.length}</span>` : '';
-        const ready = l.alive && l.isPlayer ? generalsOf(state, id).filter((g) => canAttemptBreak(g, state.round).ok).length : 0;
-        const breakTag = ready ? `<span class="tag ready" title="有武將修為圓滿，可到武將名冊突破">✨可突破 ${ready}</span>` : '';
-        return `<div class="lord-card clickable ${id === current ? 'current' : ''} ${l.alive ? '' : 'out'} ${id === me ? 'me' : ''}" data-lord="${id}" style="--fc:${d.css}">
-          <div class="lc-head"><b>${d.name}</b><small>${d.kingdom}${id === me ? '・你' : l.seatName ? `・${l.seatName}` : ''}</small>${status}${realm}${breakTag}</div>
-          <div class="lc-row">💎 ${fmtStones(l.stones, true)}</div>
-          <div class="lc-row">總資產 <b>${fmtStones(totalAssets(state, id).total, true)}</b></div>
-          <div class="lc-more"><div>⚔️ 士兵 <b>${l.soldiers}</b></div><div>🏯 城池 <b>${citiesOf(state, id).length}</b> 座</div><div>👥 武將 <b>${generalsOf(state, id).length}</b> 名</div><small>點擊查看詳細資料</small></div>
-        </div>`;
-      })
-      .join('');
+    this.currentLord=current;
+    this.actors.update(state,me);
     // 工具列只建立一次：遊戲進行中會頻繁刷新畫面，若每次都重建按鈕，按下去的瞬間按鈕被換掉就點不到
     if (!this.top.querySelector('.speed')) this.buildToolbar();
     const set = (el: HTMLElement, html: string) => {
@@ -151,7 +138,6 @@ export class GameUI {
           `<span class="ev next">下次風雲：第 ${Math.ceil((state.round + 1) / 5) * 5} 輪</span>`
         }</div>`,
     );
-    set(this.top.querySelector('.lords') as HTMLElement, lords);
     const q = <T extends HTMLElement>(sel: string) => this.top.querySelector(sel) as T;
     q('.log-btn').classList.toggle('on', this.logOpen);
     q('.auto-btn').classList.toggle('on', this.auto);
@@ -163,6 +149,7 @@ export class GameUI {
     this.top.innerHTML = `
       <div class="round"></div>
       <div class="lords"></div>
+      <div class="top-actions"></div>
       <div class="speed">
         <button class="btn mini tool log-btn" data-tip="天下紀事（開／關）">📜</button>
         <button class="btn mini tool auto-btn" data-tip="電腦代打你的回合">🤖</button>
@@ -172,6 +159,7 @@ export class GameUI {
         <button class="btn mini tool cheat-btn" data-tip="測試用：獲得大量靈石與所有物品">🧪</button>
         <span class="speed-group">${[1, 2, 4].map((s) => `<button class="btn mini" data-s="${s}" data-tip="遊戲速度 ${s}×">${s}×</button>`).join('')}</span>
       </div>`;
+    this.top.querySelector('.top-actions')!.appendChild(this.actions.parentElement!);
     const q = <T extends HTMLElement>(sel: string) => this.top.querySelector(sel) as T;
     q('.help-btn').onclick = () => this.onHelp?.();
     q('.rank-btn').onclick = () => this.onRank?.();
@@ -202,6 +190,9 @@ export class GameUI {
   }
 
   renderActions(buttons: ActionButton[], hint: string, fullHint = '') {
+    this.actions.title=fullHint||hint;
+    this.actions.setAttribute('aria-label',fullHint||hint);
+    this.actions.dataset.empty=String(buttons.length===0);
     this.actions.innerHTML = `<div class="hint" ${fullHint ? `title="${fullHint}"` : ''}>${hint}</div>`;
     const row = document.createElement('div');
     row.className = 'action-row';
@@ -331,9 +322,14 @@ export class GameUI {
   /** 等待房主的權威結果；結果收到後才掉落真正 3D 骰子。 */
   startRolling(_count = 1) { this.dice.startWaiting(); }
 
-  stopRolling() { this.dice.cancel(); }
+  stopRolling() { this.actors.cancel(); this.dice.cancel(); }
 
-  rollDice(values: number[], bonus = 0, multiplier = 1): Promise<void> {
-    return this.dice.roll(values, bonus, multiplier, this.speed);
+  movementDone(lord:LordId) { return this.actors.movementDone(lord); }
+
+  focusLord(lord:LordId) { this.actors.focus(lord); }
+
+  async rollDice(values: number[], bonus = 0, multiplier = 1, lord:LordId|null=this.currentLord): Promise<void> {
+    const drop=(origin?:DiceHandOrigin)=>this.dice.roll(values,bonus,multiplier,this.speed,false,origin);
+    if(lord)await this.actors.playRoll(lord,drop);else await drop();
   }
 }

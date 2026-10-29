@@ -343,6 +343,7 @@ export class Game {
       beam: (lord: LordId, color?: number) => this.world.beamEffect(sprite(lord).group.position, color),
       capture: (tile: number, lord: LordId) => this.world.captureEffect(tile, LORDS[lord].color),
       focusTurn: (lord: LordId) => {
+        this.ui.focusLord(lord);
         const journey=this.state.lords[lord].relicJourney;
         if(journey)this.relicMap.show(lord,journey.steps,journey.lastResult);else this.relicMap.hide();
         const s = sprite(lord);
@@ -376,12 +377,13 @@ export class Game {
           this.world.syncForkArrows(this.state, this.shownForks);
         }
       },
+      movementDone: (lord:LordId)=>this.ui.movementDone(lord),
       relic: async (lord:LordId,step:number,active:boolean,text:string)=>{
         const s=this.sprites.get(lord);if(s)s.group.visible=!active&&this.state.lords[lord].alive;
         if(active)this.relicMap.show(lord,step,text);else this.relicMap.hide();this.relicMap.setReady(this.me,false);
         await sleep(180/this.speed);
       },
-      rollDice: (_lord: LordId, values: number[], bonus: number, multiplier: number) => this.ui.rollDice(values, bonus, multiplier),
+      rollDice: (lord: LordId, values: number[], bonus: number, multiplier: number) => this.ui.rollDice(values, bonus, multiplier, lord),
       wait: async (ms: number) => {
         if (ms > 0) await sleep(ms / this.speed);
         if (this.dispatchTask) await this.dispatchTask;

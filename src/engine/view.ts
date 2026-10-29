@@ -30,6 +30,8 @@ export interface EngineView {
   teleport(lord: LordId, tile: number): Promise<void>;
   /** 走一步 */
   moveStep(lord: LordId, from: number, to: number): Promise<void>;
+  /** End of the complete movement sequence; cosmetic HUD may return to meditation. */
+  movementDone(lord:LordId):Promise<void>;
   relic(lord:LordId,step:number,active:boolean,text:string): Promise<void>;
   rollDice(lord: LordId, values: number[], bonus: number, multiplier: number): Promise<void>;
   wait(ms: number): Promise<void>;
@@ -72,6 +74,7 @@ export class RecordingView implements EngineView {
   placeLord(...a: Parameters<EngineView['placeLord']>) { this.push({ t: 'placeLord', a }); }
   async teleport(...a: Parameters<EngineView['teleport']>) { this.push({ t: 'teleport', a }); }
   async moveStep(...a: Parameters<EngineView['moveStep']>) { this.push({ t: 'moveStep', a }); }
+  async movementDone(...a: Parameters<EngineView['movementDone']>) { this.push({t:'movementDone',a}); }
   async relic(...a: Parameters<EngineView['relic']>) { this.push({t:'relic',a}); }
   async rollDice(...a: Parameters<EngineView['rollDice']>) { this.push({ t: 'rollDice', a }); }
   async wait() {}

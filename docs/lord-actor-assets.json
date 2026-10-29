@@ -1,0 +1,704 @@
+{
+  "format": "WebP quality88; no resize, no pose transforms; exact alpha",
+  "frames": {
+    "prep": 16,
+    "throw": 16,
+    "recovery": 5
+  },
+  "assets": [
+    {
+      "lord": "liu",
+      "file": "liu/end-smile-tone-v2.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "cbffd0944b67834ace0fba54d6cdcf6d3f4ea93a2f489df49a70408f918eff18",
+      "webSha256": "8ac52c26b44c362e9dc283838a6d6f18d52b952a65f57642e175837ffae4a3a2",
+      "sourceBytes": 991116,
+      "webBytes": 218846,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/prep-03-04.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "f8f6fa1d4e239bdf6fc0d295ceb1c6dff150dff6ef0224505b4438df6e680b27",
+      "webSha256": "80e7bdd2c75e0627bea0182bca4afbd7c4dce0a13dcea8c48b12b879a81c6b0e",
+      "sourceBytes": 987260,
+      "webBytes": 231762,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/prep-05-06.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "75b692d52f50a7a2deb3ad72446906f5ec728b20b4cb15751f69a8283cd68da5",
+      "webSha256": "ffbea216d1effc60edd5e933ba9f070fea7a3f87be84994332eb118d159f6b37",
+      "sourceBytes": 977894,
+      "webBytes": 229852,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/prep-07-08.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "f630430c1dafcb4b5565b546151641b99cbb159c364aa64dba44029f36c5404c",
+      "webSha256": "8b1f2a7ea217530e5c24e48046b6ebd522491912a5f4fac979a3d9b3ed89328f",
+      "sourceBytes": 1006178,
+      "webBytes": 244058,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/prep-09-10.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "b12ffad672c3cf75d4669c817c0421132f77f96f3b3f54c9f7a58111ee1b49fb",
+      "webSha256": "949095dc80891696baca9a9d5b12d5aec1c07f47a8d0d01ebf9601a41d1692ba",
+      "sourceBytes": 987668,
+      "webBytes": 227148,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/prep-11-12.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "c03aab9f5d8a675817f42db095526571729b95340433c18d66699ab18fb518f6",
+      "webSha256": "69c05a717cbd5e1c7abda9d7db723264fdc88010ed0794d1eb36fd3b572ee628",
+      "sourceBytes": 1003402,
+      "webBytes": 246962,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/prep-13-14.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "7053e2d1d54d7c512798c1a28dc02677cb3846f69eedf09fb5526cb39fdfaea6",
+      "webSha256": "5603bd4d660ab09ed3b8a2c13ae752ae5fbde64ee2645e7d30b1f77aaa503737",
+      "sourceBytes": 983426,
+      "webBytes": 239328,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/throw-01-02.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "2db24081dfbceb6ae11cad4b51d2b20d6190586255a886e9c5c3ccefe132910f",
+      "webSha256": "a338c3570287efb15d1a9427465639220d12182445b65634eecfadc26ce68a8d",
+      "sourceBytes": 962720,
+      "webBytes": 222602,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/throw-03-04.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "78ec7f4dcb3ec78c48b769527b5975515a9d6e0e5d8b117b329d9346326a2d7f",
+      "webSha256": "53f7faa51bef304dc7f650b2825c1b3b993065ab065deea5f74d61b08d8972bc",
+      "sourceBytes": 1008580,
+      "webBytes": 245802,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/throw-05-06.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "518273137838fe52f1708bd83634fabde7c3b1ad836a1c9640efae267109026c",
+      "webSha256": "dd1e5e0f9a810691da9e65ae1ebf5adba701c604cde9499f378826716f1e95cd",
+      "sourceBytes": 1008964,
+      "webBytes": 248306,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/throw-07-08.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "966668a36a13f5003a5912f089006bfec6ed0e0551fc18b40146e3d9b08e9e20",
+      "webSha256": "141509fc43f3e7a5eb85c1feb3ced70684f69919be5b3021b1eb7fc24254c0a8",
+      "sourceBytes": 1103558,
+      "webBytes": 259994,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/throw-09-10.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "03b6cb66ebdfbe518f6ecc48f2021f05d10104f7542014ad8a4b8ae608b14feb",
+      "webSha256": "f0599d633cb84720c13bbf9c85b1eb9d47d255008de761050604c9a89c590d43",
+      "sourceBytes": 990458,
+      "webBytes": 210682,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/throw-11-12.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "d765e8b074857841ecef1514f6667322bf08a2946ed45dc25ba2472a8121a2e1",
+      "webSha256": "580f6c2442aa1dfca6bf6631a942cfd66b08fc6a30a9d8e6d185c3eba971bfd3",
+      "sourceBytes": 1006050,
+      "webBytes": 237726,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/throw-13-14.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "0961b65812c00ed353323cb15a1ef1db2ad62d3e673e3a229cd9c10ed45053bf",
+      "webSha256": "d13a1e2dbd87265961793b27676008b9b6f5c40a2864652da45e2ed9f38f2fe2",
+      "sourceBytes": 979798,
+      "webBytes": 225186,
+      "alphaExact": true
+    },
+    {
+      "lord": "liu",
+      "file": "liu/throw-15-16.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "fc628b5c9cfe9fa12239af495fed2f440e584cbfce8f6c3d0de828c7f7f07c4d",
+      "webSha256": "8fb22260cdc04022a82fd034c2d30fd2ad54becacd97a0e8ac536bc095535a19",
+      "sourceBytes": 982686,
+      "webBytes": 240586,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/idle-closed.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "9d0001aa0e2041b5eee4b346551e97f507731e2b40d4d7320418fd988511a518",
+      "webSha256": "537afae7bcf6ab7d1dcc3c9ef57982a693e612b83995faab777b116cc3086b97",
+      "sourceBytes": 1339614,
+      "webBytes": 337354,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/prep-03-04-v3.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "70078af2b61ab441aec757a515db3796168106fbe921516686786197f465fb5a",
+      "webSha256": "2ee25bcf764aaa6c8e3c0b941ac0208842cd4c54d5721a2ad04b0271d504a085",
+      "sourceBytes": 1325162,
+      "webBytes": 322812,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/prep-05-06.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "bc53e5cbdee95f1695acc5f5a33a7bb2ac1bb9ed19747217a2815a46cd6a7c0e",
+      "webSha256": "706f199905a315db1fe3c6bf72b2d7160e9185a6b009b9005ff3d66349f5b0ba",
+      "sourceBytes": 1386438,
+      "webBytes": 340288,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/prep-07-08.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "e537bf59471bc4f84cd8054565346e178c7fd12b15775e108a55998b424bd1d5",
+      "webSha256": "e1d31b5a68a5ee8f47a81008e39ca851a7a9b2e3362e76d3f0c07d9fe5e64ff8",
+      "sourceBytes": 1336580,
+      "webBytes": 316246,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/prep-09-10-v3.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "9ce4c6ada753370af1a027da1cf51fc5bd9bc1d896bf2f57e95f09cb69d22384",
+      "webSha256": "b6ee9c9b53dcac02b9a4c080ea2a04d4e0764fae9b3cae623018b3b8c94aabe7",
+      "sourceBytes": 1276606,
+      "webBytes": 286528,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/prep-11-12.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "81c8f225e0510f26ff0081bdbb6ace982606f09da11c921d1ba8b8aac032e891",
+      "webSha256": "cd28bb592872fcac88069525efdb624bd5f6d918e951c8adc198cb0d8ca0a081",
+      "sourceBytes": 1389420,
+      "webBytes": 324264,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/recovery-clean-r4.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "d4b241b8e4abc8b75c2fbe772d28aaf14a31aa3b9fba2a1875850dca62f017d3",
+      "webSha256": "1955b64b1547891f7c7a12779d0a91c5c54db9a80c8a0658f96636b27177d05e",
+      "sourceBytes": 1823793,
+      "webBytes": 293948,
+      "alphaExact": true,
+      "edit": "Built-in imagegen transparency cleanup; original preserved"
+    },
+    {
+      "lord": "cao",
+      "file": "cao/throw-01-02.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "03f00fcd1772b37cb7a7835e943e6647245e296d22e6d2ff9f2c6e7a516c9f80",
+      "webSha256": "ca799b9fa8bbcb54a486749447441ee52d77eccee9ec47b59e129eb9f35289b9",
+      "sourceBytes": 1390164,
+      "webBytes": 353124,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/throw-03-04.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "3ae3c1ecafd9a0e26008083497077772d67517e6fdb4fd32e439dfcc00262b8b",
+      "webSha256": "24548d8e0b54fcc3e5afc63752e1a20671643d5bb2704faecac931b257bdc533",
+      "sourceBytes": 1310020,
+      "webBytes": 303906,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/throw-05-06-v2.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "79d825fbb66e1f30bff3951401d4533a11added3439515abc908830d249bfec1",
+      "webSha256": "202159d66c81ef6b0e7a8da680415d7ec58c5b8df4bff716c0ae57b7b18841a1",
+      "sourceBytes": 1320106,
+      "webBytes": 311702,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/throw-07-08.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "68650c3c62324c3a87f120efa11b22dfd6895ce02d251f2c6bec6071f1401e7a",
+      "webSha256": "1a2f2dc8108ad9482ad518fdff76502a50d71118e410cfc3f7b379575e4ffd94",
+      "sourceBytes": 1439184,
+      "webBytes": 351646,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/throw-09-10.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "78f9a5635d93c7cc62d4918e83a9a20cf15433db5a78109fe40f3299d6bdb469",
+      "webSha256": "428b54f0b52736ca22367f0ffd9bdb633176d7a9996505d996232bce656c6227",
+      "sourceBytes": 1321086,
+      "webBytes": 298398,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/throw-11-12.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "6730e56f47a9d950ce4e8aae3cb1d8cdb6de0667f56eba5571f3937726dea715",
+      "webSha256": "92f2fbcd95123761baf22f20a54ecc300797b1cc9aa31d1cab2c788304f7cab4",
+      "sourceBytes": 1420814,
+      "webBytes": 401698,
+      "alphaExact": true
+    },
+    {
+      "lord": "cao",
+      "file": "cao/throw-13-14-v2.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "41e933ea9d5c473ff473d78ee98de38f1b3f2e1e4f8c73d65b4f91deb176bd45",
+      "webSha256": "beed2e87b345b745227815b2bad94141e5d160eff102d4b35a6d4425296c4d6f",
+      "sourceBytes": 1340944,
+      "webBytes": 312734,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/idle-closed-v2.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "138b1704317d21723d01b7441da173264080cf1bda1a27d7644fd9c4b8180928",
+      "webSha256": "f47918a7beb5af3ff1e2cc467e0a38bb3eb4d2996a78a9cfa2f8e52c1a00845b",
+      "sourceBytes": 1405026,
+      "webBytes": 329300,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/prep-03-04.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "59b03cb639c8cbed31f9e2a4a1904fd8c58e1410d136cefd222d21dc0a343608",
+      "webSha256": "3435ce6147afb7a69ec2c4b03f53b6a154bff617f98955b21f7ebe1883b9d8ee",
+      "sourceBytes": 1459102,
+      "webBytes": 374260,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/prep-05-06.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "5e54e222e1e951df8ec83e1d533fe746df2df2b8610732c5c39f9514fa2958f3",
+      "webSha256": "b0081ea14060129b8db017565344d534927cb68d2f370c7331615a3d34fee4da",
+      "sourceBytes": 1468664,
+      "webBytes": 374954,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/prep-07-08.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "08e99af7faab13e75f2b9016090633d307c221b5f859131ae2ce760dfd7840cb",
+      "webSha256": "853391c7f0522ef7e71be5ba472ff00e183b1593348d0d74bdd485e93af4ed1c",
+      "sourceBytes": 1468086,
+      "webBytes": 369582,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/prep-09-10.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "8e63e13e790a2c1fe77e1f121a70efa473679f0a5fc710f5bb41df631f10d9c4",
+      "webSha256": "c340277b3eca6eca6f07b04849ba4c5f1a26aacc45e16f9808b9485a99beb02b",
+      "sourceBytes": 1448120,
+      "webBytes": 373912,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/prep-11-12.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "05121102e9eef07dd636b3d656a61fa02cc305b5386303270ea78acf8d47bc59",
+      "webSha256": "89b8d8ca80e630ea8f7e39af734e08d1f4c6008149ccd7fc96a12cd91cb35f38",
+      "sourceBytes": 1429658,
+      "webBytes": 373858,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/recovery-01-02-v3.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "b24ca0cb4dc2e7f4dd699a46cfa593e9c33cab0a5dc9725953e341f614d546ce",
+      "webSha256": "dba64f366a578131ee972d2f2834aefb6a65a0f8eff91e035215baeb4da196c9",
+      "sourceBytes": 1396840,
+      "webBytes": 329192,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/throw-03-04.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "bb3ec671a1203ac48f9606a0d7e647991e34fce31e043b8ad6039916fdca5123",
+      "webSha256": "bf0c75ec3df207ea20a189ce215c64c79f75e54ba3464d76d964dfacbc3cf83f",
+      "sourceBytes": 1478544,
+      "webBytes": 369024,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/throw-05-06.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "8b4297ca6c360148564a5aa545779de96ada947cb4ce3ba070dbebf96688091f",
+      "webSha256": "419f101b127706e6143339067ec20fe9263aecf6f3b884eaf3b9c45432525b46",
+      "sourceBytes": 1439358,
+      "webBytes": 370720,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/throw-07-08-v3.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "60fc28178f262fb644f5bfe6ea15ee68932bbf4b2aaf346c6cc1a8c7bea19210",
+      "webSha256": "337c181e6f468b3410b29773de84b307eb420c6de9dd5f163e0d7044c0da420b",
+      "sourceBytes": 1544796,
+      "webBytes": 397386,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/throw-09-10.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "09149bfb4d7208e9b5bb95086c2708721ae0260d744c3e24b474be47f1497378",
+      "webSha256": "0c640a87ccf75229e15d25053e9bd1811b1ab1681dadee35d9edae45898721d3",
+      "sourceBytes": 1457284,
+      "webBytes": 385532,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/throw-11-12.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "808ef45b12aae33b1caf2d407974c92c90ac5088430c82dd4366b08ca05b2c4c",
+      "webSha256": "2f560352ad0ff455695f3a6e49993c98b0b7ce2c2bf6a4d5675772a3991347a3",
+      "sourceBytes": 1456078,
+      "webBytes": 374980,
+      "alphaExact": true
+    },
+    {
+      "lord": "sun",
+      "file": "sun/throw-13-14.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "d192e82bf962850c34f7fb067f934a72bd010c87c83338026189364a164410d1",
+      "webSha256": "5b89549d32a5658c4b7ccbb7805aec2fe1c3e1022f860a7aa57450a3f4b28562",
+      "sourceBytes": 1459002,
+      "webBytes": 379744,
+      "alphaExact": true
+    },
+    {
+      "lord": "dong",
+      "file": "dong/idle-closed-v2.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "28e4c0057d7a2611b0344ef8ee8090ab3c9efda2ae4c5bece35b9d0c84cb170a",
+      "webSha256": "716953ec235af45d23fe0dcc35c6af1b3ad2364c80bc33cc9e041dc74e301e5e",
+      "sourceBytes": 1441186,
+      "webBytes": 299610,
+      "alphaExact": true
+    },
+    {
+      "lord": "dong",
+      "file": "dong/prep-05-06-v2.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "23fa13637abcb1e34a79ccabe878c8a405f0e075818abb42ef062632a43af794",
+      "webSha256": "04dd9c499edfe38db0cd8b57a4708cced266119b84f80044043231a8c0876140",
+      "sourceBytes": 1461150,
+      "webBytes": 303700,
+      "alphaExact": true
+    },
+    {
+      "lord": "dong",
+      "file": "dong/prep-07-08-v3.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "1d13b74877bcee8b86712e436dc29a607595cf597b8152dd42d3882de2562b75",
+      "webSha256": "13373205efdec00a9ad9d1c597e62d52b7d998514bcc80485fd6be72369a24f7",
+      "sourceBytes": 1440626,
+      "webBytes": 310640,
+      "alphaExact": true
+    },
+    {
+      "lord": "dong",
+      "file": "dong/prep-09-10-v2.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "50a1c62b55b7658ce9d1eb4da4547b1ceb3002b6283255e7f708c97b12c6aa71",
+      "webSha256": "334bb24e63f0d883dbee7ab2bed3579e804f600c2f2c29cf9d4f857ccc8b6850",
+      "sourceBytes": 1408870,
+      "webBytes": 296096,
+      "alphaExact": true
+    },
+    {
+      "lord": "dong",
+      "file": "dong/recovery-01-02.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "9c2a01c9305c15dc62209f79f7d24b4551f812bb9a2b0637dbdd0bc5bf0594f8",
+      "webSha256": "872963e6caa683ddaba43b650e49ba50f2a8419ee64f10c310b56f4e63e40dea",
+      "sourceBytes": 1439718,
+      "webBytes": 308510,
+      "alphaExact": true
+    },
+    {
+      "lord": "dong",
+      "file": "dong/throw-03-04-v2.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "772a440ca4e4868ae01c9bb5fb696b24dc01ad7dc0f01c5592391172e750ff68",
+      "webSha256": "209af864b804476e9f046a689e9c6cd9adefcdc5b5f7e2a05bddcae1a9e4bf53",
+      "sourceBytes": 1451976,
+      "webBytes": 301392,
+      "alphaExact": true
+    },
+    {
+      "lord": "dong",
+      "file": "dong/throw-05-06.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "bbbef827ac48d16235db57f960bb5b5d2342d82b3f671d58be20304931615838",
+      "webSha256": "d2803cb6caece9459438fb497a82cd8e82061617801060bbbc00e6ee2f077a52",
+      "sourceBytes": 1460624,
+      "webBytes": 305850,
+      "alphaExact": true
+    },
+    {
+      "lord": "dong",
+      "file": "dong/throw-07-08.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "aa410f7f4019753a06f1118889164882286d74332a548e311143647fe0852114",
+      "webSha256": "b3169fc7b24b6b560df7976894c1e1a1ff98f263431d9bb1677b3b646f7fe02d",
+      "sourceBytes": 1695938,
+      "webBytes": 389532,
+      "alphaExact": true
+    },
+    {
+      "lord": "dong",
+      "file": "dong/throw-09-10.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "8b0f2fbdc58ea865b5d9eee11c51f8a11138093d10ebae0cf70fd0f2d14241fc",
+      "webSha256": "2737bfcedbe8b05b31f3c5fafb9a218bdcb40d9f5a1634b643b3f821979498fc",
+      "sourceBytes": 1555752,
+      "webBytes": 333580,
+      "alphaExact": true
+    },
+    {
+      "lord": "dong",
+      "file": "dong/throw-11-12.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "ea45a971fd31d9ea531352f4fa67bc1a1440d89635046076cd822c89f73dc3c5",
+      "webSha256": "c498bbfda6ec0a0789a3c2138ee5e719c88aed3d74b81870b70a22c4cc045184",
+      "sourceBytes": 1455596,
+      "webBytes": 304358,
+      "alphaExact": true
+    },
+    {
+      "lord": "dong",
+      "file": "dong/throw-13-14.webp",
+      "size": [
+        1774,
+        887
+      ],
+      "sourceSha256": "1710b304c9707c946bc586087a4dc5468d57ee703eae3a97588b4c7b0f569ac6",
+      "webSha256": "dc5a258c7350b8e3c9cec46a3709af7115db4673b377f216c598bfe781adef57",
+      "sourceBytes": 1539096,
+      "webBytes": 354202,
+      "alphaExact": true
+    }
+  ],
+  "sourceBytes": 69206008,
+  "webBytes": 16465698,
+  "uiFrameAssetsRemoved": true,
+  "currentUI": "selected tall island bases, original fixed eyes, no die tracking, single top toolbar"
+}

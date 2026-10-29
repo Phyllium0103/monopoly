@@ -40,6 +40,11 @@ function tick(now){clock=now;const callbacks=[...frames.values()];frames.clear()
  roller.startWaiting();assert.equal(timers.size,1);roller.startWaiting();assert.equal(timers.size,1);
  [...timers.values()][0]();assert.equal(roller.stage.hidden,true);assert.equal(timers.size,0);
  console.log('PASS hiding, reset, overlapping rolls and multiplayer waiting timeout resolve without orphan timers');
+ const {Vector3,Quaternion}=require('three');
+ roller.physics={playbackDuration:1,frames:[[{position:new Vector3(0,.5,0),rotation:new Quaternion(),linearVelocity:new Vector3(0,-1,0)}]],labelRotations:[new Quaternion()]};
+ assert.doesNotThrow(()=>roller.draw(-.002),'first RAF may be earlier than start');
+ roller.physics=null;
+ console.log('PASS negative first-frame timestamps cannot freeze a live roll');
  await roller.roll([0]);await roller.roll([]);assert.equal(roller.stage.hidden,true);
  console.log('PASS invalid presentation inputs leave the game unblocked');
 })().catch(error=>{console.error(error);process.exitCode=1});

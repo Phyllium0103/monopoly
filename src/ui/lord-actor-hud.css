@@ -1,0 +1,36 @@
+.hud > .lord-actors-viewport{position:absolute;left:10px;bottom:0;max-width:calc(100vw - 184px);overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;z-index:28;pointer-events:none}
+.lord-actors-dock{display:flex;align-items:flex-end;gap:7px;padding:3px 3px 0;pointer-events:none}
+.lord-actor{position:relative;flex:0 0 auto;width:var(--lord-actor-width,148px);height:calc(var(--lord-actor-width,200px)*2.1);container-type:inline-size;pointer-events:none}
+.lord-actor-hit{position:absolute;inset:0;width:100%;height:100%;padding:0;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0;pointer-events:auto;cursor:pointer}
+.lord-actor-hit:focus-visible{outline:1px dashed var(--fc);outline-offset:-5px}
+.lord-actor-seat{position:absolute;bottom:105.04cqw;left:50%;width:0;height:0}
+.lord-actor-fallback{display:none;position:absolute;left:17.8%;bottom:105.04cqw;width:64.4%;pointer-events:none}
+.lord-actor.actor-unavailable .lord-actor-fallback{display:block}
+.lord-actor.is-out{opacity:.45;filter:grayscale(.7)}
+.hud > .lord-actors-canvas{position:fixed;inset:0;z-index:29;pointer-events:none!important;display:block}
+.hud.lord-actors-enabled .top-bar{justify-content:space-between;gap:12px;min-height:58px}
+.hud.lord-actors-enabled .top-bar .lords{display:none}
+.hud.lord-actors-enabled .log-panel{top:var(--lord-content-top,160px)}
+.hud.lord-actors-enabled .info-panel{top:var(--lord-content-top,160px);max-height:var(--lord-info-max-height,280px);overflow:auto}
+.hud.lord-actors-enabled .roll-btn{right:26px;bottom:var(--lord-roll-bottom,220px);width:120px;height:120px;z-index:32}
+.hud.lord-actors-enabled .roll-btn .roll-dice{font-size:38px}.hud.lord-actors-enabled .roll-btn b{font-size:25px}
+.hud.lord-actors-enabled .party-dock{max-width:max(120px,calc(100vw - var(--lord-actors-width,620px) - 34px));bottom:16px;z-index:32}
+.hud.lord-actors-enabled .top-actions{flex:1;min-width:0;overflow-x:auto;scrollbar-width:thin}
+.hud.lord-actors-enabled .top-bar>.round,.hud.lord-actors-enabled .top-bar>.speed{flex-shrink:0}
+.hud.lord-actors-enabled .top-actions .bottom-panel{position:static;inset:auto;padding:0;background:none;border:0}
+.hud.lord-actors-enabled .top-actions .action-panel .hint{display:none}
+.hud.lord-actors-enabled .top-actions .action-panel[data-empty="true"] .hint{display:block;margin:0;font-size:13px;white-space:nowrap}
+.hud.lord-actors-enabled .top-actions .action-row{flex-wrap:nowrap;gap:5px;align-items:center}
+.hud.lord-actors-enabled .top-actions .btn.action{flex:0 0 auto;min-width:0;padding:5px 9px;font-size:13px;white-space:nowrap}
+.hud.lord-actors-enabled .top-actions .btn.action small{font-size:10px}
+@media(max-height:700px){.hud.lord-actors-enabled .log-panel{max-height:115px}.hud.lord-actors-enabled .roll-btn{width:100px;height:100px}.hud.lord-actors-enabled .roll-btn .roll-dice{font-size:30px}.hud.lord-actors-enabled .roll-btn b{font-size:21px}}
+@media(max-width:760px){.hud.lord-actors-enabled .top-bar{gap:8px}.hud.lord-actors-enabled .round{font-size:13px}.hud.lord-actors-enabled .round b{font-size:20px}.hud.lord-actors-enabled .speed{gap:0}.hud.lord-actors-enabled .btn.mini.tool{padding:3px 5px}.hud.lord-actors-enabled .info-panel{width:220px}.hud.lord-actors-enabled .log-panel{width:235px}.hud.lord-actors-enabled .party-dock{max-width:146px}}
+
+/* The selected 03 artwork is the physical surface; information has no surrounding UI frame. */
+.lord-island-artwork{position:absolute;left:0;bottom:-.9607cqw;width:100%;aspect-ratio:1145/1374;pointer-events:none}
+.lord-island-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.lord-island-values{position:absolute;left:18%;width:60%;top:23%;height:46%;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(4,minmax(0,1fr));gap:0;color:#244332;text-shadow:0 1px 1px #fff9;font-family:"Microsoft JhengHei",serif}
+.lord-island-value{display:flex;flex-direction:row;align-items:center;justify-content:space-between;min-width:0;min-height:0;gap:5px;line-height:1;white-space:nowrap}
+.lord-island-value img{width:8.5cqw;height:8.5cqw;object-fit:contain;flex:0 0 auto}
+.lord-island-value b{font-size:8cqw;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.lord-actor.is-current .lord-island-image{filter:drop-shadow(0 0 5px var(--fc))}

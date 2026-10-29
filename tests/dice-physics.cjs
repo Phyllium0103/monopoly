@@ -50,6 +50,11 @@ function rng(seed){return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/0
   }
  }
  assert.ok(contacts>0,'two actual dice must collide in the test batch');
+ // HUD uses the original-size die with a low-rebound top drop.
+ const drop=await simulateDiceRoll([4],rng(1),{size:1,position:[0,7.2,0],velocity:[0,-.4,0],surface:'soft'});
+ assert.ok(drop.firstGroundContact>0);assert.ok(drop.frames.at(-1)[0].sleeping);
+ assert.equal(upperDiceFace(sampleDicePhysics(drop,drop.playbackDuration)[0].rotation).value,4);
+ console.log('PASS gentle HUD top drop retains real contacts, sleep and authoritative face');
  console.log(`PASS 24 actual Rapier rolls, six authoritative faces, gravity, ground contacts, ${contacts} die contacts, sleep and no steering; duration ${minDuration.toFixed(2)}..${maxDuration.toFixed(2)}s, max attempts ${maxAttempts}`);
  await assert.rejects(()=>simulateDiceRoll([7],rng(1)),RangeError);
 })().catch(error=>{console.error(error);process.exitCode=1});

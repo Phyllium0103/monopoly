@@ -420,6 +420,7 @@ export class Engine {
       this.view.log(`${LORDS[lord.id].name}：${r.text}`,r.good?'good':'bad');
       await this.view.relic(lord.id,r.step,true,r.text);this.view.refresh();await this.wait(280);
     }
+    await this.view.movementDone?.(lord.id);
     if(lord.relicJourney?.steps===16){
       leaveRelic(lord);
       this.view.log(`${LORDS[lord.id].name}走滿山河圖一圈，回到原入口；本次剩餘步數不帶回大地圖。`,'good');
@@ -429,6 +430,7 @@ export class Engine {
   }
 
   private async land(lord: Lord, tile: number) {
+    await this.view.movementDone?.(lord.id);
     await this.wait(0);
     if (this.state.over) return;
     if (collectElementalSpirits(this.state, tile)) this.view.syncSpirits(this.state.elementalSpirits ?? []);

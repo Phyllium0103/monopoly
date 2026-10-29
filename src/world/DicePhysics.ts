@@ -43,6 +43,16 @@ export interface PhysicalDiceRoll {
   bounds: { minX: number; maxX: number; minZ: number; maxZ: number };
 }
 
+export interface DiceLaunch {
+  position: readonly [number, number, number];
+  velocity: readonly [number, number, number];
+  size: number;
+  /** A low-rebound tabletop surface for HUD throws; the game default stays unchanged. */
+  surface?: 'standard' | 'soft';
+  /** Explicit viewport allowance for a HUD hand-to-centre launch; default limits are unchanged. */
+  maxTravel?: readonly [number,number];
+}
+
 export function upperDiceFace(rotation: Quaternion): { value: number; alignment: number } {
   let value = 1, alignment = -Infinity;
   for (const [face, normal] of Object.entries(DICE_FACE_NORMALS)) {
@@ -63,11 +73,16 @@ export function roundedDiceSupport(rotation: Quaternion): number {
  * printed face corresponds to its initial local axes BEFORE playing the roll.
  * This preserves the game's authoritative values without steering a moving die.
  */
-export async function simulateDiceRoll(values: readonly number[], random: () => number): Promise<PhysicalDiceRoll> {
+export async function simulateDiceRoll(values: readonly number[], random: () => number, launch?: DiceLaunch): Promise<PhysicalDiceRoll> {
   if (values.length < 1 || values.length > 2 || values.some(v => !Number.isInteger(v) || !DICE_FACE_NORMALS[v])) {
     throw new RangeError('Expected one or two dice with values 1..6');
   }
   const R = await prepareDicePhysics();
+  const size = launch?.size ?? 1;
+  if (!Number.isFinite(size) || size < .1 || size > 2) throw new RangeError('Invalid die size');
+  const soft = launch?.surface === 'soft';
+  const restitution = soft ? .055 : .32, friction = soft ? .88 : .65;
+  const spin = soft ? .58 : 1;
   const failures: string[] = [];
   for (let attempt = 1; attempt <= 12; attempt++) {
     const world = new R.World({ x: 0, y: DICE_GRAVITY, z: 0 });
@@ -78,18 +93,22 @@ export async function simulateDiceRoll(values: readonly number[], random: () => 
       world.integrationParameters.maxCcdSubsteps = 4;
       world.integrationParameters.normalizedAllowedLinearError = .0001;
       const ground = world.createCollider(R.ColliderDesc.cuboid(20, .1, 20).setTranslation(0, -.1, 0)
-        .setFriction(.65).setRestitution(.32));
+        .setFriction(friction).setRestitution(restitution));
       const bodies = values.map((_, i) => {
         const side = i ? 1 : -1;
         const rotation = new Quaternion().setFromEuler(new Euler(random() * Math.PI * 2, random() * Math.PI * 2, random() * Math.PI * 2));
+        const x = launch ? launch.position[0] + i * size * 1.5 : values.length === 1 ? (random() - .5) * .4 : side * (.76 + random() * .12);
+        const y = launch?.position[1] ?? 7.2 + i * .5, z = launch?.position[2] ?? (random() - .5) * .35;
+        const vx = launch?.velocity[0] ?? (values.length === 1 ? (random() - .5) * .4 : -side * (.15 + random() * .2));
+        const vy = launch?.velocity[1] ?? -.4, vz = launch?.velocity[2] ?? (random() - .5) * .3;
         const body = world.createRigidBody(R.RigidBodyDesc.dynamic()
-          .setTranslation(values.length === 1 ? (random() - .5) * .4 : side * (.76 + random() * .12), 7.2 + i * .5, (random() - .5) * .35)
-          .setRotation(rotation).setLinvel(values.length === 1 ? (random() - .5) * .4 : -side * (.15 + random() * .2), -.4, (random() - .5) * .3)
-          .setAngvel({ x: (3 + random() * 4) * side, y: (random() - .5) * 3, z: (3 + random() * 4) * -side })
-          .setLinearDamping(.08).setAngularDamping(.12).setCcdEnabled(true).setCanSleep(true)
+          .setTranslation(x, y, z)
+          .setRotation(rotation).setLinvel(vx, vy, vz)
+          .setAngvel({ x: (3 + random() * 4) * side * spin, y: (random() - .5) * 3 * spin, z: (3 + random() * 4) * -side * spin })
+          .setLinearDamping(.08).setAngularDamping(soft ? .7 : .12).setCcdEnabled(true).setCanSleep(true)
           .setAdditionalSolverIterations(4));
-        world.createCollider(R.ColliderDesc.roundCuboid(DICE_CORE_HALF, DICE_CORE_HALF, DICE_CORE_HALF, DICE_ROUND_RADIUS)
-          .setMass(.0062).setFriction(.65).setRestitution(.32).setActiveEvents(R.ActiveEvents.COLLISION_EVENTS), body);
+        world.createCollider(R.ColliderDesc.roundCuboid(DICE_CORE_HALF * size, DICE_CORE_HALF * size, DICE_CORE_HALF * size, DICE_ROUND_RADIUS * size)
+          .setMass(.0062 * size ** 3).setFriction(friction).setRestitution(restitution).setActiveEvents(R.ActiveEvents.COLLISION_EVENTS), body);
         return body;
       });
       const frames: PhysicsDiePose[][] = [];
@@ -114,7 +133,7 @@ export async function simulateDiceRoll(values: readonly number[], random: () => 
       }
       const end = frames[frames.length - 1];
       // Reject cocked/stacked or out-of-view rolls; never move them into place.
-      if (!end.every(p => p.sleeping && p.position.y < .53 && upperDiceFace(p.rotation).alignment > .9995)) {
+      if (!end.every(p => p.sleeping && p.position.y < .53 * size && upperDiceFace(p.rotation).alignment > .9995)) {
         failures.push(`rest:${end.map(p => `${p.sleeping}/${p.position.y.toFixed(3)}/${upperDiceFace(p.rotation).alignment.toFixed(5)}`).join(',')}`); continue;
       }
       const poses = frames.flat();
@@ -122,7 +141,7 @@ export async function simulateDiceRoll(values: readonly number[], random: () => 
         minX: Math.min(...poses.map(p=>p.position.x)), maxX: Math.max(...poses.map(p=>p.position.x)),
         minZ: Math.min(...poses.map(p=>p.position.z)), maxZ: Math.max(...poses.map(p=>p.position.z)),
       };
-      if (bounds.maxX - bounds.minX > 4.8 || bounds.maxZ - bounds.minZ > 4) { failures.push('outside'); continue; }
+      if (bounds.maxX - bounds.minX > (launch?.maxTravel?.[0]??4.8) || bounds.maxZ - bounds.minZ > (launch?.maxTravel?.[1]??4)) { failures.push('outside'); continue; }
       const labelRotations = end.map((pose, i) => resultQuaternion(upperDiceFace(pose.rotation).value).invert().multiply(resultQuaternion(values[i])));
       let stationaryStart = frames.length - 1;
       for (let i = frames.length - 2; i >= 0; i--) {

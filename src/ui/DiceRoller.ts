@@ -8,16 +8,21 @@ import { assetUrl } from '../data/assetUrl';
 import { dicePlaybackRate, diceRollResult } from '../world/DiceMotion';
 import { sampleDicePhysics, simulateDiceRoll, type PhysicalDiceRoll } from '../world/DicePhysics';
 import './dice-roller.css';
+import { LORD_PRESENTATION_RATE } from './LordPresentation';
 
 function cosmeticRandom(): number {
   return crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000;
 }
 
 /** A visual presentation of an already-authoritative roll; this class never rolls game dice. */
+export interface DiceHandOrigin { ndc:readonly [number,number];diameterPx?:number }
+export interface DicePresentationOptions { centerFinal?:boolean; gentle?:boolean }
+
 export class DiceRoller {
   private readonly stage = document.createElement('div');
   private readonly caption = document.createElement('div');
   private readonly scene = new Scene();
+  private readonly shadowFloor:Mesh;
   private readonly camera = new OrthographicCamera(-5, 5, 4, -4, .1, 100);
   private renderer: WebGLRenderer | null = null;
   private model: Group | null = null;
@@ -31,10 +36,12 @@ export class DiceRoller {
   private version = 0;
   private finish: (() => void) | null = null;
   private observing = false;
+  private handOrigin:DiceHandOrigin|null=null;
+  private framingPhysics:PhysicalDiceRoll|null=null;
   private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   private readonly resizeObserver = new ResizeObserver(() => this.resize());
 
-  constructor(parent: HTMLElement) {
+  constructor(parent: HTMLElement, private readonly options:DicePresentationOptions={}) {
     this.stage.className = 'dice-roll-stage'; this.stage.hidden = true;
     this.caption.className = 'dice-roll-caption';
     this.caption.setAttribute('role', 'status'); this.caption.setAttribute('aria-live', 'polite');
@@ -49,7 +56,7 @@ export class DiceRoller {
     key.shadow.normalBias = .015; key.shadow.bias = -.00015;
     const rim = new DirectionalLight(0xd7e8ff, 2); rim.position.set(4, 4, -5);
     this.scene.add(key, rim);
-    const floor = new Mesh(new PlaneGeometry(30, 30), new ShadowMaterial({ opacity: .25 }));
+    const floor = this.shadowFloor = new Mesh(new PlaneGeometry(30, 30), new ShadowMaterial({ opacity: .25 }));
     floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; this.scene.add(floor);
     // requestAnimationFrame pauses in a background tab. A hidden P2P host must
     // still resolve its presentation promise and continue the authoritative turn.
@@ -70,12 +77,12 @@ export class DiceRoller {
     clearTimeout(this.safety); this.safety = 0;
     this.stage.hidden = true; this.stage.classList.remove('is-result');
     this.resizeObserver.disconnect(); this.observing = false;
-    this.clearDice();
+    this.clearDice();this.shadowFloor.visible=true;this.framingPhysics=null;
     const resolve = this.finish; this.finish = null; resolve?.();
   }
 
-  roll(values: readonly number[], bonus = 0, multiplier = 1, speed = 1, holdPreview = false): Promise<void> {
-    this.cancel(); const token = this.version;
+  roll(values: readonly number[], bonus = 0, multiplier = 1, speed = 1, holdPreview = false, hand?:DiceHandOrigin): Promise<void> {
+    this.cancel(); const token = this.version;this.handOrigin=hand??null;
     if (document.hidden || !values.length || values.some(v => !Number.isInteger(v) || v < 1 || v > 6)) return Promise.resolve();
     this.open(); this.caption.replaceChildren();
     return new Promise(resolve => {
@@ -147,10 +154,10 @@ export class DiceRoller {
     await this.loading;
   }
 
-  private setDice(values: readonly number[]): void {
+  private setDice(values: readonly number[],scale=1,castShadow=true): void {
     this.clearDice();
     if (this.unavailable || !this.model) return;
-    this.dice = values.map(() => { const die = this.model!.clone(true); this.scene.add(die); return die; });
+    this.dice = values.map(() => { const die = this.model!.clone(true); die.scale.multiplyScalar(scale);die.traverse(o=>{if(o instanceof Mesh){o.castShadow=castShadow;o.receiveShadow=castShadow;}});this.scene.add(die); return die; });
   }
 
   private clearDice(): void { this.dice.forEach(d => this.scene.remove(d)); this.dice = []; }
@@ -169,10 +176,13 @@ export class DiceRoller {
     const width = this.stage.clientWidth, height = this.stage.clientHeight;
     if (!width || !height) return;
     // A portrait screen retains enough horizontal room for two dice.
-    const bounds = this.physics?.bounds;
-    const centerX = bounds ? (bounds.minX + bounds.maxX) / 2 : 0;
-    const centerZ = bounds ? (bounds.minZ + bounds.maxZ) / 2 : 0;
-    this.camera.position.set(centerX, 9, centerZ + 6); this.camera.lookAt(centerX, .4, centerZ);
+    const framing=this.framingPhysics??this.physics;
+    const bounds = framing?.bounds;
+    const resting=this.options.centerFinal&&framing?sampleDicePhysics(framing,framing.playbackDuration):[];
+    const centerX = resting.length?resting.reduce((s,p)=>s+p.position.x,0)/resting.length:bounds ? (bounds.minX + bounds.maxX) / 2 : 0;
+    const centerZ = resting.length?resting.reduce((s,p)=>s+p.position.z,0)/resting.length:bounds ? (bounds.minZ + bounds.maxZ) / 2 : 0;
+    const centerY = resting.length?resting.reduce((s,p)=>s+p.position.y,0)/resting.length:.4;
+    this.camera.position.set(centerX, 9, centerZ + 6); this.camera.lookAt(centerX, centerY, centerZ);this.camera.updateMatrixWorld();
     // Frame the actual simulated travel BEFORE playback. The camera stays fixed;
     // dice are never teleported or constrained to a hand-drawn screen trajectory.
     const halfHeight = Math.max(3.35, (bounds ? (bounds.maxX - bounds.minX + 1.6) / 2 : 2.2) * height / width);
@@ -187,7 +197,12 @@ export class DiceRoller {
     await this.prepare(); if (token !== this.version) return;
     if (!this.unavailable) {
       try {
-        const physics = await simulateDiceRoll(values, cosmeticRandom);
+        let seed=[1,11,17,18][Math.floor(cosmeticRandom()*4)];
+        const random=this.options.gentle?()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/0x100000000):cosmeticRandom;
+        const physics=await simulateDiceRoll(values,random,this.options.gentle?{size:1,position:[0,7.2,0],velocity:[0,-.4,0],surface:'soft'}:undefined);
+        this.framingPhysics=physics;
+        this.stage.dataset.launchMode=this.handOrigin?'release-to-top-drop':'top-drop';
+        this.stage.dataset.handOrigin=JSON.stringify(this.handOrigin?.ndc??null);
         if (token !== this.version) return;
         this.physics = physics;
         this.stage.dataset.physics = `Rapier · ${physics.groundContacts} ground / ${physics.dieContacts} dice contacts`;
@@ -196,16 +211,20 @@ export class DiceRoller {
         this.physics = null;
       }
     } else this.physics = null;
-    this.setDice(values); this.resize();
+    const descent=this.physics;
+    this.resize();
+    if(token!==this.version)return;
+    this.physics=descent;this.shadowFloor.visible=true;this.setDice(values);this.draw(0);this.resize();
+    this.stage.dataset.sequencePhase='large-descent';this.stage.dataset.dieScale='1';this.stage.dataset.phase='0';this.stage.dataset.shadowMode='contact';
     if (!this.physics) this.clearDice();
-    const playbackRate = dicePlaybackRate(speed);
+    const playbackRate = dicePlaybackRate(speed)*LORD_PRESENTATION_RATE;
     const duration = this.reducedMotion || !this.physics ? 0 : this.physics.playbackDuration * 1000 / playbackRate;
-    const hold = 180; const start = performance.now();
+    const hold = 180/LORD_PRESENTATION_RATE; const start = performance.now();
     const { total, detail } = diceRollResult(values, bonus, multiplier);
     let resultShown = false;
     const tick = (now: number) => {
       if (token !== this.version) return;
-      const elapsed = now - start, progress = duration ? Math.min(1, elapsed / duration) : 1;
+      const elapsed = Math.max(0,now - start), progress = duration ? Math.min(1, elapsed / duration) : 1;
       this.draw(progress); this.stage.dataset.phase = progress.toFixed(3);
       if (progress === 1 && !resultShown) {
         resultShown = true; this.stage.classList.add('is-result');

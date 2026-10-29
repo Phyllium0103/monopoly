@@ -8,7 +8,7 @@ import { assetUrl } from '../data/assetUrl';
 import { dicePlaybackRate, diceRollResult } from '../world/DiceMotion';
 import { sampleDicePhysics, simulateDiceRoll, type PhysicalDiceRoll } from '../world/DicePhysics';
 import './dice-roller.css';
-import { LORD_PRESENTATION_RATE } from './LordPresentation';
+import { DICE_PRESENTATION_RATE } from './LordPresentation';
 
 function cosmeticRandom(): number {
   return crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000;
@@ -217,9 +217,9 @@ export class DiceRoller {
     this.physics=descent;this.shadowFloor.visible=true;this.setDice(values);this.draw(0);this.resize();
     this.stage.dataset.sequencePhase='large-descent';this.stage.dataset.dieScale='1';this.stage.dataset.phase='0';this.stage.dataset.shadowMode='contact';
     if (!this.physics) this.clearDice();
-    const playbackRate = dicePlaybackRate(speed)*LORD_PRESENTATION_RATE;
+    const playbackRate = dicePlaybackRate(speed)*DICE_PRESENTATION_RATE;
     const duration = this.reducedMotion || !this.physics ? 0 : this.physics.playbackDuration * 1000 / playbackRate;
-    const hold = 180/LORD_PRESENTATION_RATE; const start = performance.now();
+    const hold = 120; const start = performance.now();
     const { total, detail } = diceRollResult(values, bonus, multiplier);
     let resultShown = false;
     const tick = (now: number) => {

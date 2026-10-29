@@ -35,6 +35,7 @@ export class LordActorHud {
   private visible=false;
   private available=true;
   private active:LordId|null=null;
+  private readyLord:LordId|null=null;
   private awaitingMovement:LordId|null=null;
   private stateKey='';
   private turnVersion=0;
@@ -80,16 +81,16 @@ export class LordActorHud {
     const resize=new ResizeObserver(()=>this.layout());
     for(const selector of ['.top-bar','.bottom-panel','.party-dock'])resize.observe(parent.querySelector(selector)??parent);
     document.addEventListener('visibilitychange',()=>{
-      if(document.hidden){this.cancel();cancelAnimationFrame(this.frameHandle);this.frameHandle=0;}
-      else if(this.visible)this.startFrames();
+      if(document.hidden)this.suspend();
+      else if(this.visible){this.restoreReady();this.startFrames();}
     });
   }
 
   show(show:boolean):void{
     this.visible=show;this.viewport.hidden=!show;
     if(this.renderer)this.renderer.domElement.hidden=!show;
-    if(show){this.layout();this.startFrames();}
-    else{this.cancel();cancelAnimationFrame(this.frameHandle);this.frameHandle=0;}
+    if(show){this.layout();this.restoreReady();this.startFrames();}
+    else this.suspend();
   }
 
   update(state:GameState,me:LordId):void{
@@ -109,30 +110,72 @@ export class LordActorHud {
       this.stateKey=key;
       const id=state.order[state.turn];
       if(state.over){this.active=null;this.cancel();this.markCurrent();}
-      else if(!this.rolling)this.focus(id);
+      else if(!this.rolling)this.focus(id,true);
     }
     this.layout();
   }
 
   /** Explicit lord survives online state snapshots that are already one turn ahead. */
-  focus(id:LordId):void{
-    if(this.rolling||!this.visible)return;
-    this.awaitingMovement=null;this.active=id;this.markCurrent();
+  focus(id:LordId,newTurn=false):void{
+    if(this.rolling)return;
+    if(!newTurn&&this.active===id)return;
+    this.awaitingMovement=null;this.active=id;this.readyLord=id;this.markCurrent();
     const version=++this.turnVersion;
     this.stopMotion();this.idleAll();
-    this.preparing=(async()=>{
+    this.preparing=this.prepareReady(id,version,true);
+  }
+
+  private async prepareReady(id:LordId,version:number,animate:boolean):Promise<void>{
+    try{
+      if(!this.visible||document.hidden||this.readyLord!==id)return;
       await this.initialize();
       const a=this.actors.get(id)!;
-      if(!this.available||version!==this.turnVersion||!this.visible||document.hidden)return;
+      if(!this.available||version!==this.turnVersion||this.readyLord!==id||!this.visible||document.hidden)return;
       await Promise.all([this.preload(a,'prep'),this.preload(a,'throw'),id==='liu'?Promise.resolve():this.preload(a,'recovery')]);
-      if(version!==this.turnVersion||!this.visible||document.hidden)return;
-      await this.playClip(a,'prep',0,a.atlases.prep!.duration);
-      if(version===this.turnVersion)a.card.dataset.pose='ready';
-    })().catch(error=>{console.warn('Lord HUD animation unavailable.',error);this.actors.get(id)!.card.classList.add('actor-unavailable');});
+      if(version!==this.turnVersion||this.readyLord!==id||!this.visible||document.hidden)return;
+      if(animate)await this.playClip(a,'prep',0,a.atlases.prep!.duration);
+      if(version===this.turnVersion&&this.readyLord===id)this.setReadyPose(a);
+    }catch(error){console.warn('Lord HUD animation unavailable.',error);this.actors.get(id)!.card.classList.add('actor-unavailable');}
+  }
+
+  private setReadyPose(a:Actor):boolean{
+    const at=a.atlases.prep;
+    if(!at||!a.textures.has(sheet(at,at.frames[at.frames.length-1])))return false;
+    this.setFrame(a,'prep',at.frames.length-1);
+    this.faceForward(a);a.card.dataset.pose='ready';
+    return true;
+  }
+
+  private restoreReady():void{
+    if(!this.visible||document.hidden||this.rolling||this.active!==this.readyLord||!this.readyLord)return;
+    const a=this.actors.get(this.readyLord)!;
+    if(a.card.dataset.pose==='ready'&&this.setReadyPose(a))return;
+    if(this.motion?.actor===a&&this.motion.clip==='prep')return;
+    this.preparing=this.prepareReady(a.id,this.turnVersion,false);
+  }
+
+  /** Backgrounding ends cosmetic waits, without consuming an unrolled ready pose. */
+  private suspend():void{
+    if(this.rolling){
+      const id=this.rolling,a=this.actors.get(id)!;
+      this.presentationVersion++;this.turnVersion++;this.readyLord=null;
+      this.rolling=null;this.awaitingMovement=id;
+      this.unblockWait?.();this.unblockWait=null;this.stopMotion();
+      if(a.atlases.throw)this.setFrame(a,'throw',a.atlases.throw.frames.length-1);
+      a.card.dataset.pose='awaiting-movement';
+    }else if(this.readyLord){
+      // Invalidate in-flight image loads too: they must not restart prep on return.
+      this.turnVersion++;this.stopMotion();
+      const a=this.actors.get(this.readyLord)!;
+      if(!this.setReadyPose(a))a.card.dataset.pose='preparing';
+    }else if(this.motion){
+      const m=this.motion;this.motion=null;this.sample(m.actor,m.clip,m.end);m.resolve();
+    }
+    cancelAnimationFrame(this.frameHandle);this.frameHandle=0;
   }
 
   async playRoll(id:LordId,drop:(origin?:DiceHandOrigin)=>Promise<void>):Promise<void>{
-    if(document.hidden||!this.visible){await drop();return;}
+    if(document.hidden||!this.visible){this.readyLord=null;this.awaitingMovement=id;await drop();return;}
     if(this.rolling)this.cancel();
     if(this.active!==id)this.focus(id);
     const version=++this.presentationVersion;this.rolling=id;
@@ -144,6 +187,7 @@ export class LordActorHud {
       try{await Promise.race([this.preparing,new Promise<void>(resolve=>{timer=setTimeout(resolve,5000);}),new Promise<void>(resolve=>{this.unblockWait=resolve;})]);}
       finally{clearTimeout(timer);this.unblockWait=null;}
       if(version!==this.presentationVersion)return;
+      this.readyLord=null;
       if(!this.available||!a.atlases.throw||!a.textures.has(sheet(a.atlases.throw,a.atlases.throw.frames[0]))){await drop();return;}
       const release=a.atlases.throw.release,at=release?.time??.54;
       await this.playClip(a,'throw',0,at);
@@ -173,7 +217,7 @@ export class LordActorHud {
   private faceForward(a:Actor):void{a.card.dataset.gaze='forward';}
 
   cancel():void{
-    this.presentationVersion++;this.turnVersion++;this.rolling=null;this.awaitingMovement=null;this.unblockWait?.();this.unblockWait=null;this.stopMotion();this.idleAll();
+    this.presentationVersion++;this.turnVersion++;this.readyLord=null;this.rolling=null;this.awaitingMovement=null;this.unblockWait?.();this.unblockWait=null;this.stopMotion();this.idleAll();
   }
 
   reset():void{this.cancel();this.stateKey='';this.active=null;this.markCurrent();}

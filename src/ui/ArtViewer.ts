@@ -28,7 +28,7 @@ export function installArtViewer() {
       full.src = fullUrl;
       full.alt = img.alt;
       overlay.appendChild(full);
-      document.body.appendChild(overlay);
+      (document.getElementById('ui')??document.body).appendChild(overlay);
     },
     true,
   );

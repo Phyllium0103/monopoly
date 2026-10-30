@@ -8,6 +8,8 @@ import { assetUrl } from '../data/assetUrl';
 import { dicePlaybackRate, diceRollResult } from '../world/DiceMotion';
 import { sampleDicePhysics, simulateDiceRoll, type PhysicalDiceRoll } from '../world/DicePhysics';
 import './dice-roller.css';
+import {prepareDiceWorker,simulateDiceInWorker} from '../world/DiceWorker';
+import {renderPixelRatio} from '../performance/renderBudget';
 import { DICE_PRESENTATION_RATE } from './LordPresentation';
 
 function cosmeticRandom(): number {
@@ -61,6 +63,7 @@ export class DiceRoller {
     // requestAnimationFrame pauses in a background tab. A hidden P2P host must
     // still resolve its presentation promise and continue the authoritative turn.
     document.addEventListener('visibilitychange', () => { if (document.hidden) this.cancel(); });
+    addEventListener('resize',()=>{if(!this.stage.hidden)this.resize();},{passive:true});
   }
 
   /** Begin waiting without displaying a false result, including during GLB loading. */
@@ -114,6 +117,12 @@ export class DiceRoller {
     this.stage.hidden = false; this.stage.classList.remove('is-result');
     if (!this.observing) { this.resizeObserver.observe(this.stage); this.observing = true; }
     this.resize();
+  }
+
+  async prepareAssets():Promise<void>{
+    await Promise.all([this.prepare(),prepareDiceWorker()]);
+    if(this.unavailable)throw new Error('骰子模型尚未準備好');
+    this.scene.add(this.model!);await this.renderer!.compileAsync(this.scene,this.camera);this.scene.remove(this.model!);
   }
 
   private async prepare(): Promise<void> {
@@ -173,7 +182,7 @@ export class DiceRoller {
 
   private resize(): void {
     if (!this.renderer || this.stage.hidden) return;
-    const width = this.stage.clientWidth, height = this.stage.clientHeight;
+    const rect=this.stage.getBoundingClientRect(),width=rect.width,height=rect.height;
     if (!width || !height) return;
     // A portrait screen retains enough horizontal room for two dice.
     const framing=this.framingPhysics??this.physics;
@@ -188,8 +197,8 @@ export class DiceRoller {
     const halfHeight = Math.max(3.35, (bounds ? (bounds.maxX - bounds.minX + 1.6) / 2 : 2.2) * height / width);
     this.camera.left = -halfHeight * width / height; this.camera.right = -this.camera.left;
     this.camera.top = halfHeight; this.camera.bottom = -halfHeight; this.camera.updateProjectionMatrix();
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
-    this.renderer.setSize(width, height);
+    this.renderer.setPixelRatio(renderPixelRatio(width,height,1_600_000));
+    this.renderer.setSize(width, height,false);
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -197,9 +206,9 @@ export class DiceRoller {
     await this.prepare(); if (token !== this.version) return;
     if (!this.unavailable) {
       try {
-        let seed=[1,11,17,18][Math.floor(cosmeticRandom()*4)];
-        const random=this.options.gentle?()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/0x100000000):cosmeticRandom;
-        const physics=await simulateDiceRoll(values,random,this.options.gentle?{size:1,position:[0,7.2,0],velocity:[0,-.4,0],surface:'soft'}:undefined);
+        const seed=this.options.gentle?[1,11,17,18][Math.floor(cosmeticRandom()*4)]:crypto.getRandomValues(new Uint32Array(1))[0];
+        const physics=await simulateDiceInWorker(values,seed,this.options.centerFinal?{size:1,position:[0,7.2,0],velocity:[0,-.4,0],surface:this.options.gentle?'soft':'standard'}:undefined);
+        this.stage.dataset.bounceProfile=this.options.gentle?'soft':'standard';
         this.framingPhysics=physics;
         this.stage.dataset.launchMode=this.handOrigin?'release-to-top-drop':'top-drop';
         this.stage.dataset.handOrigin=JSON.stringify(this.handOrigin?.ndc??null);

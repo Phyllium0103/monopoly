@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {renderPixelRatio} from '../performance/renderBudget';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { CameraController } from './CameraController';
 import { Environment } from './Environment';
@@ -17,6 +18,15 @@ export class SceneManager {
 
   private timer = new THREE.Timer();
   private frame = 0;
+  private started=false;
+  private rendering=true;
+  private lastDraw=0;
+  private lastLabels=0;
+  private cameraKey='';
+  private interactionUntil=0;
+  setRendering(enabled:boolean){this.rendering=enabled;this.lastDraw=0;}
+
+  beforeRender:(()=>void)|null=null;
   private hoverQueued = false;
   private updaters: ((dt: number, time: number) => void)[] = [];
   private raycaster = new THREE.Raycaster();
@@ -28,7 +38,7 @@ export class SceneManager {
   constructor(container: HTMLElement) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     // 高解析螢幕上畫素量成倍增加，上限 1.5 兼顧畫質與流暢
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    this.renderer.setPixelRatio(renderPixelRatio(window.innerWidth,window.innerHeight));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -48,6 +58,7 @@ export class SceneManager {
     this.environment = new Environment(this.scene);
 
     window.addEventListener('resize', () => this.resize());
+    for(const type of ['pointerdown','wheel','keydown'])window.addEventListener(type,()=>{this.interactionUntil=performance.now()+1200;},{passive:true});
     this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
     this.renderer.domElement.addEventListener('pointerdown', (e) => (this.downPos = { x: e.clientX, y: e.clientY }));
     this.renderer.domElement.addEventListener('pointerup', (e) => {
@@ -92,6 +103,7 @@ export class SceneManager {
   }
 
   start() {
+    if(this.started)return;this.started=true;
     this.renderer.setAnimationLoop((timestamp) => {
       this.timer.update(timestamp);
       const dt = Math.min(this.timer.getDelta(), 0.1);
@@ -99,6 +111,17 @@ export class SceneManager {
       for (const u of this.updaters) u(dt, this.animator.time);
       this.environment.update(dt);
       this.cameraController.update(dt);
+      this.camera.updateMatrixWorld();
+      this.beforeRender?.();
+      const key=[...this.camera.matrixWorld.elements,...this.camera.projectionMatrix.elements].join(',');
+      const cameraChanged=key!==this.cameraKey;this.cameraKey=key;
+      const active=this.animator.active||cameraChanged||timestamp<this.interactionUntil;
+      // Simulation remains independent of drawing, including while dialogs cover the map.
+      if(!this.rendering||document.hidden)return;
+      const covered=!!document.querySelector('.battle-backdrop:not(.hidden),.dialog-backdrop:not(.hidden) .casino-stage');
+      const interval=covered?100:active?0:1000/30;
+      if(this.lastDraw&&timestamp-this.lastDraw<interval-1)return;
+      this.lastDraw=timestamp;
       this.frame++;
       // Buildings are static. Refresh their expensive shadow map only when a model changes.
       if (this.frame === 1) this.renderer.shadowMap.needsUpdate = true;
@@ -110,13 +133,14 @@ export class SceneManager {
         azimuth:THREE.MathUtils.radToDeg(this.cameraController.controls.getAzimuthalAngle()),
       });
       // 文字標籤是 DOM，每格都更新很吃瀏覽器的排版；隔格更新肉眼看不出差別
-      if (this.frame % 2 === 0) this.labels.render(this.scene, this.camera);
+      if(cameraChanged||timestamp-this.lastLabels>=1000/15){this.labels.render(this.scene,this.camera);this.lastLabels=timestamp;}
     });
   }
 
   private resize() {
     this.camera.left=-90*window.innerWidth/window.innerHeight;this.camera.right=90*window.innerWidth/window.innerHeight;
     this.camera.updateProjectionMatrix();
+    this.renderer.setPixelRatio(renderPixelRatio(window.innerWidth,window.innerHeight));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.labels.setSize(window.innerWidth, window.innerHeight);
   }

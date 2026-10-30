@@ -4,6 +4,7 @@ type Task = (dt: number, elapsed: number) => boolean;
 export class Animator {
   private tasks: Task[] = [];
   time = 0;
+  get active(){return this.tasks.length>0;}
 
   update(dt: number) {
     this.time += dt;

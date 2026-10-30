@@ -1,3 +1,4 @@
+import {installUiViewport,uiViewportSize} from './UiViewport';
 import { music } from './Music';
 import { DiceRoller, type DiceHandOrigin } from './DiceRoller';
 import { LordActorHud } from './LordActorHud';
@@ -65,6 +66,7 @@ export class GameUI {
   auto = false;
 
   constructor(root: HTMLElement) {
+    installUiViewport(root);
     this.hud = document.createElement('div');
     this.hud.className = 'hud hidden';
     this.hud.innerHTML = `
@@ -88,7 +90,7 @@ export class GameUI {
     this.logEl = q('.log-list');
     this.toastEl = q('.toast');
     this.tooltip = q('.tooltip');
-    this.dice = new DiceRoller(this.hud,{centerFinal:true,gentle:true});
+    this.dice = new DiceRoller(this.hud,{centerFinal:true});
     this.actors = new LordActorHud(this.hud,()=>this.speed,id=>this.onLord?.(id));
     this.report = q('.turn-report');
     this.overlay = q('.report-overlay');
@@ -98,6 +100,11 @@ export class GameUI {
     // 點擊任何地方都能立刻關閉電腦行動結果
     this.overlay.addEventListener('click', () => this.closeReport?.());
     this.report.addEventListener('click', () => this.closeReport?.());
+  }
+
+  async prepareAssets(progress:(done:number,total:number)=>void){
+    await this.dice.prepareAssets();await this.actors.prepareAssets(progress);
+    await Promise.all([...this.hud.querySelectorAll<HTMLImageElement>('img')].map(image=>image.decode().catch(()=>{throw new Error('介面圖片載入失敗');})));
   }
 
   show() {
@@ -190,6 +197,9 @@ export class GameUI {
   }
 
   renderActions(buttons: ActionButton[], hint: string, fullHint = '') {
+    const key=JSON.stringify([hint,fullHint,buttons.map(b=>[b.label,b.sub,b.kind,b.highlight,b.disabled])]);
+    if(this.actions.dataset.renderKey===key){this.actions.querySelectorAll<HTMLButtonElement>('button.action').forEach((button,i)=>button.onclick=()=>buttons[i]?.onClick());return;}
+    this.actions.dataset.renderKey=key;
     this.actions.title=fullHint||hint;
     this.actions.setAttribute('aria-label',fullHint||hint);
     this.actions.dataset.empty=String(buttons.length===0);
@@ -237,7 +247,7 @@ export class GameUI {
 
   renderInfo(html: string | null) {
     this.info.classList.toggle('hidden', !html);
-    if (html) this.info.innerHTML = html;
+    if (html && this.info.innerHTML!==html) this.info.innerHTML = html;
   }
 
   log(msg: string, kind: 'info' | 'good' | 'bad' | 'ai' | 'turn' = 'info') {
@@ -295,10 +305,12 @@ export class GameUI {
   showRoll(onClick: () => void) {
     this.rollBtn.classList.remove('hidden');
     this.rollBtn.onclick = onClick;
+    this.actors.setRollAction(onClick);
   }
 
   hideRoll() {
     this.rollBtn.classList.add('hidden');
+    this.actors.setRollAction(null);
   }
 
   toast(msg: string) {
@@ -315,7 +327,8 @@ export class GameUI {
     }
     this.tooltip.classList.remove('hidden');
     this.tooltip.innerHTML = text;
-    this.tooltip.style.left = `${Math.min(x + 14, window.innerWidth - 260)}px`;
+    const {scale,width}=uiViewportSize();x/=scale;y/=scale;
+    this.tooltip.style.left = `${Math.min(x + 14, width - 260)}px`;
     this.tooltip.style.top = `${y + 14}px`;
   }
 

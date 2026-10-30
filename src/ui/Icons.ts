@@ -14,6 +14,7 @@ const baseName = (name: string) => name.split('・').pop() ?? name;
 // 載入後轉成瀏覽器內部的 blob 網址，之後顯示圖片完全不用再連網。
 // 圖片包還沒載好（或載入失敗）時，退回逐張下載，所以不會出現空白。
 
+let packFailed=false;
 const packUrls = new Map<string, string>();
 let packPromise: Promise<void> | null = null;
 
@@ -30,12 +31,14 @@ export function loadArtPack(): Promise<void> {
         packUrls.set(key, URL.createObjectURL(new Blob([bin.slice(off, off + len)], { type: 'image/webp' })));
       }
     } catch {
+      packFailed=true;
       // 失敗就之後逐張載
     }
   })();
   return packPromise;
 }
-void loadArtPack();
+// Loaded explicitly by the opening gate rather than competing with modules.
+export async function prepareArtPack(){await loadArtPack();if(packFailed||packUrls.size===0)throw new Error('物品圖片包載入失敗');}
 
 /** 優先用圖片包裡的 blob 網址，沒有才用檔案網址 */
 const url = (dir: string, name: string) => packUrls.get(`${dir}/${name}`) ?? `${BASE}art/${dir}/${encodeURIComponent(name)}.webp`;

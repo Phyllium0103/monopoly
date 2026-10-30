@@ -125,10 +125,10 @@ class DiceTable {
   readonly player: Station;
 
   constructor(private host: HTMLElement) {
-    const w = host.clientWidth || 640, h = host.clientHeight || 300;
+    const rect=host.getBoundingClientRect(),w=rect.width||640,h=rect.height||300;
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    this.renderer.setSize(w, h);
+    this.renderer.setSize(w, h,false);
     this.renderer.shadowMap.enabled = true;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     host.appendChild(this.renderer.domElement);

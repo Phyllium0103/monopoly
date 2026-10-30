@@ -14,7 +14,7 @@ import { CharacterSprite } from '../character/CharacterSprite';
 import { LORDS, LORD_IDS, ownerCss, ownerName } from '../faction/Faction';
 import { GameUI, type ActionButton, type PartyIcon } from '../ui/GameUI';
 import { Dialog } from '../ui/Dialog';
-import { portraitUrl, preloadArt } from '../ui/Icons';
+import { portraitUrl, preloadArt,prepareArtPack } from '../ui/Icons';
 import { GeneralsView } from '../ui/GeneralsView';
 import { BattleView } from '../ui/BattleView';
 import { ShopPanel } from '../ui/ShopView';
@@ -72,6 +72,7 @@ export class Game {
   private dispatchTask: Promise<void> | null = null;
   private token = 0;
   private hoverTile: number | null = null;
+  private occupancyKey='';
   private mouse = { x: 0, y: 0 };
   private active: ActivePrompt | null = null;
   /** 電腦託管中（單機） */
@@ -110,14 +111,16 @@ export class Game {
 
     this.sm.setPickables(this.world.pickables);
     this.sm.onUpdate((dt, time) => {
-      if(this.state) this.world.setOccupied([...this.sprites.values()].filter(s=>s.group.visible).map(s=>{
+      const occupancyKey=[...this.sprites.values()].filter(s=>s.group.visible).map(s=>[s.group.position.x,s.group.position.z].join(',')).join('|');
+      if(this.state&&occupancyKey!==this.occupancyKey){this.occupancyKey=occupancyKey;this.world.setOccupied([...this.sprites.values()].filter(s=>s.group.visible).map(s=>{
         let closest=-1,distance=Infinity;
         for(const t of this.world.tiles){const d=Math.max(Math.abs(t.pos.x-s.group.position.x),Math.abs(t.pos.z-s.group.position.z));if(d<1.96&&d<distance){closest=t.index;distance=d;}}
         return closest;
-      }).filter(i=>i>=0));
+      }).filter(i=>i>=0));}
       this.world.update(dt);
       for (const s of this.sprites.values()) s.update(dt, time);
     });
+    this.sm.beforeRender=()=>this.world.updateVisibility(this.sm.camera,innerHeight);
     this.sm.onPick = (o) => this.handlePick(o);
     this.sm.onHover = (o, e) => {
       this.mouse = { x: e.clientX, y: e.clientY };
@@ -149,6 +152,19 @@ export class Game {
       }
       if (e.key === 'Escape' && this.active?.prompt.kind === 'tile') this.answer(null);
     });
+  }
+
+  async prepare(progress:(value:number,label:string)=>void){
+    await this.world.prepare((done,total)=>progress(5+65*done/total,`山河建築 ${done}/${total}`));
+    progress(71,'準備物品與棋子');
+    await Promise.all([prepareArtPack(),CharacterSprite.prepareLordArt(this.sm.renderer)]);
+    await this.ui.prepareAssets((done,total)=>progress(72+23*done/total,`主公動作 ${done}/${total}`));
+    await this.world.syncCities(createGameState('liu'));
+    this.sm.camera.updateMatrixWorld();
+    this.world.updateVisibility(this.sm.camera,innerHeight);
+    progress(96,'準備畫面與文字');
+    await this.world.warmup(this.sm.renderer);
+    await this.sm.renderer.compileAsync(this.sm.scene,this.sm.camera);
     this.sm.start();
   }
 
@@ -165,6 +181,7 @@ export class Game {
   onMultiplayer: (() => void) | null = null;
 
   showStart() {
+    this.sm.setRendering(false);
     this.ui.hide();
     showStartScreen(this.uiRoot, (id, rounds) => this.start(id, rounds), () => this.help.open(), this.onMultiplayer ?? undefined);
   }
@@ -194,6 +211,7 @@ export class Game {
 
   /** 清掉上一局的引擎、視窗與棋子 */
   private reset() {
+    this.occupancyKey='';
     this.world.clearSpirits();
     this.token++;
     this.engine?.stop();
@@ -215,6 +233,7 @@ export class Game {
 
   /** 依遊戲狀態擺好地圖、城池與主公棋子 */
   private setupBoard(state: GameState) {
+    this.sm.setRendering(true);
     this.relicMap.hide();
     this.state = state;
     bindPassiveState(state);

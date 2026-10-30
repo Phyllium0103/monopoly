@@ -54,7 +54,7 @@ export interface StepResult {
   paused: boolean;
 }
 
-const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
+const clone = <T>(v: T): T => structuredClone(v);
 
 /** 由座位建立多人對局：沒有人入座的主公不參與本局 */
 export function createMultiplayerState(seats: Seat[], maxRounds: number | null, seed: number): GameState {

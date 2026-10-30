@@ -1,0 +1,4 @@
+#ui.proportional-ui{position:fixed;left:0;top:0;right:auto;bottom:auto;width:var(--ui-width);height:var(--ui-height);transform:scale(var(--ui-scale));transform-origin:0 0;container:game-ui / size;pointer-events:none}
+#ui.proportional-ui>:not(.hud):not(.bubble){pointer-events:auto}
+#ui.proportional-ui .lord-actors-canvas{width:100%;height:100%}
+#ui.proportional-ui .dice-roll-stage canvas,#ui.proportional-ui .casino-stage canvas{width:100%;height:100%;display:block}

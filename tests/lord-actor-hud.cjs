@@ -73,6 +73,19 @@ async function advance(ms){const end=clock+ms;while(clock<end){clock+=50;const c
  document.hidden=true;hud.focus('cao',true);await flush();document.hidden=false;listeners.get('visibilitychange')();await flush();assert.equal(cao.frame,15,'a turn beginning in the background is ready when shown');assert.equal(cao.card.dataset.pose,'ready');
  const caoRoll=hud.playRoll('cao',async()=>{});await flush();await advance(2000);await caoRoll;const recovery=hud.movementDone('cao');await advance(100);document.hidden=true;listeners.get('visibilitychange')();await recovery;document.hidden=false;listeners.get('visibilitychange')();await flush();assert.equal(cao.frame,0,'background recovery reaches meditation, not another ready pose');
  hud.reset();document.hidden=true;listeners.get('visibilitychange')();document.hidden=false;listeners.get('visibilitychange')();await flush();assert.equal(hud.active,null);assert.ok([...hud.actors.values()].every(x=>x.frame===0),'reset does not resurrect a stale turn');
+ let rollClicks=0;hud.focus('liu',true);hud.setRollAction(()=>rollClicks++);
+ assert.equal(a.rollButton.hidden,false);assert.equal(a.rollButton.disabled,false);
+ assert.ok([...hud.actors.values()].filter(x=>x.id!=='liu').every(x=>x.rollButton.hidden),'only local current lord is actionable');
+ const detailsBefore=clicked.length;a.card.children[0].onclick();assert.equal(clicked.length,detailsBefore+1);assert.equal(rollClicks,0,'stone opens details without rolling');
+ a.rollButton.onclick();assert.equal(rollClicks,1,'current local character uses the shared dice action');
+ hud.focus('cao',true);assert.equal(a.rollButton.hidden,true);assert.equal(a.rollButton.disabled,true);a.rollButton.onclick();assert.equal(rollClicks,1,'out of turn character cannot roll');
+ hud.setRollAction(null);assert.ok([...hud.actors.values()].every(x=>x.rollButton.disabled),'regular roll availability gates every character action');
+ const {proportionalViewport}=require('../src/ui/UiViewport.ts');
+ for(const [w,h,s] of [[1280,720,1],[960,540,.75],[640,360,.5],[1920,1080,1.5]]){
+  const viewport=proportionalViewport(w,h);assert.equal(viewport.scale,s);assert.equal(viewport.width,1280);assert.equal(viewport.height,720);
+ }
+ const portrait=proportionalViewport(720,1280);assert.equal(portrait.width*portrait.scale,720);assert.equal(portrait.height*portrait.scale,1280);
+ console.log('PASS split stone/character actions, own-turn-only dice, shared availability and proportional viewport');
  hud.show(false);assert.equal(frames.size,0);
  console.log('PASS persistent unrolled ready pose, hidden prep/recovery/throw completion, duplicate focus guard, 2/3 character speed, one physical handoff, fixed eyes, stable scale and reset cleanup');
 })().catch(e=>{console.error(e);process.exitCode=1});

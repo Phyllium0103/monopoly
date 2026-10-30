@@ -1,3 +1,4 @@
+import {uiViewportSize} from './UiViewport';
 import { LinearFilter, OrthographicCamera, Scene, Sprite, SpriteMaterial, SRGBColorSpace, Texture, TextureLoader, WebGLRenderer } from 'three';
 import type { GameState, LordId } from '../game/types';
 import { LORDS, LORD_IDS } from '../faction/Faction';
@@ -7,13 +8,14 @@ import { fmtStones } from '../game/Currency';
 import { LORD_PRESENTATION_RATE } from './LordPresentation';
 import { spriteSourceToWorld, type SpritePose } from './LordSpriteRig';
 import './lord-actor-hud.css';
+import {renderPixelRatio} from '../performance/renderBudget';
 import { type DiceHandOrigin } from './DiceRoller';
 
 type Clip='prep'|'throw'|'recovery';
 interface Pose extends SpritePose {sheet:number;externalSheet?:string}
 interface Atlas {release?:{frame:number;point:[number,number];time?:number;paintedCubeWidth?:number};width:number;height:number;pixelsPerUnit:number;duration:number;times:number[];sheets:string[];frames:Pose[]}
 interface Actor {
-  id:LordId;card:HTMLElement;seat:HTMLElement;values:HTMLElement[];
+  id:LordId;card:HTMLElement;seat:HTMLElement;values:HTMLElement[];rollButton:HTMLButtonElement;
   sprite:Sprite|null;atlases:Partial<Record<Clip,Atlas>>;textures:Map<string,Texture>;pending:Map<string,Promise<Texture>>;
   clip:Clip;frame:number;
 }
@@ -34,6 +36,8 @@ export class LordActorHud {
   private initialization:Promise<void>|null=null;
   private visible=false;
   private available=true;
+  private me:LordId='liu';
+  private rollAction:(()=>void)|null=null;
   private active:LordId|null=null;
   private readyLord:LordId|null=null;
   private awaitingMovement:LordId|null=null;
@@ -45,6 +49,11 @@ export class LordActorHud {
   private motion:Motion|null=null;
   private frameHandle=0;
   private previousTime=0;
+  private needsRender=true;
+  private ticking=false;
+  private canvasSize='';
+  private actorRects=new Map<LordId,{width:number;left:number;top:number}>();
+  private layoutFrame=0;
   private unblockWait:(()=>void)|null=null;
 
   constructor(private readonly parent:HTMLElement,private readonly speed:()=>number,onLord:(id:LordId)=>void){
@@ -72,8 +81,11 @@ export class LordActorHud {
       const seat=document.createElement('i');seat.className='lord-actor-seat';seat.setAttribute('aria-hidden','true');
       const fallback=document.createElement('img');fallback.className='lord-actor-fallback';fallback.alt=LORDS[id].name;
       fallback.src=assetUrl(`art/generals/head/${PORTRAITS[id]}.webp`);
-      card.append(button,seat,fallback);this.dock.append(card);
-      this.actors.set(id,{id,card,seat,values,sprite:null,atlases:{},textures:new Map(),pending:new Map(),clip:'prep',frame:-1});
+      const rollButton=document.createElement('button');rollButton.type='button';rollButton.className='lord-actor-roll';rollButton.hidden=true;rollButton.disabled=true;
+      rollButton.setAttribute('aria-label',`${LORDS[id].name}，擲骰`);
+      rollButton.onclick=()=>{if(!rollButton.disabled&&id===this.me&&id===this.active)this.rollAction?.();};
+      card.append(button,seat,fallback,rollButton);this.dock.append(card);
+      this.actors.set(id,{id,card,seat,values,rollButton,sprite:null,atlases:{},textures:new Map(),pending:new Map(),clip:'prep',frame:-1});
     }
     this.camera.position.set(0,0,10);this.camera.lookAt(0,0,0);
     addEventListener('resize',()=>this.layout());
@@ -86,14 +98,22 @@ export class LordActorHud {
     });
   }
 
+  setRollAction(action:(()=>void)|null):void{this.rollAction=action;this.updateRollButtons();}
+  private updateRollButtons():void{
+    for(const [id,a] of this.actors){
+      const enabled=this.visible&&!!this.rollAction&&id===this.me&&id===this.active&&this.readyLord===id&&!this.rolling;
+      a.rollButton.hidden=!enabled;a.rollButton.disabled=!enabled;a.card.classList.toggle('can-roll',enabled);
+    }
+  }
   show(show:boolean):void{
-    this.visible=show;this.viewport.hidden=!show;
+    this.visible=show;this.viewport.hidden=!show;this.updateRollButtons();
     if(this.renderer)this.renderer.domElement.hidden=!show;
     if(show){this.layout();this.restoreReady();this.startFrames();}
     else this.suspend();
   }
 
   update(state:GameState,me:LordId):void{
+    this.me=me;
     const displayOrder=[...state.order.filter(id=>id!==me),me];
     const order=displayOrder.join(',');
     if(this.dock.dataset.order!==order){for(const id of displayOrder)this.dock.append(this.actors.get(id)!.card);this.dock.dataset.order=order;}
@@ -102,7 +122,7 @@ export class LordActorHud {
       a.card.hidden=!present;a.card.classList.toggle('is-out',!lord.alive);
       if(a.sprite){a.sprite.visible=present;a.sprite.material.opacity=lord.alive?1:.45;}
       const values=[fmtStones(lord.stones,true),lord.soldiers.toLocaleString(),String(citiesOf(state,id).length),String(generalsOf(state,id).length)];
-      values.forEach((value,i)=>{a.values[i].textContent=value;a.values[i].title=i===0?fmtStones(lord.stones):value;});
+      values.forEach((value,i)=>{if(a.values[i].textContent!==value)a.values[i].textContent=value;a.values[i].title=i===0?fmtStones(lord.stones):value;});
 
     }
     const key=`${state.round}:${state.turn}:${state.over}`;
@@ -112,7 +132,7 @@ export class LordActorHud {
       if(state.over){this.active=null;this.cancel();this.markCurrent();}
       else if(!this.rolling)this.focus(id,true);
     }
-    this.layout();
+    this.updateRollButtons();this.layout();
   }
 
   /** Explicit lord survives online state snapshots that are already one turn ahead. */
@@ -178,7 +198,7 @@ export class LordActorHud {
     if(document.hidden||!this.visible){this.readyLord=null;this.awaitingMovement=id;await drop();return;}
     if(this.rolling)this.cancel();
     if(this.active!==id)this.focus(id);
-    const version=++this.presentationVersion;this.rolling=id;
+    const version=++this.presentationVersion;this.rolling=id;this.updateRollButtons();
     const a=this.actors.get(id)!;
     let completed=false;
     try{
@@ -223,6 +243,7 @@ export class LordActorHud {
   reset():void{this.cancel();this.stateKey='';this.active=null;this.markCurrent();}
 
   private markCurrent():void{
+    this.updateRollButtons();
     this.viewport.dataset.current=this.active??'';
     for(const [id,a] of this.actors)a.card.classList.toggle('is-current',id===this.active&&!a.card.classList.contains('is-out'));
   }
@@ -233,20 +254,39 @@ export class LordActorHud {
   private texture(a:Actor,file:string):Promise<Texture>{
     const done=a.textures.get(file);if(done)return Promise.resolve(done);
     let pending=a.pending.get(file);
-    if(!pending){pending=new TextureLoader().loadAsync(path(a.id,file)).then(t=>{
+    if(!pending){pending=new TextureLoader().loadAsync(path(a.id,file)).then(async t=>{
+      const image=t.image as HTMLImageElement;
+      if(image.width>768&&typeof createImageBitmap!=='undefined'){
+        (t as Texture).image=await createImageBitmap(image,{resizeWidth:768,resizeHeight:Math.round(image.height*768/image.width),resizeQuality:'high',imageOrientation:'flipY',premultiplyAlpha:'none',colorSpaceConversion:'none'});t.flipY=false;
+      }
       t.colorSpace=SRGBColorSpace;t.minFilter=t.magFilter=LinearFilter;t.generateMipmaps=false;
       a.textures.set(file,t);a.pending.delete(file);return t;
     }).catch(e=>{a.pending.delete(file);throw e;});a.pending.set(file,pending);}
     return pending;
   }
-  private async preload(a:Actor,clip:Clip):Promise<void>{const at=await this.atlas(a,clip);await Promise.all([...new Set(at.frames.map(p=>sheet(at,p)))].map(f=>this.texture(a,f)));}
+  private async preload(a:Actor,clip:Clip):Promise<void>{
+    const at=await this.atlas(a,clip);
+    for(const file of new Set(at.frames.map(p=>sheet(at,p))))await this.texture(a,file);
+  }
+  async prepareAssets(progress:(done:number,total:number)=>void):Promise<void>{
+    await this.initialize();if(!this.available)throw new Error('主公人物尚未準備好');
+    const jobs:{a:Actor;file:string}[]=[];
+    for(const a of this.actors.values()){
+      const files=new Set<string>();
+      for(const clip of ['prep','throw',...(a.id==='liu'?[]:['recovery'])] as Clip[]){const atlas=await this.atlas(a,clip);for(const p of atlas.frames)files.add(sheet(atlas,p));}
+      for(const file of files)jobs.push({a,file});
+    }
+    let done=0;progress(0,jobs.length);
+    for(const job of jobs){const t=await this.texture(job.a,job.file);this.renderer!.initTexture(t);progress(++done,jobs.length);await new Promise<void>(resolve=>setTimeout(resolve,0));}
+    await this.renderer!.compileAsync(this.scene,this.camera);
+  }
   private initialize():Promise<void>{
     if(this.initialization)return this.initialization;
     this.initialization=(async()=>{
       try{
         this.renderer=new WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
         this.renderer.setClearColor(0,0);this.renderer.outputColorSpace=SRGBColorSpace;
-        this.renderer.domElement.className='lord-actors-canvas';this.renderer.domElement.setAttribute('aria-hidden','true');this.parent.append(this.renderer.domElement);
+        this.renderer.domElement.className='lord-actors-canvas';this.renderer.domElement.setAttribute('aria-hidden','true');this.renderer.domElement.hidden=!this.visible;this.parent.append(this.renderer.domElement);
         this.renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();this.available=false;this.cancel();for(const a of this.actors.values())a.card.classList.add('actor-unavailable');});
         for(const a of this.actors.values()){
           const material=new SpriteMaterial({transparent:true,alphaTest:.08,depthTest:false,depthWrite:false,toneMapped:false});
@@ -270,34 +310,45 @@ export class LordActorHud {
   private idleAll():void{
     for(const a of this.actors.values()){
       this.setFrame(a,'prep',0);a.card.dataset.gaze='idle';
-      if(a.id!==this.active&&a.atlases.prep){const keep=sheet(a.atlases.prep,a.atlases.prep.frames[0]);for(const [file,t] of a.textures)if(file!==keep){t.dispose();a.textures.delete(file);}}
+      // All four reduced-resolution clips fit a bounded ~60 MiB pixel budget.
+      // Keep them warm instead of disposing/re-decoding on every turn.
     }
   }
   private position(a:Actor):void{
     if(!a.sprite||a.frame<0||a.card.hidden)return;
     const at=a.atlases[a.clip]!,p=at.frames[a.frame],[l,t,r,b]=p.rect;
-    const unit=a.card.getBoundingClientRect().width*.2622/at.pixelsPerUnit;
+    const rect=this.actorRects.get(a.id);if(!rect)return;
+    const unit=rect.width*.2622/at.pixelsPerUnit;
     a.sprite.scale.set((r-l)*unit,(b-t)*unit,1);a.sprite.center.set((p.anchor[0]-l)/(r-l),(b-p.anchor[1])/(b-t));
-    const seat=a.seat.getBoundingClientRect();a.sprite.position.set(seat.left,innerHeight-seat.top,0);
+    a.sprite.position.set(rect.left,innerHeight-rect.top,0);this.needsRender=true;if(!this.ticking)this.startFrames();
     a.card.dataset.sourcePixelScale=String(unit);
   }
-  private layoutActors():void{for(const a of this.actors.values())this.position(a);}
+  private layoutActors():void{
+    for(const a of this.actors.values()){const card=a.card.getBoundingClientRect(),seat=a.seat.getBoundingClientRect();this.actorRects.set(a.id,{width:card.width,left:seat.left,top:seat.top});}
+    for(const a of this.actors.values())this.position(a);
+  }
   private layout():void{
+    if(this.layoutFrame)return;
+    this.layoutFrame=requestAnimationFrame(()=>{this.layoutFrame=0;this.layoutNow();});
+  }
+  private layoutNow():void{
     const count=[...this.actors.values()].filter(a=>!a.card.hidden).length||4;
-    const maxHeight=Math.max(108,(innerHeight-280)/2.1);
-    const width=Math.min(200,maxHeight,innerWidth<760?176:(innerWidth-210-count*7)/count);
-    this.parent.style.setProperty('--lord-actor-width',Math.max(176,width)+'px');
-    const toolbar=this.parent.querySelector('.top-bar')?.getBoundingClientRect().height??58;
+    const logical=uiViewportSize();
+    const maxHeight=Math.max(108,(logical.height-280)/2.1);
+    const width=Math.max(104,Math.min(160,maxHeight,(logical.width-210-count*7)/count));
+    this.parent.style.setProperty('--lord-actor-width',width+'px');
+    const toolbar=(this.parent.querySelector('.top-bar')?.getBoundingClientRect().height??58*logical.scale)/logical.scale;
     const party=this.parent.querySelector<HTMLElement>('.party-dock');
-    const partyHeight=party&&!party.classList.contains('hidden')?party.getBoundingClientRect().height:0;
-    const rollBottom=Math.max(150,partyHeight+36),rollSize=innerHeight<=700?100:120;
+    const partyHeight=party&&!party.classList.contains('hidden')?party.getBoundingClientRect().height/logical.scale:0;
+    const rollBottom=Math.max(150,partyHeight+36),rollSize=logical.height<=700?100:120;
     this.parent.style.setProperty('--lord-actors-bottom','12px');
     this.parent.style.setProperty('--lord-content-top',(toolbar+12)+'px');
     this.parent.style.setProperty('--lord-roll-bottom',rollBottom+'px');
-    this.parent.style.setProperty('--lord-info-max-height',Math.max(140,innerHeight-toolbar-12-rollBottom-rollSize-24)+'px');
-    this.parent.style.setProperty('--lord-actors-width',String(Math.min(innerWidth-184,count*(Math.max(176,width)+7)+16))+'px');
+    this.parent.style.setProperty('--lord-info-max-height',Math.max(140,logical.height-toolbar-12-rollBottom-rollSize-24)+'px');
+    this.parent.style.setProperty('--lord-actors-width',String(Math.min(logical.width-184,count*(width+7)+16))+'px');
     this.camera.left=0;this.camera.right=innerWidth;this.camera.bottom=0;this.camera.top=innerHeight;this.camera.updateProjectionMatrix();this.camera.updateMatrixWorld();
-    if(this.renderer){this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));this.renderer.setSize(innerWidth,innerHeight);}
+    const ratio=renderPixelRatio(innerWidth,innerHeight,1_600_000),size=[innerWidth,innerHeight,ratio].join(':');
+    if(this.renderer&&this.canvasSize!==size){this.canvasSize=size;this.renderer.setPixelRatio(ratio);this.renderer.setSize(innerWidth,innerHeight,false);}
     this.layoutActors();
   }
   private stopMotion():void{const motion=this.motion;this.motion=null;motion?.resolve();}
@@ -309,12 +360,15 @@ export class LordActorHud {
   private sample(a:Actor,clip:Clip,t:number):void{const at=a.atlases[clip]!;let index=0;at.times.forEach((v,i)=>{if(v<=t)index=i;});if(a.clip!==clip||a.frame!==index)this.setFrame(a,clip,index);}
   private startFrames():void{
     if(this.frameHandle||!this.visible||document.hidden)return;
-    this.previousTime=performance.now();this.frameHandle=requestAnimationFrame(this.tick);
+    this.needsRender=true;this.previousTime=performance.now();this.frameHandle=requestAnimationFrame(this.tick);
   }
   private tick=(now:number):void=>{
     this.frameHandle=0;if(!this.visible||document.hidden)return;
     const dt=Math.min(.1,Math.max(0,(now-this.previousTime)/1000));this.previousTime=now;
+    this.ticking=true;
     const m=this.motion;if(m){m.elapsed+=dt*Math.max(.25,this.speed())*LORD_PRESENTATION_RATE*(m.clip==='throw'?1.5:1);this.sample(m.actor,m.clip,Math.min(m.elapsed,m.end));if(m.elapsed>=m.end){this.motion=null;m.resolve();}}
-    this.renderer?.render(this.scene,this.camera);this.frameHandle=requestAnimationFrame(this.tick);
+    if(this.needsRender){this.renderer?.render(this.scene,this.camera);this.needsRender=false;}
+    this.ticking=false;
+    if(this.motion&&!this.frameHandle)this.frameHandle=requestAnimationFrame(this.tick);
   };
 }

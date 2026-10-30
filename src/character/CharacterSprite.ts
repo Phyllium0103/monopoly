@@ -190,6 +190,14 @@ export class CharacterSprite {
   private ring: THREE.Mesh;
   private shadow: THREE.Mesh;
   private label: HTMLDivElement;
+  private disposed=false;
+  private static art=new Map<string,Promise<THREE.Texture>>();
+  static async prepareLordArt(renderer?:THREE.WebGLRenderer){const textures=await Promise.all(Object.values(LORD_ART).map(id=>this.portrait(id)));for(const texture of textures)renderer?.initTexture(texture);}
+  private static portrait(id:string){
+    let p=this.art.get(id);if(p)return p;
+    p=new THREE.TextureLoader().loadAsync(generalArtUrl({id})).then(t=>{t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;});
+    this.art.set(id,p);p.catch(()=>this.art.delete(id));return p;
+  }
   private baseY = 0;
   private moving = false;
   private phase = Math.random() * Math.PI * 2;
@@ -211,7 +219,8 @@ export class CharacterSprite {
     this.sprite.userData = { pick: true, lordId: character.lord };
     const art = LORD_ART[character.id];
     if (art) {
-      new THREE.TextureLoader().load(generalArtUrl({ id: art }), (t) => {
+      void CharacterSprite.portrait(art).then(t=>{
+        if(this.disposed)return;
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = 4;
         const mat = this.sprite.material as THREE.SpriteMaterial;
@@ -221,7 +230,7 @@ export class CharacterSprite {
         this.h = ART_SIZE;
         this.w = ART_SIZE * GENERAL_ART[art].width / GENERAL_ART[art].height;
         this.apply();
-      });
+      }).catch(error=>console.warn('Board portrait unavailable',error));
     }
     this.group.add(this.sprite);
 
@@ -321,9 +330,12 @@ export class CharacterSprite {
   }
 
   dispose() {
+    this.disposed=true;
     this.group.removeFromParent();
     this.label.remove();
-    (this.sprite.material as THREE.SpriteMaterial).map?.dispose();
+    const tex=(this.sprite.material as THREE.SpriteMaterial).map;if(tex instanceof THREE.CanvasTexture)tex.dispose();
     this.sprite.material.dispose();
+    this.ring.geometry.dispose();(this.ring.material as THREE.Material).dispose();
+    this.shadow.geometry.dispose();(this.shadow.material as THREE.Material).dispose();
   }
 }

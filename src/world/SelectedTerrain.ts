@@ -13,9 +13,12 @@ export class SelectedTerrain {
   private active=new Set<number>();
   private marker=new THREE.Object3D();
   private pulseTime=0;
+  readonly loading:Promise<void>[]=[];
+  get ready(){return Promise.all(this.loading);}
   constructor() {
     const load=(name:string,rect?:number[])=>{
-      const t=new THREE.TextureLoader().load(assetUrl(`art/map-selected/${name}`));
+      let ok!:()=>void,fail!:(e:unknown)=>void;this.loading.push(new Promise<void>((resolve,reject)=>{ok=resolve;fail=reject;}));
+      const t=new THREE.TextureLoader().load(assetUrl(`art/map-runtime/${name.replace('.png','.webp')}`),()=>ok(),undefined,fail);
       t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;
       if(rect){t.offset.set(rect[0]/1254,1-rect[3]/1254);t.repeat.set((rect[2]-rect[0])/1254,(rect[3]-rect[1])/1254);}
       return t;

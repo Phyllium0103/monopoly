@@ -1,0 +1,522 @@
+{
+  "forge": {
+    "sourceSha": "5ed324d0f6c9ccb4baa668f91c79223434ef2cb9c565242ce3145873b981165b",
+    "lods": [
+      {
+        "file": "forge-lod0-539ac5041bdd.glb",
+        "triangles": 105942,
+        "originalTriangles": 163006,
+        "materials": 21,
+        "bytes": 2539308
+      },
+      {
+        "file": "forge-lod1-1735521ee72b.glb",
+        "triangles": 40850,
+        "originalTriangles": 163006,
+        "materials": 21,
+        "bytes": 1037932
+      },
+      {
+        "file": "forge-lod2-e81bdcfec834.glb",
+        "triangles": 16354,
+        "originalTriangles": 163006,
+        "materials": 21,
+        "bytes": 483696
+      }
+    ]
+  },
+  "herb": {
+    "sourceSha": "9784b6acb5b0fbb3e89f067cadaf6732a626f76e71cc0477b63e56c10be04ba9",
+    "lods": [
+      {
+        "file": "herb-lod0-06b4884a1939.glb",
+        "triangles": 213088,
+        "originalTriangles": 327894,
+        "materials": 22,
+        "bytes": 6100600
+      },
+      {
+        "file": "herb-lod1-f5bebe913d06.glb",
+        "triangles": 81496,
+        "originalTriangles": 327894,
+        "materials": 22,
+        "bytes": 2478296
+      },
+      {
+        "file": "herb-lod2-54d9bc5fdd20.glb",
+        "triangles": 32663,
+        "originalTriangles": 327894,
+        "materials": 22,
+        "bytes": 1039704
+      }
+    ]
+  },
+  "treasure": {
+    "sourceSha": "7262142150f1e92f554b1efa6031571acfca717b600814fca4932ca57b39468e",
+    "lods": [
+      {
+        "file": "treasure-lod0-a91381cc7a7f.glb",
+        "triangles": 75222,
+        "originalTriangles": 114464,
+        "materials": 23,
+        "bytes": 1670676
+      },
+      {
+        "file": "treasure-lod1-6e383590d2b8.glb",
+        "triangles": 29082,
+        "originalTriangles": 114464,
+        "materials": 23,
+        "bytes": 663756
+      },
+      {
+        "file": "treasure-lod2-bdf2f7e13479.glb",
+        "triangles": 11384,
+        "originalTriangles": 114464,
+        "materials": 23,
+        "bytes": 312844
+      }
+    ]
+  },
+  "library": {
+    "sourceSha": "9dec50b07606c5cd675b02d6406c366d9e85deb71f704735cc179ce0c6cdd8f5",
+    "lods": [
+      {
+        "file": "library-lod0-dccf10f52a76.glb",
+        "triangles": 202738,
+        "originalTriangles": 311904,
+        "materials": 24,
+        "bytes": 4529204
+      },
+      {
+        "file": "library-lod1-9fe698dc5bd5.glb",
+        "triangles": 77860,
+        "originalTriangles": 311904,
+        "materials": 24,
+        "bytes": 1771040
+      },
+      {
+        "file": "library-lod2-2e0d911067cd.glb",
+        "triangles": 31119,
+        "originalTriangles": 311904,
+        "materials": 23,
+        "bytes": 735864
+      }
+    ]
+  },
+  "beast": {
+    "sourceSha": "6544204456cebe5b668abeee26f0be461f8ec65fff60f5d20d9fbea4bcfce8fb",
+    "lods": [
+      {
+        "file": "beast-lod0-d5f9b5381a1f.glb",
+        "triangles": 70997,
+        "originalTriangles": 107723,
+        "materials": 23,
+        "bytes": 1372700
+      },
+      {
+        "file": "beast-lod1-6748ac096386.glb",
+        "triangles": 28202,
+        "originalTriangles": 107723,
+        "materials": 23,
+        "bytes": 557580
+      },
+      {
+        "file": "beast-lod2-0a0a7afd479a.glb",
+        "triangles": 10498,
+        "originalTriangles": 107723,
+        "materials": 23,
+        "bytes": 248596
+      }
+    ]
+  },
+  "tavern": {
+    "sourceSha": "755adaa48b510ea56d9cbf56a71ecd00d71bc232428224127f728896797ab729",
+    "lods": [
+      {
+        "file": "tavern-lod0-76b92ade914b.glb",
+        "triangles": 177540,
+        "originalTriangles": 272158,
+        "materials": 24,
+        "bytes": 3129340
+      },
+      {
+        "file": "tavern-lod1-f7ec1d8ef926.glb",
+        "triangles": 68576,
+        "originalTriangles": 272158,
+        "materials": 24,
+        "bytes": 1313448
+      },
+      {
+        "file": "tavern-lod2-0a67592d9ba0.glb",
+        "triangles": 27371,
+        "originalTriangles": 272158,
+        "materials": 24,
+        "bytes": 595524
+      }
+    ]
+  },
+  "casino": {
+    "sourceSha": "edb6f64115897b9c190faba3f44d689026296f9498e37fa47d18eecb1cd1ac57",
+    "lods": [
+      {
+        "file": "casino-lod0-633b916e3e61.glb",
+        "triangles": 66649,
+        "originalTriangles": 100176,
+        "materials": 19,
+        "bytes": 1365304
+      },
+      {
+        "file": "casino-lod1-9a6844e18239.glb",
+        "triangles": 26860,
+        "originalTriangles": 100176,
+        "materials": 19,
+        "bytes": 594320
+      },
+      {
+        "file": "casino-lod2-f94bcfb65788.glb",
+        "triangles": 10233,
+        "originalTriangles": 100176,
+        "materials": 19,
+        "bytes": 252228
+      }
+    ]
+  },
+  "city-1": {
+    "sourceSha": "ba001850ffa821430854701a61143f9f5d61dbd70958d7686b90ca02bf583cbb",
+    "lods": [
+      {
+        "file": "city-1-lod0-cae94c6fa5f8.glb",
+        "triangles": 6294,
+        "originalTriangles": 9648,
+        "materials": 8,
+        "bytes": 177228
+      },
+      {
+        "file": "city-1-lod1-dfe6d79f80b1.glb",
+        "triangles": 2433,
+        "originalTriangles": 9648,
+        "materials": 8,
+        "bytes": 77288
+      },
+      {
+        "file": "city-1-lod2-d54721216af7.glb",
+        "triangles": 964,
+        "originalTriangles": 9648,
+        "materials": 8,
+        "bytes": 40160
+      }
+    ]
+  },
+  "city-2": {
+    "sourceSha": "db6657d7ebd133319025faddfa2630b225d16da98ef02f4dad05fbd8e55bf879",
+    "lods": [
+      {
+        "file": "city-2-lod0-af21565548e4.glb",
+        "triangles": 25800,
+        "originalTriangles": 36963,
+        "materials": 16,
+        "bytes": 569704
+      },
+      {
+        "file": "city-2-lod1-fde47378166c.glb",
+        "triangles": 12012,
+        "originalTriangles": 36963,
+        "materials": 16,
+        "bytes": 290216
+      },
+      {
+        "file": "city-2-lod2-3b11f41e0cbc.glb",
+        "triangles": 3865,
+        "originalTriangles": 36963,
+        "materials": 16,
+        "bytes": 116236
+      }
+    ]
+  },
+  "city-3": {
+    "sourceSha": "30564ac87d5ea117c56f9207e4d3cc92f3c6af65a19c522011bf30f7917777b9",
+    "lods": [
+      {
+        "file": "city-3-lod0-c72f7b04a55e.glb",
+        "triangles": 76492,
+        "originalTriangles": 112865,
+        "materials": 16,
+        "bytes": 1469164
+      },
+      {
+        "file": "city-3-lod1-ad2d7104b5be.glb",
+        "triangles": 29911,
+        "originalTriangles": 112865,
+        "materials": 16,
+        "bytes": 589988
+      },
+      {
+        "file": "city-3-lod2-844e6585e2bf.glb",
+        "triangles": 11754,
+        "originalTriangles": 112865,
+        "materials": 16,
+        "bytes": 258836
+      }
+    ]
+  },
+  "city-4": {
+    "sourceSha": "7b825920799a5fc9fa6352477c74e22dc4238685ecf86df307202a833bce2ff5",
+    "lods": [
+      {
+        "file": "city-4-lod0-1402e98bf38b.glb",
+        "triangles": 145356,
+        "originalTriangles": 215528,
+        "materials": 12,
+        "bytes": 2848024
+      },
+      {
+        "file": "city-4-lod1-ac9aa3760c98.glb",
+        "triangles": 53924,
+        "originalTriangles": 215528,
+        "materials": 12,
+        "bytes": 1072220
+      },
+      {
+        "file": "city-4-lod2-f756b889e8b4.glb",
+        "triangles": 21531,
+        "originalTriangles": 215528,
+        "materials": 12,
+        "bytes": 468864
+      }
+    ]
+  },
+  "city-5": {
+    "sourceSha": "a894213982a5eb7188625f1eff10df4991b6e0cc16c0d0b239e19e2060b4b4a9",
+    "lods": [
+      {
+        "file": "city-5-lod0-9807de102ece.glb",
+        "triangles": 138516,
+        "originalTriangles": 210820,
+        "materials": 15,
+        "bytes": 2076428
+      },
+      {
+        "file": "city-5-lod1-2187036d1221.glb",
+        "triangles": 55617,
+        "originalTriangles": 210820,
+        "materials": 15,
+        "bytes": 855204
+      },
+      {
+        "file": "city-5-lod2-a1c2bc901410.glb",
+        "triangles": 20987,
+        "originalTriangles": 210820,
+        "materials": 15,
+        "bytes": 351184
+      }
+    ]
+  },
+  "city-6": {
+    "sourceSha": "8a6a31e4d3cf92f40e42f8a645032e5c4ec29521a9a6e31903941c86fa25917e",
+    "lods": [
+      {
+        "file": "city-6-lod0-e28fa2d94aa7.glb",
+        "triangles": 150883,
+        "originalTriangles": 229996,
+        "materials": 19,
+        "bytes": 2331476
+      },
+      {
+        "file": "city-6-lod1-6e775ed95030.glb",
+        "triangles": 57447,
+        "originalTriangles": 229996,
+        "materials": 19,
+        "bytes": 984000
+      },
+      {
+        "file": "city-6-lod2-929a5c7592b8.glb",
+        "triangles": 22889,
+        "originalTriangles": 229996,
+        "materials": 19,
+        "bytes": 423000
+      }
+    ]
+  },
+  "relic": {
+    "sourceSha": "3be61a02b35511c2e8fd28838983fe6c53f496d527708d1ca33679a9ed02f035",
+    "lods": [
+      {
+        "file": "relic-lod0-8f4afb6c1209.glb",
+        "triangles": 149631,
+        "originalTriangles": 229217,
+        "materials": 32,
+        "bytes": 1891952
+      },
+      {
+        "file": "relic-lod1-e5ec306d9976.glb",
+        "triangles": 57670,
+        "originalTriangles": 229217,
+        "materials": 32,
+        "bytes": 872868
+      },
+      {
+        "file": "relic-lod2-638f878391b0.glb",
+        "triangles": 22885,
+        "originalTriangles": 229217,
+        "materials": 32,
+        "bytes": 452816
+      }
+    ]
+  },
+  "vein": {
+    "sourceSha": "a17f6f2d3864c7cdb2982b2a68d54311d6eb928e7df1c5823d6f90a02e1f7f36",
+    "lods": [
+      {
+        "file": "vein-lod0-e2ed4d91af44.glb",
+        "triangles": 111659,
+        "originalTriangles": 164720,
+        "materials": 27,
+        "bytes": 1725072
+      },
+      {
+        "file": "vein-lod1-508898f9a113.glb",
+        "triangles": 42666,
+        "originalTriangles": 164720,
+        "materials": 27,
+        "bytes": 770228
+      },
+      {
+        "file": "vein-lod2-937e88cdd9a1.glb",
+        "triangles": 17196,
+        "originalTriangles": 164720,
+        "materials": 27,
+        "bytes": 404172
+      }
+    ]
+  },
+  "secret": {
+    "sourceSha": "02f0c4a1147f9e8f174cde65d85647e2675b8f90542a2fc15a134c2e4e279ec6",
+    "lods": [
+      {
+        "file": "secret-lod0-eb56b1ee5b4c.glb",
+        "triangles": 101144,
+        "originalTriangles": 148664,
+        "materials": 44,
+        "bytes": 2026924
+      },
+      {
+        "file": "secret-lod1-adb4192e0fda.glb",
+        "triangles": 38553,
+        "originalTriangles": 148664,
+        "materials": 44,
+        "bytes": 882184
+      },
+      {
+        "file": "secret-lod2-44c38e5ca1bf.glb",
+        "triangles": 16384,
+        "originalTriangles": 148664,
+        "materials": 44,
+        "bytes": 464140
+      }
+    ]
+  },
+  "martial": {
+    "sourceSha": "c5f46216270dcacd1f3ad74a5d0ca451406e9ff99a1fa8eb078f8f004c0064c8",
+    "lods": [
+      {
+        "file": "martial-lod0-a469fd8102fb.glb",
+        "triangles": 99694,
+        "originalTriangles": 152232,
+        "materials": 34,
+        "bytes": 1659784
+      },
+      {
+        "file": "martial-lod1-955e3ff35b67.glb",
+        "triangles": 38497,
+        "originalTriangles": 152232,
+        "materials": 34,
+        "bytes": 730440
+      },
+      {
+        "file": "martial-lod2-bcf5d50755c1.glb",
+        "triangles": 15342,
+        "originalTriangles": 152232,
+        "materials": 34,
+        "bytes": 336936
+      }
+    ]
+  },
+  "arts": {
+    "sourceSha": "9d48b46907714182d3fb66e4996ff95c67db9e060346e51e3b4826be92fdae14",
+    "lods": [
+      {
+        "file": "arts-lod0-67c7fbc322b8.glb",
+        "triangles": 347835,
+        "originalTriangles": 531890,
+        "materials": 81,
+        "bytes": 4564596
+      },
+      {
+        "file": "arts-lod1-4711026abbba.glb",
+        "triangles": 134686,
+        "originalTriangles": 531890,
+        "materials": 81,
+        "bytes": 1904052
+      },
+      {
+        "file": "arts-lod2-f72fd92178b3.glb",
+        "triangles": 53562,
+        "originalTriangles": 531890,
+        "materials": 81,
+        "bytes": 892584
+      }
+    ]
+  },
+  "appraisal": {
+    "sourceSha": "a80eea20f31cbc6658660cdff8a015dbb18977b1a6e3d3e05d389e8fc9d72fb1",
+    "lods": [
+      {
+        "file": "appraisal-lod0-371764de41f5.glb",
+        "triangles": 247290,
+        "originalTriangles": 380208,
+        "materials": 29,
+        "bytes": 3254052
+      },
+      {
+        "file": "appraisal-lod1-1ee1de8334c6.glb",
+        "triangles": 93456,
+        "originalTriangles": 380208,
+        "materials": 29,
+        "bytes": 1389820
+      },
+      {
+        "file": "appraisal-lod2-e2ad549a6f64.glb",
+        "triangles": 37502,
+        "originalTriangles": 380208,
+        "materials": 28,
+        "bytes": 616548
+      }
+    ]
+  },
+  "ghost": {
+    "sourceSha": "84027c46002f30ef44e895fbb0810fae9605ac4e79edfabc728b31377afe3287",
+    "lods": [
+      {
+        "file": "ghost-lod0-422f6179dac8.glb",
+        "triangles": 346829,
+        "originalTriangles": 533397,
+        "materials": 57,
+        "bytes": 5112308
+      },
+      {
+        "file": "ghost-lod1-f119943c37d9.glb",
+        "triangles": 133761,
+        "originalTriangles": 533397,
+        "materials": 57,
+        "bytes": 2005348
+      },
+      {
+        "file": "ghost-lod2-d3cba477b18a.glb",
+        "triangles": 52913,
+        "originalTriangles": 533397,
+        "materials": 57,
+        "bytes": 871748
+      }
+    ]
+  }
+}

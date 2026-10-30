@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>介面比例預覽</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:24px;background:#10201c;color:#eee5c8;font-family:"Microsoft JhengHei",sans-serif}header{max-width:1280px;margin:0 auto 20px}h1{font-size:24px;margin:0 0 12px}p{color:#b9c7b7;line-height:1.7;font-size:14px}.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}button,a{font:inherit;border:1px solid #8b825e;background:#213a30;color:#eee5c8;padding:10px 16px;border-radius:8px;cursor:pointer;text-decoration:none}button[aria-pressed=true]{background:#d3b775;color:#17261f;font-weight:bold}.stage{max-width:100%;overflow:auto;margin:auto;border:1px solid #536456;background:#091410}iframe{display:block;border:0}small{color:#b9c7b7}
+</style></head><body>
+<header><h1>介面比例預覽</h1><div class="controls"><button data-size="1280,720" aria-pressed="false">標準 100%</button><button data-size="960,540" aria-pressed="true">縮小 75%</button><button data-size="640,360" aria-pressed="false">縮小 50%</button><a href="../?lord=liu&amp;rounds=endless" target="_blank" rel="noopener">單獨開啟遊戲</a></div>
+<p>切換尺寸可直接比較人物、文字、圖示和按鈕的比例，遊戲不會重新開始。底座查看主公資訊；輪到你時，點擊自己的主公也能擲骰。</p><small id="size-label">960 × 540</small></header>
+<main class="stage" style="width:960px"><iframe title="實際遊戲比例預覽" src="../?lord=liu&amp;rounds=endless&amp;ui=review-frame" width="960" height="540"></iframe></main>
+<script>
+const frame=document.querySelector('iframe'),stage=document.querySelector('.stage');
+document.querySelectorAll('button[data-size]').forEach(button=>button.onclick=()=>{
+const [width,height]=button.dataset.size.split(',').map(Number);frame.width=width;frame.height=height;stage.style.width=width+'px';document.querySelector('#size-label').textContent=width+' × '+height;
+document.querySelectorAll('button[data-size]').forEach(other=>other.setAttribute('aria-pressed',String(other===button)));
+});
+</script></body></html>

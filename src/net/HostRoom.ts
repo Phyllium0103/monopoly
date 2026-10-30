@@ -1,7 +1,7 @@
 import type { LordId } from '../game/types';
 import { LORD_IDS } from '../faction/Faction';
+import {advanceRoom} from './HostWorker';
 import {
-  advance,
   answer as answerRecord,
   createMultiplayerState,
   newRecord,
@@ -251,7 +251,7 @@ export class HostRoom {
         .map((m) => ({ lord: m.lord_id, human: m.kind === 'human', name: m.nickname }));
       const seed = (Math.random() * 0x7fffffff) | 0;
       const state = createMultiplayerState(seats, this.room.max_rounds, seed);
-      const res = this.commit(await advance(newRecord(state, seed)), null);
+      const res = this.commit(await advanceRoom(newRecord(state, seed)), null);
       this.changed();
       return res;
     });
@@ -269,7 +269,7 @@ export class HostRoom {
       } catch {
         throw new RoomError('STALE_ANSWER');
       }
-      return this.commit(await advance(rec), opId);
+      return this.commit(await advanceRoom(rec), opId);
     });
   }
 
@@ -278,7 +278,7 @@ export class HostRoom {
     return this.serial(async () => {
       if (!this.record || !this.pub) throw new RoomError('NO_GAME');
       if (this.pub.over || this.pub.pending) return { ok: true, version: this.pub.version } as GameResponse;
-      return this.commit(await advance(this.record), null);
+      return this.commit(await advanceRoom(this.record), null);
     });
   }
 
@@ -290,7 +290,7 @@ export class HostRoom {
       const target = this.seats.find((m) => m.lord_id === lord);
       if (!target || target.kind !== 'human' || target.ai_control) throw new RoomError('BAD_TARGET');
       if (Date.now() - new Date(target.last_seen_at).getTime() < OFFLINE_MS) throw new RoomError('PLAYER_ONLINE');
-      const res = this.commit(await advance(takeoverRecord(this.record, lord)), null);
+      const res = this.commit(await advanceRoom(takeoverRecord(this.record, lord)), null);
       target.ai_control = true;
       this.changed();
       return res;
@@ -303,7 +303,7 @@ export class HostRoom {
       const m = this.member(userId);
       if (!m.ai_control) return { ok: true } as GameResponse;
       if (!this.record) throw new RoomError('NO_GAME');
-      const res = this.commit(await advance(reclaimRecord(this.record, m.lord_id)), null);
+      const res = this.commit(await advanceRoom(reclaimRecord(this.record, m.lord_id)), null);
       m.ai_control = false;
       this.changed();
       return res;

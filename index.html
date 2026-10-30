@@ -7,6 +7,11 @@
     <title>丞相，這過路費比雷劫還狠！</title>
   </head>
   <body>
+    <style>
+      #boot-loading{position:fixed;inset:0;z-index:20000;display:grid;place-content:center;justify-items:center;padding:24px;gap:18px;background:radial-gradient(ellipse at 50% 25%,#315342,#101d1b 70%);color:#f4e8c5;text-align:center;font:18px "Microsoft JhengHei",sans-serif}
+      #boot-loading[hidden]{display:none}#boot-loading h1{max-width:min(90vw,760px);margin:0 auto;font-size:clamp(20px,3vw,32px);letter-spacing:.08em;line-height:1.5;text-wrap:balance}#boot-loading progress{width:min(75vw,480px);height:18px;accent-color:#d3bc77}#boot-loading button{padding:10px 20px;font:inherit}
+    </style>
+    <section id="boot-loading" role="status" aria-live="polite"><h1>丞相，這過路費比雷劫還狠！</h1><p class="boot-message">正在準備山河…</p><progress max="100" value="0" aria-label="遊戲載入進度"></progress><b class="boot-percent">0%</b><button hidden>重新載入</button></section>
     <div id="app"></div>
     <div id="ui"></div>
     <script type="module" src="/src/main.ts"></script>

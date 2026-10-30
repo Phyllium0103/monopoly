@@ -130,6 +130,8 @@ export async function simulateDiceRoll(values: readonly number[], random: () => 
         });
         frames.push(snapshot());
         if (bodies.every(body => body.isSleeping())) break;
+        // Worker is preferred; this also keeps the fallback cooperative.
+        if(typeof document!=='undefined'&&step%128===0)await new Promise<void>(resolve=>setTimeout(resolve,0));
       }
       const end = frames[frames.length - 1];
       // Reject cocked/stacked or out-of-view rolls; never move them into place.

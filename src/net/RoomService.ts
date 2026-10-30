@@ -1,5 +1,6 @@
 import type { GameState, LordId } from '../game/types';
 import { BOARD } from '../data/board';
+import {serializeHostSave} from './SaveWorker';
 import { HostRoom, type HostSnapshot } from './HostRoom';
 import { dial, listen, type Link } from './p2p/link';
 import { RoomPresence } from './p2p/presence';
@@ -34,7 +35,7 @@ const HOST_SAVE = (code: string) => projectKey(`xiantu-p2p-host-${code}`);
 const REQUEST_TIMEOUT = 20_000;
 const HOST_BEAT_MS = 20_000;
 
-const clone = <T>(v: T): T => (v == null ? v : (JSON.parse(JSON.stringify(v)) as T));
+const clone = <T>(v: T): T => structuredClone(v);
 /** 傳輸用：去掉地圖格子（每位玩家本來就有） */
 const wire = <T>(v: T): T => JSON.parse(JSON.stringify(v, (k, val) => (k === 'tiles' ? undefined : val))) as T;
 const randomId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`);
@@ -75,6 +76,7 @@ export class RoomService {
   private stopListen: (() => void) | null = null;
   private links = new Set<Link>();
   private hostBeat: ReturnType<typeof setInterval> | null = null;
+  private saveVersion=0;
   private saveTimer: ReturnType<typeof setTimeout> | null = null;
   // 玩家
   private link: Link | null = null;
@@ -89,7 +91,7 @@ export class RoomService {
     if (this.local) this.dir = new LocalDirectory(() => this.userId);
     else if (this.sb) this.dir = new SupabaseDirectory(this.sb);
     else throw new RoomError('尚未設定 Supabase（VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY）');
-    window.addEventListener('pagehide', () => { this.saveNow(); void this.presence.stop(); });
+    window.addEventListener('pagehide', () => { this.saveNow(true); void this.presence.stop(); });
     window.addEventListener('pageshow', () => { if (this.code) this.presence.start(this.code); });
     document.addEventListener('visibilitychange', () => { if (!document.hidden) void this.presence.ping(); });
   }
@@ -331,13 +333,18 @@ export class RoomService {
     this.saveTimer = setTimeout(() => this.saveNow(), 300);
   }
 
-  private saveNow() {
-    if (!this.host) return;
-    try {
-      localStorage.setItem(HOST_SAVE(this.host.room.code), JSON.stringify(wire(this.host.snapshot())));
-    } catch (e) {
-      console.warn('無法儲存房主存檔', e);
+  private saveNow(force=false) {
+    const host=this.host;if(!host)return;
+    const version=++this.saveVersion,key=HOST_SAVE(host.room.code);
+    if(force){
+      try{localStorage.setItem(key,JSON.stringify(host.snapshot(),(k,v)=>k==='tiles'?undefined:v));}
+      catch(error){console.warn('無法儲存房主存檔',error);}return;
     }
+    // Serialization is off the UI thread; an obsolete response cannot resurrect a room.
+    void serializeHostSave(host.snapshot()).then(text=>{
+      if(version!==this.saveVersion||this.host!==host)return;
+      localStorage.setItem(key,text);
+    }).catch(error=>console.warn('無法儲存房主存檔',error));
   }
 
   private loadSave(code: string): HostSnapshot | null {
@@ -356,7 +363,8 @@ export class RoomService {
 
   private stopHosting(keepSave: boolean) {
     if (!this.host) return;
-    if (keepSave) this.saveNow();
+    this.saveVersion++;
+    if (keepSave) this.saveNow(true);
     else localStorage.removeItem(HOST_SAVE(this.host.room.code));
     if (this.saveTimer) clearTimeout(this.saveTimer);
     if (this.hostBeat) clearInterval(this.hostBeat);

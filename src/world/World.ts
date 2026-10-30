@@ -40,7 +40,8 @@ export class World {
   private eventMarkers: THREE.Group[] = [];
   private spirits = new ElementalSpiritLayer(index => this.tilePosition(index));
   private facing = new Map<string, THREE.Group>();
-  private roadArrows=Object.fromEntries(['north','east','south','west'].map(d=>{const t=new THREE.TextureLoader().load(assetUrl(`art/map-selected/road-arrow-${d}.png`));t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return[d,t];}));
+  private textureReady:Promise<void>[]=[];
+  private roadArrows=Object.fromEntries(['north','east','south','west'].map(d=>{let ok!:()=>void,fail!:(e:unknown)=>void;this.textureReady.push(new Promise<void>((resolve,reject)=>{ok=resolve;fail=reject;}));const t=new THREE.TextureLoader().load(assetUrl(`art/map-runtime/road-arrow-${d}.webp`),()=>ok(),undefined,fail);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return[d,t];}));
   private forkArrows = new Map<number, THREE.Group>();
 
   constructor(
@@ -70,6 +71,9 @@ export class World {
     this.root.add(this.hover);
   }
 
+  warmup(renderer:THREE.WebGLRenderer){return this.modelPool.warmup(renderer);}
+  async prepare(progress:(done:number,total:number)=>void){await Promise.all([this.terrain.ready,...this.textureReady]);await this.modelPool.prepare(progress);}
+  updateVisibility(camera:THREE.OrthographicCamera,height:number){this.modelPool.update(camera,height);}
   ground(x: number, z: number) {
     return Math.max(this.terrain.heightAt(x, z), 0);
   }
@@ -134,7 +138,7 @@ export class World {
       return [{id:o.id,key,x:o.pos.x,z:o.pos.z,rotation:o.rotation,color:city&&city.owner!=='neutral'?ownerColor(city.owner):0xffffff}];
     });
     const displayPlacements=DISPLAY_FACILITY_LOTS.map(o=>({id:o.id,key:o.type,x:o.pos.x,z:o.pos.z,rotation:o.rotation,color:0xffffff}));
-    void this.modelPool.sync([...placements,...displayPlacements],this.tiles[state.lords[state.order[state.turn]]?.position??-1]?.pos);
+    return this.modelPool.sync([...placements,...displayPlacements],this.tiles[state.lords[state.order[state.turn]]?.position??-1]?.pos);
   }
 
   private createCity(city: City) {
@@ -175,7 +179,8 @@ export class World {
   private updateLabel(state: GameState, city: City) {
     const e = this.cities.get(city.id)!;
     const tollText = city.owner === 'neutral' ? '' : `<small class="toll">💰${fmtStones(cityToll(state, city), true)}</small>`;
-    e.label.innerHTML = `${city.capital ? '★' : ''}${city.name}<small>${ownerName(city.owner)}</small>${tollText}`;
+    const html = `${city.capital ? '★' : ''}${city.name}<small>${ownerName(city.owner)}</small>${tollText}`;
+    if(e.label.innerHTML!==html)e.label.innerHTML=html;
   }
 
   setHover(index: number | null, displayFacility: string | null = null) {
@@ -215,7 +220,7 @@ export class World {
   clearHighlights() {
     for (const c of [...this.highlights.children]) {
       this.highlights.remove(c);
-      ((c as THREE.Mesh).material as THREE.Material).dispose();
+      const mesh=c as THREE.Mesh;mesh.geometry.dispose();(mesh.material as THREE.Material).dispose();
     }
   }
 
@@ -262,7 +267,7 @@ export class World {
       })
       .then(() => {
         this.root.remove(ring, pts);
-        geo.dispose();
+        geo.dispose();ring.geometry.dispose();(ring.material as THREE.Material).dispose();(pts.material as THREE.Material).dispose();
       });
   }
 
@@ -279,7 +284,7 @@ export class World {
         beam.scale.set(1 - t * 0.7, 1, 1 - t * 0.7);
         (beam.material as THREE.MeshBasicMaterial).opacity = 0.8 * (1 - t);
       })
-      .then(() => this.root.remove(beam));
+      .then(() => {this.root.remove(beam);beam.geometry.dispose();(beam.material as THREE.Material).dispose();});
   }
 
   /** Same physical road slab, four authored jade-arrow textures. */
@@ -341,11 +346,14 @@ export class World {
   }
 
   /** 九州風雲的地圖標記：旅行商人、黃巾賊窩 */
+  private eventMarkerKey='';
   setEventMarkers(merchantTile: number | null, banditTiles: number[]) {
+    const key=JSON.stringify([merchantTile,banditTiles]);if(key===this.eventMarkerKey)return;this.eventMarkerKey=key;
     for (const m of this.eventMarkers) {
       m.removeFromParent();
       m.traverse((o) => {
         if (o instanceof CSS2DObject) o.element.remove();
+        if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of [o.material].flat())m.dispose();}
       });
     }
     this.eventMarkers = [];

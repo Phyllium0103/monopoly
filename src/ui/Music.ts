@@ -6,6 +6,7 @@ const BASE_GAIN = 0.5;
 /** 背景音樂：循環播放，音量存在瀏覽器；瀏覽器要求先有操作才能出聲，所以第一次點擊或按鍵時才開始 */
 const audio = new Audio(`${import.meta.env.BASE_URL}audio/bgm.mp3`);
 audio.loop = true;
+audio.preload = 'none';
 
 function load(): number {
   try {

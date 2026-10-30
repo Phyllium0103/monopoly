@@ -6,7 +6,7 @@ import {
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { assetUrl } from '../data/assetUrl';
 import { dicePlaybackRate, diceRollResult } from '../world/DiceMotion';
-import { sampleDicePhysics, simulateDiceRoll, type PhysicalDiceRoll } from '../world/DicePhysics';
+import { sampleDicePhysics, simulateDiceRoll, type DiceLaunch, type PhysicalDiceRoll } from '../world/DicePhysics';
 import './dice-roller.css';
 import {prepareDiceWorker,simulateDiceInWorker} from '../world/DiceWorker';
 import {renderPixelRatio} from '../performance/renderBudget';
@@ -14,6 +14,11 @@ import { DICE_PRESENTATION_RATE } from './LordPresentation';
 
 function cosmeticRandom(): number {
   return crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000;
+}
+
+/** Keep the entire die above the viewport before real gravity brings it in. */
+export function topDropLaunch(gentle=false):DiceLaunch{
+  return {size:1,position:[0,7.2,0],velocity:[0,-.4,0],surface:gentle?'soft':'standard'};
 }
 
 /** A visual presentation of an already-authoritative roll; this class never rolls game dice. */
@@ -47,7 +52,7 @@ export class DiceRoller {
     this.stage.className = 'dice-roll-stage'; this.stage.hidden = true;
     this.caption.className = 'dice-roll-caption';
     this.caption.setAttribute('role', 'status'); this.caption.setAttribute('aria-live', 'polite');
-    this.stage.append(this.caption); parent.append(this.stage);
+    this.stage.append(this.caption); (document.body??parent).append(this.stage);
     this.camera.position.set(0, 9, 6); this.camera.lookAt(0, .4, 0);
     this.scene.add(new HemisphereLight(0xf6f8ff, 0x9b8b70, 2.8), new AmbientLight(0xffffff, .25));
     const key = new DirectionalLight(0xfff3df, 3.8); key.position.set(-3, 7, 4);
@@ -103,7 +108,7 @@ export class DiceRoller {
     await this.prepare(); if (token !== this.version) return;
     if (!this.previewPhysics || this.previewPhysics.value !== value) {
       let seed = 98765;
-      this.previewPhysics = { value, roll: simulateDiceRoll([value], () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 0x100000000)) };
+      this.previewPhysics = { value, roll: simulateDiceRoll([value], () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 0x100000000),this.options.centerFinal?topDropLaunch(this.options.gentle):undefined) };
     }
     const physics = await this.previewPhysics.roll; if (token !== this.version) return;
     this.physics = physics;
@@ -191,7 +196,7 @@ export class DiceRoller {
     const centerX = resting.length?resting.reduce((s,p)=>s+p.position.x,0)/resting.length:bounds ? (bounds.minX + bounds.maxX) / 2 : 0;
     const centerZ = resting.length?resting.reduce((s,p)=>s+p.position.z,0)/resting.length:bounds ? (bounds.minZ + bounds.maxZ) / 2 : 0;
     const centerY = resting.length?resting.reduce((s,p)=>s+p.position.y,0)/resting.length:.4;
-    this.camera.position.set(centerX, 9, centerZ + 6); this.camera.lookAt(centerX, centerY, centerZ);this.camera.updateMatrixWorld();
+    this.camera.position.set(centerX, centerY + 5, centerZ + 12); this.camera.lookAt(centerX, centerY, centerZ);this.camera.updateMatrixWorld();
     // Frame the actual simulated travel BEFORE playback. The camera stays fixed;
     // dice are never teleported or constrained to a hand-drawn screen trajectory.
     const halfHeight = Math.max(3.35, (bounds ? (bounds.maxX - bounds.minX + 1.6) / 2 : 2.2) * height / width);
@@ -207,7 +212,7 @@ export class DiceRoller {
     if (!this.unavailable) {
       try {
         const seed=this.options.gentle?[1,11,17,18][Math.floor(cosmeticRandom()*4)]:crypto.getRandomValues(new Uint32Array(1))[0];
-        const physics=await simulateDiceInWorker(values,seed,this.options.centerFinal?{size:1,position:[0,7.2,0],velocity:[0,-.4,0],surface:this.options.gentle?'soft':'standard'}:undefined);
+        const physics=await simulateDiceInWorker(values,seed,this.options.centerFinal?topDropLaunch(this.options.gentle):undefined);
         this.stage.dataset.bounceProfile=this.options.gentle?'soft':'standard';
         this.framingPhysics=physics;
         this.stage.dataset.launchMode=this.handOrigin?'release-to-top-drop':'top-drop';

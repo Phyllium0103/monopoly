@@ -18,7 +18,7 @@ global.clearTimeout=id=>timers.delete(id);
 global.requestAnimationFrame=cb=>{const id=++serial;frames.set(id,cb);return id};global.cancelAnimationFrame=id=>frames.delete(id);
 global.ResizeObserver=class{observe(){}disconnect(){}};
 global.performance={now:()=>clock};
-const {DiceRoller}=require('../src/ui/DiceRoller.ts');
+const {DiceRoller,topDropLaunch}=require('../src/ui/DiceRoller.ts');
 async function flush(){for(let i=0;i<8;i++)await Promise.resolve()}
 function tick(now){clock=now;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(cb=>cb(now));}
 (async()=>{
@@ -34,6 +34,19 @@ function tick(now){clock=now;const callbacks=[...frames.values()];frames.clear()
  assert.equal(renderSizes.length,2,'hidden dice do not redraw on window resize');
  roller.renderer=null;
  console.log('PASS proportional dice resize uses physical bounds and skips hidden stages');
+ const {simulateDiceRoll,sampleDicePhysics}=require('../src/world/DicePhysics.ts');
+ const mockDocument=global.document,mockWindow=global.window,mockPerformance=global.performance;delete global.document;delete global.window;global.performance=require('node:perf_hooks').performance;
+ let seed=123;const physical=await simulateDiceRoll([4],()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/0x100000000),topDropLaunch());global.document=mockDocument;global.window=mockWindow;global.performance=mockPerformance;
+ const centered=new DiceRoller(new Element(),{centerFinal:true});centered.renderer={setPixelRatio(){},setSize(){},render(){}};centered.stage.hidden=false;centered.physics=physical;
+ for(const [width,height] of [[1280,720],[960,540],[720,1280]]){
+  centered.stage.rect={width,height};centered.resize();
+  const end=sampleDicePhysics(physical,physical.playbackDuration)[0].position.project(centered.camera);
+  const start=physical.frames[0][0].position.clone().project(centered.camera);
+  assert.ok(Math.abs(end.x)<1e-6&&Math.abs(end.y)<1e-6,'resting die is at the exact screen centre');
+  assert.ok(start.y>1.2,'die starts fully above the screen');
+ }
+ centered.renderer=null;centered.cancel();
+ console.log('PASS real Rapier top drop starts offscreen and rests at screen centre in wide and portrait views');
  // Geometry and GLB loading are tested separately; exercise the numeric backend
  // here so lifecycle correctness does not depend on a GPU in CI.
  roller.unavailable=true;

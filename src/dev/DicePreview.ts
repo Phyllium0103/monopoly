@@ -17,7 +17,7 @@ root.innerHTML = `<style>
   </main><div class="scrub"><label for="face">檢視頂面</label><select id="face" aria-label="檢視頂面">${[1,2,3,4,5,6].map(v=>`<option value="${v}">${v} 點</option>`).join('')}</select>
   <label for="phase">動作分解</label><input id="phase" type="range" min="0" max="100" value="100" step="1" aria-label="動作進度"><output id="progress">100%</output>
   <a href="./?lord=liu">返回遊戲</a></div>`;
-const roller = new DiceRoller(root);
+const roller = new DiceRoller(root,{centerFinal:true});
 const q = <T extends HTMLElement>(selector: string) => root.querySelector<T>(selector)!;
 const face = q<HTMLSelectElement>('#face'), phase = q<HTMLInputElement>('#phase');
 const speed = () => +q<HTMLSelectElement>('#speed').value;

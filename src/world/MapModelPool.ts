@@ -8,6 +8,7 @@ type Key=keyof typeof MAP_MODELS;
 export interface Placement{id:string;key:Key;x:number;z:number;rotation:number;color:number}
 interface Part{geometry:THREE.BufferGeometry;material:THREE.Material;recolor:boolean;transform:THREE.Matrix4}
 interface Batch{meshes:THREE.InstancedMesh[];signature:string}
+export const ACTIVE_MAP_LOD=0;
 const CACHE='xiantu-map-runtime-v1';
 async function fetchCached(url:string){
  const cache=typeof caches==='undefined'?null:await caches.open(CACHE).catch(()=>null);
@@ -15,7 +16,7 @@ async function fetchCached(url:string){
  const r=await fetch(url);if(!r.ok)throw Error(`HTTP ${r.status}: ${url}`);
  if(cache){const copy=r.clone();void cache.put(url,copy).catch(()=>{});}return r.arrayBuffer();
 }
-/** Offline-joined LODs. Only visible individual buildings enter a material batch. */
+/** One compressed detail-preserving model per type, with individual visibility culling. */
 export class MapModelPool{
  group=new THREE.Group();
  private placements:Placement[]=[];
@@ -31,12 +32,12 @@ export class MapModelPool{
  private status=document.createElement('div');private pending:Promise<void>=Promise.resolve();
  constructor(private onChange:()=>void){this.status.className='map-loading';this.status.hidden=true;this.status.setAttribute('role','status');document.body.append(this.status);}
  async prepare(progress:(done:number,total:number)=>void){
-  const keys=Object.keys(MAP_RUNTIME_MODELS) as Key[],total=keys.length*3;let done=0;progress(0,total);
-  for(const key of keys)for(let lod=2;lod>=0;lod--){await this.load(key,lod);progress(++done,total);await new Promise<void>(resolve=>setTimeout(resolve,0));}
+  const keys=Object.keys(MAP_RUNTIME_MODELS) as Key[],total=keys.length;let done=0,next=0;progress(0,total);
+  await Promise.all(Array.from({length:3},async()=>{while(next<keys.length){const key=keys[next++];await this.load(key,ACTIVE_MAP_LOD);progress(++done,total);await new Promise<void>(resolve=>setTimeout(resolve,0));}}));
  }
  async warmup(renderer:THREE.WebGLRenderer){
   for(const texture of this.textures.values())renderer.initTexture(texture);
-  // Upload each ready LOD once behind the loading screen, including future city tiers.
+  // Upload only the single selected compressed model for each building type.
   const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-20,20,20,-20,.1,200);
   camera.position.set(20,20,20);camera.lookAt(0,3,0);
   scene.add(new THREE.HemisphereLight(0xffffff,0x555555,1),new THREE.DirectionalLight(0xffffff,2));
@@ -48,9 +49,9 @@ export class MapModelPool{
  sync(placements:Placement[],_focus?:{x:number;z:number}):Promise<void>{
   if(JSON.stringify(placements)===JSON.stringify(this.placements))return this.pending;
   this.placements=placements;const revision=++this.revision;this.viewKey='';
-  this.pending=(async()=>{const missing=[...new Set(placements.map(p=>p.key))].filter(key=>!this.ready.has(key+':2'));
+  this.pending=(async()=>{const missing=[...new Set(placements.map(p=>p.key))].filter(key=>!this.ready.has(key+':'+ACTIVE_MAP_LOD));
    if(!missing.length)return;this.status.hidden=false;
-   try{for(const key of missing){this.status.textContent='準備建築…';for(let lod=2;lod>=0;lod--)await this.load(key,lod);}}
+   try{for(const key of missing){this.status.textContent='準備建築…';await this.load(key,ACTIVE_MAP_LOD);}}
    finally{if(revision===this.revision)this.status.hidden=true;}
   })();return this.pending;
  }
@@ -58,7 +59,7 @@ export class MapModelPool{
   const viewKey=[...camera.matrixWorld.elements,...camera.projectionMatrix.elements,height,this.revision].join(',');
   if(viewKey===this.viewKey)return;this.viewKey=viewKey;
   this.vp.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);this.frustum.setFromProjectionMatrix(this.vp);
-  const pixels=CELL_SIZE*2*height*camera.zoom/(camera.top-camera.bottom),lod=pixels>170?0:pixels>85?1:2;
+  const lod=ACTIVE_MAP_LOD;
   const visible=new Map<string,Placement[]>();
   for(const p of this.placements){if(!this.ready.has(p.key+':'+lod))continue;
    const box=(this.bounds.get(p.key)??new THREE.Box3(new THREE.Vector3(-5,0,-5),new THREE.Vector3(5,25,5))).clone().applyMatrix4(this.matrix(p));

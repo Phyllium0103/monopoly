@@ -1,4 +1,5 @@
 import {uiViewportSize} from './UiViewport';
+import {lordHudAssetUrl,LORD_HUD_TEXTURE_WIDTH,LORD_HUD_TEXTURE_HEIGHT} from '../data/lordHudRuntime';
 import { LinearFilter, OrthographicCamera, Scene, Sprite, SpriteMaterial, SRGBColorSpace, Texture, TextureLoader, WebGLRenderer } from 'three';
 import type { GameState, LordId } from '../game/types';
 import { LORDS, LORD_IDS } from '../faction/Faction';
@@ -23,7 +24,18 @@ interface Motion {actor:Actor;clip:Clip;elapsed:number;end:number;resolve:()=>vo
 const FIELDS=[['stones','靈石'],['soldiers','士兵'],['cities','城池'],['generals','武將']] as const;
 const PORTRAITS:Record<LordId,string>={liu:'liubei',cao:'caocao',sun:'sunquan',dong:'dongzhuo'};
 const sheet=(a:Atlas,p:Pose)=>p.externalSheet??a.sheets[p.sheet];
-const path=(id:LordId,file:string)=>assetUrl(`art/lord-hud/${id}/${file}`);
+const path=lordHudAssetUrl;
+
+/** Limit network/decode work; a failed image stops scheduling more work. */
+export async function prepareLordTextureJobs<T>(jobs:readonly T[],load:(job:T)=>Promise<void>):Promise<void>{
+  let next=0,failed=false;
+  await Promise.all(Array.from({length:Math.min(3,jobs.length)},async()=>{
+    while(!failed&&next<jobs.length){
+      const job=jobs[next++];
+      try{await load(job);}catch(error){failed=true;throw error;}
+    }
+  }));
+}
 
 /** Cosmetic-only HUD. Authoritative turns, dice and rewards remain in Engine. */
 export class LordActorHud {
@@ -254,11 +266,13 @@ export class LordActorHud {
   private texture(a:Actor,file:string):Promise<Texture>{
     const done=a.textures.get(file);if(done)return Promise.resolve(done);
     let pending=a.pending.get(file);
-    if(!pending){pending=new TextureLoader().loadAsync(path(a.id,file)).then(async t=>{
+    if(!pending){pending=new TextureLoader().loadAsync(path(a.id,file)).then(t=>{
       const image=t.image as HTMLImageElement;
-      if(image.width>768&&typeof createImageBitmap!=='undefined'){
-        (t as Texture).image=await createImageBitmap(image,{resizeWidth:768,resizeHeight:Math.round(image.height*768/image.width),resizeQuality:'high',imageOrientation:'flipY',premultiplyAlpha:'none',colorSpaceConversion:'none'});t.flipY=false;
+      if(image.width!==LORD_HUD_TEXTURE_WIDTH||image.height!==LORD_HUD_TEXTURE_HEIGHT){
+        t.dispose();throw new Error('Unexpected lord runtime texture dimensions');
       }
+      // Already resized offline. Keep normal HTML-image UV orientation.
+      t.flipY=true;
       t.colorSpace=SRGBColorSpace;t.minFilter=t.magFilter=LinearFilter;t.generateMipmaps=false;
       a.textures.set(file,t);a.pending.delete(file);return t;
     }).catch(e=>{a.pending.delete(file);throw e;});a.pending.set(file,pending);}
@@ -277,7 +291,7 @@ export class LordActorHud {
       for(const file of files)jobs.push({a,file});
     }
     let done=0;progress(0,jobs.length);
-    for(const job of jobs){const t=await this.texture(job.a,job.file);this.renderer!.initTexture(t);progress(++done,jobs.length);await new Promise<void>(resolve=>setTimeout(resolve,0));}
+    await prepareLordTextureJobs(jobs,async job=>{const t=await this.texture(job.a,job.file);this.renderer!.initTexture(t);progress(++done,jobs.length);});
     await this.renderer!.compileAsync(this.scene,this.camera);
   }
   private initialize():Promise<void>{

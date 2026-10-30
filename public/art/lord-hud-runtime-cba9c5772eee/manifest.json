@@ -1,0 +1,1034 @@
+{
+  "version": 1,
+  "base": "art/lord-hud-runtime-cba9c5772eee",
+  "coordinateSpace": "unchanged source logical pixels",
+  "width": 768,
+  "height": 384,
+  "sources": {
+    "liu/prep-16.json": "7b42d08aeba635c84cb5079d139a8b65bfb16497bc9361cf52c3de74a68f6490",
+    "liu/throw-16.json": "f7eccfcaf9426488166d58cf058e08452f96792df014652fe43af7be55e027ae",
+    "cao/prep-16.json": "41a6f452f6533b9228133e5e49000fffdab42baa3f8b9fdecb2cd97f4d19978c",
+    "cao/throw-16.json": "3fcd55e0c1c86c4efd7ad9a70477d97196a966499861ccfa354f17997586ea51",
+    "cao/recovery-16.json": "5f6225900f6f7e4a08e3bf7a0e7322d5c0fea0c0b7fd17ce6ee2ef743bdadfcf",
+    "sun/prep-16.json": "c7b119d857bfa89c4f6af574ca934b46a91cca5ec31edd16bc84d2104f57bac5",
+    "sun/throw-16.json": "fa8f30bfecded59de3a174e28e144f8fcf5d922a0bfab5f781aa351f89328d54",
+    "sun/recovery-16.json": "152f3c6f7a4b3252ac9f24fb59cf78a92e0ae4881f52541a2f06c4d734302bb2",
+    "dong/prep-16.json": "1d5b8efe3a02cb2ec9e7e27289c84261bd3d21832acbae1a7810110d2817b1c0",
+    "dong/throw-16.json": "1e8220efcdd1b1f2978a9b3fbffc4c95066964553e438f9b922467c22870a4de",
+    "dong/recovery-16.json": "e21a6a2bc64699c2ba376d96ca727e490abd06338bc97bf6663f92d73508b5b9",
+    "cao/idle-closed.webp": "537afae7bcf6ab7d1dcc3c9ef57982a693e612b83995faab777b116cc3086b97",
+    "cao/prep-03-04-v3.webp": "2ee25bcf764aaa6c8e3c0b941ac0208842cd4c54d5721a2ad04b0271d504a085",
+    "cao/prep-05-06.webp": "706f199905a315db1fe3c6bf72b2d7160e9185a6b009b9005ff3d66349f5b0ba",
+    "cao/prep-07-08.webp": "e1d31b5a68a5ee8f47a81008e39ca851a7a9b2e3362e76d3f0c07d9fe5e64ff8",
+    "cao/prep-09-10-v3.webp": "b6ee9c9b53dcac02b9a4c080ea2a04d4e0764fae9b3cae623018b3b8c94aabe7",
+    "cao/prep-11-12.webp": "cd28bb592872fcac88069525efdb624bd5f6d918e951c8adc198cb0d8ca0a081",
+    "cao/recovery-clean-r4.webp": "1955b64b1547891f7c7a12779d0a91c5c54db9a80c8a0658f96636b27177d05e",
+    "cao/throw-01-02.webp": "ca799b9fa8bbcb54a486749447441ee52d77eccee9ec47b59e129eb9f35289b9",
+    "cao/throw-03-04.webp": "24548d8e0b54fcc3e5afc63752e1a20671643d5bb2704faecac931b257bdc533",
+    "cao/throw-05-06-v2.webp": "202159d66c81ef6b0e7a8da680415d7ec58c5b8df4bff716c0ae57b7b18841a1",
+    "cao/throw-07-08.webp": "1a2f2dc8108ad9482ad518fdff76502a50d71118e410cfc3f7b379575e4ffd94",
+    "cao/throw-09-10.webp": "428b54f0b52736ca22367f0ffd9bdb633176d7a9996505d996232bce656c6227",
+    "cao/throw-11-12.webp": "92f2fbcd95123761baf22f20a54ecc300797b1cc9aa31d1cab2c788304f7cab4",
+    "cao/throw-13-14-v2.webp": "beed2e87b345b745227815b2bad94141e5d160eff102d4b35a6d4425296c4d6f",
+    "dong/idle-closed-v2.webp": "716953ec235af45d23fe0dcc35c6af1b3ad2364c80bc33cc9e041dc74e301e5e",
+    "dong/prep-05-06-v2.webp": "04dd9c499edfe38db0cd8b57a4708cced266119b84f80044043231a8c0876140",
+    "dong/prep-07-08-v3.webp": "13373205efdec00a9ad9d1c597e62d52b7d998514bcc80485fd6be72369a24f7",
+    "dong/prep-09-10-v2.webp": "334bb24e63f0d883dbee7ab2bed3579e804f600c2f2c29cf9d4f857ccc8b6850",
+    "dong/recovery-01-02.webp": "872963e6caa683ddaba43b650e49ba50f2a8419ee64f10c310b56f4e63e40dea",
+    "dong/throw-03-04-v2.webp": "209af864b804476e9f046a689e9c6cd9adefcdc5b5f7e2a05bddcae1a9e4bf53",
+    "dong/throw-05-06.webp": "d2803cb6caece9459438fb497a82cd8e82061617801060bbbc00e6ee2f077a52",
+    "dong/throw-07-08.webp": "b3169fc7b24b6b560df7976894c1e1a1ff98f263431d9bb1677b3b646f7fe02d",
+    "dong/throw-09-10.webp": "2737bfcedbe8b05b31f3c5fafb9a218bdcb40d9f5a1634b643b3f821979498fc",
+    "dong/throw-11-12.webp": "c498bbfda6ec0a0789a3c2138ee5e719c88aed3d74b81870b70a22c4cc045184",
+    "dong/throw-13-14.webp": "dc5a258c7350b8e3c9cec46a3709af7115db4673b377f216c598bfe781adef57",
+    "liu/end-smile-tone-v2.webp": "8ac52c26b44c362e9dc283838a6d6f18d52b952a65f57642e175837ffae4a3a2",
+    "liu/prep-03-04.webp": "80e7bdd2c75e0627bea0182bca4afbd7c4dce0a13dcea8c48b12b879a81c6b0e",
+    "liu/prep-05-06.webp": "ffbea216d1effc60edd5e933ba9f070fea7a3f87be84994332eb118d159f6b37",
+    "liu/prep-07-08.webp": "8b1f2a7ea217530e5c24e48046b6ebd522491912a5f4fac979a3d9b3ed89328f",
+    "liu/prep-09-10.webp": "949095dc80891696baca9a9d5b12d5aec1c07f47a8d0d01ebf9601a41d1692ba",
+    "liu/prep-11-12.webp": "69c05a717cbd5e1c7abda9d7db723264fdc88010ed0794d1eb36fd3b572ee628",
+    "liu/prep-13-14.webp": "5603bd4d660ab09ed3b8a2c13ae752ae5fbde64ee2645e7d30b1f77aaa503737",
+    "liu/throw-01-02.webp": "a338c3570287efb15d1a9427465639220d12182445b65634eecfadc26ce68a8d",
+    "liu/throw-03-04.webp": "53f7faa51bef304dc7f650b2825c1b3b993065ab065deea5f74d61b08d8972bc",
+    "liu/throw-05-06.webp": "dd1e5e0f9a810691da9e65ae1ebf5adba701c604cde9499f378826716f1e95cd",
+    "liu/throw-07-08.webp": "141509fc43f3e7a5eb85c1feb3ced70684f69919be5b3021b1eb7fc24254c0a8",
+    "liu/throw-09-10.webp": "f0599d633cb84720c13bbf9c85b1eb9d47d255008de761050604c9a89c590d43",
+    "liu/throw-11-12.webp": "580f6c2442aa1dfca6bf6631a942cfd66b08fc6a30a9d8e6d185c3eba971bfd3",
+    "liu/throw-13-14.webp": "d13a1e2dbd87265961793b27676008b9b6f5c40a2864652da45e2ed9f38f2fe2",
+    "liu/throw-15-16.webp": "8fb22260cdc04022a82fd034c2d30fd2ad54becacd97a0e8ac536bc095535a19",
+    "sun/idle-closed-v2.webp": "f47918a7beb5af3ff1e2cc467e0a38bb3eb4d2996a78a9cfa2f8e52c1a00845b",
+    "sun/prep-03-04.webp": "3435ce6147afb7a69ec2c4b03f53b6a154bff617f98955b21f7ebe1883b9d8ee",
+    "sun/prep-05-06.webp": "b0081ea14060129b8db017565344d534927cb68d2f370c7331615a3d34fee4da",
+    "sun/prep-07-08.webp": "853391c7f0522ef7e71be5ba472ff00e183b1593348d0d74bdd485e93af4ed1c",
+    "sun/prep-09-10.webp": "c340277b3eca6eca6f07b04849ba4c5f1a26aacc45e16f9808b9485a99beb02b",
+    "sun/prep-11-12.webp": "89b8d8ca80e630ea8f7e39af734e08d1f4c6008149ccd7fc96a12cd91cb35f38",
+    "sun/recovery-01-02-v3.webp": "dba64f366a578131ee972d2f2834aefb6a65a0f8eff91e035215baeb4da196c9",
+    "sun/throw-03-04.webp": "bf0c75ec3df207ea20a189ce215c64c79f75e54ba3464d76d964dfacbc3cf83f",
+    "sun/throw-05-06.webp": "419f101b127706e6143339067ec20fe9263aecf6f3b884eaf3b9c45432525b46",
+    "sun/throw-07-08-v3.webp": "337c181e6f468b3410b29773de84b307eb420c6de9dd5f163e0d7044c0da420b",
+    "sun/throw-09-10.webp": "0c640a87ccf75229e15d25053e9bd1811b1ab1681dadee35d9edae45898721d3",
+    "sun/throw-11-12.webp": "2f560352ad0ff455695f3a6e49993c98b0b7ce2c2bf6a4d5675772a3991347a3",
+    "sun/throw-13-14.webp": "5b89549d32a5658c4b7ccbb7805aec2fe1c3e1022f860a7aa57450a3f4b28562"
+  },
+  "assets": [
+    {
+      "file": "cao/idle-closed.webp",
+      "sourceSha256": "537afae7bcf6ab7d1dcc3c9ef57982a693e612b83995faab777b116cc3086b97",
+      "sha256": "4e7b89bcf4c80f237f1d1ce0c9c2347779a4b4a7142073f4d24ec958fc067bef",
+      "sourceBytes": 337354,
+      "bytes": 123720,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.440437984888449,
+        2.3605754059219652,
+        4.431006662657561
+      ]
+    },
+    {
+      "file": "cao/prep-03-04-v3.webp",
+      "sourceSha256": "2ee25bcf764aaa6c8e3c0b941ac0208842cd4c54d5721a2ad04b0271d504a085",
+      "sha256": "511ba36c7241c92e9fb2e813d87e992781400dad380a1f271eda7a53eb246426",
+      "sourceBytes": 322812,
+      "bytes": 125300,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.6771425434851555,
+        2.4634309970481327,
+        4.514576370422776
+      ]
+    },
+    {
+      "file": "cao/prep-05-06.webp",
+      "sourceSha256": "706f199905a315db1fe3c6bf72b2d7160e9185a6b009b9005ff3d66349f5b0ba",
+      "sha256": "f05c15d48e76d9486eaf322841df653620006c279dec2ebc572977b84e16d64a",
+      "sourceBytes": 340288,
+      "bytes": 127210,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.460989497510717,
+        2.3145703713694283,
+        4.53278289577848
+      ]
+    },
+    {
+      "file": "cao/prep-07-08.webp",
+      "sourceSha256": "e1d31b5a68a5ee8f47a81008e39ca851a7a9b2e3362e76d3f0c07d9fe5e64ff8",
+      "sha256": "bdf3522d6f345ce5e8be6fbf38e6b9165aa81803d2b61bab4856a352e9e6a98b",
+      "sourceBytes": 316246,
+      "bytes": 118432,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.611306503155461,
+        2.41990814856938,
+        4.581940006057497
+      ]
+    },
+    {
+      "file": "cao/prep-09-10-v3.webp",
+      "sourceSha256": "b6ee9c9b53dcac02b9a4c080ea2a04d4e0764fae9b3cae623018b3b8c94aabe7",
+      "sha256": "0c55d625120a40543aef63e63dd02da33af59adc7c1e61998c76c074d0f96a17",
+      "sourceBytes": 286528,
+      "bytes": 114326,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.473084282691065,
+        2.40132804480884,
+        4.316291358838214
+      ]
+    },
+    {
+      "file": "cao/prep-11-12.webp",
+      "sourceSha256": "cd28bb592872fcac88069525efdb624bd5f6d918e951c8adc198cb0d8ca0a081",
+      "sha256": "b7d2c888b92d668d0591ef738edf140ce355bcb9f4569dd2ff3339cfa13ec5b5",
+      "sourceBytes": 324264,
+      "bytes": 123094,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.609781692341251,
+        2.475436703748902,
+        4.69199342070356
+      ]
+    },
+    {
+      "file": "cao/recovery-clean-r4.webp",
+      "sourceSha256": "1955b64b1547891f7c7a12779d0a91c5c54db9a80c8a0658f96636b27177d05e",
+      "sha256": "445d8c0d26ae33aeb396b036eab070fe9d5f6337896e1e1d79eb5d4d74a2e1b5",
+      "sourceBytes": 293948,
+      "bytes": 116974,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.609312788906009,
+        2.399864406779661,
+        4.366995377503852
+      ]
+    },
+    {
+      "file": "cao/throw-01-02.webp",
+      "sourceSha256": "ca799b9fa8bbcb54a486749447441ee52d77eccee9ec47b59e129eb9f35289b9",
+      "sha256": "df8f9619acb8962c923026ce057e5ddd23e0754d8cb7cbaf03972ba8f44edd7a",
+      "sourceBytes": 353124,
+      "bytes": 126712,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.117481047634792,
+        2.2147875681930898,
+        4.328324634532272
+      ]
+    },
+    {
+      "file": "cao/throw-03-04.webp",
+      "sourceSha256": "24548d8e0b54fcc3e5afc63752e1a20671643d5bb2704faecac931b257bdc533",
+      "sha256": "a8b98cad6a1cfb399b21936f03d29a6722b983da733f9ee4a21d4b439d7818db",
+      "sourceBytes": 303906,
+      "bytes": 115782,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.354348797542846,
+        2.3084156265931535,
+        4.459237300403442
+      ]
+    },
+    {
+      "file": "cao/throw-05-06-v2.webp",
+      "sourceSha256": "202159d66c81ef6b0e7a8da680415d7ec58c5b8df4bff716c0ae57b7b18841a1",
+      "sha256": "0d31c3441504bea5ac8c7d1bc5f69ecad9ecd30f2e1ebd667c562ac3c94c297e",
+      "sourceBytes": 311702,
+      "bytes": 119338,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.62096915131464,
+        2.4195397103754996,
+        4.4708296422179234
+      ]
+    },
+    {
+      "file": "cao/throw-07-08.webp",
+      "sourceSha256": "1a2f2dc8108ad9482ad518fdff76502a50d71118e410cfc3f7b379575e4ffd94",
+      "sha256": "93b24eb363df708731ffb6290a626744e3c0bab5555e7a85d5fd440be6c2a3bb",
+      "sourceBytes": 351646,
+      "bytes": 130428,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.765259035974871,
+        2.5425866974673914,
+        4.806648449164718
+      ]
+    },
+    {
+      "file": "cao/throw-09-10.webp",
+      "sourceSha256": "428b54f0b52736ca22367f0ffd9bdb633176d7a9996505d996232bce656c6227",
+      "sha256": "5cefc5429de944d2fd8cb90a8ddf72dfed7e03d670b480fffd620d21b75bc619",
+      "sourceBytes": 298398,
+      "bytes": 113736,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.696402662664782,
+        2.4625041253868525,
+        4.7908537838359555
+      ]
+    },
+    {
+      "file": "cao/throw-11-12.webp",
+      "sourceSha256": "92f2fbcd95123761baf22f20a54ecc300797b1cc9aa31d1cab2c788304f7cab4",
+      "sha256": "0f60601c61acbb97b81fd52ff5ff7cf20df19ec03522003350f45c2a5fcd5282",
+      "sourceBytes": 401698,
+      "bytes": 139280,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.478143489594109,
+        2.3150006206297324,
+        4.37710496917539
+      ]
+    },
+    {
+      "file": "cao/throw-13-14-v2.webp",
+      "sourceSha256": "beed2e87b345b745227815b2bad94141e5d160eff102d4b35a6d4425296c4d6f",
+      "sha256": "7c170d86a1f1e5710b96d483bf9cd131a7b34c529c7f43104be67dfa475dd8b9",
+      "sourceBytes": 312734,
+      "bytes": 120216,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.877021720456498,
+        2.4475641182967234,
+        4.600282243220027
+      ]
+    },
+    {
+      "file": "dong/idle-closed-v2.webp",
+      "sourceSha256": "716953ec235af45d23fe0dcc35c6af1b3ad2364c80bc33cc9e041dc74e301e5e",
+      "sha256": "0a0fb9ba970e5f1121d800b46767785ba44d5e8730040b0cec3d1b45a238c667",
+      "sourceBytes": 299610,
+      "bytes": 122242,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.23607674815552,
+        1.9734517210512563,
+        4.079016573909852
+      ]
+    },
+    {
+      "file": "dong/prep-05-06-v2.webp",
+      "sourceSha256": "04dd9c499edfe38db0cd8b57a4708cced266119b84f80044043231a8c0876140",
+      "sha256": "f8c666ec06d7b24e56a614822146661b25d8aca39a741c4c3eaa4b9ae4f4b2af",
+      "sourceBytes": 303700,
+      "bytes": 124344,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.748247082177232,
+        2.108138765478779,
+        4.4114588835817905
+      ]
+    },
+    {
+      "file": "dong/prep-07-08-v3.webp",
+      "sourceSha256": "13373205efdec00a9ad9d1c597e62d52b7d998514bcc80485fd6be72369a24f7",
+      "sha256": "1c46131a4419adf14c7c504bb4aea193463a84e20f6648e69d03bf3a7b61fa5d",
+      "sourceBytes": 310640,
+      "bytes": 125196,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.652735737950315,
+        2.0962653957491773,
+        4.356064191606221
+      ]
+    },
+    {
+      "file": "dong/prep-09-10-v2.webp",
+      "sourceSha256": "334bb24e63f0d883dbee7ab2bed3579e804f600c2f2c29cf9d4f857ccc8b6850",
+      "sha256": "e58afeaea86c05ee868b7ce6906135e611df1ae8861172f9759ba89c8da6daf5",
+      "sourceBytes": 296096,
+      "bytes": 121702,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.261264550967113,
+        1.9895930155357855,
+        4.143434913468774
+      ]
+    },
+    {
+      "file": "dong/recovery-01-02.webp",
+      "sourceSha256": "872963e6caa683ddaba43b650e49ba50f2a8419ee64f10c310b56f4e63e40dea",
+      "sha256": "4f2575f6ae622dfc202866ef237a3379fd0e4eb6f0b16f2d66a0d0c0eb6f3443",
+      "sourceBytes": 308510,
+      "bytes": 126278,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.5817203701638975,
+        2.07328576206935,
+        4.241080388003122
+      ]
+    },
+    {
+      "file": "dong/throw-03-04-v2.webp",
+      "sourceSha256": "209af864b804476e9f046a689e9c6cd9adefcdc5b5f7e2a05bddcae1a9e4bf53",
+      "sha256": "e82eacd6ecca152fc842aa615da8b942dee1d0636dfd99d149f062aa2afcde27",
+      "sourceBytes": 301392,
+      "bytes": 122474,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.7287700345346675,
+        2.1219505445851414,
+        4.54065018152838
+      ]
+    },
+    {
+      "file": "dong/throw-05-06.webp",
+      "sourceSha256": "d2803cb6caece9459438fb497a82cd8e82061617801060bbbc00e6ee2f077a52",
+      "sha256": "14b3c2b70fd02bd597004ca3d05156eb7424267a9211144009fee4360fede35a",
+      "sourceBytes": 305850,
+      "bytes": 122888,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.54631597831937,
+        2.0735282125441032,
+        4.305273916376269
+      ]
+    },
+    {
+      "file": "dong/throw-07-08.webp",
+      "sourceSha256": "b3169fc7b24b6b560df7976894c1e1a1ff98f263431d9bb1677b3b646f7fe02d",
+      "sha256": "be132054ac7e96e9a74e177c070f271732f9a9773f1d01ad4587accd16f32935",
+      "sourceBytes": 389532,
+      "bytes": 152544,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.775137646827282,
+        2.2042021284255697,
+        4.489077058222088
+      ]
+    },
+    {
+      "file": "dong/throw-09-10.webp",
+      "sourceSha256": "2737bfcedbe8b05b31f3c5fafb9a218bdcb40d9f5a1634b643b3f821979498fc",
+      "sha256": "2f628f4fd2521239554bfc4c46b6876c763ba2d72004bfa7bf9889069d9cce19",
+      "sourceBytes": 333580,
+      "bytes": 132474,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.3868691718682875,
+        2.058926991989083,
+        4.2449116777438025
+      ]
+    },
+    {
+      "file": "dong/throw-11-12.webp",
+      "sourceSha256": "c498bbfda6ec0a0789a3c2138ee5e719c88aed3d74b81870b70a22c4cc045184",
+      "sha256": "0d72d716ac9c744f4358703da0bc74f73d7a892fb540bb6c9a1c4697b645e3f0",
+      "sourceBytes": 304358,
+      "bytes": 123664,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.538779719781004,
+        2.0564168394720386,
+        4.225727702621156
+      ]
+    },
+    {
+      "file": "dong/throw-13-14.webp",
+      "sourceSha256": "dc5a258c7350b8e3c9cec46a3709af7115db4673b377f216c598bfe781adef57",
+      "sha256": "a9e6de36e3f8610f6549f051174f32b5e9650b0d71bebe6bb43d038bb445c00c",
+      "sourceBytes": 354202,
+      "bytes": 134240,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.571354749806218,
+        2.067005425889243,
+        4.414940573594006
+      ]
+    },
+    {
+      "file": "liu/end-smile-tone-v2.webp",
+      "sourceSha256": "8ac52c26b44c362e9dc283838a6d6f18d52b952a65f57642e175837ffae4a3a2",
+      "sha256": "1f8dd6918b178fb151a58a94eae7b2f1344354793903c9923ee4e2df94d15549",
+      "sourceBytes": 218846,
+      "bytes": 87818,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.673928971342466,
+        2.1054992604061544,
+        4.513914041223717
+      ]
+    },
+    {
+      "file": "liu/prep-03-04.webp",
+      "sourceSha256": "80e7bdd2c75e0627bea0182bca4afbd7c4dce0a13dcea8c48b12b879a81c6b0e",
+      "sha256": "572958fc8deba353db0df6225e697e6dc1c9a8236ec1f7d6a5cdcd3667de6450",
+      "sourceBytes": 231762,
+      "bytes": 89612,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.587203956533854,
+        2.1896767901922543,
+        4.552096684313179
+      ]
+    },
+    {
+      "file": "liu/prep-05-06.webp",
+      "sourceSha256": "ffbea216d1effc60edd5e933ba9f070fea7a3f87be84994332eb118d159f6b37",
+      "sha256": "3433a35e9923842ccbc59da5ec60ca511f7ec01712332e6eba9b25022a06da4a",
+      "sourceBytes": 229852,
+      "bytes": 89514,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.806633300437051,
+        2.263682503877062,
+        4.594043423093191
+      ]
+    },
+    {
+      "file": "liu/prep-07-08.webp",
+      "sourceSha256": "8b1f2a7ea217530e5c24e48046b6ebd522491912a5f4fac979a3d9b3ed89328f",
+      "sha256": "cadc9e3ca610fa6c07318f88c1cbc5ff061ce95027e16ab496b62332399a611b",
+      "sourceBytes": 244058,
+      "bytes": 92200,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.564841043931548,
+        2.1817209094962102,
+        4.494770053842724
+      ]
+    },
+    {
+      "file": "liu/prep-09-10.webp",
+      "sourceSha256": "949095dc80891696baca9a9d5b12d5aec1c07f47a8d0d01ebf9601a41d1692ba",
+      "sha256": "a41af9d721e89e1c2948da38f66cda23c4c7ca9b959871335dc9009a836b1cc5",
+      "sourceBytes": 227148,
+      "bytes": 92316,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.578465015065283,
+        2.214617509206562,
+        4.560581966298404
+      ]
+    },
+    {
+      "file": "liu/prep-11-12.webp",
+      "sourceSha256": "69c05a717cbd5e1c7abda9d7db723264fdc88010ed0794d1eb36fd3b572ee628",
+      "sha256": "46d74e5e47c6c49a87d0714a021ac118be2e66e133278392b837e590c4e6726c",
+      "sourceBytes": 246962,
+      "bytes": 92550,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.218838217168304,
+        2.006215789961963,
+        4.183173631267146
+      ]
+    },
+    {
+      "file": "liu/prep-13-14.webp",
+      "sourceSha256": "5603bd4d660ab09ed3b8a2c13ae752ae5fbde64ee2645e7d30b1f77aaa503737",
+      "sha256": "5e21a4a10759a58d0078160747c9aa8ea55256e4c34dc466d97b5215416efd85",
+      "sourceBytes": 239328,
+      "bytes": 94152,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.743390893242749,
+        2.276918882854704,
+        4.544841489048791
+      ]
+    },
+    {
+      "file": "liu/throw-01-02.webp",
+      "sourceSha256": "a338c3570287efb15d1a9427465639220d12182445b65634eecfadc26ce68a8d",
+      "sha256": "6ef940c01475c77229314bde53679c14a5fa4784942c14b2b5974598e7d7e6b4",
+      "sourceBytes": 222602,
+      "bytes": 88178,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.5602794581238815,
+        2.2061358666325863,
+        4.423220016472126
+      ]
+    },
+    {
+      "file": "liu/throw-03-04.webp",
+      "sourceSha256": "53f7faa51bef304dc7f650b2825c1b3b993065ab065deea5f74d61b08d8972bc",
+      "sha256": "704a7cfee774c09c70aee7cc084f61441f0cca3b1f1412844fa64b60283d83be",
+      "sourceBytes": 245802,
+      "bytes": 92464,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.505949020201881,
+        2.162399988983296,
+        4.358827822686147
+      ]
+    },
+    {
+      "file": "liu/throw-05-06.webp",
+      "sourceSha256": "dd1e5e0f9a810691da9e65ae1ebf5adba701c604cde9499f378826716f1e95cd",
+      "sha256": "7815249649e60a5c1067331a01a47f29d9aba311bd7be8b78a74d712b501e8f8",
+      "sourceBytes": 248306,
+      "bytes": 94006,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.6977775696432875,
+        2.253110867296422,
+        4.63375391367176
+      ]
+    },
+    {
+      "file": "liu/throw-07-08.webp",
+      "sourceSha256": "141509fc43f3e7a5eb85c1feb3ced70684f69919be5b3021b1eb7fc24254c0a8",
+      "sha256": "06de367e86c340660775eb6403aa648b3436bce7d25846849fa435f87aed6968",
+      "sourceBytes": 259994,
+      "bytes": 102086,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.200401229574503,
+        2.418243002750364,
+        5.157340236207733
+      ]
+    },
+    {
+      "file": "liu/throw-09-10.webp",
+      "sourceSha256": "f0599d633cb84720c13bbf9c85b1eb9d47d255008de761050604c9a89c590d43",
+      "sha256": "3ea81aa544aabdeffd5dd1689c763a4de1cfc2c1d16bc209aa4ac05172ad34cd",
+      "sourceBytes": 210682,
+      "bytes": 86494,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.44612562360644,
+        2.4641570779797015,
+        5.365088479407005
+      ]
+    },
+    {
+      "file": "liu/throw-11-12.webp",
+      "sourceSha256": "580f6c2442aa1dfca6bf6631a942cfd66b08fc6a30a9d8e6d185c3eba971bfd3",
+      "sha256": "c42bf90ec8b52544988bd009a51ec4d5bf2fe2e026d0504d251daee863d2fd5e",
+      "sourceBytes": 237726,
+      "bytes": 91040,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.8374013567769625,
+        2.2855530942821543,
+        4.785442336979094
+      ]
+    },
+    {
+      "file": "liu/throw-13-14.webp",
+      "sourceSha256": "d13a1e2dbd87265961793b27676008b9b6f5c40a2864652da45e2ed9f38f2fe2",
+      "sha256": "dc1bca140d45cbd1862dfb36d2d67662c5eab51cf001111e4b15c1ee44831cfc",
+      "sourceBytes": 225186,
+      "bytes": 89090,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.556315385519592,
+        2.1583012383922338,
+        4.476466398843891
+      ]
+    },
+    {
+      "file": "liu/throw-15-16.webp",
+      "sourceSha256": "8fb22260cdc04022a82fd034c2d30fd2ad54becacd97a0e8ac536bc095535a19",
+      "sha256": "7e2e0f4af637ebd8b622c7aac17b59f2af0fb2932e4dc57a6c45dbb87eedee20",
+      "sourceBytes": 240586,
+      "bytes": 91412,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.535088208632592,
+        2.1898542639983263,
+        4.446635520535527
+      ]
+    },
+    {
+      "file": "sun/idle-closed-v2.webp",
+      "sourceSha256": "f47918a7beb5af3ff1e2cc467e0a38bb3eb4d2996a78a9cfa2f8e52c1a00845b",
+      "sha256": "a5ad8bb84e67a31c9b776201b32278294b6d9a9f5c6c7cb066a394e0f5a4364c",
+      "sourceBytes": 329300,
+      "bytes": 127550,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.086406416044809,
+        2.2873598985457044,
+        4.612982392278201
+      ]
+    },
+    {
+      "file": "sun/prep-03-04.webp",
+      "sourceSha256": "3435ce6147afb7a69ec2c4b03f53b6a154bff617f98955b21f7ebe1883b9d8ee",
+      "sha256": "70ed22f668cd998bb22e230176959ad8da7c3b2e25ba392de0d6e1a838da2051",
+      "sourceBytes": 374260,
+      "bytes": 144336,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.877457917783587,
+        2.2360988550529184,
+        4.577490662271136
+      ]
+    },
+    {
+      "file": "sun/prep-05-06.webp",
+      "sourceSha256": "b0081ea14060129b8db017565344d534927cb68d2f370c7331615a3d34fee4da",
+      "sha256": "bf4a19552b11a5fcb2d5a441710404f9bd65453882d5f231ec7ef658894e6dfc",
+      "sourceBytes": 374954,
+      "bytes": 142414,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        5.023742508771242,
+        2.2939079732973715,
+        4.700250127301927
+      ]
+    },
+    {
+      "file": "sun/prep-07-08.webp",
+      "sourceSha256": "853391c7f0522ef7e71be5ba472ff00e183b1593348d0d74bdd485e93af4ed1c",
+      "sha256": "dead565dc0cb4096442ee4ee5a938dd1eb7411f3c60d5d6d9f22dc5afe78e16e",
+      "sourceBytes": 369582,
+      "bytes": 139616,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.648069254812544,
+        2.124086993994207,
+        4.449752622420537
+      ]
+    },
+    {
+      "file": "sun/prep-09-10.webp",
+      "sourceSha256": "c340277b3eca6eca6f07b04849ba4c5f1a26aacc45e16f9808b9485a99beb02b",
+      "sha256": "a588c46b42fc26719927adbd6a008f7d864e19c6fac5f661d331c3661a06e2e5",
+      "sourceBytes": 373912,
+      "bytes": 140672,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.757348414896891,
+        2.174179967462516,
+        4.436623356637207
+      ]
+    },
+    {
+      "file": "sun/prep-11-12.webp",
+      "sourceSha256": "89b8d8ca80e630ea8f7e39af734e08d1f4c6008149ccd7fc96a12cd91cb35f38",
+      "sha256": "1ab35c0cdbd39ef43d7a38ae70ff39146cba29a66019947c28f7d44f9246451b",
+      "sourceBytes": 373858,
+      "bytes": 142942,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.5522482102312845,
+        2.1283581927409805,
+        4.380316346373206
+      ]
+    },
+    {
+      "file": "sun/recovery-01-02-v3.webp",
+      "sourceSha256": "dba64f366a578131ee972d2f2834aefb6a65a0f8eff91e035215baeb4da196c9",
+      "sha256": "825599e32b1f36496ce187d4749c8e0ff59abae9259fc3ad4400bd1a9f203d6a",
+      "sourceBytes": 329192,
+      "bytes": 130736,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.799121850494177,
+        2.1608104032295485,
+        4.393624425780707
+      ]
+    },
+    {
+      "file": "sun/throw-03-04.webp",
+      "sourceSha256": "bf0c75ec3df207ea20a189ce215c64c79f75e54ba3464d76d964dfacbc3cf83f",
+      "sha256": "517e0d2f22dc7f0a1d47b7b966e275fc8c59e5a587442d0abbd33be4bba0f8a0",
+      "sourceBytes": 369024,
+      "bytes": 142518,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.707068491949057,
+        2.135607809167713,
+        4.441845165322558
+      ]
+    },
+    {
+      "file": "sun/throw-05-06.webp",
+      "sourceSha256": "419f101b127706e6143339067ec20fe9263aecf6f3b884eaf3b9c45432525b46",
+      "sha256": "f98783884baafe66a4e6117a7cd8e48c6c16497b1195207bc162047c86d5b7dc",
+      "sourceBytes": 370720,
+      "bytes": 138034,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.883517984937718,
+        2.2369802713855207,
+        4.539796047666007
+      ]
+    },
+    {
+      "file": "sun/throw-07-08-v3.webp",
+      "sourceSha256": "337c181e6f468b3410b29773de84b307eb420c6de9dd5f163e0d7044c0da420b",
+      "sha256": "dca1806fe93135f9cc410ea9ed1d42cf49536c33923f6ded6b19322167e75d2a",
+      "sourceBytes": 397386,
+      "bytes": 147376,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.61228452889428,
+        2.1568721393694124,
+        4.417751455162642
+      ]
+    },
+    {
+      "file": "sun/throw-09-10.webp",
+      "sourceSha256": "0c640a87ccf75229e15d25053e9bd1811b1ab1681dadee35d9edae45898721d3",
+      "sha256": "021da9e3442847693e675e14b3a945aa12c7e95718499cb77c1d90ae360b6fb5",
+      "sourceBytes": 385532,
+      "bytes": 142694,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.921475521673687,
+        2.2474687862085396,
+        4.6413094090766345
+      ]
+    },
+    {
+      "file": "sun/throw-11-12.webp",
+      "sourceSha256": "2f560352ad0ff455695f3a6e49993c98b0b7ce2c2bf6a4d5675772a3991347a3",
+      "sha256": "4575a5e071c7716a213791d1ed991b2cb7fcbe8406f845010c0807d7f228e9a2",
+      "sourceBytes": 374980,
+      "bytes": 143928,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.931490686622603,
+        2.2679630742338994,
+        4.581040039329219
+      ]
+    },
+    {
+      "file": "sun/throw-13-14.webp",
+      "sourceSha256": "5b89549d32a5658c4b7ccbb7805aec2fe1c3e1022f860a7aa57450a3f4b28562",
+      "sha256": "59b913669adf6be4cf898e819a1d8791c45812adb4971497c341cb81214722fb",
+      "sourceBytes": 379744,
+      "bytes": 142464,
+      "size": [
+        768,
+        384
+      ],
+      "encoding": "webp-quality95",
+      "alphaExact": true,
+      "rgbMeanAbsoluteError": [
+        4.953392777030058,
+        2.2758524001794527,
+        4.657565051592642
+      ]
+    }
+  ],
+  "sourceBytes": 16393402,
+  "bytes": 6320806,
+  "files": 53,
+  "sourceDecodedRGBABytes": 333590056,
+  "runtimeDecodedRGBABytes": 62521344
+}

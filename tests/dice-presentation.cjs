@@ -6,12 +6,14 @@ registerHooks({
 });
 const listeners=new Map(),frames=new Map(),timers=new Map();let clock=0,serial=0;
 class Element {
- constructor(){this.children=[];this.hidden=false;this.dataset={};this.textContent='';this.classList={add(){},remove(){}};}
+ constructor(){this.rect={width:1280,height:720};this.children=[];this.hidden=false;this.dataset={};this.textContent='';this.classList={add(){},remove(){}};}
+ getBoundingClientRect(){return this.rect;}
  setAttribute(){} append(...xs){this.children.push(...xs)} prepend(x){this.children.unshift(x)}
  replaceChildren(...xs){this.children=xs;} remove(){} get clientWidth(){return 1280}get clientHeight(){return 720}
 }
 global.document={hidden:false,createElement:()=>new Element(),addEventListener:(name,cb)=>listeners.set(name,cb)};
 global.window={matchMedia:()=>({matches:false}),devicePixelRatio:1,setTimeout:cb=>{const id=++serial;timers.set(id,cb);return id}};
+global.addEventListener=(name,cb)=>listeners.set('window:'+name,cb);
 global.clearTimeout=id=>timers.delete(id);
 global.requestAnimationFrame=cb=>{const id=++serial;frames.set(id,cb);return id};global.cancelAnimationFrame=id=>frames.delete(id);
 global.ResizeObserver=class{observe(){}disconnect(){}};
@@ -21,6 +23,17 @@ async function flush(){for(let i=0;i<8;i++)await Promise.resolve()}
 function tick(now){clock=now;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(cb=>cb(now));}
 (async()=>{
  const roller=new DiceRoller(new Element());
+ const renderSizes=[];
+ roller.renderer={setPixelRatio(){},setSize:(...args)=>renderSizes.push(args),render(){}};
+ roller.stage.hidden=false;roller.stage.rect={width:960,height:540};
+ listeners.get('window:resize')();
+ assert.deepEqual(renderSizes.at(-1),[960,540,false],'resize uses the transformed physical bounds without changing CSS size');
+ roller.stage.rect={width:480,height:270};listeners.get('window:resize')();
+ assert.deepEqual(renderSizes.at(-1),[480,270,false],'a smaller screen resizes the actual drawing buffer');
+ roller.stage.hidden=true;listeners.get('window:resize')();
+ assert.equal(renderSizes.length,2,'hidden dice do not redraw on window resize');
+ roller.renderer=null;
+ console.log('PASS proportional dice resize uses physical bounds and skips hidden stages');
  // Geometry and GLB loading are tested separately; exercise the numeric backend
  // here so lifecycle correctness does not depend on a GPU in CI.
  roller.unavailable=true;

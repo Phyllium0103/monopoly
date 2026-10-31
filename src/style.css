@@ -926,8 +926,9 @@ img {
   align-items: center;
   justify-content: center;
 }
+/* Opaque, matching the boot loading screen, so the board isn't seen half-built behind it. */
 .start-screen {
-  background: radial-gradient(ellipse at center, rgba(30, 20, 12, 0.55), rgba(12, 8, 5, 0.92));
+  background: radial-gradient(ellipse at 50% 25%, #315342, #101d1b 70%);
 }
 .title-block {
   text-align: center;

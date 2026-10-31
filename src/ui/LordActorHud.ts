@@ -282,17 +282,21 @@ export class LordActorHud {
     const at=await this.atlas(a,clip);
     for(const file of new Set(at.frames.map(p=>sheet(at,p))))await this.texture(a,file);
   }
-  async prepareAssets(progress:(done:number,total:number)=>void):Promise<void>{
+  /** Opening gate only needs each lord's first frame; prepareReady loads the active lord's clips on demand. */
+  async prepareAssets():Promise<void>{
     await this.initialize();if(!this.available)throw new Error('主公人物尚未準備好');
+    await this.renderer!.compileAsync(this.scene,this.camera);
+  }
+  /** Background warmup of every clip so later turns start without a fetch. */
+  async preloadAll():Promise<void>{
+    await this.initialize();if(!this.available)return;
     const jobs:{a:Actor;file:string}[]=[];
     for(const a of this.actors.values()){
       const files=new Set<string>();
       for(const clip of ['prep','throw',...(a.id==='liu'?[]:['recovery'])] as Clip[]){const atlas=await this.atlas(a,clip);for(const p of atlas.frames)files.add(sheet(atlas,p));}
       for(const file of files)jobs.push({a,file});
     }
-    let done=0;progress(0,jobs.length);
-    await prepareLordTextureJobs(jobs,async job=>{const t=await this.texture(job.a,job.file);this.renderer!.initTexture(t);progress(++done,jobs.length);});
-    await this.renderer!.compileAsync(this.scene,this.camera);
+    await prepareLordTextureJobs(jobs,async job=>{const t=await this.texture(job.a,job.file);this.renderer!.initTexture(t);});
   }
   private initialize():Promise<void>{
     if(this.initialization)return this.initialization;

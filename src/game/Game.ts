@@ -155,15 +155,17 @@ export class Game {
   }
 
   async prepare(progress:(value:number,label:string)=>void){
-    await this.world.prepare((done,total)=>progress(5+65*done/total,`山河建築 ${done}/${total}`));
-    progress(71,'準備物品與棋子');
-    await Promise.all([prepareArtPack(),CharacterSprite.prepareLordArt(this.sm.renderer)]);
-    await this.ui.prepareAssets((done,total)=>progress(72+23*done/total,`主公動作 ${done}/${total}`));
-    await this.world.syncCities(createGameState('liu'));
+    // Independent downloads run together so high-latency networks pay the round trips once.
+    const tasks=[this.world.prepare(),prepareArtPack(),CharacterSprite.prepareLordArt(this.sm.renderer),this.ui.prepareAssets()];
+    let done=0;progress(5,'準備山河、物品與主公');
+    await Promise.all(tasks.map(task=>task.then(()=>progress(5+90*++done/tasks.length,`準備遊戲資源 ${done}/${tasks.length}`))));
+    // Buildings, dice and full lord animations stream in behind the start screen; anything still missing loads on demand.
+    void this.world.syncCities(createGameState('liu')).catch(error=>console.warn('Map models failed to load.',error));
+    void this.world.preloadModels().then(()=>this.world.warmup(this.sm.renderer)).catch(error=>console.warn('Map model warmup failed.',error));
+    void this.ui.preloadDeferredAssets().catch(error=>console.warn('Deferred assets failed to load.',error));
     this.sm.camera.updateMatrixWorld();
     this.world.updateVisibility(this.sm.camera,innerHeight);
     progress(96,'準備畫面與文字');
-    await this.world.warmup(this.sm.renderer);
     await this.sm.renderer.compileAsync(this.sm.scene,this.sm.camera);
     this.sm.start();
   }

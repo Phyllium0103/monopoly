@@ -72,7 +72,8 @@ export class World {
   }
 
   warmup(renderer:THREE.WebGLRenderer){return this.modelPool.warmup(renderer);}
-  async prepare(progress:(done:number,total:number)=>void){await Promise.all([this.terrain.ready,...this.textureReady]);await this.modelPool.prepare(progress);}
+  async prepare(){await Promise.all([this.terrain.ready,...this.textureReady]);}
+  preloadModels(){return this.modelPool.prepare(()=>{});}
   updateVisibility(camera:THREE.OrthographicCamera,height:number){this.modelPool.update(camera,height);}
   ground(x: number, z: number) {
     return Math.max(this.terrain.heightAt(x, z), 0);

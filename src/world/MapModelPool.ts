@@ -8,7 +8,8 @@ type Key=keyof typeof MAP_MODELS;
 export interface Placement{id:string;key:Key;x:number;z:number;rotation:number;color:number}
 interface Part{geometry:THREE.BufferGeometry;material:THREE.Material;recolor:boolean;transform:THREE.Matrix4}
 interface Batch{meshes:THREE.InstancedMesh[];signature:string}
-export const ACTIVE_MAP_LOD=0;
+// LOD1 is ~40% of LOD0's download with no visible loss at board camera distance.
+export const ACTIVE_MAP_LOD=1;
 const CACHE='xiantu-map-runtime-v1';
 async function fetchCached(url:string){
  const cache=typeof caches==='undefined'?null:await caches.open(CACHE).catch(()=>null);
@@ -79,7 +80,7 @@ export class MapModelPool{
  }
  private matrix(p:Placement){this.dummy.position.set(p.x,0,p.z);this.dummy.rotation.set(0,p.rotation,0);this.dummy.scale.setScalar(CELL_SIZE*2/10);this.dummy.updateMatrix();return this.dummy.matrix;}
  private load(key:Key,lod:number){const id=key+':'+lod;let promise=this.cache.get(id);if(promise)return promise;
-  const url=runtimeModelUrl(key,lod);promise=(async()=>{
+  const url=runtimeModelUrl(key,Math.min(lod,MAP_RUNTIME_MODELS[key].length-1));promise=(async()=>{
    const gltf=await this.loader.parseAsync(await fetchCached(url),url.replace(/[^/]*$/,''));gltf.scene.updateMatrixWorld(true);
    if(lod===0||!this.bounds.has(key))this.bounds.set(key,new THREE.Box3().setFromObject(gltf.scene));
    const parts:Part[]=[],unusedImages=new Set<ImageBitmap>();

@@ -102,9 +102,12 @@ export class GameUI {
     this.report.addEventListener('click', () => this.closeReport?.());
   }
 
-  async prepareAssets(progress:(done:number,total:number)=>void){
-    await this.dice.prepareAssets();await this.actors.prepareAssets(progress);
-    await Promise.all([...this.hud.querySelectorAll<HTMLImageElement>('img')].map(image=>image.decode().catch(()=>{throw new Error('介面圖片載入失敗');})));
+  async prepareAssets(){
+    await Promise.all([this.actors.prepareAssets(),...[...this.hud.querySelectorAll<HTMLImageElement>('img')].map(image=>image.decode().catch(()=>{throw new Error('介面圖片載入失敗');}))]);
+  }
+  /** Dice and full lord animations are only needed once a game is running; rolls load them on demand. */
+  preloadDeferredAssets(){
+    return Promise.all([this.dice.prepareAssets(),this.actors.preloadAll()]);
   }
 
   show() {

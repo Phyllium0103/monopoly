@@ -4,12 +4,12 @@
   "baseWeaponNames": 115,
   "iconCount": 62,
   "sourceBytes": 88242845,
-  "gameBytes": 4036268,
+  "gameBytes": 1055232,
   "preservedCanvasAndBackground": false,
   "transparent": true,
   "compression": {
     "format": "WEBP",
-    "height": 1024,
+    "height": 384,
     "quality": 80,
     "method": 6,
     "resampling": "LANCZOS",
@@ -33,11 +33,11 @@
       ],
       "file": "art/icons/weapon-illustrated/01-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 43758,
-      "sha256": "257238a67d772e47fcace3e8ee9954857cd542dcc4026a034c877c7f81ee64e9",
+      "bytes": 11044,
+      "sha256": "f917d31065f51246be81a626be9576e5b349bc16c452b38b915edda247f55f60",
       "alphaPreservedExactly": true,
       "originalSHA256": "33b0626f53a9fd204413ed19aabf892577857b611617e0db69fec89afd70b10b",
       "originalRGBPreservedExactly": true,
@@ -54,11 +54,11 @@
       ],
       "file": "art/icons/weapon-illustrated/02-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 71486,
-      "sha256": "1f7097b201932da831f92eca2280bfa3c993dcab0d2237efb7f33f14303f87c8",
+      "bytes": 18294,
+      "sha256": "389d9a65b963cee3576512e11406ca268e4f199024dab7f2a556f168dadc831b",
       "alphaPreservedExactly": true,
       "originalSHA256": "f752b5c56ae715ec14468bd87625d60ab70e98c28ff93f69dada86a02e6b6ef3",
       "originalRGBPreservedExactly": true,
@@ -75,11 +75,11 @@
       ],
       "file": "art/icons/weapon-illustrated/03-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 47976,
-      "sha256": "f9c1fc455eaf2c330d546802589df618017050598c06a33152c533f89e3bd6a2",
+      "bytes": 13166,
+      "sha256": "6f67e7f0129f7d13794200e6ba765b87e6ece94ba2009aa45699d9af65559416",
       "alphaPreservedExactly": true,
       "originalSHA256": "410faa3838d3e0563e8e374d4c4f9f73ea1e40b9c2e0927189e3817696fb7025",
       "originalRGBPreservedExactly": true,
@@ -96,11 +96,11 @@
       ],
       "file": "art/icons/weapon-illustrated/03-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 52978,
-      "sha256": "22f8d4f613b3e20ead8da4064fc9329621cffab0b0d4517525bab35c95a655ea",
+      "bytes": 14316,
+      "sha256": "527c259bbbd50f6199ecba476225bb46f0d85798cddb225b18c974830acac44a",
       "alphaPreservedExactly": true,
       "originalSHA256": "1f8002c5f0f5438002d429471bf25c90d1a3953f6820436b420a501ddbc897bd",
       "originalRGBPreservedExactly": true,
@@ -117,11 +117,11 @@
       ],
       "file": "art/icons/weapon-illustrated/03-03.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 69680,
-      "sha256": "1c2692221291753118a74b754abbea0085208df1c916ab7271f5eb54eac01c1a",
+      "bytes": 17652,
+      "sha256": "d21a9ed0d8a5f0355e0e1e88de110d99eed7ec62dcd932830274ea53b19170ff",
       "alphaPreservedExactly": true,
       "originalSHA256": "9c7bdea162f972c711932660d1836402cc8e66f8895eb9f3427c76ec5e606249",
       "originalRGBPreservedExactly": true,
@@ -138,11 +138,11 @@
       ],
       "file": "art/icons/weapon-illustrated/03-04.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 56226,
-      "sha256": "c277a3afc8e09a72280ec1d3573ec56d5c88ec8f6b463cb57752a905518399a2",
+      "bytes": 15020,
+      "sha256": "6d1a4bb8d9216b1ebc4c933d72f496c258c416932b3c483e5a3872252fdcdae8",
       "alphaPreservedExactly": true,
       "originalSHA256": "2ba2754b9fbce0c6fa9a84a6a714db01e11ed64707507a844f056e936a45a64e",
       "originalRGBPreservedExactly": true,
@@ -159,11 +159,11 @@
       ],
       "file": "art/icons/weapon-illustrated/04-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 80554,
-      "sha256": "b2833a3c17220fdcebeda970c19fb48192d79d6778de93ab09fd814f9354f81d",
+      "bytes": 21768,
+      "sha256": "e1e2d1fc28f25ef6d87ba80330f75142f5a367fc2e90aebcdf452ee4a23c4c17",
       "alphaPreservedExactly": true,
       "originalSHA256": "131ba183dedebb0d46dd2c96fec434332fed97fa02e07c5431911a614acf5f80",
       "originalRGBPreservedExactly": true,
@@ -180,11 +180,11 @@
       ],
       "file": "art/icons/weapon-illustrated/04-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 71858,
-      "sha256": "4f2977e52575c16f5985412be8ac9ed963c20e9ad74ddf1adde677bcdba331d9",
+      "bytes": 19224,
+      "sha256": "33831371155c1b1b37c2f1d5b326e8b088f31d157ce58092c19c278eac0eca03",
       "alphaPreservedExactly": true,
       "originalSHA256": "1a425f3403f97e28de545f84c785f24139d5534ee49c90fccc1b5d00682c1247",
       "originalRGBPreservedExactly": true,
@@ -201,11 +201,11 @@
       ],
       "file": "art/icons/weapon-illustrated/05-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 43534,
-      "sha256": "0a376beeb87c96e57ae2ea3a1dec0cde4aaa6e451f33c7066c23df7faecf4a7a",
+      "bytes": 12016,
+      "sha256": "3b58be0317ef55020f5b1f49166f03d90b6aae0355b8deda40ef43c30fdfb7a3",
       "alphaPreservedExactly": true,
       "originalSHA256": "b8aa48de3512e70a91da89029d8cf56dadb21d5dec5858aaf22750ddbba46351",
       "originalRGBPreservedExactly": true,
@@ -222,11 +222,11 @@
       ],
       "file": "art/icons/weapon-illustrated/05-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 49672,
-      "sha256": "c49774d64f08dde3ed76606b8d49932c184a5a794b28f5501162a87cc4f93bc0",
+      "bytes": 12970,
+      "sha256": "eedbac02030ceccbbe8099f51d1d185cfff85ffd6fca1ff1b7b31d976c9ec3c9",
       "alphaPreservedExactly": true,
       "originalSHA256": "3de897e68ecc515ccf26ab4474ceca6040a43dd2af415612a9821db250763da7",
       "originalRGBPreservedExactly": true,
@@ -243,11 +243,11 @@
       ],
       "file": "art/icons/weapon-illustrated/06-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 37748,
-      "sha256": "b128661b0916a56c63bac349a15b2461c9bd93f581c0fefe1da75432618cdbfb",
+      "bytes": 9918,
+      "sha256": "fa9de0bc1528e20758acda32f63eb90342afc4f7c9c2e3c50af3b0f47b0c182c",
       "alphaPreservedExactly": true,
       "originalSHA256": "43a6e21568df742a936fb3bf46928abad2426f95584260bb01dc6ae517cb848a",
       "originalRGBPreservedExactly": true,
@@ -264,11 +264,11 @@
       ],
       "file": "art/icons/weapon-illustrated/06-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 39974,
-      "sha256": "db17de3c92f96908da5bfa7d04ecbcd7b6a7b779c21fce523b886aece68a7d73",
+      "bytes": 10418,
+      "sha256": "e6c1d6fadc4b0558a2f507e2da8331fb68efb39730b06410033309830768fbb7",
       "alphaPreservedExactly": true,
       "originalSHA256": "41f840d03e138c9c1cc4f174cdc89864f10ce279e68998b0b2449bb0e47ac566",
       "originalRGBPreservedExactly": true,
@@ -285,11 +285,11 @@
       ],
       "file": "art/icons/weapon-illustrated/06-03.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 41294,
-      "sha256": "ef998c30f0f870521ab1a9b108d9291a9d938f194d14be6b2bd28c83aea37c7f",
+      "bytes": 10426,
+      "sha256": "2215fe0b718345be9985e6b556eba0461edeb62ab7476b9782aa2982d1096f85",
       "alphaPreservedExactly": true,
       "originalSHA256": "d2666921730e9049889cec8278ed1c0c1848c86b5af27e8942379bea59a90d6e",
       "originalRGBPreservedExactly": true,
@@ -306,11 +306,11 @@
       ],
       "file": "art/icons/weapon-illustrated/06-04.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 42304,
-      "sha256": "1aab8e63e42627a84372c1044867bed69e07d0620f5f3e2c30e68ad74d0bc362",
+      "bytes": 10674,
+      "sha256": "be55926ad68e558a4f21145a2180f9f484f3d0aa249823cc00efe040a4132c89",
       "alphaPreservedExactly": true,
       "originalSHA256": "b9e42a565dc90ebd82ab91086b7344ca8aa3108e204640d2711bc2a10b8d3a0e",
       "originalRGBPreservedExactly": true,
@@ -327,11 +327,11 @@
       ],
       "file": "art/icons/weapon-illustrated/07-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 73708,
-      "sha256": "3a9fb464710f5f97fe97506db7f29f0061cf2738ab3a8c42152f7811d88e20da",
+      "bytes": 18618,
+      "sha256": "a1e44ab8b3ac8d845877e826b3b3f4e0a4277ef2ddefc25566bcaa40c117b8ab",
       "alphaPreservedExactly": true,
       "originalSHA256": "2e1e8c8c75b6006643db531747e24443f599419bef2b55806874aedd0495b2b2",
       "originalRGBPreservedExactly": true,
@@ -348,11 +348,11 @@
       ],
       "file": "art/icons/weapon-illustrated/08-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 51630,
-      "sha256": "f596ba320e56d2c4f4b3a7ab0e7db5f6c2f959b9f75d9cd579f0253cbbe9692a",
+      "bytes": 13482,
+      "sha256": "2a645e874458c6ebabe2fe9a4184ad27e2a9f53459ffe7e0637fb076cafbbb23",
       "alphaPreservedExactly": true,
       "originalSHA256": "c2a0820cd0abad4ff9df4aca25f132ea712b3bf018846e09ae7ab157876684b4",
       "originalRGBPreservedExactly": true,
@@ -369,11 +369,11 @@
       ],
       "file": "art/icons/weapon-illustrated/08-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 60384,
-      "sha256": "25bee631071360069122a4b054d47504ddb4919a151d6db52c473cac9a1ae641",
+      "bytes": 15432,
+      "sha256": "e0a7dd63be8a6d834293371a655d2de548d3bae28085d2a43fe88c9befd14b16",
       "alphaPreservedExactly": true,
       "originalSHA256": "83a67363ef1b01b05d374e64ea3a3588cb1ab985393b98cf8915b00074934e78",
       "originalRGBPreservedExactly": true,
@@ -390,11 +390,11 @@
       ],
       "file": "art/icons/weapon-illustrated/08-03.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 52584,
-      "sha256": "65c7bcc2def238d93f5e610ae9a65e9b4a6ae96b30be6ec063aa549d169e9ce1",
+      "bytes": 13338,
+      "sha256": "43be242a21706d74b29208eda19c063e10bf28e8666adee70b1677716f74afb3",
       "alphaPreservedExactly": true,
       "originalSHA256": "2ea7721a4c5115e49481d2634c214d431e7e799388f92faca4c05ee730786926",
       "originalRGBPreservedExactly": true,
@@ -411,11 +411,11 @@
       ],
       "file": "art/icons/weapon-illustrated/08-04.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 78076,
-      "sha256": "408107d5f88ef40619e88f76df9d282779b81c04afc83f8635ccea3f3e9de11d",
+      "bytes": 20748,
+      "sha256": "1578900fb2dfe4d1f8752f169bff60870b67e75808ba0cc8f3337231fcaa5daf",
       "alphaPreservedExactly": true,
       "originalSHA256": "7f44da5b151c97391c193fafcf8f08c5c541f829532c75fd684194e8bfa5cbba",
       "originalRGBPreservedExactly": true,
@@ -432,11 +432,11 @@
       ],
       "file": "art/icons/weapon-illustrated/08-05.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 77540,
-      "sha256": "ebb06e3306905e4c72fa4a2be1b0b3466ff3b70409a2076ec5e6001387e7c673",
+      "bytes": 20208,
+      "sha256": "fd86151136165c6cb1db9348b22e21e35c30e384dcdd7d85f385151ce506a872",
       "alphaPreservedExactly": true,
       "originalSHA256": "42a9de045ac7428d0d83b7fc85335397db07d4e73af56a1d58c1e9c88e57b3f8",
       "originalRGBPreservedExactly": true,
@@ -453,11 +453,11 @@
       ],
       "file": "art/icons/weapon-illustrated/09-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 65354,
-      "sha256": "f12dbe846c3a6a0d1da2b7e6aaef8fd43178c397883d122ede2846e6eaf0f087",
+      "bytes": 17104,
+      "sha256": "b2d15b40fcf1329551f369ae64e04c378a47e5bdcb25754b4acf907133c0078b",
       "alphaPreservedExactly": true,
       "originalSHA256": "0ba61e5a9614917e20fa473175b7edad86974bb4658e64af4538848389313b98",
       "originalRGBPreservedExactly": true,
@@ -474,11 +474,11 @@
       ],
       "file": "art/icons/weapon-illustrated/09-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 85082,
-      "sha256": "f0556392259702221b74b718aff77d034c65264796760ba247c3f27c16c0814e",
+      "bytes": 23980,
+      "sha256": "bf6a3c14867051548988a545cbfaf765389caa324d2c2182cf4fc9a40efcced4",
       "alphaPreservedExactly": true,
       "originalSHA256": "7132ccdfe24f24f6491a2c25b24a7ea68f1292f55ba7bce755eb70111f7ca925",
       "originalRGBPreservedExactly": true,
@@ -495,11 +495,11 @@
       ],
       "file": "art/icons/weapon-illustrated/10-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 56848,
-      "sha256": "81b4336a9bd150ba3116d2fb817e2e5a2247ed9efea2e3abd0eaf9ae1a71334f",
+      "bytes": 14924,
+      "sha256": "852a7bd335e06f0b16b3291690649e5dda1e6d9e921ef62075264f2aa2bae063",
       "alphaPreservedExactly": true,
       "originalSHA256": "9931632ba33c801d33b4b45563e980f0a59f36877f905e1677e0eb00fa992d92",
       "originalRGBPreservedExactly": true,
@@ -516,11 +516,11 @@
       ],
       "file": "art/icons/weapon-illustrated/10-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 66818,
-      "sha256": "1c9c81ee8529f77b6671d1896aa0cca76990f86a2f0075486a33e8677937bc34",
+      "bytes": 16788,
+      "sha256": "404c1dcf4613a20d05bf28bf841df345e0cc5891beec20026cd8566ac58f0c33",
       "alphaPreservedExactly": true,
       "originalSHA256": "8a67a1c6ec6b147f618c308efe696cf8e13ffd67532ca42bb49a47c21d5a60c7",
       "originalRGBPreservedExactly": true,
@@ -537,11 +537,11 @@
       ],
       "file": "art/icons/weapon-illustrated/10-03.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 52058,
-      "sha256": "ba923e09cb6087e48df47ea457d96c948d04abb26e53a7974f646e18f434491f",
+      "bytes": 13424,
+      "sha256": "e81457efd98c31ab6bbe546552ead955ba10ad93ca781f6d091e61dcae9a2f1f",
       "alphaPreservedExactly": true,
       "originalSHA256": "9aa002a8bab01028ba612acdef320cb6e3c3494a5682b9554362f4d35a718ca6",
       "originalRGBPreservedExactly": true,
@@ -558,11 +558,11 @@
       ],
       "file": "art/icons/weapon-illustrated/10-04.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 88322,
-      "sha256": "81469a810a8aaddfb8d586fb7a3647cca2a0f02ef512beed714b7ac8e649b1e6",
+      "bytes": 24060,
+      "sha256": "036a5c40bffca4de32076962986c8d9548d85d37deedcb32c674d1282dfe6d43",
       "alphaPreservedExactly": true,
       "originalSHA256": "e308528fc6a560f8d1942db035537b5bc9f30d8edca19f5ef114153b0e1b6d2b",
       "originalRGBPreservedExactly": true,
@@ -579,11 +579,11 @@
       ],
       "file": "art/icons/weapon-illustrated/10-05.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 51616,
-      "sha256": "e8d4cfb1f28a49afbbca383abb1b3ad63d0c1006069da7aee95a3ff0c336142e",
+      "bytes": 13102,
+      "sha256": "c11e48d9def307da959a812769378713ea94e8dae80ac11357408d452c85c5cc",
       "alphaPreservedExactly": true,
       "originalSHA256": "c2fe4f6be4d5416ea51c44be2b3fab54a5b808c7ed4b5f67e4f4464af2e30381",
       "originalRGBPreservedExactly": true,
@@ -600,11 +600,11 @@
       ],
       "file": "art/icons/weapon-illustrated/10-06.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 80600,
-      "sha256": "de2762e17844ca3f550e5cb5bcc7fd62c47eda7b623d8161a5654b0895d4f2e3",
+      "bytes": 20744,
+      "sha256": "3a3409c28133c1e68854a47a20bcc1aac9adec270bf1a7afe3d34a996fc99e07",
       "alphaPreservedExactly": true,
       "originalSHA256": "cc563684d189622f6dc0a0ae051e92229428b7b8cf661fbe359d199261c38cea",
       "originalRGBPreservedExactly": true,
@@ -621,11 +621,11 @@
       ],
       "file": "art/icons/weapon-illustrated/11-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 69118,
-      "sha256": "7ba1e015f490304f3a4c70967591446fff8cb57e4fe5530bc602e2d2e38a8068",
+      "bytes": 18128,
+      "sha256": "a646dfbd87396a7870aae27c783a8b59b931afd2dc8673dd125dac0520acdd2d",
       "alphaPreservedExactly": true,
       "originalSHA256": "84692405ea3688feaf437bf926236d95d91a5707dd19bc294ebf193ff28fc9b2",
       "originalRGBPreservedExactly": true,
@@ -642,11 +642,11 @@
       ],
       "file": "art/icons/weapon-illustrated/12-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 94930,
-      "sha256": "76292eb9eb8a3b9cb520168a913e1e6540f5675cb112a4d6a0894b37b3dafadc",
+      "bytes": 23702,
+      "sha256": "6ec991917e1fb21058d22fad330289357c57bc6c77b4763148aa0bbb61de5929",
       "alphaPreservedExactly": true,
       "originalSHA256": "31a8a1f69973ca00a5330a9245cc0f07434ae88740b0d3dc6b3abc35d2fa2ba7",
       "originalRGBPreservedExactly": true,
@@ -663,11 +663,11 @@
       ],
       "file": "art/icons/weapon-illustrated/12-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 88264,
-      "sha256": "5f40a1d5ccdb2a3118e85a8004bfa9cdd3aa240c0dea1bf7baaf5498ecb4bdf7",
+      "bytes": 23082,
+      "sha256": "6ac1584acba8ff40629f458295e29a16b1bd5b4747ffcfebb1cb3624348520a0",
       "alphaPreservedExactly": true,
       "originalSHA256": "3cb433d050329a2ff1951d5b4c8a6974d79e87f222259e01a5c62028f6fc369d",
       "originalRGBPreservedExactly": true,
@@ -684,11 +684,11 @@
       ],
       "file": "art/icons/weapon-illustrated/13-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 120140,
-      "sha256": "2eb6288be02fda47a7d194d158562370520d1375b402cea21c9b23c86628a161",
+      "bytes": 30126,
+      "sha256": "8b241725bc0671e55e45cd5a8b72123659d7441eaf84f3985c97b0b31a712937",
       "alphaPreservedExactly": true,
       "originalSHA256": "6208863af4404e08c43dee96f90990af1b31d5dac9a128f891bd0a763d3a983e",
       "originalRGBPreservedExactly": true,
@@ -705,11 +705,11 @@
       ],
       "file": "art/icons/weapon-illustrated/13-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 71862,
-      "sha256": "b815922b7c84f547636ad5d8a7bf5022d22b03e5ff26da53f005fce185f4f7e6",
+      "bytes": 18912,
+      "sha256": "62a8ff0371ec97a3ae1870c13561d00015ab9b9fae39dff031212bc1db27d006",
       "alphaPreservedExactly": true,
       "originalSHA256": "1aa914f7d4527359c7c73adbbcf52a58150f0fdc4311fa5e3cbe348497176c22",
       "originalRGBPreservedExactly": true,
@@ -726,11 +726,11 @@
       ],
       "file": "art/icons/weapon-illustrated/13-03.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 99062,
-      "sha256": "4c458b5fac8bdc6b2b3876acff3c049d3c4fb83b28ad4d30cd812c8b655f98eb",
+      "bytes": 25950,
+      "sha256": "0f0bc1e8928c3e590932508f671a9a1d29e4d5ec84b5e6b728bb540f2949b37c",
       "alphaPreservedExactly": true,
       "originalSHA256": "2e8cdd496003c2919def485c4fa01db894e727c30c26f92a4f9436d64b5cc50c",
       "originalRGBPreservedExactly": true,
@@ -747,11 +747,11 @@
       ],
       "file": "art/icons/weapon-illustrated/14-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 101104,
-      "sha256": "858c375bf3ec56fa5d7fffdc599ef5a6010161fda431b97141b5437767a4f1c4",
+      "bytes": 25392,
+      "sha256": "562fc5bbd00cf6a77b3f491bd2a3b68b98e24d44ec1375dde8230fdd5b5f23f2",
       "alphaPreservedExactly": true,
       "originalSHA256": "0152942d07207a0b23f85f3fbe78f99eb1a933ff14f53d330a0bed9ea63d8ca1",
       "originalRGBPreservedExactly": true,
@@ -768,11 +768,11 @@
       ],
       "file": "art/icons/weapon-illustrated/14-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 102248,
-      "sha256": "399ff569e2356fb0712586d1547e08f31e844693d464047df734805530b241b5",
+      "bytes": 26084,
+      "sha256": "96b496b82e06a27e955813470725fa7e10de4951b90c1fa1f5d87f60e7e8db44",
       "alphaPreservedExactly": true,
       "originalSHA256": "d5f313aaa2347f1d319d7fc53bacbfbf86c17dc69212ec30ae82cc68f7c21e53",
       "originalRGBPreservedExactly": true,
@@ -789,11 +789,11 @@
       ],
       "file": "art/icons/weapon-illustrated/15-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 66848,
-      "sha256": "31c7f9525f558c8fa19eb325b14edc0ed3f24c08e138e3136a08fbf4bf1b59bf",
+      "bytes": 18838,
+      "sha256": "10747403f6b2a51706670f395ea9aa9b6c251d431b7a55a45249ea1c2b1de35b",
       "alphaPreservedExactly": true,
       "originalSHA256": "6e2b00e68bd7df6d1d36569ee08342406f0f079cc261ac357d242d238fa49539",
       "originalRGBPreservedExactly": true,
@@ -810,11 +810,11 @@
       ],
       "file": "art/icons/weapon-illustrated/15-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 43072,
-      "sha256": "cdb7b17c147096f3a6dfbe209decabaecb7e8a5a43c92550627d4904e1903717",
+      "bytes": 11416,
+      "sha256": "6c9497fd319c792048ffd029da7343e4badd960ba59a0d3b077ac36493c2b8bd",
       "alphaPreservedExactly": true,
       "originalSHA256": "41afbd401c3bd4ac48f1aa0a98c051072bb66085feec17a507852f28507e392f",
       "originalRGBPreservedExactly": true,
@@ -831,11 +831,11 @@
       ],
       "file": "art/icons/weapon-illustrated/15-03.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 38716,
-      "sha256": "48ae8b153c61e0ab4f0008af5503caf173cf28b0247f1926eed48d76e323540f",
+      "bytes": 9882,
+      "sha256": "95723404db2272b8596c1c41772a9f516be10de7c99581dd64424fc5b79cc966",
       "alphaPreservedExactly": true,
       "originalSHA256": "4479eb3f47286c1fadc32719575071b63a3a0ffbca31090d2e0162024c4dcec7",
       "originalRGBPreservedExactly": true,
@@ -852,11 +852,11 @@
       ],
       "file": "art/icons/weapon-illustrated/16-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 39938,
-      "sha256": "74f609f88132d40bf0aab47b81b5bbd2400d23c64f44470bada9ac211e9e1a11",
+      "bytes": 10226,
+      "sha256": "5a0e02114634ccdb375d1913a1d4bbb86b3d79ee5243a1e056458410bc5dbaba",
       "alphaPreservedExactly": true,
       "originalSHA256": "910d85a8fc0095d9b11602aa630575a011548b930acbb15c5ef84bb3f8e667ac",
       "originalRGBPreservedExactly": true,
@@ -873,11 +873,11 @@
       ],
       "file": "art/icons/weapon-illustrated/16-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 84852,
-      "sha256": "42a34c11f61c0f887d90ef4e83266972a844528c462c33a296311a0c3e277dc5",
+      "bytes": 21494,
+      "sha256": "23f01a2b58495da75583ca0057c9dc11dd31696a15a19c3403e3cea3a617bcfc",
       "alphaPreservedExactly": true,
       "originalSHA256": "7d3c7a39032b09ea3036910bb5b43261bbd03d8dcb98b404b1a35d1fac4bdf5c",
       "originalRGBPreservedExactly": true,
@@ -894,11 +894,11 @@
       ],
       "file": "art/icons/weapon-illustrated/16-03.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 109938,
-      "sha256": "ae76e3f833149d959a2306d080d0a665bbdef2706a4ccc909a18e56ea86ee054",
+      "bytes": 27834,
+      "sha256": "f4f02dbfa025f691aaefb920a333b81d8d578fd58f98c5bd17828291e11c3656",
       "alphaPreservedExactly": true,
       "originalSHA256": "e41ccdabfbf5361b659bfead466ff7873b37fc289c9fdfa91b6568880e9d3e3e",
       "originalRGBPreservedExactly": true,
@@ -915,11 +915,11 @@
       ],
       "file": "art/icons/weapon-illustrated/16-04.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 44164,
-      "sha256": "cff154fa437b2582b74f695d34399ea000858b298ff9059369c5b680267f4f6e",
+      "bytes": 13560,
+      "sha256": "ec9cc06f4b435a990da4b1c9893f9e545a51b59c4c21a1767484a9504b9b88ea",
       "alphaPreservedExactly": true,
       "originalSHA256": "dc4a0814f4ef38dcef926b42de9c40ead63888735595279d2900669db0a8ef6d",
       "originalRGBPreservedExactly": true,
@@ -936,11 +936,11 @@
       ],
       "file": "art/icons/weapon-illustrated/16-05.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 47726,
-      "sha256": "0659ba53c0faff566b166a4640a992f77bdaa9a9b7a60729d2977c22ba61cd9d",
+      "bytes": 12074,
+      "sha256": "1c9d8953acda92738c1562be49ce98de78bf2a9c3c7d8be8d7d38f27cc059d90",
       "alphaPreservedExactly": true,
       "originalSHA256": "6b5bb5845409cd293ee38f9a1bee3e4b54a110da1e187cc9f8a7c6ea1349322d",
       "originalRGBPreservedExactly": true,
@@ -957,11 +957,11 @@
       ],
       "file": "art/icons/weapon-illustrated/16-06.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 51096,
-      "sha256": "cf500321a5ac56678f81c83f40b6c11327990a9573c7ab2e0ccd79467e5a9c40",
+      "bytes": 11968,
+      "sha256": "797ca56a1c5953de8573e36d0484c849955e9fef2396743ffeb5a51d3b3b5dad",
       "alphaPreservedExactly": true,
       "originalSHA256": "2354364fb7ca7faf5ff1fbcd69c8e1e5c1f15907103e332f0f223e33b08668a0",
       "originalRGBPreservedExactly": true,
@@ -978,11 +978,11 @@
       ],
       "file": "art/icons/weapon-illustrated/17-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 41240,
-      "sha256": "e5ecd740ef6692909e1b87aa3ab81327faf140311a78f1425ef6f05a4ace5a2f",
+      "bytes": 10274,
+      "sha256": "ff5066d5b6791cebaa0f3a5341a5b29ffa38d5d5039e8d29f98f8f6ef7497d44",
       "alphaPreservedExactly": true,
       "originalSHA256": "008a6041012cc427e5ca238db52cf41cdc5092cdd804cd375a875c13828d3542",
       "originalRGBPreservedExactly": true,
@@ -999,11 +999,11 @@
       ],
       "file": "art/icons/weapon-illustrated/17-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 45510,
-      "sha256": "8cace4470f69ef57f38af4711ebccb0001c08e2e60513a4cfb5fd933aa26e77e",
+      "bytes": 12606,
+      "sha256": "1ce22072708843769bdd54e58912f74fa0d0c783bd3c4e064c9cd00713eddc21",
       "alphaPreservedExactly": true,
       "originalSHA256": "ec1ed86b9de65dc3a8355982cdc09eb2b02f3b33b2ac885e6002b27b3ea5e96e",
       "originalRGBPreservedExactly": true,
@@ -1020,11 +1020,11 @@
       ],
       "file": "art/icons/weapon-illustrated/17-03.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 55876,
-      "sha256": "0fca942d6a6a17eed8b458dcdf8ec5fa0fdcdb0ae8829ecbea0c3324f499ebd5",
+      "bytes": 14896,
+      "sha256": "371a24dcba1708616509ccc6321bfb1ee135351879c9b6ded7e49c7fe21b8e28",
       "alphaPreservedExactly": true,
       "originalSHA256": "3192befe4531ad0911563f5c96fec46d1477807607c6df91af496c48c9116cbd",
       "originalRGBPreservedExactly": true,
@@ -1041,11 +1041,11 @@
       ],
       "file": "art/icons/weapon-illustrated/17-04.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 41446,
-      "sha256": "fb833b2b0b5efeb68a44f2288173db95f83cc89e06127f51d49ee3e18925bea8",
+      "bytes": 10702,
+      "sha256": "6d2a0ff6f0386f0fccb84d10f1644349d0f2ed9bc93984f8b0404a4041cd9e4b",
       "alphaPreservedExactly": true,
       "originalSHA256": "c13be5d8986c08d82e44e8739416ec56d67276dd9caacaa320f0e97d30d24ad7",
       "originalRGBPreservedExactly": true,
@@ -1062,11 +1062,11 @@
       ],
       "file": "art/icons/weapon-illustrated/17-05.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 42054,
-      "sha256": "990e851998227479c4540d41fa1bb51be9b3e6a2c5e1083bc8f0d0be79a4ebc0",
+      "bytes": 11714,
+      "sha256": "e64e48a678cfade4e6a0b27ae8fce456cb525c00dd32bc5290e8ff645b5679f7",
       "alphaPreservedExactly": true,
       "originalSHA256": "3bc6b9653873ae64d0c8d5b23b7ad0af434aadebca015dd41016af21c46f2182",
       "originalRGBPreservedExactly": true,
@@ -1083,11 +1083,11 @@
       ],
       "file": "art/icons/weapon-illustrated/18-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 78798,
-      "sha256": "edfdc16cd1aa62fe4ff1ce82bf97ce81a3364534ce37ed52cfdf1b2f68caf0d9",
+      "bytes": 21226,
+      "sha256": "cef47e23232d3539af4eb08d7573b0ea52244c0ecbe97d9427c9030fb3c6e3cd",
       "alphaPreservedExactly": true,
       "originalSHA256": "704ef36f60b2c1cb15184a5edb46e511b4acd874d362681c4844056f5f337a9e",
       "originalRGBPreservedExactly": true,
@@ -1104,11 +1104,11 @@
       ],
       "file": "art/icons/weapon-illustrated/18-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 59292,
-      "sha256": "bbbc792033fd27bb1b574dc90345dea0452bead92953acbca67c0dfbd1b0e261",
+      "bytes": 16778,
+      "sha256": "54bd88d84682da8f7bfb7f06e88f355828876e4d0b2229ab70298241640d921e",
       "alphaPreservedExactly": true,
       "originalSHA256": "5b8d5c8c54dd5a345ab69e330a1e6ea9dfb188bec8618bac4bc70c3888a7daaa",
       "originalRGBPreservedExactly": true,
@@ -1125,11 +1125,11 @@
       ],
       "file": "art/icons/weapon-illustrated/18-03.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 105778,
-      "sha256": "3cf992aff0cc4180dc7d2414b6ffc2817aa6e037becb98d39dfe6fd8eb04b6c1",
+      "bytes": 27196,
+      "sha256": "bb28604e79a93a561fa3647efc06cc7d08178ae5e15a43a61a515c09b9e98946",
       "alphaPreservedExactly": true,
       "originalSHA256": "8ef544ac95505b4bf5db48eb9a33939ca995baa8a4fd6c95179218c96ab9642b",
       "originalRGBPreservedExactly": null,
@@ -1146,11 +1146,11 @@
       ],
       "file": "art/icons/weapon-illustrated/19-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 48586,
-      "sha256": "ede2864fce47f569edd89c93d838ce371687fd0395225de0a9f74c0787488864",
+      "bytes": 12586,
+      "sha256": "bf4d994a6485ba71f6a402a92322d6324ffbd1efec8769d6991e0d7da7e09dc1",
       "alphaPreservedExactly": true,
       "originalSHA256": "b6632a211f51356d7997eee263230d2fcfac6999de3a1ea483c0a9c52466fc2f",
       "originalRGBPreservedExactly": true,
@@ -1167,11 +1167,11 @@
       ],
       "file": "art/icons/weapon-illustrated/19-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 33648,
-      "sha256": "ec41755d2825309e9a43f2ad463792ca6f851858b1ffddb6fdc566c659161a1e",
+      "bytes": 8954,
+      "sha256": "84a0e39e6d8233a0a325d677fa3b60b6ad1d66112dd3dff33e065abbf8075204",
       "alphaPreservedExactly": true,
       "originalSHA256": "32eae1d91efe043608530d3ec6dc37ec4d85cc12ad1399df46c52c1fab8accc1",
       "originalRGBPreservedExactly": true,
@@ -1188,11 +1188,11 @@
       ],
       "file": "art/icons/weapon-illustrated/19-03.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 33814,
-      "sha256": "a447a64686d096d82f2ae3ea79c664924dbde806890c07381af59882ffb17f44",
+      "bytes": 8566,
+      "sha256": "1a88728b358a617ef6ea52a3033741540b60a0116a53f9d7f3ace6c20b780de5",
       "alphaPreservedExactly": true,
       "originalSHA256": "8a24ce5ad6abb387ee46735239ba362deb68501c0d9128a509d49ebb0defe50c",
       "originalRGBPreservedExactly": true,
@@ -1209,11 +1209,11 @@
       ],
       "file": "art/icons/weapon-illustrated/20-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 92888,
-      "sha256": "669c89b73723ff5698c2b9c7ff1c43104caf8d18b55e2bf41ce31a8a191c7d67",
+      "bytes": 25814,
+      "sha256": "29b69cb2b6896f9fe311698447a630855498c6620d8e5f9735ddc62c3a6d46b7",
       "alphaPreservedExactly": true,
       "originalSHA256": "0b1d58f9b1c5aa8ee1172182a9b1b06bf22c430cc72166b178e9270aa82c7254",
       "originalRGBPreservedExactly": true,
@@ -1230,11 +1230,11 @@
       ],
       "file": "art/icons/weapon-illustrated/20-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 49944,
-      "sha256": "45a9a379dec8c78e49704cc19cad600e7bb02fb71f2d6d13ba64054803e50c1f",
+      "bytes": 14410,
+      "sha256": "4bc40919ce9d0b920524fc1e4403ad068d0559e6415997ad6710fcda332b322e",
       "alphaPreservedExactly": true,
       "originalSHA256": "2696c64bbe1e929de4e8f0b9b9b2ab68ae3dd973fa50f3a8a6f25f45493fdd97",
       "originalRGBPreservedExactly": true,
@@ -1251,11 +1251,11 @@
       ],
       "file": "art/icons/weapon-illustrated/20-03.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 69908,
-      "sha256": "64a2a004d067bbb1782c1a1b15d881def3ed0a13c7549bf8cbf563d71976e41b",
+      "bytes": 18488,
+      "sha256": "329f4a72984dae7d279e4d7859d3bc429745d101fac520e1325834306096a470",
       "alphaPreservedExactly": true,
       "originalSHA256": "185139fc4fd207a74d3ea491f75dc0b3c54b495aa8a0e776aa05c72d052f14f7",
       "originalRGBPreservedExactly": true,
@@ -1272,11 +1272,11 @@
       ],
       "file": "art/icons/weapon-illustrated/21-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 95920,
-      "sha256": "a0e97f003f2ecb2139ada5567ce6d6f27a269210090d6a7ce1e4faf11929d6a9",
+      "bytes": 23308,
+      "sha256": "831c0d75999a0bea4c7db7cd6cce15747de8b4c93246c4051227c9e8497bc830",
       "alphaPreservedExactly": true,
       "originalSHA256": "05e4fa9f667572eff0eb0c291217109097516488b00e20a8aed36743e5e1267d",
       "originalRGBPreservedExactly": true,
@@ -1293,11 +1293,11 @@
       ],
       "file": "art/icons/weapon-illustrated/21-02.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 97752,
-      "sha256": "f19d5466b707f8ec9c09bb7ca662a26ee1a7447e7d56452cdf44ed2890b39c18",
+      "bytes": 23358,
+      "sha256": "9c0b447a51f7948b18d2ffa740e51cd255df39092fec8e75d7a0220bf1b59b24",
       "alphaPreservedExactly": true,
       "originalSHA256": "57fb28ecf3369a3b2881ba97cdace34ba11c78309503a9838987196ecde86af0",
       "originalRGBPreservedExactly": true,
@@ -1314,11 +1314,11 @@
       ],
       "file": "art/icons/weapon-illustrated/22-01.webp",
       "size": [
-        1024,
-        1024
+        384,
+        384
       ],
-      "bytes": 81074,
-      "sha256": "d5afa554283988a29d2fadaeab31db7f224b7dc1e92a30e68fa2a5bd120f4576",
+      "bytes": 22830,
+      "sha256": "d3a022751fb47f04cee5ed69476c35dc471f6d1e20ce5db3bce480a5fa805809",
       "alphaPreservedExactly": true,
       "originalSHA256": "e4b1aa987fedd5180451ec31eb5fe82a1d2a877d8e80f75377b0c63656186032",
       "originalRGBPreservedExactly": true,

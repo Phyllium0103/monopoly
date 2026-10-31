@@ -4,7 +4,7 @@ registerHooks({resolve(s,c,n){if(s.startsWith('.')&&!path.extname(s)&&c.parentUR
 const{BOARD}=require('../src/data/board.ts');const{BUILDING_LOTS,CELL_SIZE,cityModelLevel}=require('../src/data/selectedBoard.ts');
 const{createGameState}=require('../src/game/GameState.ts');const{nextMovementTile,enterFork}=require('../src/systems/MovementSystem.ts');
 const source=JSON.parse(fs.readFileSync(path.join(__dirname,'../public/art/map-selected/layout-source.json'),'utf8'));
-assert.equal(BOARD.tiles.length,source.roads.length);assert.equal(BOARD.tiles.length,300);assert.equal(BOARD.cities.length,33);assert.equal(BUILDING_LOTS.length,80);
+assert.equal(BOARD.tiles.length,source.roads.length);assert.equal(BOARD.tiles.length,300);assert.equal(BOARD.cities.length,33);assert.equal(BUILDING_LOTS.length,83);
 const occupied=new Set(),roadCells=new Set(source.roads.map(p=>p.join(',')));
 for(const lot of BUILDING_LOTS){
  const original=source.objects.find(o=>o.id===lot.id);assert.deepEqual([...lot.at],original.at);assert.equal(lot.side,original.side);
@@ -14,16 +14,16 @@ for(const lot of BUILDING_LOTS){
  for(const i of lot.triggerTiles){const e=BOARD.tiles[i];assert.equal(e.name,lot.name);assert.equal(e.eventAnchor,lot.tile);assert.equal(e.kind,lot.type==='secret'?'realm':lot.type==='relic'?'portal':lot.type);if(lot.type==='city')assert.equal(e.cityId,lot.id);}
  const t=BOARD.tiles[lot.tile];assert.equal(t.name,lot.name);if(lot.type==='city')assert.equal(BOARD.cities.find(c=>c.id===lot.id).prosperity,original.prosperity);
 }
-assert.equal(BOARD.tiles.filter(t=>t.eventAnchor!==undefined).length,160);
+assert.equal(BOARD.tiles.filter(t=>t.eventAnchor!==undefined).length,166);
 for(const t of BOARD.tiles){assert.ok(t.links.length>=2);for(const n of t.links){assert.ok(BOARD.tiles[n].links.includes(t.index));const p=BOARD.tiles[n].pos;assert.equal(Math.abs(t.pos.x-p.x)+Math.abs(t.pos.z-p.z),CELL_SIZE,'every move is one orthogonal road cell');}}
 const seen=new Set(),queue=[0];while(queue.length){const i=queue.pop();if(seen.has(i))continue;seen.add(i);queue.push(...BOARD.tiles[i].links);}assert.equal(seen.size,300);assert.equal(BOARD.edges.length-300+1,11);
 const facilities={};for(const o of BUILDING_LOTS)if(o.type!=='city')facilities[o.type]=(facilities[o.type]??0)+1;
-assert.deepEqual(facilities,{secret:5,beast:5,treasure:5,forge:5,vein:4,tavern:5,library:5,herb:5,casino:5,relic:3});
+assert.deepEqual(facilities,{secret:5,beast:5,treasure:5,forge:5,vein:4,tavern:5,library:5,herb:5,casino:5,relic:3,recruitment:3});
 for(const p of [0,19,20,39,40,59,60,79,80,89,90,100,150])assert.ok(cityModelLevel(p)>=1&&cityModelLevel(p)<=6);
 const state=createGameState('liu');const lord=state.lords.liu;
 for(let i=0;i<10000;i++){const from=lord.position,next=nextMovementTile(state,lord);assert.ok(state.tiles[from].links.includes(next));lord.position=next;lord.lastTile=from;lord.forkExit=null;enterFork(state,lord,2);}
 const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,'../public/art/map-selected/model-manifest.json'),'utf8'));
-assert.equal(Object.keys(manifest).length,20);
+assert.equal(Object.keys(manifest).length,21);
 const {MAP_MODELS}=require('../src/data/mapModels.ts');
 assert.deepEqual(Object.keys(MAP_MODELS).sort(),Object.keys(manifest).sort());
 for(const lot of BUILDING_LOTS){
@@ -54,6 +54,6 @@ for(const key of ['relic','vein','secret']){
   }
  }
 }
-console.log('PASS actual user layout: 300 connected roads, 33 cities, 47 facilities, 11 loops, no overlapping footprints');
-console.log('PASS all80 buildings have two trigger cells (160 total), event types, prosperity values, four capitals and 10,000 legal movement steps');
-console.log('PASS all20 delivered GLB headers and SHA-256; all80 event lots have models, and the three finished facilities carry embedded textures, normals and UVs');
+console.log('PASS actual user layout: 300 connected roads, 33 cities, 50 facilities, 11 loops, no overlapping footprints');
+console.log('PASS all83 buildings have two trigger cells (166 total), event types, prosperity values, four capitals and 10,000 legal movement steps');
+console.log('PASS all21 delivered GLB headers and SHA-256; all83 event lots have models, and the three finished facilities carry embedded textures, normals and UVs');

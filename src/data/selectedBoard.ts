@@ -2,7 +2,7 @@ import type { LordId, Tile, TileKind } from '../game/types';
 import { SELECTED_LAYOUT } from './selectedLayout';
 
 export const CELL_SIZE = 4;
-export const MAP_REVISION = 'selected-20261019-33c-47f-300r';
+export const MAP_REVISION = 'selected-20261031-33c-50f-300r';
 export const BOARD_SIDE = 280;
 const origin = { x: 32.5, y: 25.5 };
 export const gridPosition = (x: number, y: number) => ({ x: (x-origin.x)*CELL_SIZE, z: (y-origin.y)*CELL_SIZE });

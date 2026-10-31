@@ -40,7 +40,7 @@ function bot(rand, state, pending) {
     case 'pickMany': { const e = enabled(p.choices); return e.slice(0, Math.min(e.length, p.min + Math.floor(rand() * (p.max - p.min + 1)))); }
     case 'slider': return p.min + Math.floor(rand() * ((p.max - p.min) / p.step + 1)) * p.step;
     case 'confirm': return rand() < 0.5;
-    case 'preroll': return rand() < 0.8 ? { type: 'roll' } : pick([{ type: 'items' }, { type: 'recruit' }, { type: 'roster' }, { type: 'materials' }]);
+    case 'preroll': return rand() < 0.8 ? { type: 'roll' } : pick([{ type: 'items' }, { type: 'roster' }, { type: 'materials' }]);
     case 'shop': return { type: 'leave' };
     case 'casino': return null;
     case 'bid': return 0;

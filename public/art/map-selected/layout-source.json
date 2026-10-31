@@ -2406,6 +2406,51 @@
       "added": false,
       "manualScore": false,
       "notes": "中北服務區；沿道路最近：江陵 4格、永安 4格、襄陽 6格。距離為道路占地格，非擲骰回合。"
+    },
+    {
+      "id": "recruitment-west",
+      "type": "recruitment",
+      "name": "募兵司",
+      "at": [
+        23,
+        18
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": true,
+      "manualScore": false,
+      "notes": "西部募兵據點；兩格入口，停在入口後可徵召士兵。"
+    },
+    {
+      "id": "recruitment-south",
+      "type": "recruitment",
+      "name": "募兵司",
+      "at": [
+        36,
+        35
+      ],
+      "side": "above",
+      "prosperity": null,
+      "historyId": null,
+      "added": true,
+      "manualScore": false,
+      "notes": "中南部募兵據點；兩格入口，停在入口後可徵召士兵。"
+    },
+    {
+      "id": "recruitment-east",
+      "type": "recruitment",
+      "name": "募兵司",
+      "at": [
+        58,
+        9
+      ],
+      "side": "right",
+      "prosperity": null,
+      "historyId": null,
+      "added": true,
+      "manualScore": false,
+      "notes": "東北部募兵據點；兩格入口，停在入口後可徵召士兵。"
     }
   ],
   "historicalReference": {

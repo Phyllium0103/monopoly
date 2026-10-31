@@ -24,8 +24,8 @@ import { RankView } from '../ui/RankView';
 import { LordView } from '../ui/LordView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
-import { BOARD, TILE_INFO } from '../data/board';
-import { RANK_METRICS, cityIncomeOf, cityRanks, cityToll, garrisonPower, recruitCost, toll } from '../systems/CitySystem';
+import { TILE_INFO, hasCurrentBoard } from '../data/board';
+import { RANK_METRICS, cityIncomeOf, cityRanks, cityToll, garrisonPower, toll } from '../systems/CitySystem';
 import { attack, canAttemptBreak, defense, maxHp, maxStamina, power, realmName } from '../systems/GeneralSystem';
 import { realmTag } from '../ui/GeneralInfo';
 import { bindPassiveState, fxText, passiveOf } from '../data/passives';
@@ -272,8 +272,8 @@ export class Game {
 
   /** 進入多人對局：me 為本機玩家的主公 */
   startOnline(state: GameState, me: LordId, onExit: () => void) {
-    if(state.rulesVersion!=='map-dual-frontage-20261020' || state.tiles.length!==BOARD.tiles.length || state.tiles.some((t,i)=>t.name!==BOARD.tiles[i].name || t.pos.x!==BOARD.tiles[i].pos.x || t.pos.z!==BOARD.tiles[i].pos.z)) {
-      throw new Error('此房間仍使用舊版地圖。請更新多人伺服器並建立新房間；舊對局資料不會被覆寫。');
+    if (!hasCurrentBoard(state)) {
+      throw new Error('此房間仍使用舊版地圖。請所有玩家更新網頁並建立新房間；舊對局資料不會被覆寫。');
     }
     this.reset();
     this.me = me;
@@ -795,11 +795,10 @@ export class Game {
     }
     else if (preroll) {
       hint = '擲骰前可先整備；擲完骰、處理完事件，回合自動結束';
-      fullHint = '擲骰前可先使用物品、合成材料、徵兵或整備武將（宗門每人 10 下品，自己的城池或空城免費；調度駐軍在主公所在城池免費）；擲完骰、處理完落地事件，回合就會自動結束';
+      fullHint = '擲骰前可先使用物品、合成材料或整備武將（宗門每人 10 下品，自己的城池或空城免費；調度駐軍在主公所在城池免費）；擲完骰、處理完落地事件，回合就會自動結束';
       buttons.push(
         { label: '🎒 使用物品', sub: `${player.items.length} 件`, onClick: act({ type: 'items' }) },
         { label: '⛏️ 材料合成', sub: `${MATERIAL_GROUPS.reduce((n, k) => n + player.materials[k].reduce((a, b) => a + b, 0), 0)} 顆`, onClick: act({ type: 'materials' }) },
-        { label: '⚔️ 徵兵', sub: `${(recruitCost(player.id, 100) / 100).toFixed(2).replace(/\.?0+$/, '')}/名`, onClick: act({ type: 'recruit' }) },
         { label: '🏯 調度駐軍', sub: '依距離收費・一次付費可操作到關閉', disabled: !citiesOf(this.state, player.id).length, onClick: act({ type: 'garrison' }) },
         roster,
       );

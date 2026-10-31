@@ -202,6 +202,14 @@ function buildBoard() {
 
 export const LEGACY_BOARD = buildBoard();
 export const BOARD = buildSelectedBoard();
+export const MAP_RULES_VERSION = 'map-recruitment-20261031';
+/** A P2P room must use the current map and both recruitment frontage triggers. */
+export function hasCurrentBoard(state: { rulesVersion?: string; tiles: Tile[] }): boolean {
+  return state.rulesVersion === MAP_RULES_VERSION && state.tiles.length === BOARD.tiles.length
+    && state.tiles.every((t,i) => t.name === BOARD.tiles[i].name && t.kind === BOARD.tiles[i].kind
+      && t.eventAnchor === BOARD.tiles[i].eventAnchor && t.pos.x === BOARD.tiles[i].pos.x && t.pos.z === BOARD.tiles[i].pos.z);
+}
+
 
 export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
   city: { icon: '🏯', desc: '城池：停在無主城池可佔領；踏入他人城池需繳過路費或開戰' },
@@ -212,6 +220,7 @@ export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
   library: { icon: '📜', desc: '藏經閣：販售功法' },
   beast: { icon: '🐉', desc: '萬獸園：販售靈獸，每位主公限一隻' },
   tavern: { icon: '🏮', desc: '聽風樓：招募各國尚未出仕的將領' },
+  recruitment: { icon: '⚔️', desc: '募兵司：停在建築旁任一入口格後可徵召士兵，每批100名；沿用主公技能折扣，取消不花費靈石' },
   casino: { icon: '🎲', desc: '乾坤骰殿：沿道路設置的骰運據點。與荷官骰盅比大小，自訂賭注，每次只能賭一把，離開後留在原格，下回合沿道路前進' },
   portal: { icon: '🌌', desc: '山河社稷圖：抵達時可選擇是否進入5×5空心試煉，外圈16格、中央3×3留空；每格都有吉凶事件。圖內禁止道具，依回合擲骰，走完一圈返回原入口' },
   vein: { icon: '💎', desc: '靈脈：路過就能獲得靈石（不用停下），依主公本人的境界計算，每輪每位主公只領一次' },

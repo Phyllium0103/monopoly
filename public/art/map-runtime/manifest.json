@@ -518,5 +518,17 @@
         "bytes": 871748
       }
     ]
+  },
+  "recruitment": {
+    "sourceSha": "0a746f5984b5a4553c17da48e1de49e3085a0f7b1b82a33c415d8dd398debe96",
+    "lods": [
+      {
+        "file": "recruitment-lod0-3ea35540f29c.glb",
+        "triangles": 345416,
+        "originalTriangles": 345416,
+        "materials": 27,
+        "bytes": 3622556
+      }
+    ]
   }
 }

@@ -30,8 +30,8 @@ for(const lot of DISPLAY_FACILITY_LOTS){
   assert.ok(['道路','岔路口'].includes(t.name),'display names must not change road events or transport destinations');
  }
 }
-assert.equal(BOARD.tiles.length,300);assert.equal(BOARD.cities.length,33);assert.equal(BUILDING_LOTS.length,80);
-assert.equal(BOARD.tiles.filter(t=>t.eventAnchor!==undefined).length,160,'original events and two-cell trigger rules unchanged');
+assert.equal(BOARD.tiles.length,300);assert.equal(BOARD.cities.length,33);assert.equal(BUILDING_LOTS.length,83);
+assert.equal(BOARD.tiles.filter(t=>t.eventAnchor!==undefined).length,166,'original triggers plus three two-cell recruitment facilities');
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'public/art/map-selected/model-manifest.json'),'utf8'));
 function glb(p){const b=fs.readFileSync(p);return JSON.parse(b.toString('utf8',20,20+b.readUInt32LE(12)).trim());}
 function triangles(j){return j.meshes.flatMap(m=>m.primitives).reduce((n,p)=>n+j.accessors[p.indices].count/3,0);}
@@ -48,5 +48,5 @@ for(const type of Object.keys(types)){
  for(const p of b.meshes.flatMap(m=>m.primitives))assert.ok(b.materials[p.material],`${type}: valid material on every primitive`);
 }
 console.log('PASS four types × four regions = 16 display-only buildings; all 2×2 lots and frontages clear of roads, buildings and T gaps');
-console.log('PASS original 300 roads / 33 cities / 80 event buildings / 160 triggers unchanged; no new gameplay event or renamed road');
+console.log('PASS original 300 roads / 33 cities / 83 event buildings / 166 triggers; display-only buildings remain nonfunctional');
 console.log('PASS four models are smaller, retain every source triangle/primitive group and embed Meshopt geometry + WebP textures');

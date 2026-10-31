@@ -99,6 +99,9 @@ export const MAP_RUNTIME_MODELS={
     "art/map-runtime/ghost-lod0-422f6179dac8.glb",
     "art/map-runtime/ghost-lod1-f119943c37d9.glb",
     "art/map-runtime/ghost-lod2-d3cba477b18a.glb"
+  ],
+  "recruitment": [
+    "art/map-runtime/recruitment-lod0-3ea35540f29c.glb"
   ]
 } as const;
 export const runtimeModelUrl=(key:keyof typeof MAP_RUNTIME_MODELS,lod:number)=>assetUrl(MAP_RUNTIME_MODELS[key][lod]);

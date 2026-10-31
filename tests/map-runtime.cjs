@@ -24,7 +24,7 @@ const {CELL_SIZE}=require('../src/data/selectedBoard.ts');
  const color=new THREE.Color();batch.meshes[0].getColorAt(0,color);assert.ok(Math.abs(color.r-new THREE.Color(0x11aa33).r)<1e-6);
  const mesh=batch.meshes[0];await pool.sync([{...placements[0],color:0xcc3311},placements[1]]);pool.update(camera,1000);assert.equal(pool.batches.get('forge:0').meshes[0],mesh,'ownership update preserves the existing batch');
  camera.zoom=.2;camera.updateProjectionMatrix();pool.update(camera,1000);assert.equal(batch.meshes[0].visible,true);assert.equal(pool.batches.size,1,'zoom reuses the single compressed model without extra precision levels');
- const prepared=new MapModelPool(()=>{}),loads=[];prepared.load=async(key,lod)=>{loads.push([key,lod]);};let lastProgress;await prepared.prepare((done,total)=>lastProgress=[done,total]);assert.equal(loads.length,20);assert.equal(new Set(loads.map(x=>x[0])).size,20);assert.ok(loads.every(x=>x[1]===0));assert.deepEqual(lastProgress,[20,20]);
+ const prepared=new MapModelPool(()=>{}),loads=[];prepared.load=async(key,lod)=>{loads.push([key,lod]);};let lastProgress;await prepared.prepare((done,total)=>lastProgress=[done,total]);assert.equal(loads.length,21);assert.equal(new Set(loads.map(x=>x[0])).size,21);assert.ok(loads.every(x=>x[1]===0));assert.deepEqual(lastProgress,[21,21]);
  console.log('PASS quantized node transforms, individual culling, single compressed model, ownership colors and stable instance buffers');
  const elements={progress:{value:0},'.boot-percent':{},'.boot-message':{},button:{hidden:true}};
  const gate={hidden:true,querySelector:s=>elements[s]};global.document.querySelector=()=>gate;global.requestAnimationFrame=cb=>cb();

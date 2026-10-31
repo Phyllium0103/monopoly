@@ -1,6 +1,6 @@
 import { bindPassiveState, fx } from '../data/passives';
 import type { City, General, GameState, Lord, LordId } from './types';
-import { BOARD } from '../data/board';
+import { BOARD, MAP_RULES_VERSION } from '../data/board';
 import { GENERAL_SEEDS, type GeneralSeed } from '../data/generals';
 import { LORDS, LORD_IDS } from '../faction/Faction';
 import { maxHp, maxStamina } from '../systems/GeneralSystem';
@@ -137,7 +137,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
   }
 
   const state: GameState = {
-    rulesVersion: 'map-dual-frontage-20261020',
+    rulesVersion: MAP_RULES_VERSION,
     round: 1,
     maxRounds,
     order,

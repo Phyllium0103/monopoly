@@ -28,7 +28,8 @@ import { aptTag, generalBlock, generalBrief, realmTag, statCells, vitalBars, ite
 import { canUse, consumeItem, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
 import { buy, makeStock, makeSellStock, beginShopVisit, refreshShop, sell, lockTavernGeneral, SHOP_REFRESH_COSTS, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, partyRealm, realmRolls, realmTurns } from '../systems/RealmSystem';
-import { aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
+import { recruitmentMaximum, recruitAtBureau } from '../systems/RecruitmentSystem';
+import { aiRecruitmentAmount, aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
 import { enterFork, nextMovementTile } from '../systems/MovementSystem';
 import { rollRoadEvent } from '../systems/RoadEvents';
 import { EVENT_INTERVAL, IMMORTAL_INTERVAL, TOURNAMENT_INTERVAL, eventDef, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, tickWorldEvents } from '../systems/EventSystem';
@@ -244,7 +245,6 @@ export class Engine {
         case 'abilities': await this.generalAbilities(lord); break;
         case 'ability': await this.useAbilityOf(lord, a.generalId); break;
         case 'materials': await this.materialsFlow(lord); break;
-        case 'recruit': await this.recruitSoldiers(lord); break;
         case 'garrison': await this.manageGarrison(lord); break;
         case 'roster': await this.rosterFlow(lord); break;
         case 'sect': await this.manageSect(lord); break;
@@ -457,6 +457,8 @@ export class Engine {
         return this.roadEvent(lord);
       case 'casino':
         return this.landCasino(lord);
+      case 'recruitment':
+        return this.recruitSoldiers(lord);
       default:
         return this.landShop(lord, t.kind);
     }
@@ -1458,20 +1460,27 @@ export class Engine {
   }
 
   private async recruitSoldiers(lord: Lord) {
-    const most = Math.floor(lord.stones / recruitCost(lord.id, 1) / 100) * 100;
+    if (this.state.tiles[lord.position]?.kind !== 'recruitment' || lord.relicJourney) return;
+    if (!this.human(lord)) {
+      const n = aiRecruitmentAmount(lord);
+      if (n && recruitAtBureau(this.state, lord, n)) {
+        this.view.log(`${LORDS[lord.id].name}在募兵司徵召 ${n} 名士兵。`, 'ai');
+        this.view.refresh();
+      }
+      return;
+    }
+    const most = recruitmentMaximum(lord);
     if (most < 100) {
       this.view.toast('靈石不足，至少要能徵召 100 名士兵', lord.id);
       return;
     }
     const n = await this.dlg(lord).slider(
-      '⚔️ 徵兵',
+      '⚔️ 募兵司・徵召士兵',
       `每名士兵 ${(recruitCost(lord.id, 100) / 100).toFixed(2).replace(/\.?0+$/, '')} 下品靈石。目前士兵 ${lord.soldiers}，靈石 ${fmtStones(lord.stones)}。`,
       { min: 100, max: most, step: 100, initial: Math.min(2000, most), unit: ' 名', confirm: '徵召', preview: (v) => `花費 ${fmtStones(recruitCost(lord.id, v))}，徵兵後士兵 ${lord.soldiers + v}` },
       '⚔️',
     );
-    if (!n || recruitCost(lord.id, n) > lord.stones) return;
-    lord.stones -= recruitCost(lord.id, n);
-    lord.soldiers += n;
+    if (n === null || !recruitAtBureau(this.state, lord, n)) return;
     this.view.log(`徵召 ${n} 名士兵。`, 'good');
     this.view.refresh();
   }

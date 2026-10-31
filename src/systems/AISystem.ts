@@ -1,3 +1,4 @@
+import { recruitmentMaximum } from './RecruitmentSystem';
 import { aiUpgradeWeapons } from './MaterialSystem';
 import { fx } from '../data/passives';
 import { immortalWinner } from './VictorySystem';
@@ -5,7 +6,7 @@ import type { City, CraftStat, GameState, General, Item, Lord } from '../game/ty
 import { sectTransferRequirement, transferSectGeneral } from './SectSystem';
 import { PARTY_LIMIT, abandonIfEmpty, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, canLearn, learn, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
-import { MIN_GARRISON, eliminate, recruitCost, visitingToll, garrisonPower, occupyCost, totalAssets } from './CitySystem';
+import { MIN_GARRISON, eliminate, visitingToll, garrisonPower, occupyCost, totalAssets } from './CitySystem';
 import { REALMS } from '../data/generals';
 import { equipRealm, equipScore } from '../data/items';
 import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
@@ -191,14 +192,14 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   const stride = lord.items.find((i) => i.defId === 'stride');
   const strideUser = stride && gens.find((u) => u.status === 'free' && canUse(stride, u).ok);
   if (stride && strideUser && Math.random() < 0.4) logs.push(await apply(stride, strideUser, {}));
-  // 補兵
-  if (lord.soldiers < style.soldierFloor && lord.stones > 10000) {
-    const n = 2000;
-    lord.stones -= recruitCost(lord.id, n);
-    lord.soldiers += n;
-    logs.push(`徵兵 ${n}`);
-  }
+  // 士兵只在停靠募兵司時補充，擲骰前不再遠端徵兵。
   return logs;
+}
+
+/** Preserve the former AI budget policy, but decide only during a bureau visit. */
+export function aiRecruitmentAmount(lord: Lord): number {
+  return lord.soldiers < AI_STYLES[lord.id].soldierFloor && lord.stones > 10000
+    ? Math.min(2000, recruitmentMaximum(lord)) : 0;
 }
 
 /** 瓶頸中的將領嘗試突破：低階看成功率，雷劫要先療傷、佈陣，有把握撐過才渡 */

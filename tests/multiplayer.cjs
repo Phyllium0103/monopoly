@@ -46,7 +46,7 @@ function bot(rand, state, pending) {
     }
     case 'slider': return p.min + Math.floor(rand() * ((p.max - p.min) / p.step + 1)) * p.step;
     case 'confirm': return rand() < 0.5;
-    case 'preroll': return rand() < 0.75 ? { type: 'roll' } : pick([{ type: 'items' }, { type: 'recruit' }, { type: 'roster' }, { type: 'sect' }, { type: 'materials' }, { type: 'garrison' }, { type: 'abilities' }]);
+    case 'preroll': return rand() < 0.75 ? { type: 'roll' } : pick([{ type: 'items' }, { type: 'roster' }, { type: 'sect' }, { type: 'materials' }, { type: 'garrison' }, { type: 'abilities' }]);
     case 'shop': return rand() < 0.4 && p.shop.offers.length ? { type: 'buy', index: Math.floor(rand() * p.shop.offers.length) } : { type: 'leave' };
     case 'casino': return rand() < 0.5 ? 100 : null;
     case 'bid': return rand() < 0.5 ? 0 : 1000;

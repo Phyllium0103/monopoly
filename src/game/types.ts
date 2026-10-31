@@ -215,7 +215,7 @@ export interface City {
   shieldTurns: number;
 }
 
-export type TileKind = 'city' | 'realm' | 'treasure' | 'herb' | 'forge' | 'library' | 'beast' | 'tavern' | 'road' | 'portal' | 'vein' | 'casino';
+export type TileKind = 'city' | 'realm' | 'treasure' | 'herb' | 'forge' | 'library' | 'beast' | 'tavern' | 'road' | 'portal' | 'vein' | 'casino' | 'recruitment';
 
 export interface Tile {
   index: number;

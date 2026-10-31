@@ -189,5 +189,17 @@
     "original": "art-src/map-models/ghost-stack-v13.glb",
     "originalSha256": "053f3b79cb55fe6d0142a91b7a5f688469aa3805211dbdbecaf25c2b842c8644",
     "sha256": "84027c46002f30ef44e895fbb0810fae9605ac4e79edfabc728b31377afe3287"
+  },
+  "recruitment": {
+    "url": "/art/map-selected/recruitment-v20.glb",
+    "source": "C:\\Users\\User\\OneDrive\\桌面\\呆頭寶寶\\monopoly\\art-src\\map-models\\recruitment-v20.glb",
+    "version": "v20",
+    "name": "募兵司",
+    "status": "integrated",
+    "visualApproved": false,
+    "original": "art-src/map-models/recruitment-v20.glb",
+    "originalSha256": "10de9be83b3153a79cf3b39c3165fe985b376c2ba4c31c42c09cf59345233d76",
+    "sha256": "0a746f5984b5a4553c17da48e1de49e3085a0f7b1b82a33c415d8dd398debe96",
+    "notes": "User selected v20 for integration; original illustration pixel identity is not claimed."
   }
 }

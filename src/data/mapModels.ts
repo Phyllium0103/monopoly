@@ -20,5 +20,6 @@ export const MAP_MODELS = {
   "martial": assetUrl("/art/map-selected/martial-v23-user-accepted.glb?v=c5f46216270d"),
   "arts": assetUrl("/art/map-selected/arts-r6-v24.glb?v=9d48b4690771"),
   "appraisal": assetUrl("/art/map-selected/appraisal-v50.glb?v=a80eea20f31c"),
-  "ghost": assetUrl("/art/map-selected/ghost-stack-v13.glb?v=84027c46002f")
+  "ghost": assetUrl("/art/map-selected/ghost-stack-v13.glb?v=84027c46002f"),
+  "recruitment": assetUrl("/art/map-selected/recruitment-v20.glb?v=0a746f5984b5")
 } as const;

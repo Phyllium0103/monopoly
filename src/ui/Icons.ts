@@ -44,7 +44,7 @@ export async function prepareArtPack(){await loadArtPack();if(packFailed||packUr
 const url = (dir: string, name: string) => packUrls.get(`${dir}/${name}`) ?? `${BASE}art/${dir}/${encodeURIComponent(name)}.webp`;
 
 /** 丹藥、陣法、符籙、法器 */
-export const itemIconUrl = (defId: string) => ['realmkey', 'realmescape'].includes(defId)
+export const itemIconUrl = (defId: string) => ['realmkey', 'realmescape', 'talentrefund', 'talentreset'].includes(defId)
   ? `${BASE}art/icons/realm/${defId}.svg`
   : url(`icons/${ITEM_DEFS[defId].category}`, ITEM_DEFS[defId].name);
 /** 專屬武器與寶衣 */

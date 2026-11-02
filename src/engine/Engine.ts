@@ -19,6 +19,7 @@ import { portraitUrl, equipIconUrl } from '../ui/Icons';
 import { CASINO_MIN_BET, CASINO_NAME, aiCasinoBet, diceTotal, maxBet, playCasino, type CasinoResult } from '../systems/CasinoSystem';
 import { REALMS } from '../data/generals';
 import { bindPassiveState, passiveOf, fx, lordHas } from '../data/passives';
+import { talentNode, canLearnTalent, canRefundTalent, canResetTalents, ensureTalentState, learnTalent, lordTalentFx, refundTalent, resetTalents } from '../data/talents';
 import { CRAFT_CSS, ELEMENT_CSS, ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, equipDesc, equipRealm, techniqueDesc } from '../data/items';
 import { GARRISON_STRENGTH, MIN_GARRISON, canOccupy, cityIncome, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll, visitingToll } from '../systems/CitySystem';
 import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, equip, unequip, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
@@ -67,6 +68,7 @@ export class Engine {
 
   constructor(public state: GameState, private ports: EnginePorts) {
     bindPassiveState(state);
+    ensureTalentState(state);
   }
 
   private get view() {
@@ -248,9 +250,25 @@ export class Engine {
         case 'garrison': await this.manageGarrison(lord); break;
         case 'roster': await this.rosterFlow(lord); break;
         case 'sect': await this.manageSect(lord); break;
+        case 'talent': this.talentAction(lord, a); break;
       }
       if (await this.checkEnd()) return { type: 'roll' };
     }
+  }
+
+  /** 天賦樹操作：回答來自玩家畫面，一律在這裡重新驗證 */
+  private talentAction(lord: Lord, a: Extract<PrerollAction, { type: 'talent' }>) {
+    const n = talentNode(a.node);
+    const check = a.op === 'reset' ? canResetTalents(lord) : !n ? { ok: false, reason: '沒有這項天賦' } : a.op === 'learn' ? canLearnTalent(this.state, lord, n.id) : canRefundTalent(lord, n.id);
+    if (!check.ok) { this.view.toast(check.reason, lord.id); return; }
+    if (a.op !== 'learn' && (lord.relicJourney || lord.itemsLocked > 0)) { this.view.toast(lord.relicJourney ? '山河圖內禁止使用道具' : '物品被封印，暫時無法服用洗點丹', lord.id); return; }
+    if (a.op === 'learn') learnTalent(this.state, lord, n!.id);
+    else if (a.op === 'refund') refundTalent(lord, n!.id);
+    else resetTalents(lord);
+    const text = a.op === 'learn' ? `領悟天賦「${n!.name}」` : a.op === 'refund' ? `服下忘塵丹，退回天賦「${n!.name}」一級` : '服下輪迴丹，天賦樹全部重置';
+    this.view.log(`${LORDS[lord.id].name}${text}（剩餘天賦點 ${lord.talentPoints ?? 0}）。`, 'info');
+    this.view.syncCities();
+    this.view.refresh();
   }
 
   private async autoPreroll(lord: Lord): Promise<RollChoice> {
@@ -382,7 +400,7 @@ export class Engine {
     if (this.state.tiles[tile].kind !== 'vein' || lord.veinsTapped.includes(anchor)) return;
     lord.veinsTapped.push(anchor);
     const lordGen = generalsOf(this.state, lord.id).find((g) => g.isLord);
-    const n = veinStones(lordGen?.realm ?? 0);
+    const n = Math.round(veinStones(lordGen?.realm ?? 0) * (1 + (lordTalentFx(lord).vein ?? 0)));
     lord.stones += n;
     this.view.log(`${LORDS[lord.id].name}路過靈脈，汲取靈氣化為 ${fmtStones(n)}（主公境界：${REALMS[lordGen?.realm ?? 0]}）。`, this.human(lord) ? 'good' : 'ai');
     if (this.human(lord)) this.view.toast(`💎 路過靈脈：+${fmtStones(n)}`, lord.id);
@@ -470,7 +488,7 @@ export class Engine {
     const name = LORDS[lord.id].name;
     if (city.owner === 'neutral') {
       if (!canOccupy(this.state, lord, city)) {
-        if (this.human(lord)) this.view.toast(`佔領${city.name}需要 ${fmtStones(occupyCost(city))}、一名隨行武將與至少 ${MIN_GARRISON} 士兵`, lord.id);
+        if (this.human(lord)) this.view.toast(`佔領${city.name}需要 ${fmtStones(occupyCost(city, lord))}、一名隨行武將與至少 ${MIN_GARRISON} 士兵`, lord.id);
         return;
       }
       if (this.human(lord)) await this.playerOccupy(lord, city);
@@ -518,6 +536,12 @@ export class Engine {
       if (!lord.alive) return;
       if (win) {
         if (kind !== 'siege') this.view.log(`${name}${BATTLE_NAMES[kind]}獲勝，免繳過路費！`, this.human(lord) ? 'good' : 'ai');
+        const plunder = kind === 'siege' ? 0 : Math.min(owner.stones, Math.round(fee * (lordTalentFx(lord).plunder ?? 0)));
+        if (plunder > 0) {
+          owner.stones -= plunder;
+          lord.stones += plunder;
+          this.view.log(`${name}乘勝掠陣，自${LORDS[owner.id].name}奪得 ${fmtStones(plunder)}。`, this.human(lord) ? 'good' : this.human(owner) ? 'bad' : 'ai');
+        }
       } else {
         this.view.log(`${name}${BATTLE_NAMES[kind]}落敗，須付雙倍過路費。`, this.human(lord) ? 'bad' : 'ai');
         await this.payToll(lord, owner, fee * 2, city, true);
@@ -607,7 +631,7 @@ export class Engine {
   private aiTryOccupy(lord: Lord, city: City) {
     const d = aiOccupy(this.state, lord, city);
     if (!d) return;
-    occupy(this.state, lord, city, d.generalId, d.soldiers, occupyCost(city));
+    occupy(this.state, lord, city, d.generalId, d.soldiers, occupyCost(city, lord));
     this.view.syncCities();
     this.view.capture(city.tile, lord.id);
     this.view.log(`${LORDS[lord.id].name}派${this.state.generals[d.generalId].name}率 ${d.soldiers} 兵佔領${city.name}。`, 'ai');
@@ -643,7 +667,7 @@ export class Engine {
       const gids = await this.dlg(lord).pickMany(
         `抵達${city.name}・是否佔領？`,
         facts([
-          ['佔領費', `<b>${fmtStones(occupyCost(city))}</b>（持有 ${fmtStones(lord.stones)}）`],
+          ['佔領費', `<b>${fmtStones(occupyCost(city, lord))}</b>（持有 ${fmtStones(lord.stones)}）`],
           ['繁榮度', fmtProsperity(city.prosperity)],
           ['每回合收入', `${fmtStones(inc.stones)}、士兵 +${inc.soldiers}`],
           ['佔領後過路費', fmtStones(toll(city, citiesOf(this.state, lord.id).length + 1))],
@@ -670,10 +694,10 @@ export class Engine {
       );
       if (!soldiers) continue;
       if (!canOccupy(this.state, lord, city)) return;
-      occupy(this.state, lord, city, gids, soldiers, occupyCost(city));
+      occupy(this.state, lord, city, gids, soldiers, occupyCost(city, lord));
       this.view.syncCities();
       this.view.capture(city.tile, lord.id);
-      this.view.log(`支付 ${fmtStones(occupyCost(city))}，派${gids.map((id) => this.state.generals[id].name).join('、')}率 ${soldiers} 兵佔領${city.name}！`, 'good');
+      this.view.log(`支付 ${fmtStones(occupyCost(city, lord))}，派${gids.map((id) => this.state.generals[id].name).join('、')}率 ${soldiers} 兵佔領${city.name}！`, 'good');
       this.view.toast(`佔領${city.name}！`, lord.id);
       await this.chooseContest(lord, city);
       await this.chooseMining(lord, city, true);

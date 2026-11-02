@@ -1926,5 +1926,57 @@ export const ITEM_CATALOG = [
     ],
     "noUser": true,
     "weight": 1
+  },
+  {
+    "id": "talentrefund",
+    "name": "忘塵丹",
+    "category": "丹藥",
+    "stat": "alchemy",
+    "timing": "event",
+    "target": "none",
+    "battleTarget": "none",
+    "min": [
+      0
+    ],
+    "stamina": [
+      0
+    ],
+    "price": [
+      400
+    ],
+    "sellPrice": [
+      200
+    ],
+    "effects": [
+      "在天賦樹退回一級天賦，返還 1 點；其他已學天賦須仍符合條件"
+    ],
+    "noUser": true,
+    "weight": 0.5
+  },
+  {
+    "id": "talentreset",
+    "name": "輪迴丹",
+    "category": "丹藥",
+    "stat": "alchemy",
+    "timing": "event",
+    "target": "none",
+    "battleTarget": "none",
+    "min": [
+      0
+    ],
+    "stamina": [
+      0
+    ],
+    "price": [
+      20000
+    ],
+    "sellPrice": [
+      5000
+    ],
+    "effects": [
+      "天賦樹全部歸零，返還所有天賦點；商行不販售，只能從秘境或活動取得"
+    ],
+    "noUser": true,
+    "weight": 0
   }
 ] as const;

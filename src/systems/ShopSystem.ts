@@ -6,6 +6,7 @@ import { fmtStones } from '../game/Currency';
 import { ARTIFACT_IDS, ITEM_DEFS, equipDesc, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemId, rollItemTier, rollTier, techniqueDesc } from '../data/items';
 import { APTITUDE_NAMES, HIDDEN_SEEDS, REALMS } from '../data/generals';
 import { fxText, passiveOf, lordAura, lordHas } from '../data/passives';
+import { lordTalentFx } from '../data/talents';
 import { generalValue, power, realmName, recruitPrice } from './GeneralSystem';
 import { originKingdom } from '../faction/Faction';
 import type { Beast, Equipment, General, Item, Technique } from '../game/types';
@@ -44,7 +45,8 @@ const shuffle = <T,>(arr: T[]): T[] => arr.map((v) => [Math.random(), v] as cons
 
 /** 每次造訪商店時隨機產生貨架 */
 export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
-  return sortOffers(buildStock(state,lord,kind).map(o=>o.kind==='general'||o.kind==='revive' ? o : {...o,price:Math.round(o.price*WORLD.purchaseMult)}));
+  const discount=Math.max(0,1-(lordTalentFx(lord).shop??0));
+  return sortOffers(buildStock(state,lord,kind).map(o=>o.kind==='general'||o.kind==='revive' ? o : {...o,price:Math.round(o.price*WORLD.purchaseMult*discount)}));
 }
 
 function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {

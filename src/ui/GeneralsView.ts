@@ -44,6 +44,7 @@ const SECTIONS: { status: General['status']; title: string }[] = [
 const tip = (html: string) => html.replace(/<br\s*\/?>/g, '｜').replace(/<[^>]+>/g, '').replace(/"/g, '&quot;');
 
 /** 武將名冊可選的排序項目（由大到小；主公永遠排第一） */
+const APTITUDE_ORDER: General['aptitude'][] = ['waste', 'earth', 'fire', 'water', 'wood', 'metal', 'heaven'];
 const SORTS: { id: string; name: string; value: (g: General) => number }[] = [
   { id: 'power', name: '戰力', value: (g) => power(g) },
   { id: 'attack', name: '武力', value: (g) => attack(g) },
@@ -55,6 +56,8 @@ const SORTS: { id: string; name: string; value: (g: General) => number }[] = [
   { id: 'formation', name: '佈陣', value: (g) => craft(g, 'formation') },
   // 先比境界，同境界再比修為
   { id: 'realm', name: '境界', value: (g) => g.realm * 1e6 + g.exp },
+  // 天靈根最前、五行靈根其次、廢靈根最後；同類依五行順序
+  { id: 'aptitude', name: '靈根', value: (g) => APTITUDE_ORDER.indexOf(g.aptitude) },
 ];
 
 /** 名冊清單的欄位：標題列與每一列共用；sort 對應 SORTS，點欄名即可排序 */
@@ -63,6 +66,7 @@ const COLUMNS: { cls: string; label: string; sort?: string }[] = [
   { cls: 'c-name', label: '姓名' },
   { cls: 'c-origin', label: '所屬' },
   { cls: 'c-realm', label: '境界', sort: 'realm' },
+  { cls: 'c-apt', label: '靈根', sort: 'aptitude' },
   { cls: 'c-st', label: '位置' },
   { cls: 'c-hp', label: '血量', sort: 'hp' },
   { cls: 'c-power', label: '戰力', sort: 'power' },
@@ -93,6 +97,8 @@ export class GeneralsView {
   private current: { state: GameState; lord: Lord } | null = null;
   /** 目前展開詳細資訊的武將；重繪後保持展開 */
   private expanded = new Set<string>();
+  /** 下次重繪時展開並捲到這名武將（點右下大頭貼進來時） */
+  private focusId: string | null = null;
 
   constructor(root: HTMLElement) {
     this.el = document.createElement('div');
@@ -102,6 +108,12 @@ export class GeneralsView {
 
   get isOpen() {
     return !this.el.classList.contains('hidden');
+  }
+
+  /** 指定下次開啟名冊時要展開並捲到的武將 */
+  focus(generalId: string) {
+    this.focusId = generalId;
+    this.expanded.add(generalId);
   }
 
   /** 開啟名冊；onAction 收到按鈕動作（關閉時收到 close） */
@@ -169,6 +181,8 @@ export class GeneralsView {
     const scrolls = lord.scrolls.map((t) => `<span class="chip" style="border-color:${techniqueTag(t).css}" title="${tip(`${t.name.split('・')[0]}｜${techniqueDesc(t)}`)}">${t.name.split('・').slice(1).join('・')}</span>`).join('') || '<span class="muted">無</span>';
     const party = gens.filter((g) => g.status === 'free').length;
 
+    // 重繪前記住捲動位置：只有下方清單捲動，標題列固定
+    const scrollTop = this.el.querySelector('.drawer-body')?.scrollTop ?? 0;
     this.el.innerHTML = `
       <div class="drawer-head">
         <h2 style="color:${LORDS[lord.id].css}">${LORDS[lord.id].name}・武將名冊</h2>
@@ -177,6 +191,7 @@ export class GeneralsView {
         <button class="btn mini toggle-all">${gens.length && gens.every((g) => this.expanded.has(g.id)) ? '全部收合' : '全部展開'}</button>
         <button class="btn close">關閉 ✕</button>
       </div>
+      <div class="drawer-body">
       <div class="ready-section"></div>
       <div class="bag">
         <div><b>行囊</b>${bag}</div>
@@ -184,7 +199,8 @@ export class GeneralsView {
         <div><b>功法秘笈</b>${scrolls}</div>
         <div><b>靈獸</b>${lord.beast ? `<span class="chip" title="${tip(lord.beast.desc)}">${lord.beast.name}</span>` : '<span class="muted">無</span>'}</div>
       </div>
-      <div class="sections"></div>`;
+      <div class="sections"></div>
+      </div>`;
     (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
     (this.el.querySelector('.toggle-all') as HTMLButtonElement).onclick = () => {
       if (gens.every((g) => this.expanded.has(g.id))) this.expanded.clear();
@@ -219,6 +235,7 @@ export class GeneralsView {
       h.textContent = `${sec.title}（${list.length}${sec.status === 'free' ? `/${PARTY_LIMIT}` : ''}）`;
       sections.append(h, this.list(state, lord, list, manage));
     }
+    this.el.querySelector('.drawer-body')!.scrollTop = scrollTop;
   }
 
   /** 條列式名冊：每位武將一列，點一下展開原本的詳細卡片，再點一次收合 */
@@ -265,6 +282,10 @@ export class GeneralsView {
       };
       show(this.expanded.has(g.id));
       list.appendChild(item);
+      if (this.focusId === g.id) {
+        this.focusId = null;
+        requestAnimationFrame(() => item.scrollIntoView({ block: 'center' }));
+      }
     }
     return list;
   }
@@ -281,6 +302,7 @@ export class GeneralsView {
       <span class="c-name"><b>${g.name}</b>${g.isLord ? '<span class="lord-tag">主公</span>' : ''}${ready ? '<span class="rr-ready" title="修為圓滿，可以突破">✨</span>' : ''}</span>
       <span class="c-origin">${originKingdom(g.origin)}</span>
       <span class="c-realm">${realmTag(g.realm)}</span>
+      <span class="c-apt"><span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude].replace('靈根', '')}</span></span>
       <span class="c-st">${place}</span>
       <span class="c-hp"><span class="bar hp"><i style="width:${Math.min(100, (g.hp / maxHp(g)) * 100)}%"></i><span>${g.hp}/${maxHp(g)}</span></span></span>
       <span class="c-power"><b>${power(g)}</b></span>

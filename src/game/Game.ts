@@ -21,6 +21,7 @@ import { ShopPanel } from '../ui/ShopView';
 import { CasinoPanel } from '../ui/CasinoView';
 import { HelpView } from '../ui/HelpView';
 import { RankView } from '../ui/RankView';
+import { TalentView } from '../ui/TalentView';
 import { LordView } from '../ui/LordView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
@@ -60,6 +61,7 @@ export class Game {
   private casino: CasinoPanel;
   private help: HelpView;
   private rankView: RankView;
+  private talentView: TalentView;
   private lordView: LordView;
   private state!: GameState;
   private engine: Engine | null = null;
@@ -75,6 +77,7 @@ export class Game {
   private occupancyKey='';
   private mouse = { x: 0, y: 0 };
   private active: ActivePrompt | null = null;
+  private turnToast = '';
   /** 電腦託管中（單機） */
   private autoPlay = false;
   /** 本局的畫面效果實作，交給引擎使用 */
@@ -94,6 +97,10 @@ export class Game {
     this.casino = new CasinoPanel(this.dialog);
     this.help = new HelpView(uiRoot);
     this.rankView = new RankView(uiRoot);
+    this.talentView = new TalentView(uiRoot);
+    this.talentView.onRequest = (r) => {
+      if (this.active?.prompt.kind === 'preroll' && this.active.lord === this.me) this.answer({ type: 'talent', ...r } satisfies PrerollAction);
+    };
     this.lordView = new LordView(uiRoot);
     this.lordView.facingText = (id) => this.facingText(this.state.lords[id]);
     this.ui.onLord = (id) => this.lordView.open(this.state, id);
@@ -148,6 +155,8 @@ export class Game {
       if ((e.key === ' ' || e.key === 'Enter') && (e.target as HTMLElement)?.tagName === 'BUTTON') e.preventDefault();
       if (e.key === ' ' && this.active?.prompt.kind === 'preroll') {
         e.preventDefault();
+        // 擲骰鈕被其他頁面蓋住（隱藏）時，空白鍵也不擲骰
+        if (getComputedStyle(document.querySelector('.roll-btn')!).visibility === 'hidden') return;
         this.answer({ type: 'roll' } satisfies PrerollAction);
       }
       if (e.key === 'Escape' && this.active?.prompt.kind === 'tile') this.answer(null);
@@ -497,10 +506,19 @@ export class Game {
         return new Promise((resolve) => {
           this.active = { lord, prompt: p, resolve };
           if (p.kind === 'tile') this.world.showHighlights(this.state.tiles.filter((t) => p.allowCasino || t.kind !== 'casino').map((t) => t.index), 0xc9a0ff);
-          else this.ui.toast(`第 ${this.state.round} 輪・你的回合`);
+          else if (this.turnToast !== `${this.state.round}:${this.state.turn}`) {
+            // 整備時每做一件事都會再問一次，同一回合只提示一次
+            this.turnToast = `${this.state.round}:${this.state.turn}`;
+            this.ui.toast(`第 ${this.state.round} 輪・你的回合`);
+          }
           this.refresh();
         });
     }
+  }
+
+  /** 只有自己回合擲骰前、沒有託管時能配點 */
+  private canEditTalents() {
+    return this.active?.prompt.kind === 'preroll' && this.active.lord === this.me && !this.auto && !this.dispatchTask;
   }
 
   /** 回答行動列或地圖上的抉擇 */
@@ -609,8 +627,9 @@ export class Game {
   }
 
   /** 名冊：整備階段交給引擎處理；其他時候只能查看（單機可學功法、自廢修為） */
-  private openRoster() {
+  private openRoster(focusId?: string) {
     const lord = this.state.lords[this.me];
+    if (focusId) this.generalsView.focus(focusId);
     if (this.active?.prompt.kind === 'preroll') return this.answer({ type: 'roster' } satisfies PrerollAction);
     const engine = this.online ? null : this.engine;
     void this.generalsView.open(this.state, lord, { manage: false, free: !!engine }, engine ? (a: RosterAction) => {
@@ -723,7 +742,7 @@ export class Game {
         <tr><td>繁榮度</td><td title="全圖第 ${ranks.prosperity} / ${Object.keys(this.state.cities).length} 名">${fmtProsperity(c.prosperity)}<small class="terrain-fx">第 ${ranks.prosperity} 名</small></td></tr>
         <tr><td>過路費</td><td>${c.owner === 'neutral' ? `佔領後約 ${fmtStones(toll(c))}` : fmtStones(cityToll(this.state, c))}</td></tr>
         <tr><td>每回合</td><td title="${RANK_METRICS.filter((m) => m.id === 'stones' || m.id === 'soldiers').map((m) => `${m.name}第 ${ranks[m.id]} 名`).join('・')}">${fmtStones(inc.stones)}・兵 +${inc.soldiers}</td></tr>
-        <tr><td>挖掘</td><td>${c.mining ? `${materialLabel(c.mining, 0)}・每個自身回合 ${materialIncome(c)} 顆` : '佔領時指定基礎材料'}</td></tr>
+        <tr><td>挖掘</td><td>${c.mining ? `${materialLabel(c.mining, 0)}<small class="ip-sub">每個自身回合 ${materialIncome(c)} 顆</small>` : '佔領時指定基礎材料'}</td></tr>
         <tr><td>駐將</td><td>${gens.length ? gens.map((g) => `${g.name} ${realmTag(g.realm)} 戰力 ${power(g)}`).join('<br>') : '無'}</td></tr>
         <tr><td>比試</td><td>擂台戰（固定）＋${STAT_NAMES[c.contest]}比試</td></tr>
         <tr><td>守軍</td><td>${c.garrisonSoldiers}${c.shieldTurns ? `・護城大陣 ${c.shieldTurns}` : ''}</td></tr>
@@ -758,7 +777,7 @@ export class Game {
           id: g.id, img: portraitUrl(g), name: g.name, color: LORDS[player.id].css,
           hpPct: (g.hp / Math.max(1, maxHp(g))) * 100, staPct: (g.stamina / Math.max(1, maxStamina(g))) * 100,
           tip, ready, hasSkill,
-          onClick: () => (ready ? this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction) : this.openRoster()),
+          onClick: () => (ready ? this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction) : this.openRoster(g.id)),
         };
       });
   }
@@ -820,7 +839,13 @@ export class Game {
       disabled: !!this.dispatchTask || (!preroll && (this.dialog.isOpen || this.battleView.isOpen)),
       onClick: () => (preroll ? this.answer({ type: 'sect' } satisfies PrerollAction) : void this.openSect(player)),
     });
+    if (!this.state.over && player.alive) buttons.push({
+      label: '🌟 天賦', sub: player.talentPoints ? `${player.talentPoints} 點可用` : undefined,
+      highlight: !!player.talentPoints && preroll && !this.auto,
+      onClick: () => this.talentView.open(this.state, player, this.canEditTalents()),
+    });
     if (this.dispatchTask) for (const button of buttons) button.disabled = true;
+    this.talentView.update(this.state, player, this.canEditTalents());
     this.ui.renderActions(buttons, hint, fullHint);
     this.ui.renderParty(this.partyIcons(player, preroll));
     // 擲骰：右側偏下的大圓鈕

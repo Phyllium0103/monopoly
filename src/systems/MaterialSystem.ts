@@ -1,11 +1,16 @@
 import type { City, GameState, General, Lord } from '../game/types';
+import { passiveState } from '../data/passives';
+import { lordTalentFx } from '../data/talents';
 import { MATERIAL_GROUPS, MATERIAL_NAMES, WEAPON_CATALOG, WEAPON_UPGRADE_COST, makePersonalWeapon, weaponGrade, type MaterialGroup } from '../data/weaponCatalog';
 
 export const MATERIAL_SYNTHESIS_RATIO = 10;
 export function emptyMaterials(): Record<MaterialGroup, [number, number, number]> {
   return Object.fromEntries(MATERIAL_GROUPS.map(k => [k, [0, 0, 0]])) as Record<MaterialGroup, [number, number, number]>;
 }
-export function materialIncome(city: City): number { return Math.max(0, Math.round(city.prosperity / 20)); }
+export function materialIncome(city: City): number {
+  const bonus = city.capital && city.owner !== 'neutral' ? lordTalentFx(passiveState()?.lords[city.owner]).capitalMining ?? 0 : 0;
+  return Math.max(0, Math.round(city.prosperity / 20)) + bonus;
+}
 export function materialsText(lord: Lord): string {
   return MATERIAL_GROUPS.map(k => `${MATERIAL_NAMES[k].map((n, i) => `${n} ${lord.materials[k][i]} 顆`).join('／')}`).join('<br>');
 }

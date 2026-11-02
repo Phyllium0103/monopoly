@@ -1,0 +1,292 @@
+/* ───────── 山河社稷圖：橫向捲軸 ───────── */
+.relic-map {
+  --paper-w: min(1060px, calc(96 * var(--ui-vw, 1vw) - 56px));
+  --lord-color: #52a69a;
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  top: 84px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: stretch;
+  pointer-events: auto;
+  filter: drop-shadow(0 16px 30px rgba(20, 30, 25, 0.45));
+}
+.relic-map[hidden] {
+  display: none !important;
+}
+
+/* 捲軸木軸：上下金色軸頭 */
+.relic-roller {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 22px;
+  margin: -14px 0;
+  border-radius: 11px;
+  background: linear-gradient(90deg, #3a2414, #8a5a32 35%, #c08a52 50%, #8a5a32 65%, #3a2414);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+.relic-roller::before,
+.relic-roller::after {
+  content: '';
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  height: 16px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #7a5a1a, #f1d27a 50%, #7a5a1a);
+}
+.relic-roller::before { top: -6px; }
+.relic-roller::after { bottom: -6px; }
+
+/* 紙面：展開時寬度從 0 拉到全寬，內容寬度固定不會跟著擠壓 */
+.relic-paper {
+  width: var(--paper-w);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(160, 120, 60, 0.12), transparent 60%),
+    radial-gradient(ellipse at 80% 70%, rgba(160, 120, 60, 0.1), transparent 55%),
+    linear-gradient(180deg, #f6ebcf, #efdfb8);
+  border-top: 3px solid #b48a4a;
+  border-bottom: 3px solid #b48a4a;
+  color: #3b2c1a;
+}
+.relic-map.unroll .relic-paper {
+  animation: relic-unroll 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes relic-unroll {
+  from { width: 0; }
+  to { width: var(--paper-w); }
+}
+.relic-inner {
+  width: var(--paper-w);
+  display: flex;
+  gap: 14px;
+  padding: 14px 18px 12px 14px;
+  box-sizing: border-box;
+}
+
+/* 左側直書題簽 */
+.relic-seal {
+  flex: 0 0 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border: 2px solid #9b2d20;
+  border-radius: 4px;
+  background: #b33a2a;
+  color: #fbe9c8;
+  font-family: 'Noto Serif TC', serif;
+}
+.relic-seal b {
+  writing-mode: vertical-rl;
+  font-size: 20px;
+  letter-spacing: 6px;
+}
+.relic-seal small {
+  writing-mode: vertical-rl;
+  font-size: 11px;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+.relic-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.relic-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.relic-title {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: 3px;
+  color: #3b2c1a;
+}
+.relic-progress {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.relic-progress b {
+  font-size: 17px;
+  color: #9b2d20;
+}
+.relic-progress i {
+  flex: 1;
+  max-width: 260px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(90, 60, 30, 0.18);
+  overflow: hidden;
+}
+.relic-progress em {
+  display: block;
+  height: 100%;
+  background: var(--lord-color);
+  transition: width 0.4s;
+}
+.relic-close {
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 12px;
+  border: 1px solid #a07c4a;
+  border-radius: 6px;
+  background: #fbf3de;
+  color: #5a4026;
+  cursor: pointer;
+}
+
+/* 山徑：16 站依起伏排在一條水墨小路上；窄螢幕可左右捲動 */
+.relic-track {
+  position: relative;
+  height: 190px;
+  min-width: 900px;
+  margin: 0 6px;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100' preserveAspectRatio='none'><path d='M0 100 L0 70 Q30 40 60 62 T120 50 Q150 22 185 55 T260 46 Q300 18 335 58 T400 52 L400 100Z' fill='%23806a48' opacity='.13'/><path d='M0 100 L0 84 Q50 66 100 80 T210 74 Q260 60 300 78 T400 72 L400 100Z' fill='%23506a58' opacity='.12'/></svg>") bottom / 100% 70% no-repeat;
+}
+.relic-body {
+  overflow-x: auto;
+}
+.relic-path {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.relic-path polyline {
+  fill: none;
+  stroke: #7a5a36;
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.55;
+}
+.relic-gate {
+  position: absolute;
+  transform: translateY(-50%);
+  padding: 2px 6px;
+  font-size: 12px;
+  border: 1px solid #a07c4a;
+  border-radius: 4px;
+  background: #fbf3de;
+  color: #5a4026;
+  writing-mode: vertical-rl;
+}
+.relic-gate.start { left: -4px; }
+.relic-gate.end { right: -4px; }
+
+.relic-cell {
+  position: absolute;
+  width: 52px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0 3px;
+  border: 1px solid #c4a676;
+  border-radius: 8px;
+  background: #fffaf0;
+  box-shadow: 0 3px 0 #c9b086;
+  color: #4a3a26;
+  text-align: center;
+  line-height: 1.2;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.relic-no {
+  position: absolute;
+  top: -8px;
+  left: -6px;
+  min-width: 16px;
+  font-size: 10px;
+  line-height: 16px;
+  border-radius: 8px;
+  background: #7a5a36;
+  color: #fbf3de;
+}
+.relic-icon {
+  font-size: 18px;
+}
+.relic-name {
+  font-size: 12px;
+  font-weight: 700;
+}
+.relic-luck {
+  font-size: 10px;
+  color: #8a7050;
+}
+.relic-cell.visited {
+  background: #f3ead6;
+  color: #8a7a62;
+}
+/* 走過的站蓋上紅色印記 */
+.relic-cell.visited::after {
+  content: '✓';
+  position: absolute;
+  right: -7px;
+  top: -7px;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  line-height: 18px;
+  border-radius: 50%;
+  background: #b33a2a;
+  color: #fff;
+}
+.relic-cell.occupied {
+  z-index: 1;
+  background: #fff;
+  border: 2px solid var(--lord-color);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--lord-color) 30%, transparent), 0 5px 0 #c9b086;
+  transform: translate(-50%, -58%) scale(1.12);
+  color: #2a1d10;
+}
+
+.relic-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.relic-result {
+  flex: 1;
+  margin: 0;
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  border-left: 3px solid #b33a2a;
+  border-radius: 4px;
+  background: rgba(255, 250, 238, 0.75);
+}
+.relic-roll {
+  flex: 0 0 auto;
+  padding: 10px 22px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  border: 1px solid #7a2418;
+  border-radius: 8px;
+  background: #b33a2a;
+  color: #fff4dc;
+  cursor: pointer;
+}
+.relic-roll:disabled {
+  border-color: #b8a888;
+  background: #d8ccb0;
+  color: #7a6a52;
+  cursor: default;
+}
+.relic-cell.occupied::after {
+  display: none;
+}

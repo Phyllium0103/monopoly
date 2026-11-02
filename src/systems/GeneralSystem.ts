@@ -3,6 +3,7 @@ import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
 import { techniqueForce, techniqueSpeed } from '../data/items';
 import { WORLD } from './WorldMods';
 import { fx, lordAura, passiveState } from '../data/passives';
+import { awardBreakthrough } from '../data/talents';
 
 /** Avoid floating point half-rounding differences from the editable spreadsheet. */
 const roundStat=(value:number)=>Math.round(Number(value.toFixed(8)));
@@ -33,7 +34,7 @@ export function maxHp(g: General): number {
 
 /** 煉丹／煉器／畫符／佈陣，境界越高越精 */
 export function craft(g: General, stat: CraftStat): number {
-  return roundStat((g.base[stat] + (fx(g).craft?.[stat] ?? 0) + (g.armor?.craft[stat] ?? 0)) * (1 + g.realm * 0.1) * (fx(g).realmFactor ?? 1) * (1 + (fx(g).allStats ?? 0)));
+  return roundStat((g.base[stat] + (fx(g).craft?.[stat] ?? 0) + (g.armor?.craft[stat] ?? 0)) * (1 + g.realm * 0.1) * (fx(g).realmFactor ?? 1) * (1 + (fx(g).allStats ?? 0)) * (1 + (fx(g).craftPct ?? 0)));
 }
 
 /** 綜合戰力，用於攻城、秘境與 AI 評估 */
@@ -74,7 +75,7 @@ export function passiveExp(g: General, city: City | null): number {
   if (g.status === 'garrison' && city) {
     // 繁榮度即靈氣濃度
     n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1);
-    if (g.secluded) n *= 2 * WORLD.seclusionMult;
+    if (g.secluded) n *= 2 * WORLD.seclusionMult * (1 + (fx(g).seclusionExp ?? 0));
   }
   return Math.round(n * (1 + techniqueSpeed(g.technique)) * APTITUDE_MULT[g.aptitude] * WORLD.expMult);
 }
@@ -92,7 +93,7 @@ export function breakChance(g: General): number {
   let c = base;
   if (g.hp < maxHp(g) * 0.5) c -= 0.15;
   if (g.foundation && g.realm === 1) return 1;
-  c -= g.demon * 0.3;
+  c -= g.demon * 0.3 * Math.max(0, 1 - (fx(g).demonResist ?? 0));
   c += WORLD.breakBonus + (fx(g).breakBonus ?? 0);
   return Math.max(0.05, Math.min(0.95, c));
 }
@@ -114,6 +115,7 @@ export function levelUp(g: General) {
   g.base.hp+=growth.levelHpGain??0;
   g.exp = 0;
   g.hp = Math.max(1, Math.round(maxHp(g) * ratio));
+  awardBreakthrough(passiveState(), g);
 }
 
 /** 低階突破失敗的血量懲罰（依突破前的境界）：境界越高扣得越多 */
@@ -130,7 +132,7 @@ export function attemptBreak(g: General, round: number): boolean {
     levelUp(g);
     return true;
   }
-  g.exp = Math.round(g.exp * (1 - BREAK_FAIL_EXP));
+  if (!fx(g).keepExpOnFail) g.exp = Math.round(g.exp * (1 - BREAK_FAIL_EXP));
   g.hp = Math.max(1, g.hp - Math.round(maxHp(g) * (BREAK_FAIL_HP[g.realm] ?? 0.2)));
   g.failedRound = round;
   return false;
@@ -153,7 +155,7 @@ export function boltDamage(g: General): number {
   // 天雷依基礎境界血量成長，不受防禦數值影響。
   const thunder = Math.max(0, 1 - (fx(g).tribulation ?? 0));
   return baselineHp * TRIBULATION_HP_RATIO[stage] / boltCount(g)
-    * Math.max(0, 1 - g.ward) * thunder * (1 + g.demon * 0.5) * WORLD.boltMult * Math.max(0, 1 - g.breakBoost);
+    * Math.max(0, 1 - g.ward) * thunder * (1 + g.demon * 0.5 * Math.max(0, 1 - (fx(g).demonResist ?? 0))) * WORLD.boltMult * Math.max(0, 1 - g.breakBoost);
 }
 
 /** 天雷傷害的實際範圍與平均（單道與全部） */

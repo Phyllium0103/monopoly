@@ -7,6 +7,7 @@ import { PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, 
 import { fx } from '../data/passives';
 import type { Expedition } from '../game/types';
 import { consumeItem } from './ItemSystem';
+import { TALENT_RESET_ITEM } from '../data/talents';
 
 export type RealmEscapeDecision = (lord: Lord, ex: Expedition, team: General[], endangered: General[]) => Promise<boolean>;
 
@@ -86,6 +87,11 @@ export interface RealmOutcome {
   summary: string;
   /** 奇遇：修為獲得與頓悟突破 */
   insights: string[];
+}
+
+/** 輪迴丹只在元嬰以上的秘境出現：元嬰 3%，每高一級 +2%，上古秘境現世時加倍 */
+export function resetPillChance(ex: Expedition): number {
+  return ex.level < 3 ? 0 : (0.03 + 0.02 * (ex.level - 3)) * (ex.blessed ? 2 : 1);
 }
 
 /** 依隊伍屬性決定獎勵種類與品階 */
@@ -168,6 +174,10 @@ async function resolveExploration(state: GameState, lord: Lord, ex: Expedition, 
   }
   const bonus = (ex.blessed ? 2 : 0) + REALM_LEVELS[ex.level].tier;
   const rewards = survivors.length ? Array.from({ length: realmRolls(ex.level, team.length) }, () => grantReward(state, lord, survivors, team, bonus)) : [];
+  if (survivors.length && Math.random() < resetPillChance(ex)) {
+    lord.items.push(makeItem(nextUid(state, 'i'), TALENT_RESET_ITEM, 0));
+    rewards.push(`丹藥「${itemName(TALENT_RESET_ITEM, 0)}」`);
+  }
   const reward = rewards.length ? rewards.join('、') : null;
   const summary = `${ex.realmName}（${REALM_LEVELS[ex.level].name}）探索歸來。${dead.length ? `${dead.map((g) => g.name).join('、')}不幸隕落。` : '全員平安。'}${reward ? `帶回${reward}！` : '一無所獲。'}`;
   return { realmName: ex.realmName, icon: '🌀', dead, survivors, reward, summary, insights };

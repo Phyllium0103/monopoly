@@ -3,6 +3,7 @@ import { freeGenerals, generalsOf, nextUid } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
 import { ITEM_DEFS, PILL_IDS, itemName, makeEquipment, makeItem, makeTechnique, rollItemId } from '../data/items';
 import { addExp, craft, maxHp } from './GeneralSystem';
+import { TALENT_RESET_ITEM } from '../data/talents';
 
 export interface RoadOption {
   label: string;
@@ -371,6 +372,16 @@ const DEFS: Def[] = [
         ],
       };
     },
+  },
+  {
+    weight: 1,
+    build: (c) => ({
+      icon: '🌀',
+      title: '輪迴古井',
+      tone: 'good',
+      story: `${c.place}旁的荒廟後有一口古井，井水倒映的不是天光，而是隊伍來時走過的每一條岔路。守井的老僧舀起一瓢井水，凝成一枚丹丸遞給你：「走錯的路，總有回頭的時候。」`,
+      apply: () => `獲贈「${giveItem(c, TALENT_RESET_ITEM, 0)}」，可將天賦樹全部重置。`,
+    }),
   },
   // ───── 無事 ─────
   {

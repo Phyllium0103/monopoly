@@ -4,6 +4,7 @@ import { fx } from '../data/passives';
 import { immortalWinner } from './VictorySystem';
 import type { City, CraftStat, GameState, General, Item, Lord } from '../game/types';
 import { sectTransferRequirement, transferSectGeneral } from './SectSystem';
+import { TALENTS, canLearnTalent, learnTalent, type TalentTree } from '../data/talents';
 import { PARTY_LIMIT, abandonIfEmpty, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
 import { attack, canLearn, learn, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
 import { MIN_GARRISON, eliminate, visitingToll, garrisonPower, occupyCost, totalAssets } from './CitySystem';
@@ -53,8 +54,29 @@ export const AI_STYLES: Record<Lord['id'], AiStyle> = {
 
 export interface ItemHooks { use?: (lord: Lord, item: Item, user: General, target: PrerollTarget) => Promise<string>; protect?: (g: General) => Promise<boolean>; }
 /** 擲骰前：療傷、換裝、學功法、補兵 */
+/** 各主公的天賦路線：數字越大越優先 */
+const TALENT_PLAN: Record<Lord['id'], Record<TalentTree, number>> = {
+  cao: { war: 3, govern: 2, cultivate: 1 },
+  sun: { govern: 3, war: 2, cultivate: 1 },
+  liu: { cultivate: 3, govern: 2, war: 1 },
+  dong: { war: 3, cultivate: 2, govern: 1 },
+};
+
+/** 電腦自動配點：偏好路線優先、同一路線先往高層走，好早點拿到頂層 */
+export function aiSpendTalents(state: GameState, lord: Lord): string[] {
+  const learned: string[] = [];
+  const plan = TALENT_PLAN[lord.id];
+  while ((lord.talentPoints ?? 0) > 0) {
+    const best = TALENTS.filter((n) => canLearnTalent(state, lord, n.id).ok)
+      .sort((a, b) => plan[b.tree] * 10 + b.row - (plan[a.tree] * 10 + a.row))[0];
+    if (!best || !learnTalent(state, lord, best.id)) break;
+    learned.push(best.name);
+  }
+  return learned.length ? [`領悟天賦：${learned.join('、')}`] : [];
+}
+
 export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks = {}): Promise<string[]> {
-  const upgrades = aiUpgradeWeapons(state, lord);
+  const upgrades = [...aiSpendTalents(state, lord), ...aiUpgradeWeapons(state, lord)];
   if (lord.itemsLocked) return upgrades;
   const apply = (item: Item, user: General, target: PrerollTarget) => hooks.use ? hooks.use(lord,item,user,target) : Promise.resolve(usePreroll(state,lord,item,user,target));
   const logs: string[] = [...upgrades];
@@ -265,7 +287,7 @@ export function aiOccupy(state: GameState, lord: Lord, city: City): { generalId:
   if (!free.length || lord.soldiers < MIN_GARRISON) return null;
   // 保留一筆備用金應付過路費
   const style = AI_STYLES[lord.id];
-  if (lord.stones - occupyCost(city) < style.occupyReserve) return null;
+  if (lord.stones - occupyCost(city, lord) < style.occupyReserve) return null;
   // 只剩一名武將時，只為較繁榮的城池出手
   if (free.length === 1 && city.prosperity < style.occupyMinProsperity) return null;
   const g = [...free].sort((a, b) => power(a) - power(b))[0];
@@ -341,6 +363,7 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
   const want = affordable.filter((o) => {
     if (o.kind === 'beast') return !lord.beast || lord.beast.tier < o.beast.tier;
     if (o.kind === 'item') {
+      if (['talentrefund', 'talentreset'].includes(o.item.defId)) return false;
       if (['realmkey', 'realmescape'].includes(o.item.defId)) return deployable(state, lord.id).length > 0 && !lord.items.some(i => i.defId === o.item.defId);
       // 有將領快要渡劫時，優先買護法陣
       if (['thunderward', 'fiveward'].includes(o.item.defId)) return generalsOf(state, lord.id).some((g) => g.realm >= 2 && g.exp >= expCap(g) * 0.6);

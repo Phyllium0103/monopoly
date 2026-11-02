@@ -103,6 +103,8 @@ export interface General {
   realm: number;
   exp: number;
   aptitude: Aptitude;
+  /** 到過的最高境界：突破超過它才替隊伍記天賦點 */
+  peakRealm?: number;
   /** 上次低階突破失敗的回合（同一輪不能再試） */
   failedRound: number;
   /** 已服築基丹 */
@@ -188,6 +190,12 @@ export interface Lord {
   beast: Beast | null;
   expeditions: Expedition[];
   rank: number;
+  /** 天賦樹：節點 id → 等級 */
+  talents?: Record<string, number>;
+  /** 尚未分配的天賦點 */
+  talentPoints?: number;
+  /** 隊伍曾達到的最高境界（天賦層數門檻） */
+  talentRealm?: number;
   /** 多人：開局時沒有人入座，不參與本局 */
   absent?: boolean;
   /** 多人：入座玩家的暱稱 */

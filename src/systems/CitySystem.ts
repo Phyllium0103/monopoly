@@ -6,6 +6,12 @@ import { fmtProsperity, fmtStones } from '../game/Currency';
 import { WORLD } from './WorldMods';
 import { fx, lordAura, passiveState } from '../data/passives';
 import { preferredMining } from './MaterialSystem';
+import { lordTalentFx, type LordTalentFx } from '../data/talents';
+
+/** 城主的天賦效果（無主城池沒有） */
+export function ownerTalent(city: City): LordTalentFx {
+  return city.owner === 'neutral' ? {} : lordTalentFx(passiveState()?.lords[city.owner]);
+}
 
 /** 靈脈路過獎勵：基礎 400 靈石 ×（1＋主公境界） */
 export const VEIN_STONES = 400;
@@ -24,9 +30,9 @@ export const MIN_GARRISON = 300;
 /** 一名城池守軍約等於十五名隨行士兵 */
 export const GARRISON_STRENGTH = 15;
 
-/** 每回合繁榮成長：+0.5 再加上該城繁榮度的 0.5%（上限 300） */
+/** 每回合繁榮成長：+0.5 再加上該城繁榮度的 0.5%（上限 300），城主天賦再加成 */
 export function prosperityGrowth(city: City): number {
-  return 0.5 + city.prosperity * 0.005;
+  return (0.5 + city.prosperity * 0.005) * (1 + (ownerTalent(city).growth ?? 0));
 }
 
 /** 過路費：繁榮度^1.4 ×7（前期便宜、後期昂貴），首都 ×1.2，同一主公城池越多也越貴 */
@@ -38,17 +44,19 @@ export function cityToll(state: GameState, city: City): number {
   if (city.owner === 'neutral') return 0;
   const count=citiesOf(state,city.owner).length;
   const ruler=generalsOf(state,city.owner).find(g=>g.isLord);
-  const bonus=garrisonOf(state,city).reduce((sum,g)=>sum+(fx(g).cityToll??0),0)+(ruler?(fx(ruler).cityCountToll??0)*count:0);
+  const t=ownerTalent(city);
+  const bonus=garrisonOf(state,city).reduce((sum,g)=>sum+(fx(g).cityToll??0),0)+(ruler?(fx(ruler).cityCountToll??0)*count:0)+(t.toll??0)+(t.tollPerCity??0)*count;
   return Math.round(toll(city,count)*(1+bonus));
 }
 
 /** 路過的主公實付過路費（扣除隊伍光環的減免） */
-export function visitingToll(state: GameState, city: City, visitor: Lord): number { return Math.round(cityToll(state,city)*Math.max(0,1-lordAura(visitor.id,'partyToll'))); }
+export function visitingToll(state: GameState, city: City, visitor: Lord): number { return Math.round(cityToll(state,city)*Math.max(0,1-lordAura(visitor.id,'partyToll')-(lordTalentFx(visitor).tollPaid??0))); }
 
 /** 城池收入，受駐將被動增減 */
 export function cityIncome(city: City, garrison: General[] = []) {
   // 多名駐將的收入加成相加
-  const f = { cityStones: 0, citySoldiers: 0 };
+  const t = ownerTalent(city);
+  const f = { cityStones: t.stones ?? 0, citySoldiers: t.soldiers ?? 0 };
   for (const g of garrison) {
     f.cityStones += fx(g).cityStones ?? 0;
     f.citySoldiers += fx(g).citySoldiers ?? 0;
@@ -70,7 +78,7 @@ export function garrisonPower(state: GameState, city: City): number {
   const command = 1 + gens.reduce((sum, g) => sum + defense(g), 0) / 450;
   const f = { troops: Math.max(0, ...gens.map((g) => fx(g).troops ?? 0)), garrisonDef: Math.max(0,...gens.map(g=>fx(g).garrisonDef??0)) + gens.reduce((sum,g)=>sum+Math.min(0,fx(g).garrisonDef??0),0) };
   const base = city.garrisonSoldiers * GARRISON_STRENGTH * (1 + f.troops) * command + gens.reduce((sum, g) => sum + power(g) * 2, 0);
-  return Math.round(base * Math.max(0,1 + f.garrisonDef) * (city.shieldTurns > 0 ? 1.5 : 1));
+  return Math.round(base * Math.max(0,1 + f.garrisonDef + (ownerTalent(city).cityDefense ?? 0)) * (city.shieldTurns > 0 ? 1.5 : 1));
 }
 
 /** 依駐將的專長挑一種對自己最有利的鬥法（電腦佔領時使用） */
@@ -82,12 +90,12 @@ export function bestContest(state: GameState, city: City): ContestKind {
 }
 
 /** 佔領無主城池需支付的安撫費：永遠高於該城當前過路費，繁榮度越高倍率越大（繁榮 50 約 2.5 倍、100 約 3.5 倍） */
-export function occupyCost(city: City): number {
-  return Math.round((toll(city, 1) * (1.5 + city.prosperity / 50)) / 100) * 100;
+export function occupyCost(city: City, lord?: Lord): number {
+  return Math.round((toll(city, 1) * (1.5 + city.prosperity / 50) * Math.max(0, 1 - (lordTalentFx(lord).occupy ?? 0))) / 100) * 100;
 }
 
 export function canOccupy(state: GameState, lord: Lord, city?: City): boolean {
-  if (city && lord.stones < occupyCost(city)) return false;
+  if (city && lord.stones < occupyCost(city, lord)) return false;
   return lord.soldiers >= MIN_GARRISON && deployable(state, lord.id).length > 0;
 }
 

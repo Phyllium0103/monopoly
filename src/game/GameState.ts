@@ -1,4 +1,5 @@
 import { bindPassiveState, fx } from '../data/passives';
+import { ensureTalentState } from '../data/talents';
 import type { City, General, GameState, Lord, LordId } from './types';
 import { BOARD, MAP_RULES_VERSION } from '../data/board';
 import { GENERAL_SEEDS, type GeneralSeed } from '../data/generals';
@@ -133,6 +134,9 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       beast: null,
       expeditions: [],
       rank: 0,
+      talents: {},
+      talentPoints: 0,
+      talentRealm: 0,
     };
   }
 
@@ -161,6 +165,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     mapOccupants: [],
   };
   bindPassiveState(state);
+  ensureTalentState(state);
   for (const g of Object.values(generals)) if (g.owner && fx(g).fixedParty) joinLord(state,g.owner,g);
   for (const g of Object.values(generals)) g.hp=maxHp(g);
   for (const city of Object.values(cities)) city.contest = bestContest(state, city);
@@ -217,6 +222,7 @@ export function reviveGeneral(state: GameState, lord: LordId, g: General, hpRati
   g.demon = 0;
   g.ward = 0;
   g.breakBoost = 0;
+  g.peakRealm ??= g.realm;
   g.realm = Math.max(0, g.realm - realmLoss);
   g.hp = Math.max(1, Math.round(maxHp(g) * hpRatio));
   g.stamina = maxStamina(g);

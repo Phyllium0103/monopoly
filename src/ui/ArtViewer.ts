@@ -17,6 +17,8 @@ export function installArtViewer() {
       }
       const img = e.target;
       if (!(img instanceof HTMLImageElement)) return;
+      // 右下隨行武將的大頭貼交給按鈕處理（開啟武將名冊或施展神通）
+      if (img.closest('.pd-gen')) return;
       const fullUrl = img.dataset.fullArt ?? (img.src.includes('/art/generals/head/')
         ? img.src.replace('/generals/head/', '/generals/full/') : null);
       if (!fullUrl) return;

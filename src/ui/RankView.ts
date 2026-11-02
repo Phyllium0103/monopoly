@@ -17,9 +17,30 @@ export class RankView {
   constructor(root: HTMLElement) {
     this.el = document.createElement('div');
     this.el.className = 'help-backdrop hidden';
+    // 外框與頁籤只建一次；切換頁籤只換表格內容，不重建整個面板
+    const tabs: { id: Tab; label: string }[] = [...RANK_METRICS.map((m) => ({ id: m.id as Tab, label: `${m.icon} ${m.name}` })), { id: 'all', label: '📋 總表' }];
+    this.el.innerHTML = `
+      <div class="help-card scroll-card">
+        <div class="help-head"><h2>🏆 城池榜</h2><button class="btn close">關閉 ✕</button></div>
+        <div class="help-main">
+          <nav class="help-tabs">${tabs.map((t) => `<button class="help-tab" data-t="${t.id}">${t.label}</button>`).join('')}</nav>
+          <article class="help-body"></article>
+        </div>
+      </div>`;
     root.appendChild(this.el);
     this.el.addEventListener('click', (e) => {
-      if (e.target === this.el) this.close();
+      const t = e.target as HTMLElement;
+      if (t === this.el || t.closest('.close')) return this.close();
+      const tab = t.closest<HTMLElement>('.help-tab');
+      if (tab) {
+        this.tab = tab.dataset.t as Tab;
+        return this.render();
+      }
+      const row = t.closest<HTMLElement>('tr[data-city]');
+      if (row) {
+        this.close();
+        this.onFocus?.(row.dataset.city!);
+      }
     });
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !this.el.classList.contains('hidden')) this.close();
@@ -78,27 +99,9 @@ export class RankView {
   private render() {
     const state = this.state;
     if (!state) return;
-    const tabs: { id: Tab; label: string }[] = [...RANK_METRICS.map((m) => ({ id: m.id as Tab, label: `${m.icon} ${m.name}` })), { id: 'all', label: '📋 總表' }];
-    this.el.innerHTML = `
-      <div class="help-card scroll-card">
-        <div class="help-head"><h2>🏆 城池榜</h2><button class="btn close">關閉 ✕</button></div>
-        <div class="help-main">
-          <nav class="help-tabs">${tabs.map((t) => `<button class="help-tab ${t.id === this.tab ? 'on' : ''}" data-t="${t.id}">${t.label}</button>`).join('')}</nav>
-          <article class="help-body">${this.tab === 'all' ? this.overviewTable(state) : this.metricTable(state, this.tab)}</article>
-        </div>
-      </div>`;
-    (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
-    this.el.querySelectorAll<HTMLButtonElement>('.help-tab').forEach((b) => {
-      b.onclick = () => {
-        this.tab = b.dataset.t as Tab;
-        this.render();
-      };
-    });
-    this.el.querySelectorAll<HTMLElement>('tr[data-city]').forEach((tr) => {
-      tr.onclick = () => {
-        this.close();
-        this.onFocus?.(tr.dataset.city!);
-      };
-    });
+    this.el.querySelectorAll<HTMLElement>('.help-tab').forEach((t) => t.classList.toggle('on', t.dataset.t === this.tab));
+    const body = this.el.querySelector<HTMLElement>('.help-body')!;
+    body.innerHTML = this.tab === 'all' ? this.overviewTable(state) : this.metricTable(state, this.tab);
+    body.scrollTop = 0;
   }
 }

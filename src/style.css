@@ -626,13 +626,26 @@ img {
   inset: 0;
   z-index: 25;
   background: rgba(14, 10, 7, 0.94);
-  overflow-y: auto;
-  padding: 16px 22px 30px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 16px 22px 0;
 }
 .drawer-head {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--panel-border);
+}
+/* 標題列固定在上方，只有下面的清單捲動 */
+.drawer-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0 -22px;
+  padding: 0 22px 30px;
 }
 .drawer-head h2 {
   margin: 0;
@@ -2616,16 +2629,9 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 /* 2026-10-20: facilities only reveal names on hover; city names remain visible. */
 .special-label[hidden]{display:none!important}
 .special-label:not([hidden]){display:block!important}
-.city-label{display:block!important}
-.relic-map{position:fixed;z-index:30;pointer-events:auto;left:50%;top:82px;transform:translateX(-50%);width:min(540px,calc(94 * var(--ui-vw,1vw)));max-height:calc(calc(100 * var(--ui-vh,1vh)) - 110px);overflow:auto;padding:22px;border:2px solid #b7ad79;border-radius:20px;background:linear-gradient(145deg,#fcfaecf7,#e0eaddfa);color:#304b42;box-shadow:0 18px 70px #123b3644;box-sizing:border-box}
-.relic-map[hidden]{display:none!important}.relic-map h2{font-family:serif;margin:0 70px 6px 0;font-size:23px}.relic-map p{font-size:13px;margin:9px 0}
-.relic-close{position:absolute;right:14px;top:18px;border:1px solid #9bb3a6;background:#fffdf0;border-radius:7px;padding:5px 8px;color:#456459;cursor:pointer}
-.relic-board{display:grid;grid-template:repeat(5,1fr)/repeat(5,1fr);gap:6px;aspect-ratio:1;padding:8px;background:linear-gradient(135deg,#aebda4,#e2e8d3,#b4ceba);border-radius:12px;border:1px solid #9dae9d}
-.relic-cell{display:flex;align-items:center;justify-content:center;white-space:pre-line;text-align:center;background:linear-gradient(145deg,#fffef7,#e7eae0);border:1px solid #c7cdb7;border-radius:8px;box-shadow:0 4px 0 #9da89b;color:#506957;font-size:12px;line-height:1.6;transition:background .15s,transform .15s}
-.relic-cell.visited{border-color:#97b6a4}.relic-cell.occupied{background:linear-gradient(145deg,#e2ffff,#79cfce);border:3px solid var(--lord-color,#52a69a);transform:translateY(-3px);box-shadow:0 6px 0 #4f9a9a;color:#183a33;font-weight:bold}
-.relic-center{grid-area:2/2/5/5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;text-align:center;color:#3e6b5d;background:radial-gradient(ellipse,#f5f6e688,transparent);font-family:serif}
-.relic-center b{font-size:23px;letter-spacing:3px}.relic-center span{font-size:14px;line-height:1.9}.relic-result{min-height:40px;padding:9px 12px;background:#fffef4;border-radius:8px;border-left:3px solid #88b7a6}
-.relic-roll{width:100%;padding:10px;border:1px solid #538f80;background:#367e6b;color:#fffce8;border-radius:9px;cursor:pointer}.relic-roll:disabled{background:#c4cfc4;color:#6d8174;cursor:default}
+.city-label{display:block!important;width:max-content;max-width:none;text-align:center}
+/* 過路費獨立一行，框框依文字寬度撐開 */
+.city-label .toll{display:block;line-height:1.2}
 
 
 
@@ -2712,7 +2718,7 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .drawer-head { flex-wrap: wrap; gap: 6px 12px; }
 .drawer-head .sort-box { margin-right: 0; }
 .roster-list {
-  --roster-cols: 46px minmax(92px, 1.3fr) 44px 76px minmax(84px, 1.2fr) minmax(100px, 1.3fr) repeat(7, minmax(40px, 0.6fr)) minmax(96px, 1.4fr) 16px;
+  --roster-cols: 46px minmax(92px, 1.3fr) 44px 76px 50px minmax(84px, 1.2fr) minmax(100px, 1.3fr) repeat(7, minmax(40px, 0.6fr)) minmax(96px, 1.4fr) 16px;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -2726,7 +2732,7 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 }
 .roster-head {
   position: sticky;
-  top: -16px;
+  top: 0;
   z-index: 3;
   min-height: 30px;
   border-radius: 6px;
@@ -2790,6 +2796,8 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .roster-row .c-origin, .roster-row .c-st { color: var(--muted); font-size: 14px; }
 .roster-row .c-st { text-align: left; }
 .roster-row .c-realm .realm-tag { font-size: 12.5px; padding: 0 6px; }
+.roster-row .c-apt { text-align: center; }
+.roster-row .c-apt .chip { margin: 0; padding: 0 7px; font-size: 12.5px; }
 .roster-row .c-hp .bar { display: block; margin: 0; height: 18px; }
 .roster-row .c-hp .bar span { font-size: 12.5px; }
 .roster-row .c-power b { color: var(--gold-light); font-size: 16.5px; }
@@ -2820,15 +2828,16 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .roster-item > .general-card .gc-details .gc-table { flex: 1; min-width: 260px; }
 
 @container game-ui (max-width: 1180px) {
-  .roster-list { --roster-cols: 46px minmax(90px, 1.3fr) 44px 76px minmax(84px, 1.2fr) minmax(100px, 1.3fr) repeat(3, minmax(44px, 0.6fr)) 16px; }
+  .roster-list { --roster-cols: 46px minmax(90px, 1.3fr) 44px 76px 50px minmax(84px, 1.2fr) minmax(100px, 1.3fr) repeat(3, minmax(44px, 0.6fr)) 16px; }
   .roster-list .c-craft, .roster-list .c-passive { display: none; }
 }
 @container game-ui (max-width: 760px) {
-  .drawer { padding: 12px 10px 24px; }
-  .roster-list { --roster-cols: 40px minmax(0, 1.3fr) 66px minmax(0, 1fr) 46px 12px; }
+  .drawer { padding: 12px 10px 0; }
+  .drawer-body { margin: 0 -10px; padding: 0 10px 24px; }
+  .roster-list { --roster-cols: 40px minmax(0, 1.3fr) 66px 44px minmax(0, 1fr) 46px 12px; }
   .roster-list .c-origin, .roster-list .c-hp, .roster-list .c-attack, .roster-list .c-defense { display: none; }
   .roster-head, .roster-row { gap: 6px; padding: 0 6px; }
-  .roster-head { top: -12px; }
+  .roster-head { top: 0; }
   .roster-row { min-height: 48px; }
   .roster-row .c-face { width: 36px; height: 36px; }
   .roster-row .c-name b { font-size: 16px; }
@@ -2844,6 +2853,10 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 }
 .material-label { display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; line-height: 1.35; }
 .material-icon { width: 32px; height: 32px; object-fit: contain; flex: 0 0 32px; vertical-align: middle; }
+/* 城池資訊欄：材料圖示縮小、與名稱對齊，產量另起一行 */
+.info-panel .material-label { display: flex; }
+.info-panel .material-icon { width: 22px; height: 22px; flex-basis: 22px; }
+.info-panel .ip-sub { display: block; color: var(--muted); font-size: 12px; line-height: 1.3; }
 .materials-grid { display: grid; gap: 8px; }
 .material-family { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .material-quantity { display: flex; flex-direction: column; gap: 2px; font-size: 12px; }
@@ -2851,3 +2864,13 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
 .weapon-material-cost { grid-column: 1 / -1; font-size: 11px; color: #cbbf9d; }
 .weapon-material-cost .material-icon { width: 24px; height: 24px; flex-basis: 24px; }
 @container game-ui (max-width: 600px) { .material-family { grid-template-columns: 1fr; } .material-quantity { flex-direction: row; align-items: center; justify-content: space-between; } .material-quantity > b { padding-left: 0; } }
+
+/* 開啟其他頁面（說明、城池榜、天賦、名冊、對話框、戰鬥…）時，擲骰鈕與擲骰動畫都不浮在最上層；
+   動畫照常跑完結算，只是看不到 */
+body:has(#ui .help-backdrop:not(.hidden), #ui .dialog-backdrop:not(.hidden), #ui .drawer:not(.hidden), #ui .battle-backdrop:not(.hidden), #ui .report-overlay:not(.hidden), #ui .art-viewer, #ui .screen:not(.hidden)) :is(.roll-btn, .dice-roll-stage) {
+  visibility: hidden;
+}
+/* 山河圖捲軸有自己的「擲骰前進」，只藏右下擲骰鈕；圖內擲骰的動畫仍要看得到 */
+#ui:has(.relic-map:not([hidden])) .roll-btn {
+  visibility: hidden;
+}

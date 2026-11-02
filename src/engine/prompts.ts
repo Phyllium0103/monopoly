@@ -61,7 +61,9 @@ export type PrerollAction =
   | { type: 'materials' }
   | { type: 'garrison' }
   | { type: 'roster' }
-  | { type: 'sect' };
+  | { type: 'sect' }
+  /** 天賦樹：學一級、用忘塵丹退一級、用輪迴丹全部重置 */
+  | { type: 'talent'; op: 'learn' | 'refund' | 'reset'; node?: string };
 
 export type ShopAction =
   | { type: 'leave' }

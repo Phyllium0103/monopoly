@@ -23,6 +23,9 @@
 .hud.lord-actors-enabled .top-actions .action-row{flex-wrap:nowrap;gap:5px;align-items:center}
 .hud.lord-actors-enabled .top-actions .btn.action{flex:0 0 auto;min-width:0;padding:5px 9px;font-size:13px;white-space:nowrap}
 .hud.lord-actors-enabled .top-actions .btn.action small{font-size:10px}
+/* 左上整備按鈕統一大小，不因數字或副標變長而撐開 */
+.hud.lord-actors-enabled .top-actions .btn.action{width:102px;height:44px;padding:3px 6px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;overflow:hidden}
+.hud.lord-actors-enabled .top-actions .btn.action small{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
 @container game-ui (max-height:700px){.hud.lord-actors-enabled .log-panel{max-height:115px}.hud.lord-actors-enabled .roll-btn{width:100px;height:100px}.hud.lord-actors-enabled .roll-btn .roll-dice{font-size:30px}.hud.lord-actors-enabled .roll-btn b{font-size:21px}}
 @container game-ui (max-width:760px){.hud.lord-actors-enabled .top-bar{gap:8px}.hud.lord-actors-enabled .round{font-size:13px}.hud.lord-actors-enabled .round b{font-size:20px}.hud.lord-actors-enabled .speed{gap:0}.hud.lord-actors-enabled .btn.mini.tool{padding:3px 5px}.hud.lord-actors-enabled .info-panel{width:220px}.hud.lord-actors-enabled .log-panel{width:235px}.hud.lord-actors-enabled .party-dock{max-width:146px}}
 

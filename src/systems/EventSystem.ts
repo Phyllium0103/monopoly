@@ -10,6 +10,7 @@ import { fmtStones } from '../game/Currency';
 import type { Offer } from './ShopSystem';
 import { WORLD } from './WorldMods';
 import { occupiedMapTiles } from './ElementalSpiritSystem';
+import { TALENT_RESET_ITEM } from '../data/talents';
 
 export { WORLD };
 
@@ -51,6 +52,7 @@ export const WORLD_EVENTS: WorldEventDef[] = [
   { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件玄階至地階的寶衣。' },
   { id: 'spiritTide', name: '靈潮湧動', icon: '🌊', category: 'cultivation', duration: 5, desc: '地底靈脈潮汐翻湧，接下來 5 輪駐守城池閉關修煉的武將，修為再 ×1.5。' },
   { id: 'meteor', name: '隕星墜落', icon: '☄️', category: 'cultivation', desc: '流星墜入人間，星髓入藥：每位主公得到兩顆玄品至地品的丹藥。' },
+  { id: 'rebirth', name: '天道輪轉', icon: '🌀', category: 'cultivation', desc: '天道輪轉，萬法歸元：每位主公得到一顆輪迴丹，可將天賦樹全部重置。' },
   { id: 'debate', name: '論道大會', icon: '☯️', category: 'cultivation', desc: '各路修士雲集論道，每位主公所有隨行武將獲得目前境界修為上限的 10% 修為（再套用人物修為加成，不超過瓶頸）。' },
   { id: 'refugees', name: '流民歸附', icon: '🚶', category: 'politics', desc: '亂世流民扶老攜幼投奔明主：每位主公按城池數增加士兵，無城者也有 500 人來投。' },
   { id: 'summon', name: '招賢令', icon: '📯', category: 'politics', duration: 5, desc: '天下求賢若渴，接下來 5 輪聽風樓的招募價格五折。' },
@@ -233,6 +235,12 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
         const e = makeEquipment(nextUid(state, 'e'), 'armor', 3 + Math.floor(Math.random() * 6));
         l.gear.push(e);
         lines.push(`${LORDS[l.id].name} 得 寶衣「${e.name}」`);
+      }
+      break;
+    case 'rebirth':
+      for (const l of alive) {
+        l.items.push(makeItem(nextUid(state, 'i'), TALENT_RESET_ITEM, 0));
+        lines.push(`${LORDS[l.id].name} 得 ${itemName(TALENT_RESET_ITEM, 0)}`);
       }
       break;
     case 'meteor':

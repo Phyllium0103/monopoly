@@ -1,4 +1,5 @@
 import type { CraftStat, General, GameState, LordId } from '../game/types';
+import { generalTalentFx, mergeFx } from './talents';
 
 /** 被動效果：數值皆為比例（0.15 = +15%），技藝為點數 */
 export interface PassiveFx {
@@ -61,6 +62,14 @@ export interface PassiveFx {
   itemStamina?: number;
   /** 煉丹煉器畫符佈陣比試得分 */
   contest?: number;
+  /** 駐守閉關的修為 */
+  seclusionExp?: number;
+  /** 四項技藝比例加成 */
+  craftPct?: number;
+  /** 低階突破失敗不損修為 */
+  keepExpOnFail?: boolean;
+  /** 心魔效果減免 */
+  demonResist?: number;
 }
 
 export interface Passive {
@@ -267,6 +276,7 @@ export function lordHas(lord: LordId, key: keyof PassiveFx): boolean {
 export function fx(g: General): PassiveFx {
   const result = { ...passiveOf(g).fx };
   if (!context || !g.owner || g.status === 'dead') return result;
+  mergeFx(result, generalTalentFx(context.lords[g.owner]));
   const peers=Object.values(context.generals).filter(p => p.owner === g.owner && p.status !== 'dead' && !p.ghostSourceId);
   if (g.status === 'garrison' && g.cityId) for (const source of peers.filter(p => p.status === 'garrison' && p.cityId === g.cityId)) {
     const f=passiveOf(source).fx;
@@ -320,5 +330,9 @@ export function fxText(f: PassiveFx): string {
   if (f.realmSafety) t.push(`秘境隕落率 ${pct(-f.realmSafety)}`);
   if (f.itemStamina) t.push(`使用物品體力 ${pct(-f.itemStamina)}`);
   if (f.contest) t.push(`比試得分 ${pct(f.contest)}`);
+  if (f.seclusionExp) t.push(`駐守閉關修為 ${pct(f.seclusionExp)}`);
+  if (f.craftPct) t.push(`四項技藝 ${pct(f.craftPct)}`);
+  if (f.keepExpOnFail) t.push('低階突破失敗不損修為');
+  if (f.demonResist) t.push(`心魔效果 ${pct(-f.demonResist)}`);
   return t.join('・');
 }

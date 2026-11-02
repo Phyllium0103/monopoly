@@ -7,8 +7,6 @@ async function collect(dir) {
   const files = [];
   for (const entry of await readdir(path.join(root, dir), { withFileTypes: true })) {
     const relative = path.posix.join(dir, entry.name);
-    // Old broad-category weapon art remains archived as files, never in the active pack.
-    if (relative === 'icons/兵器') continue;
     if (entry.isDirectory()) files.push(...await collect(relative));
     else if (entry.name.endsWith('.webp')) files.push(relative);
   }

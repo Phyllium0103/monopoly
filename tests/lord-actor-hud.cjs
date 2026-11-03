@@ -81,10 +81,13 @@ async function advance(ms){const end=clock+ms;while(clock<end){clock+=50;const c
  hud.focus('cao',true);assert.equal(a.rollButton.hidden,true);assert.equal(a.rollButton.disabled,true);a.rollButton.onclick();assert.equal(rollClicks,1,'out of turn character cannot roll');
  hud.setRollAction(null);assert.ok([...hud.actors.values()].every(x=>x.rollButton.disabled),'regular roll availability gates every character action');
  const {proportionalViewport}=require('../src/ui/UiViewport.ts');
- for(const [w,h,s] of [[1280,720,1],[960,540,.75],[640,360,.5],[1920,1080,1.5]]){
-  const viewport=proportionalViewport(w,h);assert.equal(viewport.scale,s);assert.equal(viewport.width,1280);assert.equal(viewport.height,720);
+ // 設計尺寸 1600×900；小於它時比舊尺寸 1280×720 最多縮到 90%
+ const close=(a,b)=>Math.abs(a-b)<1e-9;
+ for(const [w,h,s] of [[1600,900,1],[1920,1080,1.2],[3200,1800,2],[1440,810,1],[1280,720,.9],[960,540,.675],[640,360,.45]]){
+  const viewport=proportionalViewport(w,h);assert.ok(close(viewport.scale,s),`${w}x${h} scale ${viewport.scale}`);assert.ok(close(viewport.width*viewport.scale,w));assert.ok(close(viewport.height*viewport.scale,h));
  }
- const portrait=proportionalViewport(720,1280);assert.equal(portrait.width*portrait.scale,720);assert.equal(portrait.height*portrait.scale,1280);
+ assert.equal(proportionalViewport(1920,1080).width,1600,'large screens lay out on the 1600×900 design size');
+ const portrait=proportionalViewport(720,1280);assert.ok(close(portrait.width*portrait.scale,720));assert.ok(close(portrait.height*portrait.scale,1280));
  console.log('PASS split stone/character actions, own-turn-only dice, shared availability and proportional viewport');
  hud.show(false);assert.equal(frames.size,0);
  console.log('PASS persistent unrolled ready pose, hidden prep/recovery/throw completion, duplicate focus guard, 2/3 character speed, one physical handoff, fixed eyes, stable scale and reset cleanup');

@@ -360,6 +360,8 @@ export class LordActorHud {
     const partyHeight=party&&!party.classList.contains('hidden')?party.getBoundingClientRect().height/logical.scale:0;
     const rollBottom=Math.max(150,partyHeight+36),rollSize=logical.height<=700?100:120;
     this.parent.style.setProperty('--lord-actors-bottom','12px');
+    // 左下人物整體占用的高度（底部 12px 加人物身高），天下紀事展開時停在它上方
+    this.parent.style.setProperty('--lord-actors-height',(12+width*2.1)+'px');
     this.parent.style.setProperty('--lord-content-top',(toolbar+12)+'px');
     this.parent.style.setProperty('--lord-roll-bottom',rollBottom+'px');
     this.parent.style.setProperty('--lord-info-max-height',Math.max(140,logical.height-toolbar-12-rollBottom-rollSize-24)+'px');

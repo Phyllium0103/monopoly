@@ -390,9 +390,38 @@ const PAGES: Page[] = [
         '點擊視窗外的空白處也能關閉可略過的視窗（戰鬥、購買等不能跳過的視窗除外）；突破、渡劫等確認視窗可按 <b>Enter</b> 確認。',
       ])}`,
   },
+  {
+    title: '🛠️ 技術問答',
+    html: () => `
+      <h4>電腦配備很好，為什麼遊戲仍會卡頓？</h4>
+      <p>請先確認瀏覽器已啟用<b>圖形加速</b>，以及實際使用的顯示卡。若顯示 <code>Software only</code>，代表該項功能使用軟體繪圖，不能只靠電腦的顯卡規格判斷效能。</p>
+      <h4>如何開啟 Chrome 圖形加速？</h4>
+      <ol>
+        <li>在 Chrome 網址列輸入 <code>chrome://settings/system</code>。</li>
+        <li>開啟<b>「使用圖形加速功能（如果可用）」</b>。</li>
+        <li>按<b>「重新啟動」</b>，重開 Chrome 後再進入遊戲。</li>
+      </ol>
+      <h4>如何讓 Chrome 優先使用獨立顯卡？</h4>
+      <p>以下適用於同時具有內顯與獨立顯卡的 Windows 電腦；選單名稱可能隨 Windows 版本略有不同。</p>
+      <ol>
+        <li>開啟 Windows <b>「設定 → 系統 → 顯示器 → 圖形」</b>。</li>
+        <li>選擇 Google Chrome；若清單沒有，新增桌面應用程式，瀏覽並選取 <code>chrome.exe</code>。可在 Chrome 網址列輸入 <code>chrome://version</code>，查看<b>「執行檔路徑」</b>。</li>
+        <li>開啟 Chrome 的<b>「選項／GPU 喜好設定」</b>，選擇<b>「高效能」</b>，確認顯示的是要使用的獨立顯卡名稱，再按<b>「儲存」</b>。</li>
+        <li>完整關閉 Chrome 後重新開啟，再測試遊戲。</li>
+      </ol>
+      <h4>怎麼確認設定已生效？</h4>
+      <p>在 Chrome 網址列輸入 <code>chrome://gpu</code>，檢查以下項目。上述 <code>chrome://</code> 位址需要自行複製到網址列開啟。</p>
+      ${list([
+        '<b>WebGL／WebGL2</b>：應顯示 <code>Hardware accelerated</code>，代表硬體加速可用。',
+        '<b>GL_RENDERER</b>：查看實際使用的顯示卡名稱，確認是否為指定的獨立顯卡。',
+        '若仍顯示 <code>Software only</code>，確認圖形加速已開啟，更新 Chrome 與顯示卡驅動程式，再重新開機檢查。',
+      ])}
+      <h4>遊戲能自動替我切換獨顯嗎？</h4>
+      <p>遊戲可以向瀏覽器請求優先使用高效能 GPU，但最後由瀏覽器、Windows 與驅動程式決定。網頁無法代替玩家變更系統設定，也無法覆蓋已停用的圖形加速。</p>`,
+  },
 ];
 
-/** 遊戲說明：分頁瀏覽各系統規則（獨立圖層，開始畫面也能開） */
+/** 遊戲說明：分頁瀏覽各系統規則與技術問答（獨立圖層，開始畫面也能開） */
 export class HelpView {
   private el: HTMLDivElement;
   private page = 0;

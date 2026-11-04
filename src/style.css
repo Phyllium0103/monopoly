@@ -2329,8 +2329,8 @@ img {
   .general-card { min-width: 740px; }
 }
 
-/* 武將頭像：方形裁切，點擊看全身圖 */
-img[src*="/generals/head/"] { cursor: zoom-in; }
+/* Action portraits use the containing button; only explicit roster art can enlarge. */
+img[src*="/generals/head/"] { cursor: pointer; }
 .choice-icon.general-portrait, .sr-icon.general-portrait, .cr-portrait {
   width: 72px; height: 72px; aspect-ratio: 1; object-fit: cover; border-radius: 8px;
 }

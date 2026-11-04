@@ -15,7 +15,8 @@ import { advance, aliveLords, startTurn } from '../game/TurnManager';
 import { fmtProsperity, fmtStones } from '../game/Currency';
 import { LORDS, LORD_IDS, originCss, ownerCss, ownerName } from '../faction/Faction';
 import { facts, type Choice } from '../ui/Dialog';
-import { portraitUrl, equipIconUrl } from '../ui/Icons';
+import { portraitUrl, equipIconUrl, itemIconUrl } from '../ui/Icons';
+import { itemDisabledReason, itemUsers, resolveItemTarget } from '../systems/DirectItems';
 import { CASINO_MIN_BET, CASINO_NAME, aiCasinoBet, diceTotal, maxBet, playCasino, type CasinoResult } from '../systems/CasinoSystem';
 import { REALMS } from '../data/generals';
 import { bindPassiveState, passiveOf, fx, lordHas } from '../data/passives';
@@ -232,7 +233,7 @@ export class Engine {
       // 整備途中改由電腦接手
       if (!this.human(lord)) return this.autoPreroll(lord);
       const a = (await this.ask(lord, { kind: 'preroll' })) as PrerollAction | null;
-      if(lord.relicJourney && a?.type==='items'){this.view.toast('山河圖內禁止使用道具',lord.id);continue;}
+      if(lord.relicJourney && (a?.type==='items'||a?.type==='use-item')){this.view.toast('山河圖內禁止使用道具',lord.id);continue;}
       switch (a?.type) {
         case 'roll':
           return { type: 'roll' };
@@ -242,6 +243,20 @@ export class Engine {
         case 'items': {
           const tile = await this.useItemPreroll(lord);
           if (tile !== null) return { type: 'teleport', tile };
+          break;
+        }
+        case 'use-item': {
+          const item = lord.items.find(i => i.uid === a.itemUid);
+          const user = itemUsers(this.state, lord).find(g => g.id === a.userId);
+          const reason = !item ? '物品已不在行囊' : itemDisabledReason(this.state, lord, item, 'preroll');
+          if (!item || !user || reason || !canUse(item, user).ok) { this.view.toast(reason || '施放者能力或體力不足', lord.id); break; }
+          const resolved = resolveItemTarget(this.state, lord, item, a.target);
+          if (!resolved.target) { this.view.toast(resolved.reason || '目標無效', lord.id); break; }
+          const msg = await this.usePrerollWithReaction(lord, item, user, resolved.target);
+          this.view.log(msg, 'good'); this.view.toast(msg, lord.id);
+          if (item.defId === 'transmission' && resolved.target.city) await this.manageGarrison(lord, resolved.target.city, true);
+          this.view.syncCities(); this.view.refresh();
+          if (['teleport', 'cloud'].includes(item.defId) && resolved.target.tile !== undefined) return { type: 'teleport', tile: resolved.target.tile };
           break;
         }
         case 'abilities': await this.generalAbilities(lord); break;
@@ -870,6 +885,15 @@ export class Engine {
         if (this.human(lord)) {
           for (;;) {
             const act = (await this.ask(lord, { kind: 'duel', side, duel: duelSnapshot(duel) })) as DuelAction | null;
+            if (act && typeof act === 'object' && act.type === 'use-item') {
+              const item = lord.items.find(i => i.uid === act.itemUid);
+              const user = itemUsers(this.state, lord, duel.fighter(side).general.id).find(g => g.id === act.userId);
+              const expected = item && def(item).battleTarget === 'ownGeneral' ? side : side === 'a' ? 'b' : 'a';
+              if (!item || !user || itemDisabledReason(this.state, lord, item, 'battle', duel.fighter(side).general.id) || duel.fighter(side).itemsSealed || !canUse(item,user).ok || act.targetSide !== expected) {
+                this.view.toast('物品、施放者或戰鬥目標已不符合條件',lord.id); continue;
+              }
+              events = events.concat(duel.afterItem(useInDuel(duel,side,lord,item,user))); acts[side]='none'; break;
+            }
             if (act === 'item') {
               const ev = await this.useItemInDuel(duel, side, lord);
               if (!ev) continue;
@@ -1530,7 +1554,7 @@ export class Engine {
     for (;;) {
       const selected = await this.dlg(lord).choose(
         '⛏️ 材料與合成',
-        materialsHtml(lord) + '<br>城池挖掘提供基礎材料；更換種類請使用「調度駐軍」。每 10 顆合成下一階 1 顆；武器在「武將」名冊升階。',
+        materialsHtml(lord) + `<div class="material-special-item"><img src="${itemIconUrl('realmkey')}" alt="秘境遺鑰">秘境遺鑰 ×${lord.items.filter(i=>i.defId==='realmkey').length}<small>探索秘境時消耗，不佔物品列格子</small></div>` + '<br>城池挖掘提供基礎材料；更換種類請使用「調度駐軍」。每 10 顆合成下一階 1 顆；武器在「武將」名冊升階。',
         MATERIAL_GROUPS.flatMap(group => [0, 1].map(stage => ({
           label: `${materialLabel(group, stage)} → ${materialLabel(group, stage + 1)}`,
           sub: `10：1・可合成 ${Math.floor(lord.materials[group][stage] / 10)} 顆`,

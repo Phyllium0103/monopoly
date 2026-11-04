@@ -36,6 +36,7 @@ export class World {
   private cities = new Map<string, CityEntry>();
   private highlights = new THREE.Group();
   private hover: THREE.Mesh;
+  private targetFrame: THREE.LineLoop;
   private time = 0;
   private eventMarkers: THREE.Group[] = [];
   private spirits = new ElementalSpiritLayer(index => this.tilePosition(index));
@@ -69,6 +70,9 @@ export class World {
     this.hover.rotation.x = -Math.PI / 2;
     this.hover.visible = false;
     this.root.add(this.hover);
+    const corners = [-.5,-.5,0, .5,-.5,0, .5,.5,0, -.5,.5,0];
+    this.targetFrame = new THREE.LineLoop(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(corners,3)), new THREE.LineBasicMaterial({color:0xe7f5a1,depthTest:false,depthWrite:false}));
+    this.targetFrame.renderOrder=30;this.targetFrame.visible=false;this.root.add(this.targetFrame);
   }
 
   warmup(renderer:THREE.WebGLRenderer){return this.modelPool.warmup(renderer);}
@@ -100,12 +104,13 @@ export class World {
   }
 
   private addPicker(tile: Tile) {
-    const mesh=new THREE.Mesh(new THREE.BoxGeometry(CELL_SIZE*.96,1,CELL_SIZE*.96),new THREE.MeshBasicMaterial({visible:false}));
-    mesh.position.copy(this.tilePosition(tile.index));mesh.userData={pick:true,tile:tile.index};
+    const mesh=new THREE.Mesh(new THREE.PlaneGeometry(CELL_SIZE,CELL_SIZE),new THREE.MeshBasicMaterial({visible:false,side:THREE.DoubleSide}));
+    mesh.rotation.x=-Math.PI/2;
+    mesh.position.copy(this.tilePosition(tile.index));mesh.position.y+=.015;mesh.userData={pick:true,pickKind:'tile',tile:tile.index};
     this.root.add(mesh);this.pickables.push(mesh);
     const lot=BUILDING_LOTS.find(o=>o.tile===tile.index);
     if(lot){const box=new THREE.Mesh(new THREE.BoxGeometry(CELL_SIZE*2,5,CELL_SIZE*2),new THREE.MeshBasicMaterial({visible:false}));
-      box.position.set(lot.pos.x,2.5,lot.pos.z);box.userData={pick:true,tile:tile.index};this.root.add(box);this.pickables.push(box);}
+      box.position.set(lot.pos.x,2.5,lot.pos.z);box.userData={pick:true,pickKind:tile.kind==='city'?'city':'facility',cityId:tile.cityId,tile:tile.index};this.root.add(box);this.pickables.push(box);}
   }
 
   /** 純展示建築的選取面只用來顯示名稱，不對應任何遊戲事件格。 */
@@ -115,7 +120,7 @@ export class World {
     el.textContent=lot.name;el.dataset.facility=lot.id;el.hidden=true;
     const label=new CSS2DObject(el);label.position.set(0,12,0);g.add(label);
     const box=new THREE.Mesh(new THREE.BoxGeometry(CELL_SIZE*2,5,CELL_SIZE*2),new THREE.MeshBasicMaterial({visible:false}));
-    box.position.set(lot.pos.x,2.5,lot.pos.z);box.userData={pick:true,displayFacility:lot.id};
+    box.position.set(lot.pos.x,2.5,lot.pos.z);box.userData={pick:true,pickKind:'facility',displayFacility:lot.id};
     this.root.add(box);this.pickables.push(box);
   }
 
@@ -200,6 +205,25 @@ export class World {
     this.hover.scale.setScalar(this.tileRadius(index) / 1.3);
     this.hover.position.set(p.x, p.y + 0.35, p.z);
     this.hover.visible = true;
+  }
+
+  /** The same semantic surface feeds hover and click, including ordinary road cells. */
+  setTargetHover(object: THREE.Object3D | null, valid: boolean, camera: THREE.Camera) {
+    this.targetFrame.visible=false;
+    if(!object)return;
+    const kind=object.userData.pickKind;
+    if(kind==='lord'){
+      const width=Math.abs(object.scale.x),height=Math.abs(object.scale.y);
+      object.getWorldPosition(this.targetFrame.position);
+      this.targetFrame.position.add(new THREE.Vector3(0,height/2,0).applyQuaternion(camera.quaternion));
+      this.targetFrame.quaternion.copy(camera.quaternion);this.targetFrame.scale.set(width*1.06,height*1.04,1);
+    }else if(kind==='tile'||kind==='city'){
+      const p=kind==='tile'?this.tilePosition(object.userData.tile):new THREE.Vector3(object.position.x,this.ground(object.position.x,object.position.z),object.position.z);
+      this.targetFrame.position.copy(p);this.targetFrame.position.y+=.06;
+      this.targetFrame.rotation.set(-Math.PI/2,0,0);this.targetFrame.scale.setScalar(CELL_SIZE*(kind==='city'?2.05:.99));
+    }else return;
+    (this.targetFrame.material as THREE.LineBasicMaterial).color.setHex(valid?0xe7f5a1:0xe28b76);
+    this.targetFrame.visible=true;
   }
 
   /** 標示格子（傳送陣選位置、移動路徑） */

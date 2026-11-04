@@ -5,16 +5,21 @@ import { materialIncome } from '../systems/MaterialSystem';
 import { abilityReady, abilityUsers } from '../systems/GeneralAbilities';
 import { sectDispatchFee } from '../systems/SectSystem';
 import * as THREE from 'three';
-import type { GameState, General, Lord, LordId } from './types';
+import type { GameState, General, Item, Lord, LordId } from './types';
 import { DEFAULT_ROUNDS, citiesOf, createGameState, currentLord, freeGenerals, garrisonOf, generalsOf, nextUid } from './GameState';
 import { fmtProsperity, fmtStones } from './Currency';
 import { SceneManager } from '../scene/SceneManager';
+import type { PickMode } from '../scene/picking';
 import { World } from '../world/World';
 import { CharacterSprite } from '../character/CharacterSprite';
 import { LORDS, LORD_IDS, ownerCss, ownerName } from '../faction/Faction';
 import { GameUI, type ActionButton, type PartyIcon } from '../ui/GameUI';
 import { Dialog } from '../ui/Dialog';
 import { portraitUrl, preloadArt,prepareArtPack } from '../ui/Icons';
+import { itemDisabledReason, itemUsers, itemGeneralTargets, itemLordTargets, itemCityTargets, ITEM_ELEMENTS, resolveItemTarget, type DirectItemTarget } from '../systems/DirectItems';
+import { canUse, requirement } from '../systems/ItemSystem';
+import type { ItemDockChoice } from '../ui/ItemDock';
+import { ELEMENT_NAMES, itemName } from '../data/items';
 import { GeneralsView } from '../ui/GeneralsView';
 import { BattleView } from '../ui/BattleView';
 import { ShopPanel } from '../ui/ShopView';
@@ -27,9 +32,9 @@ import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { TILE_INFO, hasCurrentBoard } from '../data/board';
 import { RANK_METRICS, cityIncomeOf, cityRanks, cityToll, garrisonPower, toll } from '../systems/CitySystem';
-import { attack, canAttemptBreak, defense, maxHp, maxStamina, power, realmName } from '../systems/GeneralSystem';
-import { realmTag } from '../ui/GeneralInfo';
-import { bindPassiveState, fxText, passiveOf } from '../data/passives';
+import { canAttemptBreak, maxHp, maxStamina, power } from '../systems/GeneralSystem';
+import { generalHoverInfo, realmTag } from '../ui/GeneralInfo';
+import { bindPassiveState } from '../data/passives';
 import { Engine } from '../engine/Engine';
 import { previewAt, type PrerollAction, type Prompt, type RosterAction } from '../engine/prompts';
 import type { EngineView, LogKind, ViewEvent } from '../engine/view';
@@ -77,6 +82,9 @@ export class Game {
   private occupancyKey='';
   private mouse = { x: 0, y: 0 };
   private active: ActivePrompt | null = null;
+  private itemDuel: Extract<Prompt,{kind:'duel'}> | null = null;
+  private itemSending = false;
+  private selectedItem: {uid:string;userId?:string;enemyLordId?:LordId;target:DirectItemTarget;stage:'user'|'target'|'element'|'destination'|'ownCity'} | null = null;
   private turnToast = '';
   /** 電腦託管中（單機） */
   private autoPlay = false;
@@ -103,7 +111,9 @@ export class Game {
     };
     this.lordView = new LordView(uiRoot);
     this.lordView.facingText = (id) => this.facingText(this.state.lords[id]);
-    this.ui.onLord = (id) => this.lordView.open(this.state, id);
+    this.ui.onLord = (id) => {if(this.selectedItem)this.pickItemLord(id);else this.lordView.open(this.state,id);};
+    this.battleView.onItemGeneral = (id) => this.pickItemGeneral(id);
+    this.battleView.generalById = id => this.state?.generals[id];
     this.ui.onHelp = () => this.help.open();
     this.ui.onRank = () => this.rankView.open(this.state);
     this.ui.onAuto = () => this.toggleAuto();
@@ -144,6 +154,7 @@ export class Game {
       if (rightDown && Math.hypot(e.clientX - rightDown.x, e.clientY - rightDown.y) > 5) rightDragged = true;
     });
     canvas.addEventListener('contextmenu', () => {
+      if(!rightDragged&&this.selectedItem)this.cancelItem();
       if (!rightDragged && this.active?.prompt.kind === 'tile') this.answer(null);
       rightDown = null;
       rightDragged = false;
@@ -152,6 +163,7 @@ export class Game {
 
     window.addEventListener('keydown', (e) => {
       if (!this.state || this.state.over || this.dialog.isOpen || this.dispatchTask) return;
+      if(e.key==='Escape'&&this.selectedItem){e.preventDefault();this.cancelItem();return;}
       if ((e.key === ' ' || e.key === 'Enter') && (e.target as HTMLElement)?.tagName === 'BUTTON') e.preventDefault();
       if (e.key === ' ' && this.active?.prompt.kind === 'preroll') {
         e.preventDefault();
@@ -442,12 +454,14 @@ export class Game {
         const side = this.duelSide(d);
         if (!side || this.auto) return;
         this.battleView.duelOpen(d, { a: general(d.a.generalId), b: general(d.b.generalId) }, title, side);
+        this.renderItemDock();
       },
       duelEvents: async (d, events) => {
         if (this.battleView.duelActive) await this.battleView.duelPlay(d, events, () => this.speed);
       },
       duelEnd: async (d) => {
         if (this.battleView.duelActive) await this.battleView.duelFinish(d);
+        this.renderItemDock();
       },
       casino: async (lord, r) => {
         if (lord !== this.me) return;
@@ -496,14 +510,18 @@ export class Game {
         return this.casino.bet(this.state.lords[lord]);
       case 'bid':
         return this.bidUI(this.state.lords[lord], p.lot);
-      case 'duel':
+      case 'duel': {
         if (!this.battleView.duelActive) this.battleView.duelOpen(p.duel, { a: this.state.generals[p.duel.a.generalId], b: this.state.generals[p.duel.b.generalId] }, '⚔️ 擂台戰', p.side);
-        return this.battleView.duelAsk(p.duel, p.side);
+        this.itemDuel=p;this.itemSending=false;this.selectedItem=null;
+        const answer=this.battleView.duelAsk(p.duel,p.side);this.refresh();
+        return answer.finally(()=>{this.itemDuel=null;this.cancelItem(false);this.refresh();});
+      }
       case 'roster':
         return this.generalsView.ask(this.state, this.state.lords[lord]);
       case 'preroll':
       case 'tile':
         return new Promise((resolve) => {
+          this.itemSending=false;this.cancelItem(false);
           this.active = { lord, prompt: p, resolve };
           if (p.kind === 'tile') this.world.showHighlights(this.state.tiles.filter((t) => p.allowCasino || t.kind !== 'casino').map((t) => t.index), 0xc9a0ff);
           else if (this.turnToast !== `${this.state.round}:${this.state.turn}`) {
@@ -525,6 +543,7 @@ export class Game {
   private answer(a: unknown) {
     const act = this.active;
     if (!act) return;
+    this.cancelItem(false);
     this.active = null;
     this.world.clearHighlights();
     // 多人：擲骰要等伺服器回覆，先讓骰子轉起來，結果到了再停下
@@ -685,6 +704,13 @@ export class Game {
   private handlePick(o: THREE.Object3D | null) {
     if (!this.state) return;
     const tile = this.tileOf(o);
+    if(this.selectedItem){
+      const mode=this.itemPickMode();
+      if(mode==='lord'&&o?.userData.pickKind==='lord')this.pickItemLord(o.userData.lordId as LordId);
+      else if(mode==='tile'&&o?.userData.pickKind==='tile')this.pickItemTile(o.userData.tile);
+      else if(mode==='city'&&o?.userData.pickKind==='city')this.pickItemTile(o.userData.tile);
+      return;
+    }
     if (tile === null) return;
     const act = this.active;
     if (act?.prompt.kind === 'tile') {
@@ -701,6 +727,23 @@ export class Game {
 
   private handleHover(o: THREE.Object3D | null) {
     if (!this.state) return;
+    if(this.selectedItem){
+      this.world.setHover(null);
+      const valid=this.canPickItemObject(o);
+      this.world.setTargetHover(o,valid,this.sm.camera);
+      this.sm.renderer.domElement.style.cursor=o?(valid?'pointer':'not-allowed'):'default';
+      if(!o){this.ui.showTooltip(null);return;}
+      const lordId=o.userData.lordId as LordId|undefined;
+      if(lordId){const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===lordId);this.ui.showTooltip(g?generalHoverInfo(g).replaceAll('｜','<br>'):null,this.mouse.x,this.mouse.y);}
+      else {const tile=this.state.tiles[o.userData.tile];this.ui.showTooltip(tile?`${tile.name}${valid?'：可選取':'：不符合此物品的目標條件'}`:null,this.mouse.x,this.mouse.y);}
+      return;
+    }
+    this.world.setTargetHover(null,false,this.sm.camera);
+    if(o?.userData.lordId){
+      this.world.setHover(null);
+      const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===o.userData.lordId);
+      this.ui.showTooltip(g?generalHoverInfo(g).replaceAll('｜','<br>'):null,this.mouse.x,this.mouse.y);return;
+    }
     const tile = this.tileOf(o);
     const road=tile!==null&&this.state.tiles[tile].kind==='road';
     this.world.setHover(road?null:tile,o?.userData.displayFacility??null);
@@ -750,34 +793,188 @@ export class Game {
       </table>${links}${fork}${people}`;
   }
 
-  /** 右下角的隨行武將：有神通且此刻能施展的發光、點擊施展；其餘點擊開啟武將名冊；滑鼠移上去看資訊 */
+  private itemContext(): 'preroll'|'battle'|null {
+    if(this.itemSending||this.auto||this.dispatchTask||this.state.over||!this.state.lords[this.me].alive)return null;
+    if(this.itemDuel)return 'battle';
+    return this.active?.prompt.kind==='preroll'&&this.active.lord===this.me?'preroll':null;
+  }
+  private currentItem():Item|undefined{return this.selectedItem?this.state.lords[this.me].items.find(i=>i.uid===this.selectedItem!.uid):undefined;}
+  private cancelItem(refresh=true){this.selectedItem=null;this.world.clearHighlights();this.world.setTargetHover(null,false,this.sm.camera);this.sm.pickMode=this.active?.prompt.kind==='tile'?'tile':'inspect';this.ui.showTooltip(null);this.ui.setItemTargeting(false);this.battleView.setItemTargets([]);if(refresh)this.refresh();}
+  private itemPickMode():PickMode{
+    const s=this.selectedItem,item=this.currentItem();
+    if(!s||!item)return this.active?.prompt.kind==='tile'?'tile':'inspect';
+    if(this.itemDuel||s.stage==='element')return 'none';
+    if(s.stage==='user')return 'lord';
+    if(s.stage==='destination')return 'tile';
+    if(s.stage==='ownCity')return 'city';
+    return ({ownGeneral:'lord',enemyGeneral:'lord',deadGeneral:'none',lord:'lord',ownCity:'city',enemyCity:'city',tile:'tile',dice:'none',none:'none'} as const)[ITEM_DEFS[item.defId].target];
+  }
+  private enemyItemLords(item:Item){
+    const owners=new Set(itemGeneralTargets(this.state,this.state.lords[this.me],item).map(g=>g.owner));
+    return Object.values(this.state.lords).filter(l=>l.id!==this.me&&owners.has(l.id));
+  }
+  private canPickItemObject(o:THREE.Object3D|null):boolean{
+    const s=this.selectedItem,item=this.currentItem();if(!s||!item||!o)return false;
+    const mode=this.itemPickMode(),d=ITEM_DEFS[item.defId],lord=this.state.lords[this.me];
+    if(o.userData.pickKind!==mode)return false;
+    if(mode==='tile')return s.stage!=='destination'||this.state.tiles[o.userData.tile]?.kind!=='casino';
+    if(mode==='city')return itemCityTargets(this.state,lord,item,s.stage==='ownCity').some(c=>c.id===o.userData.cityId);
+    if(mode==='lord'){
+      const id=o.userData.lordId as LordId;
+      if(s.stage==='target'&&d.target==='enemyGeneral')return this.enemyItemLords(item).some(l=>l.id===id);
+      if(s.stage==='target'&&d.target==='lord')return itemLordTargets(this.state,lord,item).some(l=>l.id===id);
+      const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===id);
+      return !!g&&this.canPickItemGeneral(g.id);
+    }
+    return false;
+  }
+  private itemReason(item:Item){
+    const p=this.itemDuel;
+    if(p?.duel[p.side].itemsSealed)return '本場物品已被封印';
+    return itemDisabledReason(this.state,this.state.lords[this.me],item,this.itemContext(),p?.duel[p.side].generalId);
+  }
+  private selectItem(item:Item){
+    const reason=this.itemReason(item);if(reason){this.ui.toast(reason);return;}
+    if(this.selectedItem?.uid===item.uid){this.cancelItem();return;}
+    this.selectedItem={uid:item.uid,target:{},stage:'user'};this.updateItemHighlights();this.refresh();
+  }
+  private canPickItemGeneral(id:string):boolean{
+    const selected=this.selectedItem,item=this.currentItem();if(!selected||!item)return false;
+    const lord=this.state.lords[this.me];
+    if(selected.stage==='user')return itemUsers(this.state,lord,this.itemDuel?.duel[this.itemDuel.side].generalId).some(g=>g.id===id&&canUse(item,g).ok);
+    if(selected.stage!=='target')return false;
+    if(this.itemDuel){const p=this.itemDuel,side=ITEM_DEFS[item.defId].battleTarget==='ownGeneral'?p.side:p.side==='a'?'b':'a';return p.duel[side].generalId===id;}
+    return itemGeneralTargets(this.state,lord,item).some(g=>g.id===id&&(ITEM_DEFS[item.defId].target!=='enemyGeneral'||g.owner===selected.enemyLordId));
+  }
+  private pickItemGeneral(id:string){
+    const s=this.selectedItem,item=this.currentItem();if(!s||!item)return;
+    if(!this.canPickItemGeneral(id)){const g=this.state.generals[id];this.ui.toast(s.stage==='user'&&g?canUse(item,g).reason||'只能選擇自己的隨行武將':'這名武將不是此步驟的有效目標');return;}
+    if(s.stage==='user'){
+      s.userId=id;s.stage='target';
+      if(!this.itemDuel&&ITEM_DEFS[item.defId].target==='none'){this.sendItem();return;}
+    }else{
+      s.target.generalId=id;
+      if(item.defId==='five'&&!this.itemDuel)s.stage='element';
+      else {this.sendItem();return;}
+    }
+    this.updateItemHighlights();this.refresh();
+  }
+  private pickItemLord(id:LordId){
+    const s=this.selectedItem,item=this.currentItem();if(!s||!item)return;
+    if(s.stage==='target'&&ITEM_DEFS[item.defId].target==='enemyGeneral'&&!this.itemDuel){
+      if(!this.enemyItemLords(item).some(l=>l.id===id)){this.ui.toast('此主公沒有可指定的武將');return;}
+      s.enemyLordId=id;delete s.target.generalId;this.updateItemHighlights();this.refresh();return;
+    }
+    if(s.stage==='user'||ITEM_DEFS[item.defId].target==='ownGeneral'||this.itemDuel){
+      const general=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===id&&g.status!=='dead');
+      if(general)this.pickItemGeneral(general.id);else this.ui.toast('此主公目前不能選擇');return;
+    }
+    if(s.stage!=='target'||ITEM_DEFS[item.defId].target!=='lord'||!itemLordTargets(this.state,this.state.lords[this.me],item).some(l=>l.id===id)){this.ui.toast('這位主公不是此步驟的有效目標');return;}
+    s.target.lordId=id;
+    if(['confuse','confusing'].includes(item.defId)){s.stage='destination';this.updateItemHighlights();this.refresh();}
+    else this.sendItem();
+  }
+  private pickItemTile(index:number){
+    const s=this.selectedItem,item=this.currentItem();if(!s||!item)return;
+    const tile=this.state.tiles[index],d=ITEM_DEFS[item.defId];if(!tile)return;
+    if(s.stage==='destination'||(s.stage==='target'&&d.target==='tile')){
+      if(s.stage==='destination'&&tile.kind==='casino'){this.ui.toast('迷魂不能指定乾坤骰閣');return;}
+      s.target.tile=index;this.sendItem();return;
+    }
+    if(s.stage==='ownCity'||(s.stage==='target'&&['ownCity','enemyCity'].includes(d.target))){
+      const city=tile.cityId&&itemCityTargets(this.state,this.state.lords[this.me],item,s.stage==='ownCity').find(c=>c.id===tile.cityId);
+      if(!city){this.ui.toast('請點選符合條件的城池');return;}
+      if(s.stage==='ownCity'){s.target.ownCityId=city.id;this.sendItem();return;}
+      s.target.cityId=city.id;
+      if(item.defId==='graft'){s.stage='ownCity';this.updateItemHighlights();this.refresh();}else this.sendItem();
+      return;
+    }
+    this.ui.toast(this.itemStageHint());
+  }
+  private pickItemChoice(value:string){
+    const split=value.indexOf(':'),kind=value.slice(0,split),id=value.slice(split+1),s=this.selectedItem;
+    if(!s)return;
+    if(kind==='back'){s.enemyLordId=undefined;delete s.target.generalId;this.updateItemHighlights();this.refresh();}
+    else if(kind==='general')this.pickItemGeneral(id);
+    else if(kind==='lord')this.pickItemLord(id as LordId);
+    else if(kind==='city'){const city=this.state.cities[id];if(city)this.pickItemTile(city.tile);}
+    else if(kind==='dice'){s.target.dice=Number(id);this.sendItem();}
+    else if(kind==='element'&&ITEM_ELEMENTS.includes(id as typeof ITEM_ELEMENTS[number])){s.target.element=id as typeof ITEM_ELEMENTS[number];this.sendItem();}
+  }
+  private sendItem(){
+    const s=this.selectedItem,item=this.currentItem();if(!s||!item||!s.userId)return;
+    const reason=this.itemReason(item);if(reason){this.ui.toast(reason);this.cancelItem();return;}
+    const user=this.state.generals[s.userId];if(!user||!canUse(item,user).ok){this.ui.toast('施放者能力或體力不足');this.cancelItem();return;}
+    if(this.itemDuel){
+      const p=this.itemDuel,targetSide=ITEM_DEFS[item.defId].battleTarget==='ownGeneral'?p.side:p.side==='a'?'b':'a';
+      if(s.target.generalId!==p.duel[targetSide].generalId){this.ui.toast('請點選戰場上的生效武將');return;}
+      this.itemSending=true;this.cancelItem(false);this.battleView.useItemAction({type:'use-item',itemUid:item.uid,userId:user.id,targetSide});this.refresh();return;
+    }
+    const resolved=resolveItemTarget(this.state,this.state.lords[this.me],item,s.target);
+    if(!resolved.target){this.ui.toast(resolved.reason||'目標無效');return;}
+    const action:PrerollAction={type:'use-item',itemUid:item.uid,userId:user.id,target:{...s.target}};
+    this.itemSending=true;this.answer(action);
+  }
+  private itemStageHint():string{
+    const s=this.selectedItem,item=this.currentItem();if(!s||!item)return '';
+    const name=itemName(item.defId,item.tier);
+    if(s.stage==='user')return `${name}：點自己的武將，選擇消耗體力的施放者`;
+    const user=this.state.generals[s.userId!],cost=requirement(item,user).stamina;
+    const prefix=`${name} · ${user?.name??''} 體力 ${cost}：`;
+    if(s.stage==='element')return prefix+'選擇新的五行靈根';
+    if(s.stage==='destination')return prefix+'點地圖指定敵方主公的目的地';
+    if(s.stage==='ownCity')return prefix+'再點選交換的己方城池';
+    if(this.itemDuel)return prefix+(ITEM_DEFS[item.defId].battleTarget==='ownGeneral'?'點我方出戰武將':'點敵方出戰武將');
+    if(ITEM_DEFS[item.defId].target==='enemyGeneral')return prefix+(s.enemyLordId?`點${LORDS[s.enemyLordId].name}麾下的生效武將`:'先點敵方主公，再選其武將');
+    return prefix+({ownGeneral:'點生效武將（可與施放者相同）',deadGeneral:'點要復活的亡將',enemyGeneral:'點敵方武將',lord:'點敵方主公',ownCity:'點己方城池',enemyCity:'點敵方城池',tile:'點地圖上的目的地',dice:'選擇骰子點數',none:'施放'}[ITEM_DEFS[item.defId].target]);
+  }
+  private updateItemHighlights(){
+    this.world.clearHighlights();this.world.setHover(null);this.world.setTargetHover(null,false,this.sm.camera);this.ui.showTooltip(null);this.sm.pickMode=this.itemPickMode();
+  }
+  private renderItemDock(){
+    const lord=this.state.lords[this.me],s=this.selectedItem,item=this.currentItem();
+    if(s&&(!item||!this.itemContext()))this.cancelItem(false);
+    const selected=this.selectedItem,current=this.currentItem(),choices:ItemDockChoice[]=[];
+    this.sm.pickMode=this.itemPickMode();
+    if(selected&&current){
+      const d=ITEM_DEFS[current.defId];
+      if(selected.stage==='element')for(const element of ITEM_ELEMENTS)choices.push({id:'element:'+element,name:ELEMENT_NAMES[element]+'靈根'});
+      else if(selected.stage==='ownCity'||(selected.stage==='target'&&['ownCity','enemyCity'].includes(d.target)))for(const city of itemCityTargets(this.state,lord,current,selected.stage==='ownCity'))choices.push({id:'city:'+city.id,name:city.name});
+      else if(selected.stage==='target'){
+        if(this.itemDuel){ /* Battle portraits and the party row are the actual click targets. */ }
+        else if(d.target==='enemyGeneral'&&!selected.enemyLordId)for(const l of this.enemyItemLords(current)){const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===l.id);choices.push({id:'lord:'+l.id,name:LORDS[l.id].name,img:g?portraitUrl(g):undefined,tip:g?generalHoverInfo(g):undefined});}
+        else if(['ownGeneral','enemyGeneral','deadGeneral'].includes(d.target)){
+          if(d.target==='enemyGeneral')choices.push({id:'back:lord',name:'重選主公'});
+          for(const g of itemGeneralTargets(this.state,lord,current).filter(g=>d.target==='enemyGeneral'?g.owner===selected.enemyLordId:d.target==='ownGeneral'?g.status!=='free':true))choices.push({id:'general:'+g.id,name:g.name,img:portraitUrl(g),tip:generalHoverInfo(g)});
+        }
+        else if(d.target==='lord')for(const l of itemLordTargets(this.state,lord,current)){const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===l.id);choices.push({id:'lord:'+l.id,name:LORDS[l.id].name,img:g?portraitUrl(g):undefined,tip:g?generalHoverInfo(g):undefined});}
+        else if(d.target==='dice')for(let dice=1;dice<=6;dice++)choices.push({id:'dice:'+dice,name:dice+' 點'});
+      }
+    }
+    this.ui.setItemTargeting(!!selected);
+    if(this.itemDuel&&selected&&current){const p=this.itemDuel,side=selected.stage==='user'?p.side:ITEM_DEFS[current.defId].battleTarget==='ownGeneral'?p.side:p.side==='a'?'b':'a';this.battleView.setItemTargets([side]);}else this.battleView.setItemTargets([]);
+    this.ui.renderItems({items:lord.items,visible:lord.alive&&!this.state.over,battle:this.battleView.duelActive,selected:selected?.uid??null,hint:selected?this.itemStageHint():this.itemContext()?'選物品 → 選施放者 → 點目標；確認生效時才扣除體力':'目前只能查看物品；不可使用的圖示偏暗',choices,disabled:i=>this.itemReason(i),pick:i=>this.selectItem(i),choose:id=>this.pickItemChoice(id),cancel:()=>this.cancelItem()});
+  }
+
+  /** Portraits show compact hover information; clicks select item targets or available abilities. */
   private partyIcons(player: Lord, preroll: boolean): PartyIcon[] {
     if (!player.alive || this.state.over) return [];
     const users = abilityUsers(this.state, player);
     const canAct = preroll && !this.auto && !this.dispatchTask && !player.relicJourney;
-    const plain = (s: string) => s.replace(/<[^>]+>/g, '');
     return freeGenerals(this.state, player.id)
       .sort((a, b) => Number(b.isLord) - Number(a.isLord))
       .map((g) => {
-        const p = passiveOf(g);
         const hasSkill = users.includes(g);
         const r = hasSkill ? abilityReady(this.state, player, g) : null;
         const ready = !!r?.ok && canAct;
-        const effect = plain(p.effectText ?? fxText(p.fx));
-        const tip = [
-          `${g.name}${g.isLord ? '（主公）' : ''}・${realmName(g)}`,
-          `戰力 ${power(g)}・武力 ${attack(g)}・防禦 ${defense(g)}`,
-          `血量 ${Math.round(g.hp)}/${maxHp(g)}・體力 ${Math.round(g.stamina)}/${maxStamina(g)}`,
-          `功法：${g.technique?.name ?? '未修習'}`,
-          `【${p.name}】${effect}`,
-          hasSkill ? (r!.ok ? (canAct ? '✨ 神通可施展：點擊使用' : '✨ 神通：自己的整備階段可點擊施展') : `✨ 神通暫不可用：${r!.reason}`) : '',
-          ready ? '' : '點擊開啟武將名冊',
-        ].filter(Boolean).join('｜');
+        const fighter=this.itemDuel&&(['a','b'] as const).map(side=>this.itemDuel!.duel[side]).find(f=>f.generalId===g.id);
+        const tip = generalHoverInfo(g,fighter||undefined);
         return {
           id: g.id, img: portraitUrl(g), name: g.name, color: LORDS[player.id].css,
           hpPct: (g.hp / Math.max(1, maxHp(g))) * 100, staPct: (g.stamina / Math.max(1, maxStamina(g))) * 100,
-          tip, ready, hasSkill,
-          onClick: () => (ready ? this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction) : this.openRoster(g.id)),
+          tip, ready:ready&&!this.selectedItem, hasSkill,
+          itemState:this.selectedItem ? (this.selectedItem.userId===g.id?'selected':this.canPickItemGeneral(g.id)?'eligible':'disabled') : undefined,
+          onClick: () => {if(this.selectedItem)this.pickItemGeneral(g.id);else if(ready)this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction);},
         };
       });
   }
@@ -818,7 +1015,6 @@ export class Game {
       hint = '擲骰前可先整備；擲完骰、處理完事件，回合自動結束';
       fullHint = '擲骰前可先使用物品、合成材料或整備武將（宗門每人 10 下品，自己的城池或空城免費；調度駐軍在主公所在城池免費）；擲完骰、處理完落地事件，回合就會自動結束';
       buttons.push(
-        { label: '🎒 使用物品', sub: `${player.items.length} 件`, onClick: act({ type: 'items' }) },
         { label: '⛏️ 材料合成', sub: `${MATERIAL_GROUPS.reduce((n, k) => n + player.materials[k].reduce((a, b) => a + b, 0), 0)} 顆`, onClick: act({ type: 'materials' }) },
         { label: '🏯 調度駐軍', sub: '依距離收費・一次付費可操作到關閉', disabled: !citiesOf(this.state, player.id).length, onClick: act({ type: 'garrison' }) },
         roster,
@@ -848,6 +1044,7 @@ export class Game {
     this.talentView.update(this.state, player, this.canEditTalents());
     this.ui.renderActions(buttons, hint, fullHint);
     this.ui.renderParty(this.partyIcons(player, preroll));
+    this.renderItemDock();
     // 擲骰：右側偏下的大圓鈕
     if (!this.state.over && !this.dispatchTask && player.alive && preroll && !this.auto) this.ui.showRoll(() => this.answer({ type: 'roll' } satisfies PrerollAction));
     else this.ui.hideRoll();

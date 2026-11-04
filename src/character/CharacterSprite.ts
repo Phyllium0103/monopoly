@@ -216,7 +216,7 @@ export class CharacterSprite {
     // 棋子永遠畫在建築與山的前面，才不會被城池擋住
     this.sprite.renderOrder = 10;
     this.sprite.scale.set(this.w, this.h, 1);
-    this.sprite.userData = { pick: true, lordId: character.lord };
+    this.sprite.userData = { pick: true, pickKind: 'lord', lordId: character.lord };
     const art = LORD_ART[character.id];
     if (art) {
       void CharacterSprite.portrait(art).then(t=>{

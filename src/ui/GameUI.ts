@@ -2,6 +2,7 @@ import {installUiViewport,uiViewportSize} from './UiViewport';
 import { music } from './Music';
 import { DiceRoller, type DiceHandOrigin } from './DiceRoller';
 import { LordActorHud } from './LordActorHud';
+import { ItemDock, type ItemDockState } from './ItemDock';
 import './Bubble';
 import type { GameState, LordId } from '../game/types';
 
@@ -32,6 +33,7 @@ export interface PartyIcon {
   ready: boolean;
   /** 有主動神通（不論此刻能否施展） */
   hasSkill: boolean;
+  itemState?: 'eligible' | 'selected' | 'disabled';
   onClick: () => void;
 }
 
@@ -45,6 +47,7 @@ export class GameUI {
   private tooltip: HTMLDivElement;
   private dice: DiceRoller;
   private actors: LordActorHud;
+  private itemDock: ItemDock;
   private currentLord: LordId | null = null;
   private report: HTMLDivElement;
   private overlay: HTMLDivElement;
@@ -90,6 +93,7 @@ export class GameUI {
     this.logEl = q('.log-list');
     this.toastEl = q('.toast');
     this.tooltip = q('.tooltip');
+    this.itemDock = new ItemDock(this.hud);
     this.dice = new DiceRoller(this.hud,{centerFinal:true});
     this.actors = new LordActorHud(this.hud,()=>this.speed,id=>this.onLord?.(id));
     this.report = q('.turn-report');
@@ -226,7 +230,7 @@ export class GameUI {
   /** 右下角排列隨行武將；可施展神通的會發光，點擊施展，滑鼠移上去才顯示資訊 */
   renderParty(icons: PartyIcon[]) {
     this.party.classList.toggle('hidden', !icons.length);
-    const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), i.tip, i.ready, i.hasSkill]));
+    const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), i.tip, i.ready, i.hasSkill, i.itemState]));
     // 內容沒變就不重畫，避免滑鼠停在圖示上時提示閃爍
     if (this.party.dataset.key === key) {
       this.party.querySelectorAll<HTMLButtonElement>('.pd-gen').forEach((b, i) => (b.onclick = () => icons[i]?.onClick()));
@@ -236,7 +240,8 @@ export class GameUI {
     this.party.innerHTML = '';
     for (const i of icons) {
       const b = document.createElement('button');
-      b.className = `pd-gen${i.ready ? ' ready' : ''}${i.hasSkill ? ' skill' : ''}`;
+      b.className = `pd-gen${i.ready ? ' ready' : ''}${i.hasSkill ? ' skill' : ''}${i.itemState ? ' item-' + i.itemState : ''}`;
+      b.setAttribute('aria-label',i.name); b.setAttribute('aria-disabled',String(i.itemState==='disabled'));
       b.style.setProperty('--pc', i.color);
       b.dataset.tip = i.tip;
       b.innerHTML = `<img src="${i.img}" alt="" onerror="this.style.visibility='hidden'">` +
@@ -246,6 +251,12 @@ export class GameUI {
       b.onclick = () => i.onClick();
       this.party.appendChild(b);
     }
+  }
+
+  renderItems(state: ItemDockState) { this.itemDock.render(state); }
+  setItemTargeting(active: boolean) {
+    this.hud.classList.toggle('item-casting',active);
+    this.actors.setItemTargeting(active ? id => this.onLord?.(id) : null);
   }
 
   renderInfo(html: string | null) {
@@ -330,9 +341,9 @@ export class GameUI {
     }
     this.tooltip.classList.remove('hidden');
     this.tooltip.innerHTML = text;
-    const {scale,width}=uiViewportSize();x/=scale;y/=scale;
-    this.tooltip.style.left = `${Math.min(x + 14, width - 260)}px`;
-    this.tooltip.style.top = `${y + 14}px`;
+    const {scale,width,height}=uiViewportSize();x/=scale;y/=scale;
+    this.tooltip.style.left = `${Math.max(8,Math.min(x + 14, width - this.tooltip.offsetWidth - 8))}px`;
+    this.tooltip.style.top = `${Math.max(8,Math.min(y + 14,height-this.tooltip.offsetHeight-8))}px`;
   }
 
   /** 等待房主的權威結果；結果收到後才掉落真正 3D 骰子。 */

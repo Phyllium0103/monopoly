@@ -6,6 +6,7 @@ import { LORDS, LORD_IDS } from '../faction/Faction';
 import { assetUrl } from '../data/assetUrl';
 import { citiesOf, generalsOf } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
+import { generalHoverInfo } from './GeneralInfo';
 import { LORD_PRESENTATION_RATE } from './LordPresentation';
 import { spriteSourceToWorld, type SpritePose } from './LordSpriteRig';
 import './lord-actor-hud.css';
@@ -50,6 +51,7 @@ export class LordActorHud {
   private available=true;
   private me:LordId='liu';
   private rollAction:(()=>void)|null=null;
+  private itemAction:((id:LordId)=>void)|null=null;
   private active:LordId|null=null;
   private readyLord:LordId|null=null;
   private awaitingMovement:LordId|null=null;
@@ -95,7 +97,7 @@ export class LordActorHud {
       fallback.src=assetUrl(`art/generals/head/${PORTRAITS[id]}.webp`);
       const rollButton=document.createElement('button');rollButton.type='button';rollButton.className='lord-actor-roll';rollButton.hidden=true;rollButton.disabled=true;
       rollButton.setAttribute('aria-label',`${LORDS[id].name}，擲骰`);
-      rollButton.onclick=()=>{if(!rollButton.disabled&&id===this.me&&id===this.active)this.rollAction?.();};
+      rollButton.onclick=()=>{if(rollButton.disabled)return;if(this.itemAction)this.itemAction(id);else if(card.classList.contains('can-roll')&&id===this.me&&id===this.active)this.rollAction?.();};
       card.append(button,seat,fallback,rollButton);this.dock.append(card);
       this.actors.set(id,{id,card,seat,values,rollButton,sprite:null,atlases:{},textures:new Map(),pending:new Map(),clip:'prep',frame:-1});
     }
@@ -103,7 +105,7 @@ export class LordActorHud {
     addEventListener('resize',()=>this.layout());
     this.viewport.addEventListener('scroll',()=>this.layoutActors());
     const resize=new ResizeObserver(()=>this.layout());
-    for(const selector of ['.top-bar','.bottom-panel','.party-dock'])resize.observe(parent.querySelector(selector)??parent);
+    for(const selector of ['.top-bar','.bottom-panel','.party-dock','.item-dock'])resize.observe(parent.querySelector(selector)??parent);
     document.addEventListener('visibilitychange',()=>{
       if(document.hidden)this.suspend();
       else if(this.visible){this.restoreReady();this.startFrames();}
@@ -111,10 +113,12 @@ export class LordActorHud {
   }
 
   setRollAction(action:(()=>void)|null):void{this.rollAction=action;this.updateRollButtons();}
+  setItemTargeting(action:((id:LordId)=>void)|null):void{this.itemAction=action;this.updateRollButtons();}
   private updateRollButtons():void{
     for(const [id,a] of this.actors){
-      const enabled=this.visible&&!!this.rollAction&&id===this.me&&id===this.active&&this.readyLord===id&&!this.rolling;
-      a.rollButton.hidden=!enabled;a.rollButton.disabled=!enabled;a.card.classList.toggle('can-roll',enabled);
+      const enabled=this.visible&&!a.card.hidden&&(!!this.itemAction||(!!this.rollAction&&id===this.me&&id===this.active&&this.readyLord===id&&!this.rolling));
+      a.rollButton.hidden=!this.visible||a.card.hidden;a.rollButton.disabled=false;a.card.classList.toggle('can-roll',enabled);
+      a.rollButton.setAttribute('aria-label',`${LORDS[id].name}，${this.itemAction?'選為物品施放者或目標':enabled?'擲骰':'人物資訊'}`);
     }
   }
   show(show:boolean):void{
@@ -131,6 +135,8 @@ export class LordActorHud {
     if(this.dock.dataset.order!==order){for(const id of displayOrder)this.dock.append(this.actors.get(id)!.card);this.dock.dataset.order=order;}
     for(const [id,a] of this.actors){
       const lord=state.lords[id],present=!lord.absent;
+      const general=Object.values(state.generals).find(g=>g.isLord&&g.owner===id);
+      if(general)a.rollButton.dataset.tip=generalHoverInfo(general);
       a.card.hidden=!present;a.card.classList.toggle('is-out',!lord.alive);
       if(a.sprite){a.sprite.visible=present;a.sprite.material.opacity=lord.alive?1:.45;}
       const values=[fmtStones(lord.stones,true),lord.soldiers.toLocaleString(),String(citiesOf(state,id).length),String(generalsOf(state,id).length)];
@@ -358,7 +364,8 @@ export class LordActorHud {
     const toolbar=(this.parent.querySelector('.top-bar')?.getBoundingClientRect().height??58*logical.scale)/logical.scale;
     const party=this.parent.querySelector<HTMLElement>('.party-dock');
     const partyHeight=party&&!party.classList.contains('hidden')?party.getBoundingClientRect().height/logical.scale:0;
-    const rollBottom=Math.max(150,partyHeight+36),rollSize=logical.height<=700?100:120;
+    const dockHeight=parseFloat(this.parent.style.getPropertyValue('--item-dock-height'))||0;
+    const rollBottom=Math.max(150,partyHeight+dockHeight+36),rollSize=logical.height<=700?100:120;
     this.parent.style.setProperty('--lord-actors-bottom','12px');
     // 左下人物整體占用的高度（底部 12px 加人物身高），天下紀事展開時停在它上方
     this.parent.style.setProperty('--lord-actors-height',(12+width*2.1)+'px');

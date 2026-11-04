@@ -5,6 +5,16 @@ import { APTITUDE_NAMES, REALMS } from '../data/generals';
 import { attack, defense, craft, expCap, maxHp, maxStamina, power } from '../systems/GeneralSystem';
 import { fxText, passiveOf } from '../data/passives';
 
+/** Compact portrait hover: one requested attribute per line, no enlarged art. */
+export function generalHoverInfo(g: General, battle?: {hp:number;maxHp:number;atk:number;def:number}): string {
+  const p = passiveOf(g), plain = (s: string) => s.replace(/<[^>]+>/g, '');
+  return [`名稱：${g.name}`, `境界：${REALMS[g.realm]}`,
+    `血量：${Math.round(battle?.hp??g.hp)} / ${battle?.maxHp??maxHp(g)}`, `體力：${Math.round(g.stamina)} / ${maxStamina(g)}`,
+    `戰力：${power(g)}`, `武力：${battle?.atk??attack(g)}`, `防禦：${battle?.def??defense(g)}`,
+    ...(['alchemy', 'forging', 'talisman', 'formation'] as const).map(k => `${STAT_NAMES[k]}：${craft(g, k)}`),
+    `被動技能：【${p.name}】${plain(p.effectText ?? fxText(p.fx))}`].join('｜');
+}
+
 /** 選將時顯示目前有效能力，包含境界、裝備與被動。 */
 export function generalInfo(g: General): string {
   return `${REALMS[g.realm]}・${APTITUDE_NAMES[g.aptitude]}｜血量 ${g.hp}/${maxHp(g)}・體力 ${g.stamina}/${maxStamina(g)}・戰力 ${power(g)}<br>` +

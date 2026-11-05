@@ -2,7 +2,8 @@
 
 Install Pillow and NumPy in an isolated Python environment, then run this file.
 Selections and immutable source filenames live in art-src/roof-colors/selection.json.
-The original selected GLBs and the uncolored runtime GLBs remain available.
+Original selected GLBs remain available. Superseded uncolored runtime GLBs
+were removed; restore the recorded source files from Git before rebaking.
 """
 from copy import deepcopy
 from hashlib import sha256
@@ -122,6 +123,12 @@ def bake(path, selection):
 
 def main():
     selections = json.loads(SELECTION.read_text(encoding='utf-8'))['selections']
+    missing = [source for selection in selections if selection['variant'] != 'original'
+               for source in selection['runtimeSourceFiles'] if not (RUNTIME / source).is_file()]
+    if missing:
+        raise SystemExit('Roof-color source models were archived from runtime assets. '
+                         'Restore the recorded originals from Git before rebaking; '
+                         'do not use already-colored GLBs as input. Missing: ' + ', '.join(missing))
     manifest_path = RUNTIME / 'manifest.json'
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
     report = []

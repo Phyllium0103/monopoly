@@ -9,8 +9,5 @@
   pointer-events: none;
 }
 
-/* 火焰可用時取代彩虹光環；WebGL 無法使用時才顯示光環 */
-.flames-on .pd-gen.break-ready::before { display: none; }
-
 /* 火焰位置固定，頭像不能再上浮，否則會和火焰錯開 */
 .flames-on .pd-gen.break-ready:hover img { transform: none; }

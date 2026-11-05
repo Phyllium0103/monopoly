@@ -107,13 +107,13 @@ export const WEAPON_ICON_BY_GENERAL: Readonly<Record<string, WeaponIconId | unde
  for gid,d in catalog.items():
   aid=base_map[d['names'][0]]
   rows.append({'generalId':gid,'general':d['name'],'baseWeapon':d['names'][0],'iconId':aid,'icon':names[aid],'file':'art/icons/weapon-illustrated/'+aid+'.webp','yellow':d['names'][0],'xuan':d['names'][1],'earth':d['names'][2],'heaven':d['names'][3]})
- docs=REPO/'docs';docs.mkdir(exist_ok=True)
- with (docs/'weapon-illustrated-generals.csv').open('w',encoding='utf-8-sig',newline='') as f:
+ manifests=REPO/'art-src/manifests';manifests.mkdir(exist_ok=True)
+ with (manifests/'weapon-illustrated-generals.csv').open('w',encoding='utf-8-sig',newline='') as f:
   writer=csv.DictWriter(f,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
  report={'edition':'07平面插畫・透明去背版' if args.transparent else '07平面插畫・斜向重修選定版','generalCount':len(rows),'baseWeaponNames':len(base_map),'iconCount':len(assets),'sourceBytes':native_bytes,'gameBytes':sum(a['bytes'] for a in assets),'preservedCanvasAndBackground':not args.transparent,'transparent':args.transparent,'compression':{'format':'WEBP','height':1024 if args.transparent else 256,'quality':80 if args.transparent else 90,'method':6,'resampling':'LANCZOS','alphaPreservedExactly':True},'aliases':{'使節杖':'17-01，直柄節杖外型','藜杖':'17-05，拐杖類外型','籌盤':'16-03，算籌類文房器具','雙手戟':'08-04，雙持戟類外型'},'assets':assets}
- (docs/'weapon-illustrated-assets.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+ (manifests/'weapon-illustrated-assets.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
  if args.transparent:
-  (docs/'weapon-icon-update.md').write_text(f"""# 專屬武器透明插畫更新
+  (manifests/'weapon-icon-update.md').write_text(f"""# 專屬武器透明插畫更新
 
 175位武將的115種初階武器名稱對應62種外型，四階升級沿用相同武器種類。名冊摘要列不顯示武器；展開詳細卡片後顯示128像素武器圖。
 
@@ -125,7 +125,7 @@ export const WEAPON_ICON_BY_GENERAL: Readonly<Record<string, WeaponIconId | unde
 
 重新匯入：`python scripts/import-weapon-icons.py --source <transparent-v3-20261024資料夾> --transparent`，再執行`npm run build:art-pack`。
 """,encoding='utf-8')
- else:(docs/'weapon-icon-update.md').write_text(f"""# 專屬武器插畫更新
+ else:(manifests/'weapon-icon-update.md').write_text(f"""# 專屬武器插畫更新
 
 依目前選定的60張插畫與2張遊戲補圖，將175位武將、115種第一階名稱對應到62種外型。以第一階武器判定種類，四階升級名稱皆沿用同一種類圖片；武器名稱、升階材料與能力沒有變更。
 

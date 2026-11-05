@@ -38,7 +38,7 @@ const make=(state,send,multiplayer=false,auto=false)=>{const view=new RecordingV
   }
  });
  await test('18 distinct selected material images: correct family/grade/name, latest revisions, transparent WebP and exact SHA',()=>{
-  const report=JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/material-icon-assets.json'),'utf8'));
+  const report=JSON.parse(fs.readFileSync(path.join(__dirname,'../art-src/manifests/material-icon-assets.json'),'utf8'));
   assert.equal(report.assets.length,18);assert.ok(report.gameBytes<report.sourceBytes*.05);
   assert.equal(report.compression.quality,80);assert.equal(report.compression.size,256);
   const hashes=new Set();

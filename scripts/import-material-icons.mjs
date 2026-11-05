@@ -35,5 +35,5 @@ for(const [key,group] of Object.entries(groups)){
 await fs.writeFile(path.join(root,'src/data/materialIcons.ts'),"import { assetUrl } from './assetUrl';\nimport type { MaterialGroup } from './weaponCatalog';\n\n// Generated from the selected six-family / three-tier flat illustration set.\nexport const MATERIAL_ICON_FILES: Record<MaterialGroup, readonly [string, string, string]> = "+JSON.stringify(definitions,null,2)+";\n\nexport function materialIconUrl(group: MaterialGroup, stage: number, base?: string): string {\n  const file = MATERIAL_ICON_FILES[group]?.[stage];\n  return file ? assetUrl(file, base) : '';\n}\n");
 const sourceBytes=assets.reduce((n,a)=>n+a.sourceBytes,0),gameBytes=assets.reduce((n,a)=>n+a.bytes,0);
 const report={style:'01 極簡平面',count:18,compression:{format:'WEBP',size:256,quality:80,alphaQuality:100,effort:6,resampling:'LANCZOS3'},sourceBytes,gameBytes,reductionPercent:100*(1-gameBytes/sourceBytes),assets};
-await fs.writeFile(path.join(root,'docs/material-icon-assets.json'),JSON.stringify(report,null,2)+'\n');
+await fs.writeFile(path.join(root,'art-src/manifests/material-icon-assets.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({count:18,sourceBytes,gameBytes,reductionPercent:report.reductionPercent,alphaPreservedExactly:true}));

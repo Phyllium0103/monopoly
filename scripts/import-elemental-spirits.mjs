@@ -52,6 +52,6 @@ const header="import { assetUrl } from './assetUrl';\nimport type { Element } fr
 const footer=";\nconst resolveArt = (art: SpiritArt): SpiritArt => ({ ...art, idle: assetUrl(art.idle), actions: art.actions.map(action => ({ ...action, url: assetUrl(action.url) })) });\nexport const ELEMENTAL_SPIRIT_ART: Record<Element, SpiritArt> = {\n  metal: resolveArt(sources.metal), wood: resolveArt(sources.wood), water: resolveArt(sources.water),\n  fire: resolveArt(sources.fire), earth: resolveArt(sources.earth),\n};\n";
 await fs.writeFile(path.join(root,'src/data/elementalSpirits.ts'),header+JSON.stringify(definitions,null,2)+footer);
 const report={selectedStyle:'08 軟萌元素靈',elements:5,actionsPerElement:4,framesPerAction:16,compression:{format:'WEBP',quality:80,method:6,alphaQuality:100,frameSize:160,atlasSize:640,displaySize:80,resampling:'LANCZOS3'},sourceBytes,gameBytes:assets.reduce((n,a)=>n+a.bytes,0),assets};
-await fs.writeFile(path.join(root,'docs/elemental-spirit-assets.json'),JSON.stringify(report,null,2)+'\n');
+await fs.writeFile(path.join(root,'art-src/manifests/elemental-spirit-assets.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({files:assets.length,sourceBytes,gameBytes:report.gameBytes,reductionPercent:(100*(1-report.gameBytes/sourceBytes)).toFixed(1),alphaPreservedExactly:true}));
 

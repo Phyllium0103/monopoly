@@ -37,7 +37,7 @@ console.log('PASS second city entrance dispatch is free; both vein cells share o
 const{WEAPON_CATALOG,makePersonalWeapon}=require('../src/data/weaponCatalog.ts');
 const{WEAPON_ICON_IDS,WEAPON_ICON_BY_GENERAL,classifyWeaponIcon}=require('../src/data/weaponIcons.ts');
 const{equipIconUrl}=require('../src/ui/Icons.ts');
-const illustrated=JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/weapon-illustrated-assets.json'),'utf8'));
+const illustrated=JSON.parse(fs.readFileSync(path.join(__dirname,'../art-src/manifests/weapon-illustrated-assets.json'),'utf8'));
 assert.equal(illustrated.generalCount,Object.keys(WEAPON_CATALOG).length);
 assert.equal(illustrated.iconCount,WEAPON_ICON_IDS.length);
 assert.equal(WEAPON_ICON_IDS.length,new Set(WEAPON_ICON_IDS).size);
@@ -75,5 +75,5 @@ for(const[key,[offset,length]]of Object.entries(pack)){
 }
 assert.equal(end,bin.length);
 for(const id of WEAPON_ICON_IDS)assert.ok(pack[`icons/weapon-illustrated/${id}`],id);
-for(const a of JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/material-icon-assets.json'),'utf8')).assets)assert.ok(pack[a.file.replace(/^art\//,'').replace(/\.webp$/,'')],a.name);
+for(const a of JSON.parse(fs.readFileSync(path.join(__dirname,'../art-src/manifests/material-icon-assets.json'),'utf8')).assets)assert.ok(pack[a.file.replace(/^art\//,'').replace(/\.webp$/,'')],a.name);
 console.log(`PASS ${Object.keys(WEAPON_CATALOG).length} generals / 700 grade-specific weapon names use ${WEAPON_ICON_IDS.length} distinct reviewed illustrations; precise subtypes, GitHub Pages URLs and packed bytes verified`);

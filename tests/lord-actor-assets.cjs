@@ -1,6 +1,6 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),crypto=require('node:crypto');
 const repo=path.resolve(__dirname,'..'),root=path.join(repo,'public/art/lord-hud');
-const manifest=JSON.parse(fs.readFileSync(path.join(repo,'docs/lord-actor-assets.json'),'utf8'));
+const manifest=JSON.parse(fs.readFileSync(path.join(repo,'art-src/manifests/lord-actor-assets.json'),'utf8'));
 const dimensions=new Map();
 for(const a of manifest.assets){
  const bytes=fs.readFileSync(path.join(root,a.file));

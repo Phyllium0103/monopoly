@@ -9,3 +9,6 @@ dist
 supabase/.temp/
 supabase/.branches/
 supabase/functions/game/_engine/
+
+#Graphify
+graphify-out/

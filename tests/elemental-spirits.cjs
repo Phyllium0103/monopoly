@@ -191,7 +191,7 @@ let passed=0;async function test(name,run){await run();console.log('PASS '+name)
   }finally{global.document=savedDocument;global.Image=savedImage}
  });
  await test('25 compressed transparent WebPs, four 16-frame atlases per element, exact file SHA and Pages URLs',()=>{
-  const report=JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/elemental-spirit-assets.json'),'utf8'));
+  const report=JSON.parse(fs.readFileSync(path.join(__dirname,'../art-src/manifests/elemental-spirit-assets.json'),'utf8'));
   assert.equal(report.assets.length,25);assert.ok(report.gameBytes<report.sourceBytes*.25);
   assert.equal(report.compression.quality,80);assert.equal(report.compression.displaySize,80);
   for(const asset of report.assets){

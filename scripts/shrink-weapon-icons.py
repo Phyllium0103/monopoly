@@ -9,7 +9,7 @@ from PIL import Image,ImageChops
 
 HEIGHT=384
 REPO=Path(__file__).resolve().parents[1]
-report_path=REPO/'docs/weapon-illustrated-assets.json'
+report_path=REPO/'art-src/manifests/weapon-illustrated-assets.json'
 report=json.loads(report_path.read_text(encoding='utf-8'))
 for a in report['assets']:
  dest=REPO/'public'/a['file']

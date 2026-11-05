@@ -21,7 +21,7 @@ registerHooks({
 const { REALMS } = require('../src/data/generals.ts');
 const { REALM_FRAME_STYLE, REALM_FRAME_WINDOWS, realmFrameFor, flameLayersFor } = require('../src/data/realmFrames.ts');
 const { realmFrameHtml } = require('../src/ui/RealmFrame.ts');
-const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/realm-frames.json'), 'utf8'));
+const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../art-src/manifests/realm-frames.json'), 'utf8'));
 
 assert.equal(REALM_FRAME_STYLE, manifest.styleId);
 assert.equal(REALM_FRAME_WINDOWS.length, REALMS.length);

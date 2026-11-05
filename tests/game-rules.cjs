@@ -32,7 +32,7 @@ const { BOARD } = require('../src/data/board.ts');
 let passed = 0;
 function test(name, fn) { fn(); passed++; console.log(`PASS ${name}`); }
 test('All 175 source PNGs match the name mapping, dimensions and SHA; full and head WebPs exist', () => {
-  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/base-general-art.json')));
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../art-src/manifests/base-general-art.json')));
   const seeds = [...GENERAL_SEEDS, ...HIDDEN_SEEDS];
   assert.equal(manifest.count, 175);
   assert.equal(manifest.images.length, seeds.length);
@@ -83,7 +83,7 @@ test('Roster switches from full base art to FX on the actual heaven weapon upgra
   }
 });
 test('All 175 FX source PNGs and compressed WebPs match their recorded name, heaven weapon and SHA', () => {
-  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/fx-general-art.json')));
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../art-src/manifests/fx-general-art.json')));
   const seeds = [...GENERAL_SEEDS, ...HIDDEN_SEEDS];
   assert.equal(manifest.count, seeds.length);
   assert.equal(manifest.images.length, seeds.length);

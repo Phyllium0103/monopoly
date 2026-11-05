@@ -34,13 +34,13 @@
 
 配色在離線處理時寫入屋頂基礎色與貼圖。保留原有紋理亮度起伏、UV、法線、透明通道及 PBR 屬性；沒有新增遊戲執行時的換色 shader 或幾何副本。八種目標材質名稱在每個細節等級都核對存在。
 
-原始選定模型與未換色 runtime 模型仍保留，預覽頁的「原有配色」因此維持換色前參考。六階城池及其陣營換色規則未改動。
+原始選定模型仍保留。2026-11-05 已清除 24 個被換色版本取代的未換色 runtime GLB（約 41.45 MiB），部署目錄只保留 manifest 的現行完整建築模型；本地 dist 內相同舊檔亦已移除。舊版檔名保留在選色與歷史報告中，供追溯用途，不是遊戲載入路徑。六階城池及其陣營換色規則未改動。
 
 當前使用的 LOD1（募兵司沿用其 LOD0）中，15 種設施合計由 20,593,868 bytes 變為 20,602,924 bytes，增加 9,056 bytes。此數字是模型檔容量，不是效能實測。
 
 ## 重現與驗證
 
-在裝有 Pillow 與 NumPy 的隔離 Python 環境執行 `python scripts/apply-roof-colors.py`。這個工具只讀取選色清單中的未換色來源模型，輸出新檔；一般遊戲建置直接使用已產生的 GLB，不需要 Python。
+若需重新烘焙顏色，先從 Git 歷史還原 selection.json 記錄的未換色來源 GLB，再於裝有 Pillow 與 NumPy 的隔離 Python 環境執行 `python scripts/apply-roof-colors.py`。工具會在任何輸出前檢查全部來源；缺檔時明確停止，不能用目前已換色模型代替來源。一般遊戲建置直接使用已產生的 GLB，不需要舊模型或 Python。
 
 每檔輸出前核對 meshes、accessors、nodes、scenes 及原有 binary 資料未變動，非屋頂材質保持一致；貼圖編碼後確認透明通道逐像素一致。完整報告為 `outputs/roof-color-review-20261104/applied-runtime-report.json`。
 

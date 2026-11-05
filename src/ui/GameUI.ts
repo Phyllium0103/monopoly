@@ -111,9 +111,7 @@ export class GameUI {
     this.partyShell=q('.party-shell');this.partyPrev=q('.party-prev');this.partyNext=q('.party-next');
     this.flames = new PortraitFlames(this.partyShell, this.party);
     const moveParty=(direction:number)=>{
-      const icon=this.party.querySelector<HTMLElement>('.pd-gen');
-      const gap=parseFloat(getComputedStyle(this.party).columnGap)||0;
-      this.party.scrollLeft+=direction*((icon?.offsetWidth??58)+gap);
+      this.party.scrollLeft += direction * this.partyIconStep();
       this.updatePartyArrows();
     };
     this.partyPrev.onclick=()=>moveParty(-1);this.partyNext.onclick=()=>moveParty(1);
@@ -291,16 +289,21 @@ export class GameUI {
     requestAnimationFrame(()=>this.resizeParty());
   }
 
-  private resizeParty(){
-    const icon=this.party.querySelector<HTMLElement>('.pd-gen');
-    if(!icon || !this.partyShell.clientWidth)return;
-    const styles=getComputedStyle(this.party);
-    const gap=parseFloat(styles.columnGap)||0;
-    const padding=(parseFloat(styles.paddingLeft)||0)+(parseFloat(styles.paddingRight)||0);
-    const available=Math.max(0,this.partyShell.clientWidth-this.partyPrev.offsetWidth-this.partyNext.offsetWidth);
-    const step=icon.offsetWidth+gap;
-    const count=Math.max(1,Math.floor((available-padding+gap)/step));
-    this.party.style.width=`${Math.min(available,count*step-gap+padding)}px`;
+  private partyIconStep(): number {
+    const icon = this.party.querySelector<HTMLElement>('.pd-gen');
+    const gap = parseFloat(getComputedStyle(this.party).columnGap) || 0;
+    return (icon?.offsetWidth ?? 58) + gap;
+  }
+
+  private resizeParty() {
+    if (!this.party.querySelector('.pd-gen') || !this.partyShell.clientWidth) return;
+    const styles = getComputedStyle(this.party);
+    const gap = parseFloat(styles.columnGap) || 0;
+    const padding = (parseFloat(styles.paddingLeft) || 0) + (parseFloat(styles.paddingRight) || 0);
+    const available = Math.max(0, this.partyShell.clientWidth - this.partyPrev.offsetWidth - this.partyNext.offsetWidth);
+    const step = this.partyIconStep();
+    const count = Math.max(1, Math.floor((available - padding + gap) / step));
+    this.party.style.width = `${Math.min(available, count * step - gap + padding)}px`;
     this.updatePartyArrows();
   }
 

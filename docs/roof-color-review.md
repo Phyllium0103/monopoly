@@ -2,18 +2,9 @@
 
 2026-11-04。本次提供 15 種設施的原有模型，其中 14 種各有 A／B／C 三套屋頂或上蓋配色，共 42 套。礦脈經模型結構與畫面確認沒有獨立屋頂，保留原貌。六階城池不在本次範圍。
 
-## 開啟預覽
+## 預覽頁
 
-在專案根目錄啟動 `npm run dev -- --host 127.0.0.1 --port 4175`，開啟：
-
-- 全設施預覽：<http://127.0.0.1:4175/roof-colors-preview.html>
-- 萬寶鑑定所：<http://127.0.0.1:4175/roof-colors-preview.html?building=appraisal>
-
-左側選設施；拖曳旋轉、滾輪縮放；可快速查看遊戲角度、背面與俯視。右側可切換原有配色及 A／B／C，保持當前鏡頭方便比較。「檢查換色範圍」用青綠色標出受影響的部位。
-
-「記錄原有配色」或「記錄 A／B／C」將偏好留在當前瀏覽器；「匯出我的選色」保存 JSON。原色以 `variant: "original"`、`preserveOriginal: true` 記錄，不會被誤認為未選。
-
-「查看全設施對照 → 生成全設施對照」會在同一角度、同一光照下產生 15 列對照。可切換「換色範圍總覽」，並用「匯出對照圖」下載當前模式的完整 PNG。生成過程逐個載入及釋放模型，切換配色共用同一模型幾何。
+選色已完成並套用（見 `docs/roof-color-application.md`），預覽頁與審查輸出已自專案移除。需要時可從 commit `46450a9` 取回 `roof-colors-preview.html`、`src/dev/` 與 `outputs/roof-color-review-20261104/`。
 
 ## 配色方向
 
@@ -35,7 +26,7 @@
 | 山河社稷圖 | 山河碧玉 | 昆侖雪玉 | 玄青雲闕 |
 | 礦脈 | 原有配色 | — | — |
 
-每套方案的色碼、用途、理由與材質角色保存在 `src/dev/RoofColorSchemes.ts`，可讀取的完整資料另存於 `outputs/roof-color-review-20261104/palettes.json`。頁面只顯示該模型實際使用的色碼。
+每套方案的色碼、用途、理由與材質角色原保存在 `src/dev/RoofColorSchemes.ts` 與 `outputs/roof-color-review-20261104/palettes.json`，現已移除，可從 commit `46450a9` 取回。
 
 ## 範圍與材質處理
 

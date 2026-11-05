@@ -30,6 +30,8 @@ export interface PartyIcon {
   staPct: number;
   /** 滑鼠移上去顯示的說明（「｜」分行） */
   tip: string;
+  /** 表格版的滑鼠提示；有這個就不用 tip */
+  tipHtml?: string;
   /** 有神通且此刻可以施展：發光，點擊施展 */
   ready: boolean;
   /** 有主動神通（不論此刻能否施展） */
@@ -260,7 +262,7 @@ export class GameUI {
   /** 右下角排列隨行武將；可施展神通的會發光，點擊施展，滑鼠移上去才顯示資訊 */
   renderParty(icons: PartyIcon[]) {
     this.partyShell.classList.toggle('hidden', !icons.length);
-    const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), i.tip, i.ready, i.hasSkill, i.breakthrough, i.flame, i.itemState]));
+    const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), i.tip, i.tipHtml, i.ready, i.hasSkill, i.breakthrough, i.flame, i.itemState]));
     // 內容沒變就不重畫，避免滑鼠停在圖示上時提示閃爍
     if (this.party.dataset.key === key) {
       this.party.querySelectorAll<HTMLButtonElement>('.pd-gen').forEach((b, i) => (b.onclick = () => icons[i]?.onClick()));
@@ -276,6 +278,7 @@ export class GameUI {
       b.setAttribute('aria-label',i.name); b.setAttribute('aria-disabled',String(i.itemState==='disabled'));
       b.style.setProperty('--pc', i.color);
       b.dataset.tip = i.tip;
+      if (i.tipHtml) b.dataset.tipHtml = i.tipHtml;
       b.innerHTML = `<img src="${i.img}" alt="" onerror="this.style.visibility='hidden'">` +
         (i.hasSkill ? '<span class="pd-skill">✨</span>' : '') +
         `<span class="pd-bars"><i class="hp" style="width:${Math.max(0, Math.min(100, i.hpPct))}%"></i><i class="sta" style="width:${Math.max(0, Math.min(100, i.staPct))}%"></i></span>` +

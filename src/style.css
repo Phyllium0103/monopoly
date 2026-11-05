@@ -1968,6 +1968,35 @@ img {
 }
 .bubble.hidden { display: none; }
 
+/* 武將懸停表格 */
+.gh { border-collapse: collapse; font-size: 14.5px; line-height: 1.45; white-space: normal; }
+.gh th, .gh td { padding: 2px 8px; border: 1px solid rgba(241, 210, 122, 0.22); }
+.gh th { font-weight: 400; color: var(--muted); white-space: nowrap; }
+.gh td { min-width: 52px; color: #f8efd8; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.gh td[colspan] { white-space: normal; }
+.gh .gh-head { padding: 3px 8px; font-size: 16px; font-weight: 700; background: rgba(241, 210, 122, 0.1); }
+.gh .gh-head .gb-tag { margin-left: 6px; font-weight: 400; }
+/* 靈根標籤的字色是為淺色底設計的，放在深色泡泡上要墊底色才看得清楚 */
+.gh .gh-head .gb-tag[class*="apt-"]:not(.apt-heaven) { background-color: #f3e9d2; }
+.gh .gh-title { font-size: 13px; color: var(--gold-light); }
+.gh .gh-passive { max-width: 300px; font-size: 13px; line-height: 1.5; color: #e6d9bd; }
+.gh .gh-passive b { color: var(--gold-light); }
+.gh .gh-note { font-size: 13px; color: #ffb35c; }
+.gh small { margin-left: 6px; font-size: 12px; font-weight: 400; }
+.gh .gh-bar { position: relative; display: block; min-width: 200px; height: 20px; overflow: hidden; border-radius: 4px; background: rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.45); }
+.gh .gh-bar i { position: absolute; left: 0; top: 0; bottom: 0; }
+.gh .gh-bar span { position: relative; display: block; font-size: 13px; line-height: 20px; text-align: center; white-space: nowrap; color: #fff; text-shadow: 0 1px 2px #000, 0 0 3px #000; }
+.gh .gh-bar-hp i { background: linear-gradient(90deg, #a92d26, #e4604f); }
+.gh .gh-bar-sta i { background: linear-gradient(90deg, #a87a14, #e9b93f); }
+.gh .gh-bar-exp i { background: linear-gradient(90deg, #3f58b8, #7f9dff); }
+.gh td.gh-ok .gh-bar { outline: 1px solid #8fe388; }
+.gh td.gh-bad .gh-bar { outline: 1px solid #ff9484; }
+.gh td.gh-focus .gh-bar { outline: 1px solid #ffd76a; }
+/* 用道具時著重的數值：標題和數值一起變色加粗，顏色分辨不出來時還有粗體 */
+.gh th.gh-ok, .gh td.gh-ok { font-weight: 700; color: #8fe388; background: rgba(120, 220, 110, 0.14); }
+.gh th.gh-bad, .gh td.gh-bad { font-weight: 700; color: #ff9484; background: rgba(255, 110, 90, 0.16); }
+.gh th.gh-focus, .gh td.gh-focus { font-weight: 700; color: #ffd76a; background: rgba(255, 205, 90, 0.16); }
+
 .top-bar { gap: 10px; padding: 4px 12px; }
 .speed { display: flex; align-items: center; gap: 3px; flex-wrap: nowrap; }
 .speed-group { display: flex; gap: 2px; margin-left: 4px; }

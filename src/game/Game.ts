@@ -28,6 +28,7 @@ import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechniqu
 import { TILE_INFO, hasCurrentBoard } from '../data/board';
 import { RANK_METRICS, cityIncomeOf, cityRanks, cityToll, garrisonPower, toll } from '../systems/CitySystem';
 import { attack, canAttemptBreak, defense, maxHp, maxStamina, power, realmName } from '../systems/GeneralSystem';
+import { flameLayersFor } from '../data/realmFrames';
 import { realmTag } from '../ui/GeneralInfo';
 import { bindPassiveState, fxText, passiveOf } from '../data/passives';
 import { Engine } from '../engine/Engine';
@@ -777,6 +778,7 @@ export class Game {
           id: g.id, img: portraitUrl(g), name: g.name, color: LORDS[player.id].css,
           hpPct: (g.hp / Math.max(1, maxHp(g))) * 100, staPct: (g.stamina / Math.max(1, maxStamina(g))) * 100,
           tip, ready, hasSkill,
+          flame: canAttemptBreak(g, this.state.round).ok ? flameLayersFor(g.realm) : 0,
           onClick: () => (ready ? this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction) : this.openRoster(g.id)),
         };
       });

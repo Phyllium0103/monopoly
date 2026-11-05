@@ -2,6 +2,7 @@ import {installUiViewport,uiViewportSize} from './UiViewport';
 import { music } from './Music';
 import { DiceRoller, type DiceHandOrigin } from './DiceRoller';
 import { LordActorHud } from './LordActorHud';
+import { PortraitFlames, type FlameSource } from './PortraitFlames';
 import './Bubble';
 import type { GameState, LordId } from '../game/types';
 
@@ -32,11 +33,14 @@ export interface PartyIcon {
   ready: boolean;
   /** 有主動神通（不論此刻能否施展） */
   hasSkill: boolean;
+  /** 可突破時的火焰層數，0 表示沒有火焰 */
+  flame: number;
   onClick: () => void;
 }
 
 export class GameUI {
   private hud: HTMLDivElement;
+  private flames: PortraitFlames;
   private top: HTMLDivElement;
   private actions: HTMLDivElement;
   private info: HTMLDivElement;
@@ -96,6 +100,7 @@ export class GameUI {
     this.overlay = q('.report-overlay');
     this.rollBtn = q('.roll-btn');
     this.party = q('.party-dock');
+    this.flames = new PortraitFlames(this.party);
     this.logPanel = q('.log-panel');
     // 點擊任何地方都能立刻關閉電腦行動結果
     this.overlay.addEventListener('click', () => this.closeReport?.());
@@ -226,17 +231,18 @@ export class GameUI {
   /** 右下角排列隨行武將；可施展神通的會發光，點擊施展，滑鼠移上去才顯示資訊 */
   renderParty(icons: PartyIcon[]) {
     this.party.classList.toggle('hidden', !icons.length);
-    const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), i.tip, i.ready, i.hasSkill]));
+    const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), i.tip, i.ready, i.hasSkill, i.flame]));
     // 內容沒變就不重畫，避免滑鼠停在圖示上時提示閃爍
     if (this.party.dataset.key === key) {
       this.party.querySelectorAll<HTMLButtonElement>('.pd-gen').forEach((b, i) => (b.onclick = () => icons[i]?.onClick()));
       return;
     }
     this.party.dataset.key = key;
-    this.party.innerHTML = '';
+    this.party.querySelectorAll('.pd-gen').forEach((b) => b.remove());
+    const burning: FlameSource[] = [];
     for (const i of icons) {
       const b = document.createElement('button');
-      b.className = `pd-gen${i.ready ? ' ready' : ''}${i.hasSkill ? ' skill' : ''}`;
+      b.className = `pd-gen${i.ready ? ' ready' : ''}${i.hasSkill ? ' skill' : ''}${i.flame ? ' can-break' : ''}`;
       b.style.setProperty('--pc', i.color);
       b.dataset.tip = i.tip;
       b.innerHTML = `<img src="${i.img}" alt="" onerror="this.style.visibility='hidden'">` +
@@ -245,7 +251,9 @@ export class GameUI {
         `<span class="pd-name">${i.name}</span>`;
       b.onclick = () => i.onClick();
       this.party.appendChild(b);
+      if (i.flame) burning.push({ id: i.id, layers: i.flame, img: b.querySelector('img')!, badge: i.hasSkill });
     }
+    this.flames.sync(burning);
   }
 
   renderInfo(html: string | null) {

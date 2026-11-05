@@ -13,6 +13,11 @@ export const REALM_FRAME_WINDOWS = [
   [924, 492, 305, 424], [1221, 504, 303, 417],
 ] as const;
 
+/** 可突破時頭像的火焰層數：凡人～築基一層、金丹～化神兩層、煉虛以上三層 */
+export function flameLayersFor(realm: number): 1 | 2 | 3 {
+  return realm < 3 ? 1 : realm < 6 ? 2 : 3;
+}
+
 export function realmFrameFor(realm: number) {
   const index = Number.isFinite(realm)
     ? Math.max(0, Math.min(REALMS.length - 1, Math.trunc(realm)))

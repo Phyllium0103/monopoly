@@ -19,7 +19,7 @@ registerHooks({
   }
 });
 const { REALMS } = require('../src/data/generals.ts');
-const { REALM_FRAME_STYLE, REALM_FRAME_WINDOWS, realmFrameFor } = require('../src/data/realmFrames.ts');
+const { REALM_FRAME_STYLE, REALM_FRAME_WINDOWS, realmFrameFor, flameLayersFor } = require('../src/data/realmFrames.ts');
 const { realmFrameHtml } = require('../src/ui/RealmFrame.ts');
 const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/realm-frames.json'), 'utf8'));
 
@@ -58,3 +58,6 @@ assert.equal(atlas[25],6); // PNG RGBA，不能用有底色的預覽總圖覆蓋
 assert.ok(manifest.frames.every(frame => frame.centerMaxAlpha <= 1));
 console.log('PASS Production frame atlas is the verified RGBA asset with clear centers');
 
+
+assert.deepEqual(REALMS.map((_, realm) => flameLayersFor(realm)), [1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3], '前三階一層、再三階兩層、其餘三層');
+console.log('PASS Portrait flame layers follow the realm tiers');

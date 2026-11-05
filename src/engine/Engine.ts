@@ -32,7 +32,7 @@ import { buy, makeStock, makeSellStock, beginShopVisit, refreshShop, sell, lockT
 import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, partyRealm, realmRolls, realmTurns } from '../systems/RealmSystem';
 import { recruitmentMaximum, recruitAtBureau } from '../systems/RecruitmentSystem';
 import { aiRecruitmentAmount, aiDefender, aiEnemyCity, aiManageSect, aiOccupy, aiPreroll, aiRealm, aiShop, defenderPool } from '../systems/AISystem';
-import { enterFork, nextMovementTile } from '../systems/MovementSystem';
+import { enterFork, nextMovementTile, wheelDirection } from '../systems/MovementSystem';
 import { rollRoadEvent } from '../systems/RoadEvents';
 import { EVENT_INTERVAL, IMMORTAL_INTERVAL, TOURNAMENT_INTERVAL, eventDef, aiBid, applyWorldEvent, auctionLot, banditToll, pickWorldEvent, resolveAuction, tickWorldEvents } from '../systems/EventSystem';
 import { Ask, type DuelAction, type PrerollAction, type Prompt, type RosterAction, type Sender, type ShopAction } from './prompts';
@@ -1501,10 +1501,11 @@ export class Engine {
     const tile = this.state.tiles[lord.position];
     if (!lord.forkChoice || tile.links.length < 3) return false;
     if (lord.forkExit === null) enterFork(this.state, lord, 1);
-    const picked = this.human(lord) ? await this.dlg(lord).choose('風火輪：選擇岔路方向', tile.name, tile.links.map(value => ({ label: this.state.tiles[value].name, value })), null) : null;
-    const exit = picked ?? tile.links[Math.floor(Math.random() * tile.links.length)];
+    const exits=tile.links.filter(value=>value!==lord.lastTile);
+    const picked = this.human(lord) ? await this.dlg(lord).choose('風火輪：選擇岔路方向', `${tile.name}；左右前後以主公進入岔路的方向為準。`, exits.map(value => ({ label: wheelDirection(this.state.tiles,lord.position,lord.lastTile,value), sub: this.state.tiles[value].name, value })), null) : null;
+    const exit = picked!==null && exits.includes(picked) ? picked : exits[Math.floor(Math.random() * exits.length)];
     lord.forkExit = exit; lord.forkChoice = false;
-    this.view.log(LORDS[lord.id].name + '使用風火輪，選擇前往' + this.state.tiles[exit].name + '。', 'info'); return true;
+    this.view.log(LORDS[lord.id].name + '使用風火輪，選擇' + wheelDirection(this.state.tiles,lord.position,lord.lastTile,exit) + '前往' + this.state.tiles[exit].name + '。', 'info'); return true;
   }
 
   private async recruitSoldiers(lord: Lord) {

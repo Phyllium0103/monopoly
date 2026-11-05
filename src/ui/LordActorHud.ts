@@ -348,7 +348,7 @@ export class LordActorHud {
     a.card.dataset.sourcePixelScale=String(unit);
   }
   private layoutActors():void{
-    for(const a of this.actors.values()){const card=a.card.getBoundingClientRect(),seat=a.seat.getBoundingClientRect();this.actorRects.set(a.id,{width:card.width,left:seat.left,top:seat.top});}
+    for(const a of this.actors.values()){const card=a.card.getBoundingClientRect(),seat=a.seat.getBoundingClientRect();this.actorRects.set(a.id,{width:card.width/1.25,left:seat.left,top:seat.top});}
     for(const a of this.actors.values())this.position(a);
   }
   private layout():void{
@@ -358,8 +358,8 @@ export class LordActorHud {
   private layoutNow():void{
     const count=[...this.actors.values()].filter(a=>!a.card.hidden).length||4;
     const logical=uiViewportSize();
-    const maxHeight=Math.max(108,(logical.height-280)/2.1);
-    const width=Math.max(104,Math.min(160,maxHeight,(logical.width-210-count*7)/count));
+    const maxHeight=Math.max(130,(logical.height-280)/1.8504);
+    const width=Math.max(130,Math.min(200,maxHeight,(logical.width-210-count*7)/count));
     this.parent.style.setProperty('--lord-actor-width',width+'px');
     const toolbar=(this.parent.querySelector('.top-bar')?.getBoundingClientRect().height??58*logical.scale)/logical.scale;
     const party=this.parent.querySelector<HTMLElement>('.party-dock');
@@ -368,7 +368,7 @@ export class LordActorHud {
     const rollBottom=Math.max(150,partyHeight+dockHeight+36),rollSize=logical.height<=700?100:120;
     this.parent.style.setProperty('--lord-actors-bottom','12px');
     // 左下人物整體占用的高度（底部 12px 加人物身高），天下紀事展開時停在它上方
-    this.parent.style.setProperty('--lord-actors-height',(12+width*2.1)+'px');
+    this.parent.style.setProperty('--lord-actors-height',(12+width*1.8504)+'px');
     this.parent.style.setProperty('--lord-content-top',(toolbar+12)+'px');
     this.parent.style.setProperty('--lord-roll-bottom',rollBottom+'px');
     this.parent.style.setProperty('--lord-info-max-height',Math.max(140,logical.height-toolbar-12-rollBottom-rollSize-24)+'px');

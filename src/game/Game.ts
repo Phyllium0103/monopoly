@@ -410,9 +410,18 @@ export class Game {
         this.sm.cameraController.focus(s.group.position);
         await this.view.wait(500);
       },
-      moveStep: async (lord: LordId, _from: number, to: number) => {
+      moveStep: async (lord: LordId, from: number, to: number) => {
         const s = sprite(lord);
-        await s.moveAlong([s.group.position.clone(), this.slotPosition(lord, to)], this.sm.animator, (p) => this.sm.cameraController.follow(p));
+        const start=this.state.tiles[from].pos,end=this.state.tiles[to].pos,dir={x:end.x-start.x,z:end.z-start.z};
+        const right=this.sm.camera.matrixWorld.elements,screenDirection=dir.x*right[0]+dir.z*right[2];
+        if(Math.abs(screenDirection)>0.001)s.setFacing(screenDirection<0?-1:1);
+        const slot=LORD_IDS.indexOf(lord);
+        await s.moveAlong([s.group.position.clone(), this.slotPosition(lord, to)], this.sm.animator, (p) => {
+          const origin=this.world.tilePosition(from),destination=this.world.tilePosition(to);
+          const marked=p.distanceToSquared(origin)<=p.distanceToSquared(destination)?from:to;
+          this.world.setFacing(lord,LORDS[lord].color,marked,dir,slot);
+          this.sm.cameraController.follow(p);
+        });
         // 多人：棋子走到岔路，這座岔路的箭頭才換成新方向
         if (this.shownForks && this.state.tiles[to]?.links.length >= 3) {
           this.shownForks[to] = this.state.forkDirections[to];
@@ -660,17 +669,14 @@ export class Game {
 
   // ───────────────────────── 地圖與棋子 ─────────────────────────
 
-  private slotPosition(id: LordId, tile: number): THREE.Vector3 {
+  private slotPosition(_id: LordId, tile: number): THREE.Vector3 {
     const p = this.world.tilePosition(tile);
-    const i = LORD_IDS.indexOf(id);
-    const ox=(i%2===0?-1:1)*.55;
-    const oz=(i<2?1:-1)*.5;
-    return new THREE.Vector3(p.x+ox,p.y+.08,p.z+oz);
+    return new THREE.Vector3(p.x,p.y+.08,p.z);
   }
 
   private facingText(lord: Lord): string {
     const t = this.state.tiles[lord.position];
-    if (lord.forkExit !== null) return `${lord.forkExit === lord.lastTile ? '下回合返回' : '下次前進往'}${this.state.tiles[lord.forkExit].name}`;
+    if (lord.forkExit !== null && t.links.includes(lord.forkExit)) return `${lord.forkExit === lord.lastTile ? '下回合返回' : '下次前進往'}${this.state.tiles[lord.forkExit].name}`;
     if (t.links.length >= 3) return `依岔路箭頭往${this.state.tiles[this.state.forkDirections[t.index]].name}`;
     if (lord.lastTile === null) return '尚未出發（方向隨機）';
     const ahead = t.links.filter((n) => n !== lord.lastTile);
@@ -682,12 +688,15 @@ export class Game {
   private updateFacing() {
     LORD_IDS.forEach((id, i) => {
       const l = this.state.lords[id];
-      if (!l.alive || l.lastTile === null) {
+      if (!l.alive || l.relicJourney) {
         this.world.setFacing(id, LORDS[id].color, l.position, null, i);
         return;
       }
-      const from = this.state.tiles[l.forkExit !== null ? l.position : l.lastTile].pos;
-      const to = this.state.tiles[l.forkExit ?? l.position].pos;
+      const tile=this.state.tiles[l.position];
+      const exits=tile.links.filter(n=>n!==l.lastTile);
+      const preferred=l.forkExit!==null && tile.links.includes(l.forkExit)?l.forkExit:(exits[0]??tile.links[0]);
+      if(preferred===undefined){this.world.setFacing(id,LORDS[id].color,l.position,null,i);return;}
+      const from=tile.pos,to=this.state.tiles[preferred].pos;
       this.world.setFacing(id, LORDS[id].color, l.position, { x: to.x - from.x, z: to.z - from.z }, i);
     });
   }

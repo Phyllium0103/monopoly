@@ -41,6 +41,7 @@ export class World {
   private eventMarkers: THREE.Group[] = [];
   private spirits = new ElementalSpiritLayer(index => this.tilePosition(index));
   private facing = new Map<string, THREE.Group>();
+  private facingTexture: THREE.DataTexture | null = null;
   private textureReady:Promise<void>[]=[];
   private roadArrows=Object.fromEntries(['north','east','south','west'].map(d=>{let ok!:()=>void,fail!:(e:unknown)=>void;this.textureReady.push(new Promise<void>((resolve,reject)=>{ok=resolve;fail=reject;}));const t=new THREE.TextureLoader().load(assetUrl(`art/map-runtime/road-arrow-${d}.webp`),()=>ok(),undefined,fail);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return[d,t];}));
   private forkArrows = new Map<number, THREE.Group>();
@@ -344,14 +345,25 @@ export class World {
     }
   }
 
-  /** 主公面向的箭頭：dir 為 null 時（尚未出發）不顯示 */
-  setFacing(id: string, color: number, tile: number, dir: Vec2 | null, slot: number) {
+  /** Highlight the edge of the occupied cell that faces the intended road. */
+  setFacing(id: string, color: number, tile: number, dir: Vec2 | null, slot: number, position?: THREE.Vector3) {
     let g = this.facing.get(id);
     if (!g) {
       g = new THREE.Group();
-      const cone = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.5, 14).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, depthTest: false }));
-      cone.renderOrder = 5;
-      g.add(cone);
+      if(!this.facingTexture){
+        const width=64,height=32,data=new Uint8Array(width*height*4);
+        for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+          const u=x/(width-1),v=y/(height-1);
+          const fade=(distance:number)=>{const t=Math.min(1,Math.max(0,distance));return t*t*(3-2*t);};
+          const alpha=fade(Math.min(u,1-u)*8)*fade(Math.min(v,1-v)*5)*.82;
+          const i=(y*width+x)*4;data[i]=data[i+1]=data[i+2]=255;data[i+3]=Math.round(alpha*255);
+        }
+        this.facingTexture=new THREE.DataTexture(data,width,height,THREE.RGBAFormat);
+        this.facingTexture.magFilter=THREE.LinearFilter;this.facingTexture.minFilter=THREE.LinearFilter;
+        this.facingTexture.needsUpdate=true;
+      }
+      const edge=new THREE.Mesh(new THREE.PlaneGeometry(CELL_SIZE*.88,CELL_SIZE*.2).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color,map:this.facingTexture,transparent:true,depthTest:true,depthWrite:false,side:THREE.DoubleSide}));
+      edge.renderOrder=3;g.add(edge);
       this.root.add(g);
       this.facing.set(id, g);
     }
@@ -359,13 +371,12 @@ export class World {
       g.visible = false;
       return;
     }
-    const p = this.tilePosition(tile);
+    const p = position ?? this.tilePosition(tile);
     const len = Math.hypot(dir.x, dir.z) || 1;
     const dx = dir.x / len;
     const dz = dir.z / len;
-    // 各主公的箭頭略微錯開，避免重疊
-    const side = (slot - 1.5) * 0.28;
-    g.position.set(p.x + dx * 1.3 - dz * side, p.y + 0.9, p.z + dz * 1.3 + dx * side);
+    void slot;
+    g.position.set(p.x + dx * CELL_SIZE*.44, p.y + 0.04, p.z + dz * CELL_SIZE*.44);
     g.rotation.y = Math.atan2(dx, dz);
     g.visible = true;
   }

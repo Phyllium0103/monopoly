@@ -295,8 +295,6 @@ export class CharacterSprite {
       const from = points[i - 1];
       const to = points[i];
       const long = longSteps[i] ?? false;
-      const dx = to.x - from.x;
-      if (Math.abs(dx) > 0.05) this.facing = dx < 0 ? -1 : 1;
       const dur = long ? 0.9 : 0.28;
       await animator.tween(dur, (t) => {
         const k = long ? easeInOut(t) : t;

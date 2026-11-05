@@ -5,6 +5,7 @@ import { itemIconUrl } from './Icons';
 import { SPECIAL_ITEM_STORAGE } from '../systems/DirectItems';
 import { requirementText } from '../systems/ItemSystem';
 import { shortItemName } from '../data/itemLabels';
+import { sortItemStacks, type ItemStack } from './itemDockOrder';
 import { uiViewportSize } from './UiViewport';
 import './item-dock.css';
 
@@ -20,6 +21,8 @@ export class ItemDock {
   readonly el = document.createElement('section');
   private category = '全部'; private page = 0; private columns = 15;
   private state: ItemDockState | null = null; private key = '';
+  private drag: { x:number; y:number; pointerId:number; moved:boolean } | null = null;
+  private suppressClick = false;
   constructor(private hud: HTMLElement) {
     this.el.className = 'item-dock hidden'; this.el.setAttribute('aria-label', '物品快捷列');
     hud.append(this.el);
@@ -32,15 +35,45 @@ export class ItemDock {
       hud.style.setProperty('--item-dock-height', `${Math.round(height)}px`);
       hud.parentElement?.style.setProperty('--item-dock-height', `${Math.round(height)}px`);
     }).observe(this.el);
+    this.el.addEventListener('click',event=>{
+      if(this.suppressClick){this.suppressClick=false;event.preventDefault();event.stopImmediatePropagation();}
+    },true);
+    this.el.addEventListener('wheel',event=>{
+      if(!(event.target as HTMLElement).closest('.item-dock-row,.item-dock-names'))return;
+      if(this.el.querySelectorAll('.item-dock-pager button:not(:disabled)').length===0)return;
+      event.preventDefault();event.stopPropagation();
+      const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
+      if(delta)this.shiftPage(delta>0?1:-1);
+    },{passive:false});
+    this.el.addEventListener('pointerdown',event=>{
+      if(event.button!==0||!(event.target as HTMLElement).closest('.item-dock-row,.item-dock-names'))return;
+      this.drag={x:event.clientX,y:event.clientY,pointerId:event.pointerId,moved:false};
+    });
+    this.el.addEventListener('pointermove',event=>{
+      const d=this.drag;if(!d||d.pointerId!==event.pointerId)return;
+      if(!d.moved&&Math.abs(event.clientX-d.x)>12&&Math.abs(event.clientX-d.x)>Math.abs(event.clientY-d.y)){
+        d.moved=true;this.el.setPointerCapture(event.pointerId);event.preventDefault();
+      }
+    });
+    this.el.addEventListener('pointerup',event=>{
+      const d=this.drag;if(!d||d.pointerId!==event.pointerId)return;this.drag=null;
+      if(d.moved){this.suppressClick=true;this.shiftPage(event.clientX<d.x?1:-1);setTimeout(()=>{this.suppressClick=false;},0);}
+    });
+    this.el.addEventListener('pointercancel',()=>{this.drag=null;});
     this.el.addEventListener('click', event => {
       const b = (event.target as HTMLElement).closest<HTMLButtonElement>('button');
       if (!b || !this.state || b.disabled) return;
       if (b.dataset.category) { this.category = b.dataset.category; this.page = 0; this.state.cancel(); this.paint(); }
-      else if (b.dataset.page) { this.page += Number(b.dataset.page); this.state.cancel(); this.paint(); }
+      else if (b.dataset.page) this.shiftPage(Number(b.dataset.page));
       else if (b.dataset.uid) { const item = this.state.items.find(i => i.uid === b.dataset.uid); if (item) this.state.pick(item); }
       else if (b.dataset.choice) this.state.choose(b.dataset.choice);
       else if (b.dataset.cancel) this.state.cancel();
     });
+  }
+  private shiftPage(delta:number){
+    const button=this.el.querySelector<HTMLButtonElement>(`.item-dock-pager button[data-page="${delta}"]`);
+    if(!button||button.disabled||!this.state)return;
+    this.page+=delta;this.state.cancel();this.paint();
   }
   render(state: ItemDockState) { this.state = state; this.paint(); }
   private paint() {
@@ -48,13 +81,13 @@ export class ItemDock {
     this.el.classList.toggle('hidden', !s.visible); this.hud.classList.toggle('item-dock-present', s.visible);
     this.hud.classList.toggle('item-battle',s.battle);
     if (!s.visible) return;
-    const groups = new Map<string, { item: Item; count: number; reason: string }>();
+    const groups = new Map<string, ItemStack>();
     for (const item of s.items) {
       if (SPECIAL_ITEM_STORAGE.has(item.defId) || (this.category !== '全部' && ITEM_DEFS[item.defId].category !== this.category)) continue;
       const id = `${item.defId}:${item.tier}`, stack = groups.get(id);
       if (stack) stack.count++; else groups.set(id, { item, count: 1, reason: s.disabled(item) });
     }
-    const stacks = [...groups.values()], pages = Math.max(1, Math.ceil(stacks.length / this.columns));
+    const stacks = sortItemStacks([...groups.values()]), pages = Math.max(1, Math.ceil(stacks.length / this.columns));
     this.page = Math.max(0, Math.min(pages - 1, this.page));
     const shown = stacks.slice(this.page * this.columns, (this.page + 1) * this.columns);
     const key = JSON.stringify([this.category, this.page, this.columns, s.selected, s.hint, s.choices, shown.map(x => [x.item.uid,x.item.defId,x.item.tier,x.count,x.reason]), pages]);

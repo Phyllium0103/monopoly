@@ -7,6 +7,7 @@
 /* Captions share the image columns. Extra target choices occupy space inside the dock. */
 .item-dock{z-index:2}
 .item-dock-names{display:grid;grid-template-columns:repeat(var(--item-columns,15),minmax(0,1fr));gap:4px;margin-bottom:3px}
+.item-dock-row,.item-dock-names{touch-action:pan-y;user-select:none}
 .item-short-name{font-size:11px;line-height:17px;text-align:center;white-space:nowrap;color:#f1e5c1}
 .item-short-name.unavailable{color:#909383}.item-short-name.selected{color:#ffed92;font-weight:700}
 .item-target-tray{position:static;box-sizing:border-box;margin-bottom:6px;max-height:86px;scrollbar-width:thin}

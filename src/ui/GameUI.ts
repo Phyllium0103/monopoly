@@ -113,7 +113,7 @@ export class GameUI {
     };
     this.partyPrev.onclick=()=>moveParty(-1);this.partyNext.onclick=()=>moveParty(1);
     this.party.addEventListener('scroll',()=>this.updatePartyArrows(),{passive:true});
-    new ResizeObserver(()=>this.updatePartyArrows()).observe(this.party);
+    new ResizeObserver(()=>this.resizeParty()).observe(this.partyShell);
     this.party.tabIndex = 0;
     this.party.setAttribute('aria-label','武將頭像列，可使用滾輪或左右方向鍵捲動');
     this.party.addEventListener('wheel',e=>{
@@ -280,7 +280,20 @@ export class GameUI {
       this.party.appendChild(b);
     }
     this.party.scrollLeft=previousScroll;
-    requestAnimationFrame(()=>this.updatePartyArrows());
+    requestAnimationFrame(()=>this.resizeParty());
+  }
+
+  private resizeParty(){
+    const icon=this.party.querySelector<HTMLElement>('.pd-gen');
+    if(!icon || !this.partyShell.clientWidth)return;
+    const styles=getComputedStyle(this.party);
+    const gap=parseFloat(styles.columnGap)||0;
+    const padding=(parseFloat(styles.paddingLeft)||0)+(parseFloat(styles.paddingRight)||0);
+    const available=Math.max(0,this.partyShell.clientWidth-this.partyPrev.offsetWidth-this.partyNext.offsetWidth);
+    const step=icon.offsetWidth+gap;
+    const count=Math.max(1,Math.floor((available-padding+gap)/step));
+    this.party.style.width=`${Math.min(available,count*step-gap+padding)}px`;
+    this.updatePartyArrows();
   }
 
   private updatePartyArrows(){

@@ -75,11 +75,11 @@ async function advance(ms){const end=clock+ms;while(clock<end){clock+=50;const c
  hud.reset();document.hidden=true;listeners.get('visibilitychange')();document.hidden=false;listeners.get('visibilitychange')();await flush();assert.equal(hud.active,null);assert.ok([...hud.actors.values()].every(x=>x.frame===0),'reset does not resurrect a stale turn');
  let rollClicks=0;hud.focus('liu',true);hud.setRollAction(()=>rollClicks++);
  assert.equal(a.rollButton.hidden,false);assert.equal(a.rollButton.disabled,false);
- assert.ok([...hud.actors.values()].filter(x=>x.id!=='liu').every(x=>x.rollButton.hidden),'only local current lord is actionable');
+ assert.ok([...hud.actors.values()].filter(x=>!x.card.hidden).every(x=>!x.rollButton.hidden),'present lords keep portrait hover information available');
  const detailsBefore=clicked.length;a.card.children[0].onclick();assert.equal(clicked.length,detailsBefore+1);assert.equal(rollClicks,0,'stone opens details without rolling');
  a.rollButton.onclick();assert.equal(rollClicks,1,'current local character uses the shared dice action');
- hud.focus('cao',true);assert.equal(a.rollButton.hidden,true);assert.equal(a.rollButton.disabled,true);a.rollButton.onclick();assert.equal(rollClicks,1,'out of turn character cannot roll');
- hud.setRollAction(null);assert.ok([...hud.actors.values()].every(x=>x.rollButton.disabled),'regular roll availability gates every character action');
+ hud.focus('cao',true);assert.equal(a.rollButton.hidden,false);a.rollButton.onclick();assert.equal(rollClicks,1,'out of turn portrait can show information but cannot roll');
+ hud.setRollAction(null);assert.ok([...hud.actors.values()].every(x=>!x.card.classList.contains('can-roll')),'roll availability is separate from portrait hover information');
  const {proportionalViewport}=require('../src/ui/UiViewport.ts');
  // 設計尺寸 1600×900；小於它時比舊尺寸 1280×720 最多縮到 90%
  const close=(a,b)=>Math.abs(a-b)<1e-9;

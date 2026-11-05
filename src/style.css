@@ -2329,8 +2329,8 @@ img {
   .general-card { min-width: 740px; }
 }
 
-/* 武將頭像：方形裁切，點擊看全身圖 */
-img[src*="/generals/head/"] { cursor: zoom-in; }
+/* Action portraits use the containing button; only explicit roster art can enlarge. */
+img[src*="/generals/head/"] { cursor: pointer; }
 .choice-icon.general-portrait, .sr-icon.general-portrait, .cr-portrait {
   width: 72px; height: 72px; aspect-ratio: 1; object-fit: cover; border-radius: 8px;
 }
@@ -2668,7 +2668,7 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
   border-radius: 50%;
   object-fit: cover;
   background: #2a1d14;
-  border: 2px solid var(--pc, #c9a45a);
+  border: 2px solid #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
   transition: transform 0.12s, filter 0.12s;
 }
@@ -2677,6 +2677,16 @@ img[src*="/generals/head/"] { cursor: zoom-in; }
   border-color: #f1d27a;
   animation: pd-glow 1.4s ease-in-out infinite;
 }
+@property --pd-rainbow-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+.pd-gen.break-ready::before {
+  content: ''; position: absolute; top: -4px; left: 50%; width: 62px; height: 62px;
+  margin-left: -31px; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from var(--pd-rainbow-angle),#ff4545,#ffd23f,#64e889,#3ac9ff,#a96fff,#ff4545);
+  box-shadow: 0 0 10px #eeb4ff; animation: pd-break-spin 2s linear infinite;
+}
+.pd-gen.break-ready img { position: relative; z-index: 1; border-color: #fff; animation: none; }
+@keyframes pd-break-spin { to { --pd-rainbow-angle: 360deg; } }
+@media (prefers-reduced-motion:reduce){.pd-gen.break-ready::before{animation:none}}
 @keyframes pd-glow {
   50% { box-shadow: 0 0 14px 4px rgba(241, 210, 122, 0.85), 0 2px 8px rgba(0, 0, 0, 0.6); }
 }

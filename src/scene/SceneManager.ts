@@ -4,6 +4,7 @@ import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { CameraController } from './CameraController';
 import { Environment } from './Environment';
 import { Animator } from './Animator';
+import { resolvePick, type PickMode } from './picking';
 
 export class SceneManager {
   scene = new THREE.Scene();
@@ -28,9 +29,12 @@ export class SceneManager {
 
   beforeRender:(()=>void)|null=null;
   private hoverQueued = false;
+  private hoverEvent: PointerEvent | null = null;
+  pickMode: PickMode = 'inspect';
   private updaters: ((dt: number, time: number) => void)[] = [];
   private raycaster = new THREE.Raycaster();
   private pickables: THREE.Object3D[] = [];
+  private pickSurfaces: Record<'tile'|'city'|'lord',THREE.Object3D[]> = {tile:[],city:[],lord:[]};
   private downPos = { x: 0, y: 0 };
   onPick: ((obj: THREE.Object3D | null) => void) | null = null;
   onHover: ((obj: THREE.Object3D | null, e: PointerEvent) => void) | null = null;
@@ -60,7 +64,7 @@ export class SceneManager {
     window.addEventListener('resize', () => this.resize());
     for(const type of ['pointerdown','wheel','keydown'])window.addEventListener(type,()=>{this.interactionUntil=performance.now()+1200;},{passive:true});
     this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
-    this.renderer.domElement.addEventListener('pointerdown', (e) => (this.downPos = { x: e.clientX, y: e.clientY }));
+    this.renderer.domElement.addEventListener('pointerdown', (e) => {this.downPos = { x: e.clientX, y: e.clientY };this.hoverEvent=null;this.onHover?.(null,e);});
     this.renderer.domElement.addEventListener('pointerup', (e) => {
       if (e.button !== 0) return;
       // 拖曳視角時不算點擊
@@ -69,33 +73,37 @@ export class SceneManager {
     });
     this.renderer.domElement.addEventListener('pointermove', (e) => {
       if (e.buttons) return;
+      this.hoverEvent = e;
       // 滑鼠移動事件很密集，每個畫格最多算一次（對整張地圖做射線檢測不便宜）
       if (this.hoverQueued) return;
       this.hoverQueued = true;
       requestAnimationFrame(() => {
         this.hoverQueued = false;
-        const hit = this.pick(e);
+        const latest = this.hoverEvent; if (!latest) return;
+        const hit = this.pick(latest);
         this.renderer.domElement.style.cursor = hit ? 'pointer' : 'default';
-        this.onHover?.(hit, e);
+        this.onHover?.(hit, latest);
       });
     });
+    this.renderer.domElement.addEventListener('pointerleave', e => { this.hoverEvent = null; this.onHover?.(null, e); });
   }
 
   setPickables(list: THREE.Object3D[]) {
     this.pickables = list;
+    this.pickSurfaces={tile:[],city:[],lord:[]};
+    for(const root of list)root.traverse(object=>{
+      const kind=object.userData.pickKind as 'tile'|'city'|'lord';
+      if(kind in this.pickSurfaces)this.pickSurfaces[kind].push(object);
+    });
   }
 
   private pick(e: PointerEvent): THREE.Object3D | null {
+    if(this.pickMode==='none')return null;
     const rect = this.renderer.domElement.getBoundingClientRect();
     const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
     this.raycaster.setFromCamera(ndc, this.camera);
-    const hits = this.raycaster.intersectObjects(this.pickables, true);
-    for (const h of hits) {
-      let o: THREE.Object3D | null = h.object;
-      while (o && !o.userData.pick) o = o.parent;
-      if (o && o.visible) return o;
-    }
-    return null;
+    const surfaces=this.pickMode==='inspect'?this.pickables:this.pickSurfaces[this.pickMode];
+    return resolvePick(this.raycaster.intersectObjects(surfaces, this.pickMode==='inspect'), this.pickMode);
   }
 
   onUpdate(fn: (dt: number, time: number) => void) {

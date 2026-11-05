@@ -3,6 +3,7 @@ import { music } from './Music';
 import { DiceRoller, type DiceHandOrigin } from './DiceRoller';
 import { LordActorHud } from './LordActorHud';
 import { PortraitFlames, type FlameSource } from './PortraitFlames';
+import { ItemDock, type ItemDockState } from './ItemDock';
 import './Bubble';
 import type { GameState, LordId } from '../game/types';
 
@@ -33,8 +34,10 @@ export interface PartyIcon {
   ready: boolean;
   /** 有主動神通（不論此刻能否施展） */
   hasSkill: boolean;
+  breakthrough?: boolean;
   /** 可突破時的火焰層數，0 表示沒有火焰 */
   flame: number;
+  itemState?: 'eligible' | 'selected' | 'disabled';
   onClick: () => void;
 }
 
@@ -49,11 +52,15 @@ export class GameUI {
   private tooltip: HTMLDivElement;
   private dice: DiceRoller;
   private actors: LordActorHud;
+  private itemDock: ItemDock;
   private currentLord: LordId | null = null;
   private report: HTMLDivElement;
   private overlay: HTMLDivElement;
   private rollBtn: HTMLButtonElement;
   private party: HTMLDivElement;
+  private partyShell: HTMLDivElement;
+  private partyPrev: HTMLButtonElement;
+  private partyNext: HTMLButtonElement;
   private logPanel: HTMLDivElement;
   private logOpen = true;
   private closeReport: (() => void) | null = null;
@@ -81,7 +88,7 @@ export class GameUI {
       <div class="toast"></div>
       <div class="report-overlay hidden"></div>
       <div class="turn-report hidden"></div>
-      <div class="party-dock hidden"></div>
+      <div class="party-shell hidden"><button class="party-arrow party-prev" aria-label="上一個武將">‹</button><div class="party-dock"></div><button class="party-arrow party-next" aria-label="下一個武將">›</button></div>
       <button class="roll-btn hidden" title="擲骰（空白鍵）"><span class="roll-dice">🎲</span><b>擲骰</b><small>空白鍵</small></button>
 
       <div class="tooltip hidden"></div>
@@ -94,13 +101,37 @@ export class GameUI {
     this.logEl = q('.log-list');
     this.toastEl = q('.toast');
     this.tooltip = q('.tooltip');
+    this.itemDock = new ItemDock(this.hud);
     this.dice = new DiceRoller(this.hud,{centerFinal:true});
     this.actors = new LordActorHud(this.hud,()=>this.speed,id=>this.onLord?.(id));
     this.report = q('.turn-report');
     this.overlay = q('.report-overlay');
     this.rollBtn = q('.roll-btn');
     this.party = q('.party-dock');
-    this.flames = new PortraitFlames(this.party);
+    this.partyShell=q('.party-shell');this.partyPrev=q('.party-prev');this.partyNext=q('.party-next');
+    this.flames = new PortraitFlames(this.partyShell, this.party);
+    const moveParty=(direction:number)=>{
+      const icon=this.party.querySelector<HTMLElement>('.pd-gen');
+      const gap=parseFloat(getComputedStyle(this.party).columnGap)||0;
+      this.party.scrollLeft+=direction*((icon?.offsetWidth??58)+gap);
+      this.updatePartyArrows();
+    };
+    this.partyPrev.onclick=()=>moveParty(-1);this.partyNext.onclick=()=>moveParty(1);
+    this.party.addEventListener('scroll',()=>this.updatePartyArrows(),{passive:true});
+    new ResizeObserver(()=>this.resizeParty()).observe(this.partyShell);
+    this.party.tabIndex = 0;
+    this.party.setAttribute('aria-label','武將頭像列，可使用滾輪或左右方向鍵捲動');
+    this.party.addEventListener('wheel',e=>{
+      if(this.party.scrollWidth<=this.party.clientWidth)return;
+      e.preventDefault();e.stopPropagation();
+      this.party.scrollLeft+=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
+    },{passive:false});
+    this.party.addEventListener('keydown',e=>{
+      if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+      if(this.party.scrollWidth<=this.party.clientWidth)return;
+      e.preventDefault();e.stopPropagation();
+      this.party.scrollBy({left:e.key==='ArrowLeft'?-128:128,behavior:'smooth'});
+    });
     this.logPanel = q('.log-panel');
     // 點擊任何地方都能立刻關閉電腦行動結果
     this.overlay.addEventListener('click', () => this.closeReport?.());
@@ -230,19 +261,21 @@ export class GameUI {
 
   /** 右下角排列隨行武將；可施展神通的會發光，點擊施展，滑鼠移上去才顯示資訊 */
   renderParty(icons: PartyIcon[]) {
-    this.party.classList.toggle('hidden', !icons.length);
-    const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), i.tip, i.ready, i.hasSkill, i.flame]));
+    this.partyShell.classList.toggle('hidden', !icons.length);
+    const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), i.tip, i.ready, i.hasSkill, i.breakthrough, i.flame, i.itemState]));
     // 內容沒變就不重畫，避免滑鼠停在圖示上時提示閃爍
     if (this.party.dataset.key === key) {
       this.party.querySelectorAll<HTMLButtonElement>('.pd-gen').forEach((b, i) => (b.onclick = () => icons[i]?.onClick()));
       return;
     }
     this.party.dataset.key = key;
-    this.party.querySelectorAll('.pd-gen').forEach((b) => b.remove());
+    const previousScroll=this.party.scrollLeft;
+    this.party.innerHTML = '';
     const burning: FlameSource[] = [];
     for (const i of icons) {
       const b = document.createElement('button');
-      b.className = `pd-gen${i.ready ? ' ready' : ''}${i.hasSkill ? ' skill' : ''}${i.flame ? ' can-break' : ''}`;
+      b.className = `pd-gen${i.ready ? ' ready' : ''}${i.hasSkill ? ' skill' : ''}${i.breakthrough ? ' break-ready' : ''}${i.itemState ? ' item-' + i.itemState : ''}`;
+      b.setAttribute('aria-label',i.name); b.setAttribute('aria-disabled',String(i.itemState==='disabled'));
       b.style.setProperty('--pc', i.color);
       b.dataset.tip = i.tip;
       b.innerHTML = `<img src="${i.img}" alt="" onerror="this.style.visibility='hidden'">` +
@@ -251,9 +284,37 @@ export class GameUI {
         `<span class="pd-name">${i.name}</span>`;
       b.onclick = () => i.onClick();
       this.party.appendChild(b);
-      if (i.flame) burning.push({ id: i.id, layers: i.flame, img: b.querySelector('img')!, badge: i.hasSkill });
+      if (i.flame && i.itemState !== 'disabled') burning.push({ id: i.id, layers: i.flame, img: b.querySelector('img')!, badge: i.hasSkill });
     }
+    this.party.scrollLeft=previousScroll;
     this.flames.sync(burning);
+    requestAnimationFrame(()=>this.resizeParty());
+  }
+
+  private resizeParty(){
+    const icon=this.party.querySelector<HTMLElement>('.pd-gen');
+    if(!icon || !this.partyShell.clientWidth)return;
+    const styles=getComputedStyle(this.party);
+    const gap=parseFloat(styles.columnGap)||0;
+    const padding=(parseFloat(styles.paddingLeft)||0)+(parseFloat(styles.paddingRight)||0);
+    const available=Math.max(0,this.partyShell.clientWidth-this.partyPrev.offsetWidth-this.partyNext.offsetWidth);
+    const step=icon.offsetWidth+gap;
+    const count=Math.max(1,Math.floor((available-padding+gap)/step));
+    this.party.style.width=`${Math.min(available,count*step-gap+padding)}px`;
+    this.updatePartyArrows();
+  }
+
+  private updatePartyArrows(){
+    const max=Math.max(0,this.party.scrollWidth-this.party.clientWidth),overflow=max>1;
+    this.partyPrev.disabled=!overflow||this.party.scrollLeft<=1;
+    this.partyNext.disabled=!overflow||this.party.scrollLeft>=max-1;
+    this.partyShell.classList.toggle('has-overflow',overflow);
+  }
+
+  renderItems(state: ItemDockState) { this.itemDock.render(state); }
+  setItemTargeting(active: boolean) {
+    this.hud.classList.toggle('item-casting',active);
+    this.actors.setItemTargeting(active ? id => this.onLord?.(id) : null);
   }
 
   renderInfo(html: string | null) {
@@ -338,9 +399,9 @@ export class GameUI {
     }
     this.tooltip.classList.remove('hidden');
     this.tooltip.innerHTML = text;
-    const {scale,width}=uiViewportSize();x/=scale;y/=scale;
-    this.tooltip.style.left = `${Math.min(x + 14, width - 260)}px`;
-    this.tooltip.style.top = `${y + 14}px`;
+    const {scale,width,height}=uiViewportSize();x/=scale;y/=scale;
+    this.tooltip.style.left = `${Math.max(8,Math.min(x + 14, width - this.tooltip.offsetWidth - 8))}px`;
+    this.tooltip.style.top = `${Math.max(8,Math.min(y + 14,height-this.tooltip.offsetHeight-8))}px`;
   }
 
   /** 等待房主的權威結果；結果收到後才掉落真正 3D 骰子。 */

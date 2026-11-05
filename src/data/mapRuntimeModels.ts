@@ -6,14 +6,14 @@ export const MAP_RUNTIME_MODELS={
     "art/map-runtime/forge-lod2-e81bdcfec834.glb"
   ],
   "herb": [
-    "art/map-runtime/herb-lod0-06b4884a1939.glb",
-    "art/map-runtime/herb-lod1-f5bebe913d06.glb",
-    "art/map-runtime/herb-lod2-54d9bc5fdd20.glb"
+    "art/map-runtime/herb-lod0-7cc6b1c49f80.glb",
+    "art/map-runtime/herb-lod1-751f11ad5c4e.glb",
+    "art/map-runtime/herb-lod2-a080883c5f4f.glb"
   ],
   "treasure": [
-    "art/map-runtime/treasure-lod0-a91381cc7a7f.glb",
-    "art/map-runtime/treasure-lod1-6e383590d2b8.glb",
-    "art/map-runtime/treasure-lod2-bdf2f7e13479.glb"
+    "art/map-runtime/treasure-lod0-6a2c03e90b5d.glb",
+    "art/map-runtime/treasure-lod1-6fd0ccc6a21a.glb",
+    "art/map-runtime/treasure-lod2-6540073a1a08.glb"
   ],
   "library": [
     "art/map-runtime/library-lod0-dccf10f52a76.glb",
@@ -21,14 +21,14 @@ export const MAP_RUNTIME_MODELS={
     "art/map-runtime/library-lod2-2e0d911067cd.glb"
   ],
   "beast": [
-    "art/map-runtime/beast-lod0-d5f9b5381a1f.glb",
-    "art/map-runtime/beast-lod1-6748ac096386.glb",
-    "art/map-runtime/beast-lod2-0a0a7afd479a.glb"
+    "art/map-runtime/beast-lod0-79b7cc04dfbc.glb",
+    "art/map-runtime/beast-lod1-b63a5131dc71.glb",
+    "art/map-runtime/beast-lod2-2711d6ed3763.glb"
   ],
   "tavern": [
-    "art/map-runtime/tavern-lod0-76b92ade914b.glb",
-    "art/map-runtime/tavern-lod1-f7ec1d8ef926.glb",
-    "art/map-runtime/tavern-lod2-0a67592d9ba0.glb"
+    "art/map-runtime/tavern-lod0-5adc423c2928.glb",
+    "art/map-runtime/tavern-lod1-c212e0151dd5.glb",
+    "art/map-runtime/tavern-lod2-5deb30e36427.glb"
   ],
   "casino": [
     "art/map-runtime/casino-lod0-633b916e3e61.glb",
@@ -76,9 +76,9 @@ export const MAP_RUNTIME_MODELS={
     "art/map-runtime/vein-lod2-937e88cdd9a1.glb"
   ],
   "secret": [
-    "art/map-runtime/secret-lod0-eb56b1ee5b4c.glb",
-    "art/map-runtime/secret-lod1-adb4192e0fda.glb",
-    "art/map-runtime/secret-lod2-44c38e5ca1bf.glb"
+    "art/map-runtime/secret-lod0-3b368e128bf2.glb",
+    "art/map-runtime/secret-lod1-7545d29f8a9e.glb",
+    "art/map-runtime/secret-lod2-572e59db9742.glb"
   ],
   "martial": [
     "art/map-runtime/martial-lod0-a469fd8102fb.glb",
@@ -86,19 +86,19 @@ export const MAP_RUNTIME_MODELS={
     "art/map-runtime/martial-lod2-bcf5d50755c1.glb"
   ],
   "arts": [
-    "art/map-runtime/arts-lod0-67c7fbc322b8.glb",
-    "art/map-runtime/arts-lod1-4711026abbba.glb",
-    "art/map-runtime/arts-lod2-f72fd92178b3.glb"
+    "art/map-runtime/arts-lod0-da6bbb791a17.glb",
+    "art/map-runtime/arts-lod1-4c960af10d04.glb",
+    "art/map-runtime/arts-lod2-9bf892ee15e2.glb"
   ],
   "appraisal": [
-    "art/map-runtime/appraisal-lod0-371764de41f5.glb",
-    "art/map-runtime/appraisal-lod1-1ee1de8334c6.glb",
-    "art/map-runtime/appraisal-lod2-e2ad549a6f64.glb"
+    "art/map-runtime/appraisal-lod0-379b1f07dce8.glb",
+    "art/map-runtime/appraisal-lod1-de45a3a77122.glb",
+    "art/map-runtime/appraisal-lod2-e932da4cd295.glb"
   ],
   "ghost": [
-    "art/map-runtime/ghost-lod0-422f6179dac8.glb",
-    "art/map-runtime/ghost-lod1-f119943c37d9.glb",
-    "art/map-runtime/ghost-lod2-d3cba477b18a.glb"
+    "art/map-runtime/ghost-lod0-4a30dd22122e.glb",
+    "art/map-runtime/ghost-lod1-63a95db8344b.glb",
+    "art/map-runtime/ghost-lod2-2e4f742a40c4.glb"
   ],
   "recruitment": [
     "art/map-runtime/recruitment-lod0-3ea35540f29c.glb"

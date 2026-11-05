@@ -1,0 +1,242 @@
+[
+  {
+    "key": "herb",
+    "lod": 0,
+    "file": "herb-lod0-7cc6b1c49f80.glb",
+    "source": "herb-lod0-06b4884a1939.glb",
+    "sha256": "7cc6b1c49f80bf37990000dfbbe68547b28d7284811878ce047de314dacc30e9",
+    "materialsChanged": 2,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "herb",
+    "lod": 1,
+    "file": "herb-lod1-751f11ad5c4e.glb",
+    "source": "herb-lod1-f5bebe913d06.glb",
+    "sha256": "751f11ad5c4e3ad3b02adca6aa052860e3bac812b40a6a0b88568e765a831321",
+    "materialsChanged": 2,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "herb",
+    "lod": 2,
+    "file": "herb-lod2-a080883c5f4f.glb",
+    "source": "herb-lod2-54d9bc5fdd20.glb",
+    "sha256": "a080883c5f4f1fbb91789ecdde8a67eb6c7d327d139caba1f308bc2cba6cb503",
+    "materialsChanged": 2,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "treasure",
+    "lod": 0,
+    "file": "treasure-lod0-6a2c03e90b5d.glb",
+    "source": "treasure-lod0-a91381cc7a7f.glb",
+    "sha256": "6a2c03e90b5d5d58720d226eeaa7a1c3cf8836c59422c715b1d5a97b8ee003db",
+    "materialsChanged": 2,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "treasure",
+    "lod": 1,
+    "file": "treasure-lod1-6fd0ccc6a21a.glb",
+    "source": "treasure-lod1-6e383590d2b8.glb",
+    "sha256": "6fd0ccc6a21ae360f111032aa843c993d09eaae049b4498433a3e55c0d72ec2d",
+    "materialsChanged": 2,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "treasure",
+    "lod": 2,
+    "file": "treasure-lod2-6540073a1a08.glb",
+    "source": "treasure-lod2-bdf2f7e13479.glb",
+    "sha256": "6540073a1a082c033e826a365f1bd8b18abee88c5e0b313d985377b2ed6620cc",
+    "materialsChanged": 2,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "beast",
+    "lod": 0,
+    "file": "beast-lod0-79b7cc04dfbc.glb",
+    "source": "beast-lod0-d5f9b5381a1f.glb",
+    "sha256": "79b7cc04dfbc464dd92aa3b9a6fee37f76639d4a28ce64969bb668a1b316596d",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "beast",
+    "lod": 1,
+    "file": "beast-lod1-b63a5131dc71.glb",
+    "source": "beast-lod1-6748ac096386.glb",
+    "sha256": "b63a5131dc7153a22cc36ea5c817ec92bf6e837ca17a0b76a2ddbcf51e787919",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "beast",
+    "lod": 2,
+    "file": "beast-lod2-2711d6ed3763.glb",
+    "source": "beast-lod2-0a0a7afd479a.glb",
+    "sha256": "2711d6ed3763aafdf3a1e03abcde0a8da18b5556e57c183bdd7a95a485c97b9d",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "tavern",
+    "lod": 0,
+    "file": "tavern-lod0-5adc423c2928.glb",
+    "source": "tavern-lod0-76b92ade914b.glb",
+    "sha256": "5adc423c2928022280bc25c0c83c124fcfcf34aa746ca7d38e909f23c280b565",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "tavern",
+    "lod": 1,
+    "file": "tavern-lod1-c212e0151dd5.glb",
+    "source": "tavern-lod1-f7ec1d8ef926.glb",
+    "sha256": "c212e0151dd5fecb44ac1bf25842e4b2d1b55dd5ab0b89a3dfd1cd460cd3bbe1",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "tavern",
+    "lod": 2,
+    "file": "tavern-lod2-5deb30e36427.glb",
+    "source": "tavern-lod2-0a67592d9ba0.glb",
+    "sha256": "5deb30e36427a42e0778d6999f89d4da92d8c96cc015b4bf128095aa4dd03eb6",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "secret",
+    "lod": 0,
+    "file": "secret-lod0-3b368e128bf2.glb",
+    "source": "secret-lod0-eb56b1ee5b4c.glb",
+    "sha256": "3b368e128bf24055ab5d756a9b3b1dd221a87d5619e83c9e5eb03cbcdceb6bf5",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "secret",
+    "lod": 1,
+    "file": "secret-lod1-7545d29f8a9e.glb",
+    "source": "secret-lod1-adb4192e0fda.glb",
+    "sha256": "7545d29f8a9e7cc9f3ee9b168e79328bd3a232718c9c44ec215700d8449b166b",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "secret",
+    "lod": 2,
+    "file": "secret-lod2-572e59db9742.glb",
+    "source": "secret-lod2-44c38e5ca1bf.glb",
+    "sha256": "572e59db974205501add91e716f9f7715aaa6e0f28360fddf2057c0184210e5e",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "arts",
+    "lod": 0,
+    "file": "arts-lod0-da6bbb791a17.glb",
+    "source": "arts-lod0-67c7fbc322b8.glb",
+    "sha256": "da6bbb791a173708db6c109ae2f80af54c45bdbc8bebdf2988163bc3e1ad484c",
+    "materialsChanged": 2,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "arts",
+    "lod": 1,
+    "file": "arts-lod1-4c960af10d04.glb",
+    "source": "arts-lod1-4711026abbba.glb",
+    "sha256": "4c960af10d04d1870bc246407b94e53428e9cc40519cd15d9c2e26dc90f986c6",
+    "materialsChanged": 2,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "arts",
+    "lod": 2,
+    "file": "arts-lod2-9bf892ee15e2.glb",
+    "source": "arts-lod2-f72fd92178b3.glb",
+    "sha256": "9bf892ee15e217fb16e40871b157ad83c4a3707cb8dd8453eaee6f023773e0b4",
+    "materialsChanged": 2,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "appraisal",
+    "lod": 0,
+    "file": "appraisal-lod0-379b1f07dce8.glb",
+    "source": "appraisal-lod0-371764de41f5.glb",
+    "sha256": "379b1f07dce82f7742953d4775a354a94aa4ff5ab35f03e2c186a8114884bd0b",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "appraisal",
+    "lod": 1,
+    "file": "appraisal-lod1-de45a3a77122.glb",
+    "source": "appraisal-lod1-1ee1de8334c6.glb",
+    "sha256": "de45a3a77122365ee2d0b69c40cd81f173a40af1484f53c9338b73fed8671b6b",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "appraisal",
+    "lod": 2,
+    "file": "appraisal-lod2-e932da4cd295.glb",
+    "source": "appraisal-lod2-e2ad549a6f64.glb",
+    "sha256": "e932da4cd2952187d81b77de91569445e5ccc1a5e72ee8f3b1edbe3ffa7acd12",
+    "materialsChanged": 3,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "ghost",
+    "lod": 0,
+    "file": "ghost-lod0-4a30dd22122e.glb",
+    "source": "ghost-lod0-422f6179dac8.glb",
+    "sha256": "4a30dd22122efed7a4375028c0b47464760bbf4acea720d71e1723d9bb672e3a",
+    "materialsChanged": 7,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "ghost",
+    "lod": 1,
+    "file": "ghost-lod1-63a95db8344b.glb",
+    "source": "ghost-lod1-f119943c37d9.glb",
+    "sha256": "63a95db8344b5d02e06540cce4c1179dd3ead7f2c538b641453770e9b60410e7",
+    "materialsChanged": 7,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  },
+  {
+    "key": "ghost",
+    "lod": 2,
+    "file": "ghost-lod2-2e4f742a40c4.glb",
+    "source": "ghost-lod2-d3cba477b18a.glb",
+    "sha256": "2e4f742a40c49b089877265e5ffafc2cfbbe03c6bd740c258b2fb3544d90c266",
+    "materialsChanged": 7,
+    "geometryUnchanged": true,
+    "nonRoofMaterialsUnchanged": true
+  }
+]

@@ -134,6 +134,7 @@ void main(){
 
 /**
  * 頭像火焰：整排頭像共用一張畫布與一個 WebGL context，每位武將只畫一小塊範圍。
+ * 畫布掛在不捲動的外層，火焰才不會被頭像列裁掉；捲動時跟著頭像移動，並在頭像列邊緣裁切。
  * 沒有火焰時完全停止繪製；每位武將有自己的起始時間與流速，不會一起動。
  */
 export class PortraitFlames {
@@ -149,12 +150,17 @@ export class PortraitFlames {
   private lastTick = 0;
   private lastDraw = 0;
   private averageGap = NORMAL_INTERVAL / 2;
+  private clipLeft = 0;
+  private clipRight = 0;
 
-  constructor(dock: HTMLElement) {
+  constructor(private readonly shell: HTMLElement, private readonly dock: HTMLElement) {
     this.canvas.className = 'pd-flames';
     this.canvas.hidden = true;
-    dock.prepend(this.canvas);
-    new ResizeObserver(() => this.relayout()).observe(dock);
+    shell.append(this.canvas);
+    const resize = new ResizeObserver(() => this.relayout());
+    resize.observe(shell);
+    resize.observe(dock);
+    dock.addEventListener('scroll', () => this.relayout(), { passive: true });
     addEventListener('resize', () => this.relayout(), { passive: true });
   }
 
@@ -168,6 +174,7 @@ export class PortraitFlames {
       return;
     }
     if (!this.ensureGl()) return;
+    this.shell.classList.add('flames-on');
     this.relayout();
     if (!this.reducedMotion && !this.handle) {
       this.lastTick = performance.now();
@@ -212,6 +219,7 @@ export class PortraitFlames {
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     for (const name of ['t', 'layers', 'badge', 'center', 'unit']) this.uniforms[name] = gl.getUniformLocation(program, name);
     gl.enable(gl.BLEND);
+    gl.enable(gl.SCISSOR_TEST);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 0);
     this.gl = gl;
@@ -230,6 +238,10 @@ export class PortraitFlames {
       this.canvas.height = height;
       this.gl.viewport(0, 0, width, height);
     }
+    const dock = this.dock.getBoundingClientRect();
+    this.clipLeft = Math.max(0, Math.round((dock.left - box.left) * ratio));
+    this.clipRight = Math.min(width, Math.round((dock.right - box.left) * ratio));
+    this.gl.scissor(this.clipLeft, 0, Math.max(0, this.clipRight - this.clipLeft), height);
     for (const f of this.flames) {
       const r = f.img.getBoundingClientRect();
       f.x = (r.left + r.width / 2 - box.left) * ratio;
@@ -255,6 +267,7 @@ export class PortraitFlames {
     const { width, height } = this.canvas;
     gl.clear(gl.COLOR_BUFFER_BIT);
     for (const f of this.flames) {
+      if (f.x + f.radius * 1.5 < this.clipLeft || f.x - f.radius * 1.5 > this.clipRight) continue;   // 捲到畫面外
       gl.uniform1f(this.uniforms.t, ((now / 1000) * f.speed + f.offset) % 3600);
       gl.uniform1i(this.uniforms.layers, f.layers);
       gl.uniform1f(this.uniforms.badge, f.badge ? 1 : 0);

@@ -2,7 +2,7 @@ import type { City, General, LordId } from '../game/types';
 import { LORDS } from '../faction/Faction';
 import { fxText, passiveOf } from '../data/passives';
 import { REALMS } from '../data/generals';
-import { generalBrief, realmTag, statCells } from './GeneralInfo';
+import { generalBrief, generalHoverInfo, realmTag, statCells } from './GeneralInfo';
 import { portraitBigUrl, portraitUrl } from './Icons';
 import { STAT_NAMES, techniqueBaseName, techniqueTag } from '../data/items';
 import { TRIBULATION_BOLTS, attack, craft, defense, power, type TribulationResult } from '../systems/GeneralSystem';
@@ -15,11 +15,15 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** 戰鬥畫面：擂台戰可操作；比試與攻城顯示結果 */
 export class BattleView {
   private el: HTMLDivElement;
+  onItemGeneral: ((id:string,side:Side)=>void)|null=null;
+  generalById: ((id:string)=>General|undefined)|null=null;
+  private itemTargetSides:Side[]=[];
 
   constructor(root: HTMLElement) {
     this.el = document.createElement('div');
     this.el.className = 'battle-backdrop hidden';
     root.appendChild(this.el);
+    this.el.addEventListener('click',e=>{const fighter=(e.target as HTMLElement).closest<HTMLElement>('.fighter[data-side]');if(fighter&&this.itemTargetSides.length){const side=fighter.dataset.side as Side;const id=this.duel?.gens[side].id;if(id)this.onItemGeneral?.(id,side);}});
   }
 
   private open(title: string): HTMLDivElement {
@@ -124,6 +128,10 @@ export class BattleView {
       <div class="arena">${this.fighterHtml(snap.a, gens.a, false)}<div class="vs">VS</div>${this.fighterHtml(snap.b, gens.b, false)}</div>
       <div class="battle-log">${d.log.slice(-7).map((l) => `<div>${l}</div>`).join('')}</div>
       <div class="battle-actions"></div>`;
+    for(const side of ['a','b'] as const){
+      const g=this.generalById?.(snap[side].generalId)??gens[side];
+      body.querySelector<HTMLElement>(`.fighter[data-side="${side}"] .f-portrait`)!.dataset.tip=generalHoverInfo(g,snap[side]);
+    }
     const actions = body.querySelector('.battle-actions')!;
     if (snap.over) return;
     const side = d.asking;
@@ -159,8 +167,13 @@ export class BattleView {
     const g = gens[side];
     add('🗡️ 攻擊', 'attack', 'primary');
     add(g.technique ? `✨ ${techniqueBaseName(g.technique)}` : '✨ 功法（未修習）', 'skill', 'danger', !snap.canSkill[side]);
-    add('🎒 使用物品', 'item', 'free', me.itemsSealed);
+    const itemHint=document.createElement('small');itemHint.className='muted';itemHint.textContent=me.itemsSealed?'物品已被封印':'物品可從右下快捷列選取';actions.append(itemHint);
+    this.markItemTargets();
   }
+
+  setItemTargets(sides:Side[]){this.itemTargetSides=sides;this.markItemTargets();}
+  private markItemTargets(){this.el.classList.toggle('item-targeting',this.itemTargetSides.length>0);this.el.querySelectorAll<HTMLElement>('.fighter[data-side]').forEach(el=>el.classList.toggle('item-eligible',this.itemTargetSides.includes(el.dataset.side as Side)));}
+  useItemAction(action:Extract<DuelAction,{type:'use-item'}>){const d=this.duel;if(!d?.waiting)return;const resolve=d.waiting;d.waiting=null;d.asking=null;this.duelRender();resolve(action);}
 
   /** 詢問本回合的出招 */
   duelAsk(snap: DuelSnapshot, side: Side): Promise<DuelAction> {

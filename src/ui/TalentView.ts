@@ -5,6 +5,7 @@ import {
   canLearnTalent, canRefundTalent, canResetTalents, talentBlockers, talentRank, talentSpent, teamRealm, type TalentNode, type TalentTree,
 } from '../data/talents';
 import './talent-view.css';
+import {itemIconUrl} from './Icons';
 
 export type TalentRequest = { op: 'learn' | 'refund' | 'reset'; node?: string };
 
@@ -178,8 +179,8 @@ export class TalentView {
     this.card.querySelectorAll<SVGLineElement>('.tl-lines line').forEach((l) =>
       l.classList.toggle('lit', talentRank(lord, l.dataset.a!) > 0 && talentRank(lord, l.dataset.b!) > 0));
     q('.tl-detail').innerHTML = this.detail();
-    q('.tl-refund-count').textContent = `🍵 忘塵丹 ×${pills(TALENT_REFUND_ITEM)}`;
-    q('.tl-reset-count').textContent = `🌀 輪迴丹 ×${pills(TALENT_RESET_ITEM)}`;
+    q('.tl-refund-count').innerHTML = `<img src="${itemIconUrl(TALENT_REFUND_ITEM)}" alt="忘塵丹">忘塵丹 ×${pills(TALENT_REFUND_ITEM)}`;
+    q('.tl-reset-count').innerHTML = `<img src="${itemIconUrl(TALENT_RESET_ITEM)}" alt="輪迴丹">輪迴丹 ×${pills(TALENT_RESET_ITEM)}`;
     const reset = canResetTalents(lord), resetBtn = q<HTMLButtonElement>('.tl-reset');
     resetBtn.disabled = !(this.editable && reset.ok);
     resetBtn.title = reset.reason;

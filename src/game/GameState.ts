@@ -164,6 +164,11 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     elementalSpiritSpawnRound: 0,
     mapOccupants: [],
   };
+  // Assign each starting lord a random connected exit, so the displayed facing is real.
+  for(const lord of Object.values(lords)){
+    const links=state.tiles[lord.position].links;
+    lord.forkExit=links.length?links[Math.floor(Math.random()*links.length)]:null;
+  }
   bindPassiveState(state);
   ensureTalentState(state);
   for (const g of Object.values(generals)) if (g.owner && fx(g).fixedParty) joinLord(state,g.owner,g);

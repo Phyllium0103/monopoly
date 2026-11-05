@@ -1,4 +1,4 @@
-/** 點頭像或名冊立繪時放大顯示對應全身圖；點任意處或按 Esc 關閉。 */
+/** Only explicitly marked roster artwork opens the viewer; action portraits stay clickable. */
 export function installArtViewer() {
   let overlay: HTMLDivElement | null = null;
   const close = () => {
@@ -17,10 +17,9 @@ export function installArtViewer() {
       }
       const img = e.target;
       if (!(img instanceof HTMLImageElement)) return;
-      // 右下隨行武將的大頭貼交給按鈕處理（開啟武將名冊或施展神通）
-      if (img.closest('.pd-gen')) return;
-      const fullUrl = img.dataset.fullArt ?? (img.src.includes('/art/generals/head/')
-        ? img.src.replace('/generals/head/', '/generals/full/') : null);
+      // Party and item-target portraits belong to their action buttons, including extra rows.
+      if (img.closest('.pd-gen, .item-dock')) return;
+      const fullUrl = img.dataset.fullArt;
       if (!fullUrl) return;
       e.stopPropagation();
       e.preventDefault();

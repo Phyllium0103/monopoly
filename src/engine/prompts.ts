@@ -2,6 +2,7 @@ import type { LordId } from '../game/types';
 import type { Choice, SliderOptions } from '../ui/Dialog';
 import type { Offer, SaleOffer, ShopKind } from '../systems/ShopSystem';
 import type { DuelSnapshot } from './snapshots';
+import type { DirectItemTarget } from '../systems/DirectItems';
 
 /**
  * 遊戲引擎向玩家提出的抉擇。全部都是可序列化的純資料：
@@ -55,9 +56,11 @@ export type PrerollAction =
   | { type: 'roll' }
   | { type: 'auto' }
   | { type: 'items' }
+  | { type: 'use-item'; itemUid: string; userId: string; target: DirectItemTarget }
   | { type: 'abilities' }
   /** 直接由某位隨行武將施展神通（右下角武將圖示） */
   | { type: 'ability'; generalId: string }
+  | { type: 'break-general'; generalId: string }
   | { type: 'materials' }
   | { type: 'garrison' }
   | { type: 'roster' }
@@ -76,7 +79,7 @@ export type RosterAction =
   | { type: 'close' }
   | { type: 'break' | 'seclude' | 'upgrade' | 'equip' | 'learn' | 'abolish'; generalId: string };
 
-export type DuelAction = 'attack' | 'skill' | 'item';
+export type DuelAction = 'attack' | 'skill' | 'item' | { type: 'use-item'; itemUid: string; userId: string; targetSide: 'a' | 'b' };
 
 /** 斷線或交由電腦代打時，各種抉擇的預設回答（保守、不花錢） */
 export function defaultAnswer(p: Prompt): unknown {

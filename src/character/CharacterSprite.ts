@@ -216,7 +216,7 @@ export class CharacterSprite {
     // 棋子永遠畫在建築與山的前面，才不會被城池擋住
     this.sprite.renderOrder = 10;
     this.sprite.scale.set(this.w, this.h, 1);
-    this.sprite.userData = { pick: true, lordId: character.lord };
+    this.sprite.userData = { pick: true, pickKind: 'lord', lordId: character.lord };
     const art = LORD_ART[character.id];
     if (art) {
       void CharacterSprite.portrait(art).then(t=>{
@@ -295,8 +295,6 @@ export class CharacterSprite {
       const from = points[i - 1];
       const to = points[i];
       const long = longSteps[i] ?? false;
-      const dx = to.x - from.x;
-      if (Math.abs(dx) > 0.05) this.facing = dx < 0 ? -1 : 1;
       const dur = long ? 0.9 : 0.28;
       await animator.tween(dur, (t) => {
         const k = long ? easeInOut(t) : t;

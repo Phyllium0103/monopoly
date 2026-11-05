@@ -1,0 +1,254 @@
+{
+  "selectedAt": "2026-11-04T07:56:47.355Z",
+  "mergedRemote": "03b3a85db4e3539b62ba39649e150ec494da8372",
+  "selections": [
+    {
+      "key": "forge",
+      "building": "天工坊",
+      "variant": "original",
+      "recorded": true,
+      "palette": null,
+      "materials": {},
+      "runtimeSourceFiles": []
+    },
+    {
+      "key": "herb",
+      "building": "百草堂",
+      "variant": "A",
+      "recorded": true,
+      "palette": {
+        "name": "藥園鼠尾草",
+        "main": "#71866A",
+        "light": "#ADBA93",
+        "dark": "#435F4A",
+        "reason": "灰綠藥瓦搭配深綠瓦邊，呼應藥草與療癒用途。"
+      },
+      "materials": {
+        "BHmat_roof": "main",
+        "BHmat_roofedge": "dark"
+      },
+      "runtimeSourceFiles": [
+        "herb-lod0-06b4884a1939.glb",
+        "herb-lod1-f5bebe913d06.glb",
+        "herb-lod2-54d9bc5fdd20.glb"
+      ]
+    },
+    {
+      "key": "treasure",
+      "building": "天寶商行",
+      "variant": "A",
+      "recorded": true,
+      "palette": {
+        "name": "孔雀寶藍",
+        "main": "#285C78",
+        "light": "#6C9AA9",
+        "dark": "#173D53",
+        "reason": "寶藍配金飾，強化珍奇貨品與商行的華麗感。"
+      },
+      "materials": {
+        "TBmat_roof": "main",
+        "TBmat_roofdark": "dark"
+      },
+      "runtimeSourceFiles": [
+        "treasure-lod0-a91381cc7a7f.glb",
+        "treasure-lod1-6e383590d2b8.glb",
+        "treasure-lod2-bdf2f7e13479.glb"
+      ]
+    },
+    {
+      "key": "library",
+      "building": "藏經閣",
+      "variant": "original",
+      "recorded": true,
+      "palette": null,
+      "materials": {},
+      "runtimeSourceFiles": []
+    },
+    {
+      "key": "beast",
+      "building": "萬獸園",
+      "variant": "B",
+      "recorded": true,
+      "palette": {
+        "name": "獸紋赭金",
+        "main": "#A47A3F",
+        "light": "#D0B273",
+        "dark": "#624F31",
+        "reason": "赭金帶出獸皮、草原與馴養的自然感，暖色圓頂辨識鮮明。"
+      },
+      "materials": {
+        "BZmat_roof": "main",
+        "BZmat_rooflight": "light",
+        "BZmat_roofdark": "dark"
+      },
+      "runtimeSourceFiles": [
+        "beast-lod0-d5f9b5381a1f.glb",
+        "beast-lod1-6748ac096386.glb",
+        "beast-lod2-0a0a7afd479a.glb"
+      ]
+    },
+    {
+      "key": "tavern",
+      "building": "聽風樓",
+      "variant": "A",
+      "recorded": true,
+      "palette": {
+        "name": "酒旗胭脂",
+        "main": "#995B62",
+        "light": "#CA9190",
+        "dark": "#603C4B",
+        "reason": "胭脂瓦搭配暖燈，讓熱鬧招募酒樓有溫度而不過度鮮紅。"
+      },
+      "materials": {
+        "TW17mat_roof": "main",
+        "TW17mat_rooflight": "light",
+        "TW17mat_roofdark": "dark"
+      },
+      "runtimeSourceFiles": [
+        "tavern-lod0-76b92ade914b.glb",
+        "tavern-lod1-f7ec1d8ef926.glb",
+        "tavern-lod2-0a67592d9ba0.glb"
+      ]
+    },
+    {
+      "key": "casino",
+      "building": "乾坤骰殿",
+      "variant": "original",
+      "recorded": true,
+      "palette": null,
+      "materials": {},
+      "runtimeSourceFiles": []
+    },
+    {
+      "key": "secret",
+      "building": "秘境",
+      "variant": "A",
+      "recorded": true,
+      "palette": {
+        "name": "暮紫仙闕",
+        "main": "#755B98",
+        "light": "#AB91B9",
+        "dark": "#45345F",
+        "reason": "暮紫深淺屋瓦強化異界入口，與一般服務設施拉開氣質。"
+      },
+      "materials": {
+        "MAT-secret-roof-purple-0": "main",
+        "MAT-secret-roof-purple-1": "light",
+        "MAT-secret-roof-purple-2": "dark"
+      },
+      "runtimeSourceFiles": [
+        "secret-lod0-eb56b1ee5b4c.glb",
+        "secret-lod1-adb4192e0fda.glb",
+        "secret-lod2-44c38e5ca1bf.glb"
+      ]
+    },
+    {
+      "key": "martial",
+      "building": "淬體武院",
+      "variant": "original",
+      "recorded": false,
+      "palette": null,
+      "materials": {},
+      "runtimeSourceFiles": []
+    },
+    {
+      "key": "arts",
+      "building": "四藝道院",
+      "variant": "B",
+      "recorded": true,
+      "palette": {
+        "name": "丹砂墨緣",
+        "main": "#9D6554",
+        "light": "#C8AB85",
+        "dark": "#503C39",
+        "reason": "低飽和丹砂帶出丹、符意象，米褐收邊保持書院氣質。"
+      },
+      "materials": {
+        "MAT_AR6_RoofPatina": "main",
+        "MAT_AR6_RoofCreamEdge": "light"
+      },
+      "runtimeSourceFiles": [
+        "arts-lod0-67c7fbc322b8.glb",
+        "arts-lod1-4711026abbba.glb",
+        "arts-lod2-f72fd92178b3.glb"
+      ]
+    },
+    {
+      "key": "appraisal",
+      "building": "萬寶鑑定所",
+      "variant": "B",
+      "recorded": true,
+      "palette": {
+        "name": "珍珠暖灰",
+        "main": "#9B9A89",
+        "light": "#D1CDB3",
+        "dark": "#66695E",
+        "reason": "珍珠灰與淺米帶出細緻中立的鑑定場所，避免搶走展品色彩。"
+      },
+      "materials": {
+        "MAT_APP_TealRoof": "main",
+        "MAT_APP_TealRoofAlt": "light",
+        "MAT_APP_SourceTintCrownGlass": "light"
+      },
+      "runtimeSourceFiles": [
+        "appraisal-lod0-371764de41f5.glb",
+        "appraisal-lod1-1ee1de8334c6.glb",
+        "appraisal-lod2-e2ad549a6f64.glb"
+      ]
+    },
+    {
+      "key": "ghost",
+      "building": "鬼市",
+      "variant": "A",
+      "recorded": true,
+      "palette": {
+        "name": "幽紫墨瓦",
+        "main": "#51436F",
+        "light": "#807A9D",
+        "dark": "#272A40",
+        "reason": "幽紫與墨瓦呼應夜市和異寶，保留原有青色鬼火作焦點。"
+      },
+      "materials": {
+        "MAT_GS5_BlueBlackTile": "dark",
+        "MAT_GS5_SourceGlazedBlueTile0": "main",
+        "MAT_GS5_SourceGlazedBlueTile1": "light",
+        "MAT_GS5_SourceGlazedBlueTile2": "main",
+        "MAT_GS5_SourceGlazedBlueTile3": "dark",
+        "MAT_GS5_TileEdge": "dark",
+        "MAT_GS5_AgedJadeRoofEdge": "light"
+      },
+      "runtimeSourceFiles": [
+        "ghost-lod0-422f6179dac8.glb",
+        "ghost-lod1-f119943c37d9.glb",
+        "ghost-lod2-d3cba477b18a.glb"
+      ]
+    },
+    {
+      "key": "recruitment",
+      "building": "募兵司",
+      "variant": "original",
+      "recorded": true,
+      "palette": null,
+      "materials": {},
+      "runtimeSourceFiles": []
+    },
+    {
+      "key": "relic",
+      "building": "山河社稷圖",
+      "variant": "original",
+      "recorded": true,
+      "palette": null,
+      "materials": {},
+      "runtimeSourceFiles": []
+    },
+    {
+      "key": "vein",
+      "building": "礦脈",
+      "variant": "original",
+      "recorded": false,
+      "palette": null,
+      "materials": {},
+      "runtimeSourceFiles": []
+    }
+  ]
+}

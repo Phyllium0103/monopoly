@@ -29,53 +29,71 @@
     "sourceSha": "9784b6acb5b0fbb3e89f067cadaf6732a626f76e71cc0477b63e56c10be04ba9",
     "lods": [
       {
-        "file": "herb-lod0-06b4884a1939.glb",
+        "file": "herb-lod0-7cc6b1c49f80.glb",
         "triangles": 213088,
         "originalTriangles": 327894,
         "materials": 22,
-        "bytes": 6100600
+        "bytes": 6101608
       },
       {
-        "file": "herb-lod1-f5bebe913d06.glb",
+        "file": "herb-lod1-751f11ad5c4e.glb",
         "triangles": 81496,
         "originalTriangles": 327894,
         "materials": 22,
-        "bytes": 2478296
+        "bytes": 2479304
       },
       {
-        "file": "herb-lod2-54d9bc5fdd20.glb",
+        "file": "herb-lod2-a080883c5f4f.glb",
         "triangles": 32663,
         "originalTriangles": 327894,
         "materials": 22,
-        "bytes": 1039704
+        "bytes": 1040712
       }
-    ]
+    ],
+    "roofColor": {
+      "variant": "A",
+      "palette": "藥園鼠尾草",
+      "sourceFiles": [
+        "herb-lod0-06b4884a1939.glb",
+        "herb-lod1-f5bebe913d06.glb",
+        "herb-lod2-54d9bc5fdd20.glb"
+      ]
+    }
   },
   "treasure": {
     "sourceSha": "7262142150f1e92f554b1efa6031571acfca717b600814fca4932ca57b39468e",
     "lods": [
       {
-        "file": "treasure-lod0-a91381cc7a7f.glb",
+        "file": "treasure-lod0-6a2c03e90b5d.glb",
         "triangles": 75222,
         "originalTriangles": 114464,
         "materials": 23,
-        "bytes": 1670676
+        "bytes": 1671140
       },
       {
-        "file": "treasure-lod1-6e383590d2b8.glb",
+        "file": "treasure-lod1-6fd0ccc6a21a.glb",
         "triangles": 29082,
         "originalTriangles": 114464,
         "materials": 23,
-        "bytes": 663756
+        "bytes": 664216
       },
       {
-        "file": "treasure-lod2-bdf2f7e13479.glb",
+        "file": "treasure-lod2-6540073a1a08.glb",
         "triangles": 11384,
         "originalTriangles": 114464,
         "materials": 23,
-        "bytes": 312844
+        "bytes": 313304
       }
-    ]
+    ],
+    "roofColor": {
+      "variant": "A",
+      "palette": "孔雀寶藍",
+      "sourceFiles": [
+        "treasure-lod0-a91381cc7a7f.glb",
+        "treasure-lod1-6e383590d2b8.glb",
+        "treasure-lod2-bdf2f7e13479.glb"
+      ]
+    }
   },
   "library": {
     "sourceSha": "9dec50b07606c5cd675b02d6406c366d9e85deb71f704735cc179ce0c6cdd8f5",
@@ -107,53 +125,71 @@
     "sourceSha": "6544204456cebe5b668abeee26f0be461f8ec65fff60f5d20d9fbea4bcfce8fb",
     "lods": [
       {
-        "file": "beast-lod0-d5f9b5381a1f.glb",
+        "file": "beast-lod0-79b7cc04dfbc.glb",
         "triangles": 70997,
         "originalTriangles": 107723,
         "materials": 23,
-        "bytes": 1372700
+        "bytes": 1374088
       },
       {
-        "file": "beast-lod1-6748ac096386.glb",
+        "file": "beast-lod1-b63a5131dc71.glb",
         "triangles": 28202,
         "originalTriangles": 107723,
         "materials": 23,
-        "bytes": 557580
+        "bytes": 558964
       },
       {
-        "file": "beast-lod2-0a0a7afd479a.glb",
+        "file": "beast-lod2-2711d6ed3763.glb",
         "triangles": 10498,
         "originalTriangles": 107723,
         "materials": 23,
-        "bytes": 248596
+        "bytes": 249984
       }
-    ]
+    ],
+    "roofColor": {
+      "variant": "B",
+      "palette": "獸紋赭金",
+      "sourceFiles": [
+        "beast-lod0-d5f9b5381a1f.glb",
+        "beast-lod1-6748ac096386.glb",
+        "beast-lod2-0a0a7afd479a.glb"
+      ]
+    }
   },
   "tavern": {
     "sourceSha": "755adaa48b510ea56d9cbf56a71ecd00d71bc232428224127f728896797ab729",
     "lods": [
       {
-        "file": "tavern-lod0-76b92ade914b.glb",
+        "file": "tavern-lod0-5adc423c2928.glb",
         "triangles": 177540,
         "originalTriangles": 272158,
         "materials": 24,
-        "bytes": 3129340
+        "bytes": 3130268
       },
       {
-        "file": "tavern-lod1-f7ec1d8ef926.glb",
+        "file": "tavern-lod1-c212e0151dd5.glb",
         "triangles": 68576,
         "originalTriangles": 272158,
         "materials": 24,
-        "bytes": 1313448
+        "bytes": 1314376
       },
       {
-        "file": "tavern-lod2-0a67592d9ba0.glb",
+        "file": "tavern-lod2-5deb30e36427.glb",
         "triangles": 27371,
         "originalTriangles": 272158,
         "materials": 24,
-        "bytes": 595524
+        "bytes": 596452
       }
-    ]
+    ],
+    "roofColor": {
+      "variant": "A",
+      "palette": "酒旗胭脂",
+      "sourceFiles": [
+        "tavern-lod0-76b92ade914b.glb",
+        "tavern-lod1-f7ec1d8ef926.glb",
+        "tavern-lod2-0a67592d9ba0.glb"
+      ]
+    }
   },
   "casino": {
     "sourceSha": "edb6f64115897b9c190faba3f44d689026296f9498e37fa47d18eecb1cd1ac57",
@@ -393,27 +429,36 @@
     "sourceSha": "02f0c4a1147f9e8f174cde65d85647e2675b8f90542a2fc15a134c2e4e279ec6",
     "lods": [
       {
-        "file": "secret-lod0-eb56b1ee5b4c.glb",
+        "file": "secret-lod0-3b368e128bf2.glb",
         "triangles": 101144,
         "originalTriangles": 148664,
         "materials": 44,
-        "bytes": 2026924
+        "bytes": 2028340
       },
       {
-        "file": "secret-lod1-adb4192e0fda.glb",
+        "file": "secret-lod1-7545d29f8a9e.glb",
         "triangles": 38553,
         "originalTriangles": 148664,
         "materials": 44,
-        "bytes": 882184
+        "bytes": 883596
       },
       {
-        "file": "secret-lod2-44c38e5ca1bf.glb",
+        "file": "secret-lod2-572e59db9742.glb",
         "triangles": 16384,
         "originalTriangles": 148664,
         "materials": 44,
-        "bytes": 464140
+        "bytes": 465556
       }
-    ]
+    ],
+    "roofColor": {
+      "variant": "A",
+      "palette": "暮紫仙闕",
+      "sourceFiles": [
+        "secret-lod0-eb56b1ee5b4c.glb",
+        "secret-lod1-adb4192e0fda.glb",
+        "secret-lod2-44c38e5ca1bf.glb"
+      ]
+    }
   },
   "martial": {
     "sourceSha": "c5f46216270dcacd1f3ad74a5d0ca451406e9ff99a1fa8eb078f8f004c0064c8",
@@ -445,79 +490,106 @@
     "sourceSha": "9d48b46907714182d3fb66e4996ff95c67db9e060346e51e3b4826be92fdae14",
     "lods": [
       {
-        "file": "arts-lod0-67c7fbc322b8.glb",
+        "file": "arts-lod0-da6bbb791a17.glb",
         "triangles": 347835,
         "originalTriangles": 531890,
         "materials": 81,
-        "bytes": 4564596
+        "bytes": 4566296
       },
       {
-        "file": "arts-lod1-4711026abbba.glb",
+        "file": "arts-lod1-4c960af10d04.glb",
         "triangles": 134686,
         "originalTriangles": 531890,
         "materials": 81,
-        "bytes": 1904052
+        "bytes": 1905752
       },
       {
-        "file": "arts-lod2-f72fd92178b3.glb",
+        "file": "arts-lod2-9bf892ee15e2.glb",
         "triangles": 53562,
         "originalTriangles": 531890,
         "materials": 81,
-        "bytes": 892584
+        "bytes": 894284
       }
-    ]
+    ],
+    "roofColor": {
+      "variant": "B",
+      "palette": "丹砂墨緣",
+      "sourceFiles": [
+        "arts-lod0-67c7fbc322b8.glb",
+        "arts-lod1-4711026abbba.glb",
+        "arts-lod2-f72fd92178b3.glb"
+      ]
+    }
   },
   "appraisal": {
     "sourceSha": "a80eea20f31cbc6658660cdff8a015dbb18977b1a6e3d3e05d389e8fc9d72fb1",
     "lods": [
       {
-        "file": "appraisal-lod0-371764de41f5.glb",
+        "file": "appraisal-lod0-379b1f07dce8.glb",
         "triangles": 247290,
         "originalTriangles": 380208,
         "materials": 29,
         "bytes": 3254052
       },
       {
-        "file": "appraisal-lod1-1ee1de8334c6.glb",
+        "file": "appraisal-lod1-de45a3a77122.glb",
         "triangles": 93456,
         "originalTriangles": 380208,
         "materials": 29,
-        "bytes": 1389820
+        "bytes": 1389816
       },
       {
-        "file": "appraisal-lod2-e2ad549a6f64.glb",
+        "file": "appraisal-lod2-e932da4cd295.glb",
         "triangles": 37502,
         "originalTriangles": 380208,
         "materials": 28,
         "bytes": 616548
       }
-    ]
+    ],
+    "roofColor": {
+      "variant": "B",
+      "palette": "珍珠暖灰",
+      "sourceFiles": [
+        "appraisal-lod0-371764de41f5.glb",
+        "appraisal-lod1-1ee1de8334c6.glb",
+        "appraisal-lod2-e2ad549a6f64.glb"
+      ]
+    }
   },
   "ghost": {
     "sourceSha": "84027c46002f30ef44e895fbb0810fae9605ac4e79edfabc728b31377afe3287",
     "lods": [
       {
-        "file": "ghost-lod0-422f6179dac8.glb",
+        "file": "ghost-lod0-4a30dd22122e.glb",
         "triangles": 346829,
         "originalTriangles": 533397,
         "materials": 57,
-        "bytes": 5112308
+        "bytes": 5114476
       },
       {
-        "file": "ghost-lod1-f119943c37d9.glb",
+        "file": "ghost-lod1-63a95db8344b.glb",
         "triangles": 133761,
         "originalTriangles": 533397,
         "materials": 57,
-        "bytes": 2005348
+        "bytes": 2007516
       },
       {
-        "file": "ghost-lod2-d3cba477b18a.glb",
+        "file": "ghost-lod2-2e4f742a40c4.glb",
         "triangles": 52913,
         "originalTriangles": 533397,
         "materials": 57,
-        "bytes": 871748
+        "bytes": 873912
       }
-    ]
+    ],
+    "roofColor": {
+      "variant": "A",
+      "palette": "幽紫墨瓦",
+      "sourceFiles": [
+        "ghost-lod0-422f6179dac8.glb",
+        "ghost-lod1-f119943c37d9.glb",
+        "ghost-lod2-d3cba477b18a.glb"
+      ]
+    }
   },
   "recruitment": {
     "sourceSha": "0a746f5984b5a4553c17da48e1de49e3085a0f7b1b82a33c415d8dd398debe96",

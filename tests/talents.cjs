@@ -127,6 +127,6 @@ assert.equal(ITEM_DEFS.talentreset.weight,0,'輪迴丹不進商店與一般掉�
 for(let i=0;i<2000;i++)assert.notEqual(rollItemId(PILL_IDS),'talentreset');
 assert.equal(resetPillChance({level:2}),0);assert.ok(resetPillChance({level:3})>0);
 assert.ok(resetPillChance({level:8})>resetPillChance({level:3}));assert.equal(resetPillChance({level:3,blessed:true}),resetPillChance({level:3})*2);
-for(const id of ['talentrefund','talentreset'])assert.ok(fs.existsSync(path.join(__dirname,'..','public/art/icons/realm',id+'.svg')),'icon '+id);
+for(const id of ['talentrefund','talentreset'])assert.ok(fs.existsSync(path.join(__dirname,'..','public/art/icons',ITEM_DEFS[id].category,ITEM_DEFS[id].name+'.webp')),'icon '+id);
 
 console.log('talent tree rules ok');

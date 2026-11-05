@@ -9,11 +9,8 @@
   pointer-events: none;
 }
 
-/* WebGL 無法使用時至少還有橘色光環 */
-.pd-gen.can-break img {
-  border-color: #ff9a1f;
-  box-shadow: 0 0 10px 2px rgba(255, 120, 30, 0.7), 0 2px 8px rgba(0, 0, 0, 0.6);
-}
+/* 火焰可用時取代彩虹光環；WebGL 無法使用時才顯示光環 */
+.flames-on .pd-gen.break-ready::before { display: none; }
 
 /* 火焰位置固定，頭像不能再上浮，否則會和火焰錯開 */
-.pd-gen.can-break:hover img { transform: none; }
+.flames-on .pd-gen.break-ready:hover img { transform: none; }

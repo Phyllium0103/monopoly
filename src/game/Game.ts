@@ -970,10 +970,13 @@ export class Game {
     if (!player.alive || this.state.over) return [];
     const users = abilityUsers(this.state, player);
     const canAct = preroll && !this.auto && !this.dispatchTask && !player.relicJourney;
-    return freeGenerals(this.state, player.id)
-      .sort((a, b) => Number(b.isLord) - Number(a.isLord))
+    const party=freeGenerals(this.state, player.id).sort((a, b) => Number(b.isLord) - Number(a.isLord));
+    const extras=generalsOf(this.state,player.id).filter(g=>g.status!=='free'&&canAttemptBreak(g,this.state.round).ok);
+    return [...party,...extras]
       .map((g) => {
-        const hasSkill = users.includes(g);
+        const inParty=g.status==='free';
+        const breakthrough=canAttemptBreak(g,this.state.round).ok;
+        const hasSkill = inParty && users.includes(g);
         const r = hasSkill ? abilityReady(this.state, player, g) : null;
         const ready = !!r?.ok && canAct;
         const fighter=this.itemDuel&&(['a','b'] as const).map(side=>this.itemDuel!.duel[side]).find(f=>f.generalId===g.id);
@@ -981,9 +984,9 @@ export class Game {
         return {
           id: g.id, img: portraitUrl(g), name: g.name, color: LORDS[player.id].css,
           hpPct: (g.hp / Math.max(1, maxHp(g))) * 100, staPct: (g.stamina / Math.max(1, maxStamina(g))) * 100,
-          tip, ready:ready&&!this.selectedItem, hasSkill,
+          tip:tip+(breakthrough?(canAct?'｜可突破：點擊頭像':'｜可突破：自己的整備階段可點擊') : ''), ready:ready&&!this.selectedItem, hasSkill, breakthrough,
           itemState:this.selectedItem ? (this.selectedItem.userId===g.id?'selected':this.canPickItemGeneral(g.id)?'eligible':'disabled') : undefined,
-          onClick: () => {if(this.selectedItem)this.pickItemGeneral(g.id);else if(ready)this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction);},
+          onClick: () => {if(this.selectedItem)this.pickItemGeneral(g.id);else if(breakthrough&&canAct)this.answer({type:'break-general',generalId:g.id} satisfies PrerollAction);else if(ready)this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction);},
         };
       });
   }

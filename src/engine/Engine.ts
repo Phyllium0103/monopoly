@@ -261,6 +261,11 @@ export class Engine {
         }
         case 'abilities': await this.generalAbilities(lord); break;
         case 'ability': await this.useAbilityOf(lord, a.generalId); break;
+        case 'break-general': {
+          const g=this.state.generals[a.generalId];
+          if(!g||g.owner!==lord.id||lord.relicJourney||!canAttemptBreak(g,this.state.round).ok){this.view.toast('武將目前無法突破',lord.id);break;}
+          await this.rosterAction(lord,'break',g);break;
+        }
         case 'materials': await this.materialsFlow(lord); break;
         case 'garrison': await this.manageGarrison(lord); break;
         case 'roster': await this.rosterFlow(lord); break;

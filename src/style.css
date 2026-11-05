@@ -2668,7 +2668,7 @@ img[src*="/generals/head/"] { cursor: pointer; }
   border-radius: 50%;
   object-fit: cover;
   background: #2a1d14;
-  border: 2px solid var(--pc, #c9a45a);
+  border: 2px solid #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
   transition: transform 0.12s, filter 0.12s;
 }
@@ -2677,6 +2677,14 @@ img[src*="/generals/head/"] { cursor: pointer; }
   border-color: #f1d27a;
   animation: pd-glow 1.4s ease-in-out infinite;
 }
+.pd-gen.break-ready img {animation:pd-break-rainbow 3s linear infinite;}
+@keyframes pd-break-rainbow {
+  0%,100% {border-color:#ff6b6b;box-shadow:0 0 8px #ff6b6baa}
+  25% {border-color:#ffe168;box-shadow:0 0 8px #ffe168aa}
+  50% {border-color:#6ee7a1;box-shadow:0 0 8px #6ee7a1aa}
+  75% {border-color:#9d9bff;box-shadow:0 0 8px #9d9bffaa}
+}
+@media (prefers-reduced-motion:reduce){.pd-gen.break-ready img{animation:none;border-color:#eabaff;box-shadow:0 0 7px #eabaff}}
 @keyframes pd-glow {
   50% { box-shadow: 0 0 14px 4px rgba(241, 210, 122, 0.85), 0 2px 8px rgba(0, 0, 0, 0.6); }
 }

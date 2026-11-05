@@ -34,7 +34,7 @@ import { TILE_INFO, hasCurrentBoard } from '../data/board';
 import { RANK_METRICS, cityIncomeOf, cityRanks, cityToll, garrisonPower, toll } from '../systems/CitySystem';
 import { canAttemptBreak, maxHp, maxStamina, power } from '../systems/GeneralSystem';
 import { flameLayersFor } from '../data/realmFrames';
-import { generalHoverInfo, realmTag } from '../ui/GeneralInfo';
+import { generalHoverInfo, generalHoverTable, itemTargetFocus, itemUserFocus, realmTag, type HoverFocus } from '../ui/GeneralInfo';
 import { bindPassiveState } from '../data/passives';
 import { Engine } from '../engine/Engine';
 import { previewAt, type PrerollAction, type Prompt, type RosterAction } from '../engine/prompts';
@@ -848,6 +848,14 @@ export class Game {
     if(this.selectedItem?.uid===item.uid){this.cancelItem();return;}
     this.selectedItem={uid:item.uid,target:{},stage:'user'};this.updateItemHighlights();this.refresh();
   }
+  /** 正在選道具的使用者或目標時，懸停表格要著重的數值 */
+  private itemHoverFocus(g:General):HoverFocus|undefined{
+    const s=this.selectedItem,item=this.currentItem();if(!s||!item)return undefined;
+    if(s.stage==='user')return itemUserFocus(g,item);
+    return s.stage==='target'&&this.canPickItemGeneral(g.id)?itemTargetFocus(item):undefined;
+  }
+  /** 道具選單上的武將頭像：與右下頭像相同的懸停表格 */
+  private generalTips(g:General){return {tip:generalHoverInfo(g),tipHtml:generalHoverTable(g,undefined,this.itemHoverFocus(g))};}
   private canPickItemGeneral(id:string):boolean{
     const selected=this.selectedItem,item=this.currentItem();if(!selected||!item)return false;
     const lord=this.state.lords[this.me];
@@ -952,12 +960,12 @@ export class Game {
       else if(selected.stage==='ownCity'||(selected.stage==='target'&&['ownCity','enemyCity'].includes(d.target)))for(const city of itemCityTargets(this.state,lord,current,selected.stage==='ownCity'))choices.push({id:'city:'+city.id,name:city.name});
       else if(selected.stage==='target'){
         if(this.itemDuel){ /* Battle portraits and the party row are the actual click targets. */ }
-        else if(d.target==='enemyGeneral'&&!selected.enemyLordId)for(const l of this.enemyItemLords(current)){const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===l.id);choices.push({id:'lord:'+l.id,name:LORDS[l.id].name,img:g?portraitUrl(g):undefined,tip:g?generalHoverInfo(g):undefined});}
+        else if(d.target==='enemyGeneral'&&!selected.enemyLordId)for(const l of this.enemyItemLords(current)){const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===l.id);choices.push({id:'lord:'+l.id,name:LORDS[l.id].name,img:g?portraitUrl(g):undefined,...(g?this.generalTips(g):{})});}
         else if(['ownGeneral','enemyGeneral','deadGeneral'].includes(d.target)){
           if(d.target==='enemyGeneral')choices.push({id:'back:lord',name:'重選主公'});
-          for(const g of itemGeneralTargets(this.state,lord,current).filter(g=>d.target==='enemyGeneral'?g.owner===selected.enemyLordId:d.target==='ownGeneral'?g.status!=='free':true))choices.push({id:'general:'+g.id,name:g.name,img:portraitUrl(g),tip:generalHoverInfo(g)});
+          for(const g of itemGeneralTargets(this.state,lord,current).filter(g=>d.target==='enemyGeneral'?g.owner===selected.enemyLordId:d.target==='ownGeneral'?g.status!=='free':true))choices.push({id:'general:'+g.id,name:g.name,img:portraitUrl(g),...this.generalTips(g)});
         }
-        else if(d.target==='lord')for(const l of itemLordTargets(this.state,lord,current)){const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===l.id);choices.push({id:'lord:'+l.id,name:LORDS[l.id].name,img:g?portraitUrl(g):undefined,tip:g?generalHoverInfo(g):undefined});}
+        else if(d.target==='lord')for(const l of itemLordTargets(this.state,lord,current)){const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===l.id);choices.push({id:'lord:'+l.id,name:LORDS[l.id].name,img:g?portraitUrl(g):undefined,...(g?this.generalTips(g):{})});}
         else if(d.target==='dice')for(let dice=1;dice<=6;dice++)choices.push({id:'dice:'+dice,name:dice+' 點'});
       }
     }
@@ -982,10 +990,11 @@ export class Game {
         const ready = !!r?.ok && canAct;
         const fighter=this.itemDuel&&(['a','b'] as const).map(side=>this.itemDuel!.duel[side]).find(f=>f.generalId===g.id);
         const tip = generalHoverInfo(g,fighter||undefined);
+        const breakNote=breakthrough&&!this.selectedItem?(canAct?'可突破：點擊頭像':'可突破：自己的整備階段可點擊'):'';
         return {
           id: g.id, img: portraitUrl(g), name: g.name, color: LORDS[player.id].css,
           hpPct: (g.hp / Math.max(1, maxHp(g))) * 100, staPct: (g.stamina / Math.max(1, maxStamina(g))) * 100,
-          tip:tip+(breakthrough?(canAct?'｜可突破：點擊頭像':'｜可突破：自己的整備階段可點擊') : ''), ready:ready&&!this.selectedItem, hasSkill, breakthrough,
+          tip:tip+(breakNote?'｜'+breakNote:''), tipHtml:generalHoverTable(g,fighter||undefined,this.itemHoverFocus(g),breakNote), ready:ready&&!this.selectedItem, hasSkill, breakthrough,
           flame:breakthrough?flameLayersFor(g.realm):0,
           itemState:this.selectedItem ? (this.selectedItem.userId===g.id?'selected':this.canPickItemGeneral(g.id)?'eligible':'disabled') : undefined,
           onClick: () => {if(this.selectedItem)this.pickItemGeneral(g.id);else if(breakthrough&&canAct)this.answer({type:'break-general',generalId:g.id} satisfies PrerollAction);else if(ready)this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction);},

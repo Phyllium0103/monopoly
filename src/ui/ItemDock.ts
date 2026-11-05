@@ -9,7 +9,7 @@ import { sortItemStacks, type ItemStack } from './itemDockOrder';
 import { uiViewportSize } from './UiViewport';
 import './item-dock.css';
 
-export interface ItemDockChoice { id: string; name: string; img?: string; tip?: string; disabled?: boolean; selected?: boolean }
+export interface ItemDockChoice { id: string; name: string; img?: string; tip?: string; tipHtml?: string; disabled?: boolean; selected?: boolean }
 export interface ItemDockState {
   items: Item[]; visible: boolean; battle: boolean; selected: string | null; hint: string;
   choices: ItemDockChoice[];
@@ -126,6 +126,7 @@ export class ItemDock {
       const tray = document.createElement('div'); tray.className = 'item-target-tray'; tray.setAttribute('aria-label', '物品施放者與目標');
       for (const choice of s.choices) {
         const b = document.createElement('button'); b.dataset.choice = choice.id; b.setAttribute('aria-disabled',String(!!choice.disabled)); b.className = `${choice.selected?'selected ':''}${choice.disabled?'unavailable':''}`; b.dataset.tip = choice.tip || choice.name;
+        if (choice.tipHtml) b.dataset.tipHtml = choice.tipHtml;
         if (choice.img) { const image = document.createElement('img'); image.src = choice.img; image.alt = ''; b.append(image); }
         const name = document.createElement('span'); name.textContent = choice.name; b.append(name); b.setAttribute('aria-label',choice.name); tray.append(b);
       }

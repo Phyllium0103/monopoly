@@ -75,9 +75,9 @@ python scripts/shrink-weapon-icons.py
 npm run build:art-pack
 ```
 
-**更新材料圖示：** 執行 `node scripts/import-material-icons.mjs`。
+**更新材料圖示：** 執行 `node scripts/import-material-icons.mjs <審核後的資料夾>`。這支和精靈的匯入腳本都需要 `sharp`，它不在專案依賴內，可用第二個參數傳入模組位置。
 
-**更新五行精靈：** 執行 `node scripts/import-elemental-spirits.mjs`。精靈採用已選定的「08 軟萌元素靈」，每種四套動作、每套 16 格，以世界座標顯示，圖框邊長為道路格的 4/3，腳底接觸點對準格中心。
+**更新五行精靈：** 執行 `node scripts/import-elemental-spirits.mjs <審核後的資料夾>`。精靈採用已選定的「08 軟萌元素靈」，每種四套動作、每套 16 格，以世界座標顯示，圖框邊長為道路格的 4/3，腳底接觸點對準格中心。
 
 ## 境界外框
 

@@ -131,8 +131,6 @@ node tests/<檔名>.cjs # 單獨執行
 
 以下測試不在 `npm test` 內，要手動執行：`direct-breakthrough`、`direct-items`、`item-dock-order`、`item-selection`、`lord-actor-assets`、`lord-actor-hud`、`lord-hud-runtime`、`map-runtime`、`performance-workers`、`start-facing`。
 
-其中 `lord-actor-hud.cjs` 目前會失敗，因為測試用的假 DOM 缺少 `style.getPropertyValue`。
-
 ## 開發用網址參數
 
 | 參數 | 作用 |

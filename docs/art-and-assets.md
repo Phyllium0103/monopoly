@@ -99,7 +99,7 @@ npm run build:art-pack
 
 **相機：** 正交投影，固定方位 45°、俯角 30°，不能旋轉。視窗受地台範圍限制，最遠只能看到底圖一半寬高。
 
-**底圖與道路：** 淺玉地形 `terrain-jade-clear-20261020.png`，四方向白玉道路貼圖 `road-arrow-*.png`，踩格變色用 `cyan-occupied.png`。
+**底圖與道路：** 淺玉地形 `terrain-jade-clear-20261020`、四方向白玉道路貼圖 `road-arrow-*`、一般路面 `white-normal`、踩格變色 `cyan-occupied`。PNG 原圖放在 `public/art/map-selected/`，遊戲載入的是 `map-runtime-tools/build.mjs` 轉出的 `.webp`，位於 `public/art/map-runtime/`。
 
 **城池：** 六階外觀依繁榮度每 50 一階。主色材質可依實例著色：劉備綠、董卓紫、曹操藍、孫權紅、無主白。
 
@@ -144,7 +144,14 @@ node scripts/map-runtime-tools/build.mjs
 | 鬼市 | 幽紫墨瓦 |
 | 其餘設施 | 原色 |
 
-重新套用：在裝有 Pillow 與 NumPy 的環境執行 `python scripts/apply-roof-colors.py`。工具只讀取未換色的來源模型，輸出新檔，並把驗證報告寫到 `outputs/`（可以刪除）。
+`manifest.json` 的 `roofColor.sourceFiles` 和 `selection.json` 的 `runtimeSourceFiles` 記錄了換色前的舊檔名，只供追溯，不是遊戲載入路徑。
+
+**重新套用：** 24 個未換色的來源模型已從專案移除，要重新烘焙時：
+
+1. 從 Git 歷史還原 `selection.json` 記錄的來源檔：`git restore --source=46450a9 -- public/art/map-runtime/<檔名>`。
+2. 在裝有 Pillow 與 NumPy 的環境執行 `python scripts/apply-roof-colors.py`。
+
+工具會在輸出前檢查全部來源，缺檔時直接停止。不能用已換色的模型當來源，否則顏色會重複疊加。驗證報告會寫到 `outputs/`，可以刪除。還原的來源模型用完後也要移除，避免一起部署。
 
 ## 骰子
 

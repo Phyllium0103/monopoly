@@ -2,11 +2,12 @@ import { recruitmentMaximum } from './RecruitmentSystem';
 import { aiUpgradeWeapons } from './MaterialSystem';
 import { fx } from '../data/passives';
 import { immortalWinner } from './VictorySystem';
+import { completeBreak, ascensionCities } from './GeneralSystem';
 import type { City, CraftStat, GameState, General, Item, Lord } from '../game/types';
 import { sectTransferRequirement, transferSectGeneral } from './SectSystem';
 import { TALENTS, canLearnTalent, learnTalent, type TalentTree } from '../data/talents';
 import { PARTY_LIMIT, abandonIfEmpty, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
-import { attack, canLearn, learn, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
+import { attack, canLearn, learn, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
 import { MIN_GARRISON, eliminate, visitingToll, garrisonPower, occupyCost, totalAssets } from './CitySystem';
 import { REALMS } from '../data/generals';
 import { equipRealm, equipScore } from '../data/items';
@@ -130,11 +131,6 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
     const user = gens.find((u) => u.status === 'free' && canUse(pill, u).ok);
     if (user && strongest[0]) logs.push(await apply(pill, user, { general: strongest[0] }));
   }
-  for (const g of gens.filter((x) => x.demon > 0)) {
-    const pill = lord.items.find((i) => i.defId === 'clearmind');
-    const user = pill && gens.find((u) => u.status === 'free' && canUse(pill, u).ok);
-    if (pill && user) logs.push(await apply(pill, user, { general: g }));
-  }
   // 靈根丹：給戰力最強的非天靈根武將
   for (const pill of lord.items.filter((i) => i.defId === 'rootup1' || i.defId === 'rootup2')) {
     const user = gens.find((u) => u.status === 'free' && canUse(pill, u).ok);
@@ -162,15 +158,6 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   if (!lord.alive || immortalWinner(state)) return logs;
   // 守軍充足的城池讓駐將閉關
   for (const g of gens.filter((x) => x.status === 'garrison')) g.secluded = state.cities[g.cityId!].garrisonSoldiers >= 2500;
-  // 心魔干擾：對敵方瓶頸中的最強將領出手
-  const curse = lord.items.find((i) => i.defId === 'demon' || i.defId === 'illusion');
-  const curser = curse && gens.find((u) => u.status === 'free' && canUse(curse, u).ok);
-  if (curse && curser) {
-    const victim = Object.values(state.generals)
-      .filter((g) => g.owner && g.owner !== lord.id && g.status !== 'realm' && g.status !== 'dead' && inBottleneck(g) && !g.demon)
-      .sort((a, b) => b.realm - a.realm)[0];
-    if (victim) logs.push(await apply(curse, curser, { general: victim }));
-  }
   for (const item of [...lord.items].filter(i=>['ghost','move','poison','bow','lock','freeze','confuse','confusing','rootdown','sacrifice','graft','citadel','seven'].includes(i.defId))) {
     if(state.over || !lord.alive)break;
     const user=freeGenerals(state,lord.id).find(g=>canUse(item,g).ok);if (!user) continue;
@@ -230,6 +217,7 @@ export async function aiBreakthroughs(state: GameState, lord: Lord, hooks: ItemH
   const logs: string[] = [];
   const gens = generalsOf(state, lord.id).filter((g) => g.status !== 'realm');
   for (const g of gens) {
+    if (g.realm === 2 && !g.goldenCore) g.goldenCore = 'flawless';
     if (!canAttemptBreak(g, state.round).ok) continue;
     const helper = async (defId: string) => {
       const item = lord.items.find((i) => i.defId === defId);
@@ -239,7 +227,7 @@ export async function aiBreakthroughs(state: GameState, lord: Lord, hooks: ItemH
     if (!needsTribulation(g)) {
       if (g.realm === 1 && !g.foundation) await helper('foundation');
       if (breakChance(g) < 0.5 && !g.foundation) continue;
-      const ok = attemptBreak(g, state.round);
+      const ok = completeBreak(g, state.round, ascensionCities(state, g)[0]?.id);
       logs.push(ok ? `✦ ${g.name}突破至【${REALMS[g.realm]}】！` : `${g.name}突破失敗，修為受損。`);
       continue;
     }
@@ -262,7 +250,7 @@ export async function aiBreakthroughs(state: GameState, lord: Lord, hooks: ItemH
     }
     if (r.success) logs.push(`⚡ ${g.name}渡過 ${r.bolts.length} 道天雷，突破至【${REALMS[g.realm]}】！`);
     if (r.success && g.isLord && immortalWinner(state)) return logs;
-    else if (!r.success) logs.push(r.fate === 'death' ? `⚡ ${g.name}渡劫失敗，身死道消……` : r.fate === 'saved' ? `⚡ ${g.name}渡劫失敗，滿血復生，保留境界。` : `⚡ ${g.name}渡劫失敗，兵解重修，跌回凡人。`);
+    else if (!r.success) logs.push(r.fate === 'death' ? `⚡ ${g.name}渡劫失敗，身死道消……` : r.fate === 'saved' ? `⚡ ${g.name}渡劫失敗，滿血復生，保留境界。` : `⚡ ${g.name}渡劫失敗。`);
   }
   return logs;
 }

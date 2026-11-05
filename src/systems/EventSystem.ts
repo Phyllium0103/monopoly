@@ -3,7 +3,7 @@ import { citiesOf, freeGenerals, generalsOf, newGeneral, nextUid } from '../game
 import { HIDDEN_SEEDS } from '../data/generals';
 import { aliveLords } from '../game/TurnManager';
 import { cityIncomeOf, totalAssets } from './CitySystem';
-import { addExp, expCap, inBottleneck, maxHp } from './GeneralSystem';
+import { addExp, expCap, maxHp } from './GeneralSystem';
 import { ELEMENT_NAMES, ITEM_DEFS, equipDesc, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, rollItemId, techniqueDesc } from '../data/items';
 import { LORDS } from '../faction/Faction';
 import { fmtStones } from '../game/Currency';
@@ -47,7 +47,6 @@ export const WORLD_EVENTS: WorldEventDef[] = [
   { id: 'quake', name: '天災地動', icon: '🌋', category: 'disaster', desc: '天崩地裂，隨機 3 座有主城池繁榮 -20。' },
   { id: 'bandits', name: '黃巾餘黨', icon: '🏴', category: 'disaster', duration: 5, desc: '黃巾餘黨盤踞 4 處驛道 5 輪，停在賊窩要繳買路錢，否則損兵。' },
   { id: 'shuffle', name: '乾坤大挪移', icon: '☯', category: 'disaster', desc: '天機錯亂，所有主公的位置隨機互換。' },
-  { id: 'demonTrial', name: '心魔劫', icon: '😈', category: 'disaster', desc: '心魔劫降臨，所有處於瓶頸的武將都染上一層心魔。' },
   { id: 'tradeBoom', name: '商路暢通', icon: '🛒', category: 'economy', duration: 5, desc: '接下來 5 輪，所有商店商品購買價格七折（不含招募、復活與拍賣），可與旅行商人五折疊加。' },
   { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件玄階至地階的寶衣。' },
   { id: 'spiritTide', name: '靈潮湧動', icon: '🌊', category: 'cultivation', duration: 5, desc: '地底靈脈潮汐翻湧，接下來 5 輪駐守城池閉關修煉的武將，修為再 ×1.5。' },
@@ -217,17 +216,6 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
         l.forkExit = null;
       });
       lines.push(alive.map((l) => `${LORDS[l.id].name} → ${state.tiles[l.position].name}`).join('、'));
-      break;
-    }
-    case 'demonTrial': {
-      let n = 0;
-      for (const g of Object.values(state.generals)) {
-        if (g.owner && g.status !== 'dead' && inBottleneck(g)) {
-          g.demon = Math.max(g.demon, 1);
-          n++;
-        }
-      }
-      lines.push(n ? `共 ${n} 名瓶頸中的武將心魔滋生。` : '所幸無人正處瓶頸。');
       break;
     }
     case 'armory':

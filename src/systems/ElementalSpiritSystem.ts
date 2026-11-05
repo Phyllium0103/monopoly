@@ -3,7 +3,7 @@ import { nextUid } from '../game/GameState';
 
 export const SPIRIT_ELEMENTS: readonly Element[] = ['metal', 'wood', 'water', 'fire', 'earth'];
 export const SPIRIT_CAP = 15;
-export const SPIRIT_BATCH = 3;
+export const SPIRIT_BATCH = 5;
 export const SPIRIT_ROUND_INTERVAL = 5;
 
 /** Shared reservations for spirits, existing events, and future map objects. */
@@ -24,10 +24,15 @@ function freeRoads(state: GameState, occupied: Set<number>): number[] {
 }
 
 /** No rewards, inventory changes, log, tooltip or dialog yet. */
-export function collectElementalSpirits(state: GameState, tile: number): boolean {
+export function collectElementalSpirits(state: GameState, tile: number, lordId?: import('../game/types').LordId): boolean {
   const before = state.elementalSpirits ?? [];
   const remaining = before.filter(spirit => spirit.tile !== tile);
   if (remaining.length === before.length) return false;
+  if (lordId) {
+    const lord = state.lords[lordId];
+    const essences = lord.essences ??= {};
+    for (const spirit of before) if (spirit.tile === tile) essences[spirit.element] = (essences[spirit.element] ?? 0) + 3;
+  }
   state.elementalSpirits = remaining;
   return true;
 }
@@ -62,9 +67,10 @@ export function spawnElementalSpirits(state: GameState, completedRounds = state.
   const spirits = state.elementalSpirits ??= [];
   const candidates = freeRoads(state, occupiedMapTiles(state));
   const count = Math.min(SPIRIT_BATCH, SPIRIT_CAP - spirits.length, candidates.length);
+  const batch = [...SPIRIT_ELEMENTS].sort((a,b) => spirits.filter(s=>s.element===a).length - spirits.filter(s=>s.element===b).length);
   for (let i = 0; i < count; i++) {
     const tile = candidates.splice(Math.floor(random() * candidates.length), 1)[0];
-    spirits.push({ id: nextUid(state, 'spirit-'), element: SPIRIT_ELEMENTS[Math.floor(random() * SPIRIT_ELEMENTS.length)], tile, bornRound: completedRounds });
+    spirits.push({ id: nextUid(state, 'spirit-'), element: batch[i], tile, bornRound: completedRounds });
   }
   return count;
 }

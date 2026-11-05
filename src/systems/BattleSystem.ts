@@ -222,7 +222,7 @@ export class Duel {
       (me.hp < me.maxHp / 2 ? 1 + (mine.rage ?? 0) : 1) *
       (1 - (fx(foe.general).duelTaken ?? 0));
     const crit = Math.random() < CRIT_BASE + (mine.crit ?? 0);
-    const raw = me.atk * (0.9 + Math.random() * 0.2) * 1.6 * (100 / (100 + foe.def * (1 - Math.max(0, Math.min(1, me.general.weapon?.penetration ?? 0))))) * em.mult * mult * tide * passive * (crit ? CRIT_MULT : 1);
+    const raw = me.atk * (0.9 + Math.random() * 0.2) * 1.6 * (100 / (100 + foe.def * (1 - Math.max(0, Math.min(1, (me.general.weapon?.penetration ?? 0) + (me.general.fusionBonus?.penetration ?? 0)))))) * em.mult * mult * tide * passive * (crit ? CRIT_MULT : 1);
     const dmg = this.damage(foe, raw, wounded, true);
     const heal = Math.min(me.maxHp - me.hp, Math.round(dmg * ((mine.lifesteal ?? 0) + (me.itemLifesteal?.rate ?? 0))));
     me.hp += heal;

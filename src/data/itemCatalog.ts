@@ -314,32 +314,6 @@ export const ITEM_CATALOG = [
     "weight": 0.25
   },
   {
-    "id": "clearmind",
-    "name": "清心丹",
-    "category": "丹藥",
-    "stat": "alchemy",
-    "timing": "preroll",
-    "target": "ownGeneral",
-    "battleTarget": "none",
-    "min": [
-      50
-    ],
-    "stamina": [
-      50
-    ],
-    "price": [
-      2500
-    ],
-    "sellPrice": [
-      1250
-    ],
-    "effects": [
-      "化解一名武將身上的心魔"
-    ],
-    "noUser": false,
-    "weight": 1
-  },
-  {
     "id": "bone",
     "name": "壯骨丹",
     "category": "丹藥",
@@ -706,7 +680,7 @@ export const ITEM_CATALOG = [
       5000
     ],
     "effects": [
-      "為武將佈陣護法，下次渡劫天雷傷害 -50%"
+      "為武將佈陣護法，下次渡劫天雷傷害 -40%"
     ],
     "noUser": false,
     "weight": 1
@@ -732,33 +706,7 @@ export const ITEM_CATALOG = [
       3000
     ],
     "effects": [
-      "下次渡劫天雷傷害 -30%（可與避雷陣疊加，最多減免 80%）"
-    ],
-    "noUser": false,
-    "weight": 1
-  },
-  {
-    "id": "illusion",
-    "name": "幻境陣",
-    "category": "陣法",
-    "stat": "formation",
-    "timing": "preroll",
-    "target": "enemyGeneral",
-    "battleTarget": "none",
-    "min": [
-      80
-    ],
-    "stamina": [
-      40
-    ],
-    "price": [
-      4000
-    ],
-    "sellPrice": [
-      2000
-    ],
-    "effects": [
-      "以幻境引動心魔：下次突破成功率 -60%，或雷劫威力 ×2"
+      "下次渡劫天雷傷害 -20%（可與避雷陣疊加，最多減免 80%）"
     ],
     "noUser": false,
     "weight": 1
@@ -1131,32 +1079,6 @@ export const ITEM_CATALOG = [
     ],
     "effects": [
       "盜取指定主公 10% 靈石"
-    ],
-    "noUser": false,
-    "weight": 1
-  },
-  {
-    "id": "demon",
-    "name": "走火入魔符",
-    "category": "符籙",
-    "stat": "talisman",
-    "timing": "preroll",
-    "target": "enemyGeneral",
-    "battleTarget": "none",
-    "min": [
-      80
-    ],
-    "stamina": [
-      40
-    ],
-    "price": [
-      4000
-    ],
-    "sellPrice": [
-      2000
-    ],
-    "effects": [
-      "心魔干擾敵將：下次突破成功率 -60%，或雷劫威力 ×2"
     ],
     "noUser": false,
     "weight": 1

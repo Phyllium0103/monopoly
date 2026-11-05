@@ -4,7 +4,7 @@ import type { City, General, GameState, Lord, LordId } from './types';
 import { BOARD, MAP_RULES_VERSION } from '../data/board';
 import { GENERAL_SEEDS, type GeneralSeed } from '../data/generals';
 import { LORDS, LORD_IDS } from '../faction/Faction';
-import { maxHp, maxStamina } from '../systems/GeneralSystem';
+import { maxHp, maxStamina, reconcileProgression } from '../systems/GeneralSystem';
 import { bestContest } from '../systems/CitySystem';
 import { makePersonalWeapon } from '../data/weaponCatalog';
 import { emptyMaterials } from '../systems/MaterialSystem';
@@ -170,6 +170,9 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     lord.forkExit=links.length?links[Math.floor(Math.random()*links.length)]:null;
   }
   bindPassiveState(state);
+  for (const lord of Object.values(lords)) {
+    for (let i = 0; i < 5; i++) lord.items.push({ uid: nextUid(state, 'i'), defId: 'foundation', tier: 0, price: 0 });
+  }
   ensureTalentState(state);
   for (const g of Object.values(generals)) if (g.owner && fx(g).fixedParty) joinLord(state,g.owner,g);
   for (const g of Object.values(generals)) g.hp=maxHp(g);
@@ -229,6 +232,7 @@ export function reviveGeneral(state: GameState, lord: LordId, g: General, hpRati
   g.breakBoost = 0;
   g.peakRealm ??= g.realm;
   g.realm = Math.max(0, g.realm - realmLoss);
+  reconcileProgression(state);
   g.hp = Math.max(1, Math.round(maxHp(g) * hpRatio));
   g.stamina = maxStamina(g);
   joinLord(state, lord, g);
@@ -264,6 +268,7 @@ export function killGeneral(state: GameState, g: General): string | null {
   g.cityId = null;
   g.secluded = false;
   g.hp = 0;
+  reconcileProgression(state);
   return abandoned;
 }
 

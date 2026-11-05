@@ -46,7 +46,8 @@ export function cityToll(state: GameState, city: City): number {
   const ruler=generalsOf(state,city.owner).find(g=>g.isLord);
   const t=ownerTalent(city);
   const bonus=garrisonOf(state,city).reduce((sum,g)=>sum+(fx(g).cityToll??0),0)+(ruler?(fx(ruler).cityCountToll??0)*count:0)+(t.toll??0)+(t.tollPerCity??0)*count;
-  return Math.round(toll(city,count)*(1+bonus));
+  const bound = Object.values(state.generals).some(g => g.boundCityId === city.id && g.owner === city.owner && g.status !== 'dead' && g.realm >= 9);
+  return Math.round(toll(city,count)*(1+bonus)*(bound ? 2 : 1));
 }
 
 /** 路過的主公實付過路費（扣除隊伍光環的減免） */

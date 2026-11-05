@@ -1,9 +1,12 @@
-import type { City, CraftStat, Equipment, General, Lord, LordId, Technique } from '../game/types';
+import type { City, CraftStat, Equipment, General, Lord, LordId, Technique, GameState, Stats } from '../game/types';
+import { makePersonalWeapon } from '../data/weaponCatalog';
+import { mortalTrialTurns, TRIBULATION_RULES } from '../data/breakthroughRules';
 import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
 import { techniqueForce, techniqueSpeed } from '../data/items';
 import { WORLD } from './WorldMods';
 import { fx, lordAura, passiveState } from '../data/passives';
 import { awardBreakthrough } from '../data/talents';
+import { GOLDEN_CORES, earlyBreakChance } from '../data/breakthroughRules';
 
 /** Avoid floating point half-rounding differences from the editable spreadsheet. */
 const roundStat=(value:number)=>Math.round(Number(value.toFixed(8)));
@@ -49,6 +52,8 @@ export function totalCraft(g: General): number {
 // ───────────────────────── 修為與瓶頸 ─────────────────────────
 
 export function expCap(g: General): number {
+  if (g.mortalTrial) return Infinity;
+  if (g.realm === 2) return g.goldenCore ? GOLDEN_CORES[g.goldenCore].exp : 2400;
   return g.realm < REALM_EXP.length ? REALM_EXP[g.realm] : Infinity;
 }
 
@@ -59,6 +64,7 @@ export function inBottleneck(g: General): boolean {
 
 /** 增加修為（瓶頸時溢出的部分作廢），回傳實際增加量 */
 export function addExp(g: General, amount: number): number {
+  if (g.mortalTrial) return 0;
   const before = g.exp;
   g.exp = Math.min(expCap(g), g.exp + Math.max(0, Math.round(amount * expMultiplier(g))));
   return g.exp - before;
@@ -84,31 +90,108 @@ export function passiveExp(g: General, city: City | null): number {
 
 /** 築基→金丹以上要渡雷劫 */
 export function needsTribulation(g: General): boolean {
-  return g.realm >= 2;
+  return g.realm === 3 || g.realm === 7;
 }
 
 /** 低階突破成功率 */
 export function breakChance(g: General): number {
-  const base = [0.9, 0.75][g.realm] ?? 0.5;
-  let c = base;
-  if (g.hp < maxHp(g) * 0.5) c -= 0.15;
-  if (g.foundation && g.realm === 1) return 1;
-  c -= g.demon * 0.3 * Math.max(0, 1 - (fx(g).demonResist ?? 0));
-  c += WORLD.breakBonus + (fx(g).breakBonus ?? 0);
-  return Math.max(0.05, Math.min(0.95, c));
+  if (g.realm === 0 || g.realm === 1) return earlyBreakChance(g.realm, g.aptitude, g.foundation);
+  return 1;
 }
 
 export function canAttemptBreak(g: General, round: number): { ok: boolean; reason: string } {
+  if (g.mortalTrial) return { ok: false, reason: '正在紅塵化凡' };
   if (!inBottleneck(g)) return { ok: false, reason: '修為未滿' };
   if (g.ghostSourceId || g.status === 'realm' || g.status === 'dead') return { ok: false, reason: '不在宗門掌控中' };
-  if (!needsTribulation(g) && g.failedRound >= round) return { ok: false, reason: '氣血未復，下一輪才能再試' };
+  void round;
+  const state = passiveState();
+  const lord = g.owner && state?.lords[g.owner];
+  if (g.realm === 2 && !g.goldenCore) return { ok: false, reason: '請先選擇金丹路線' };
+  if (g.realm === 2 && g.goldenCore === 'heavenly' && g.aptitude !== 'heaven') return { ok: false, reason: '天道金丹僅天靈根可修煉' };
+  if (g.realm === 5 && (!lord || ESSENCE_ELEMENTS.some(e => (lord.essences?.[e] ?? 0) < 1))) return { ok: false, reason: '五行本源各需一個' };
+  if (g.realm === 6 && ![g.weapon, g.armor].some(e => e && e.tier >= 9)) return { ok: false, reason: '需裝備天階武器或寶衣' };
+  if (g.realm === 8 && (!state || !ascensionCities(state, g).length)) return { ok: false, reason: '需有未綁定且繁榮度大於200的麾下城池' };
   return { ok: true, reason: '' };
+}
+
+export const ESSENCE_ELEMENTS = ['metal', 'wood', 'water', 'fire', 'earth'] as const;
+export const ESSENCE_NAMES = ['庚金本源', '乙木本源', '癸水本源', '離火本源', '戊土本源'];
+export function ascensionCities(state: GameState, g: General): City[] {
+  return Object.values(state.cities).filter(c => c.owner === g.owner && c.prosperity > 200 && !Object.values(state.generals).some(other => other.boundCityId === c.id));
+}
+
+/** Used by player and AI after the same eligibility check. */
+export function completeBreak(g: General, round: number, cityId?: string): boolean {
+  if (!canAttemptBreak(g, round).ok || needsTribulation(g)) return false;
+  const state = passiveState();
+  const lord = g.owner && state?.lords[g.owner];
+  if (!lord) return false;
+  if (g.realm < 2) return attemptBreak(g, round);
+  if (g.realm === 4) {
+    const [min, max] = mortalTrialTurns(g.aptitude);
+    g.mortalTrial = { turns: min + Math.floor(Math.random() * (max - min + 1)), weapon: g.weapon };
+    if (g.armor) lord.gear.push(g.armor);
+    g.weapon = null; g.armor = null; g.realm = 0; g.exp = 0;
+    g.hp = Math.min(g.hp, maxHp(g));
+    return true;
+  }
+  if (g.realm === 5) for (const e of ESSENCE_ELEMENTS) lord.essences![e]!--;
+  if (g.realm === 6) {
+    const bonus: Partial<Stats> & { penetration?: number } = {};
+    for (const equipment of [g.weapon, g.armor]) {
+      if (!equipment || equipment.tier < 9) continue;
+      const factor = equipment.kind === 'weapon' ? 0.5 : 1;
+      for (const key of ['force', 'defense', 'hp'] as const) bonus[key] = (bonus[key] ?? 0) + equipment[key] * factor;
+      for (const key of ['alchemy', 'forging', 'talisman', 'formation'] as const) bonus[key] = (bonus[key] ?? 0) + (equipment.craft[key] ?? 0) * factor;
+      bonus.penetration = (bonus.penetration ?? 0) + (equipment.penetration ?? 0) * factor;
+      if (equipment.kind === 'weapon') g.weapon = makePersonalWeapon(g.id);
+      else g.armor = null;
+    }
+    for (const key of Object.keys(g.base) as (keyof Stats)[]) g.base[key] += bonus[key] ?? 0;
+    g.fusionBonus = bonus;
+  }
+  if (g.realm === 8) {
+    if (!state || !ascensionCities(state, g).some(c => c.id === cityId)) return false;
+    g.boundCityId = cityId;
+  }
+  levelUp(g);
+  return true;
+}
+
+/** Remove bonuses once their required realm is lost, including resurrection/abolition. */
+export function reconcileProgression(state: GameState) {
+  for (const g of Object.values(state.generals)) {
+    if (g.boundCityId && (g.status === 'dead' || state.cities[g.boundCityId]?.owner !== g.owner)) {
+      delete g.boundCityId;
+      if (g.realm >= 9) { g.realm = 8; g.exp = 0; }
+    }
+    if (g.mortalTrial && g.status === 'dead') { g.weapon = g.mortalTrial.weapon; delete g.mortalTrial; }
+    for (const [field, minimum] of [['coreBonus', 3], ['fusionBonus', 7]] as const) {
+      const bonus = g[field];
+      if (bonus && g.realm < minimum && !g.mortalTrial) {
+        for (const key of Object.keys(g.base) as (keyof Stats)[]) g.base[key] -= bonus[key] ?? 0;
+        delete g[field];
+        if (field === 'coreBonus') delete g.goldenCore;
+      }
+    }
+    if (g.status !== 'dead') g.hp = Math.min(g.hp, maxHp(g));
+  }
 }
 
 export function levelUp(g: General) {
   if (g.realm>=REALMS.length-1) return;
   const ratio = g.hp / maxHp(g);
   g.realm++;
+  if (g.realm === 3 && g.goldenCore && !g.coreBonus) {
+    const core = GOLDEN_CORES[g.goldenCore];
+    g.coreBonus = {};
+    for (const key of ['force', 'alchemy', 'forging', 'talisman', 'formation'] as const) {
+      if (core.stat === 'all' || core.stat === key) {
+        g.base[key] += core.gain;
+        g.coreBonus[key] = core.gain;
+      }
+    }
+  }
   // 境界成長寫回基礎能力，與一般境界倍率各自計算；低階突破同樣適用。
   const growth=fx(g);
   for(const stat of ['force','defense','alchemy','forging','talisman','formation'] as const) g.base[stat]+=growth.levelBaseGain??0;
@@ -119,43 +202,41 @@ export function levelUp(g: General) {
 }
 
 /** 低階突破失敗的血量懲罰（依突破前的境界）：境界越高扣得越多 */
-export const BREAK_FAIL_HP = [0.1, 0.2];
+export const BREAK_FAIL_HP = [0, 0.25];
 /** 低階突破失敗損失的修為比例 */
-export const BREAK_FAIL_EXP = 0.2;
+export const BREAK_FAIL_EXP = 0.25;
 
-/** 低階突破：機率判定，失敗損失 20% 修為與依境界而定的血量 */
+/** 煉氣失敗損失50%修為；築基失敗損失25%修為與最大血量。 */
 export function attemptBreak(g: General, round: number): boolean {
+  if (g.realm > 1 || !canAttemptBreak(g, round).ok) return false;
   const ok = Math.random() < breakChance(g);
-  g.foundation = false;
+  if (g.realm === 1) g.foundation = false;
   g.demon = 0;
   if (ok) {
     levelUp(g);
     return true;
   }
-  if (!fx(g).keepExpOnFail) g.exp = Math.round(g.exp * (1 - BREAK_FAIL_EXP));
+  g.exp = Math.round(g.exp * (g.realm === 0 ? 0.5 : 1 - BREAK_FAIL_EXP));
   g.hp = Math.max(1, g.hp - Math.round(maxHp(g) * (BREAK_FAIL_HP[g.realm] ?? 0.2)));
   g.failedRound = round;
   return false;
 }
 
-export const TRIBULATION_BOLTS = [3, 4, 5, 6, 7, 8, 9, 10];
-/** 未裝備、無護法時，完整雷劫平均消耗基礎境界血量的比例。 */
-export const TRIBULATION_HP_RATIO = [0.52, 0.60, 0.68, 0.76, 0.84, 0.92, 1.02, 1.12];
-/** 單道天雷傷害的浮動範圍：預估值的 ±35% */
-export const BOLT_SPREAD = 0.35;
+/** 單道天雷傷害的浮動範圍：預估值的 ±20%。 */
+export const BOLT_SPREAD = 0.2;
 
 export function boltCount(g: General): number {
-  return TRIBULATION_BOLTS[g.realm - 2] ?? 10;
+  return g.realm === 3 ? TRIBULATION_RULES.nascentSoul.bolts : g.realm === 7 ? TRIBULATION_RULES.tribulation.bolts : 0;
 }
 
 /** 單道天雷的預估傷害（基礎境界血量、護法、雷劫被動、心魔及世界事件；防禦不影響） */
 export function boltDamage(g: General): number {
-  const stage = Math.max(0, Math.min(TRIBULATION_HP_RATIO.length - 1, g.realm - 2));
-  const baselineHp = g.base.hp * REALM_MULT[g.realm];
+  if (!needsTribulation(g)) return 0;
+  const baselineHp = maxHp({ ...g, armor: null, weapon: null });
   // 天雷依基礎境界血量成長，不受防禦數值影響。
   const thunder = Math.max(0, 1 - (fx(g).tribulation ?? 0));
-  return baselineHp * TRIBULATION_HP_RATIO[stage] / boltCount(g)
-    * Math.max(0, 1 - g.ward) * thunder * (1 + g.demon * 0.5 * Math.max(0, 1 - (fx(g).demonResist ?? 0))) * WORLD.boltMult * Math.max(0, 1 - g.breakBoost);
+  return baselineHp * (g.realm === 3 ? TRIBULATION_RULES.nascentSoul.totalHpRatio : TRIBULATION_RULES.tribulation.totalHpRatio) / boltCount(g)
+    * Math.max(0, 1 - g.ward) * thunder * Math.max(0, 1 - g.breakBoost);
 }
 
 /** 天雷傷害的實際範圍與平均（單道與全部） */
@@ -176,12 +257,12 @@ export function boltRange(g: General) {
 export interface TribulationResult {
   bolts: number[];
   success: boolean;
-  /** 失敗時：死亡或兵解重修 */
-  fate: 'death' | 'rebirth' | 'saved' | null;
+  /** 失敗時：死亡或保命。 */
+  fate: 'death' | 'saved' | null;
   fromRealm: number;
 }
 
-/** 渡雷劫：逐道扣血，撐過全部即突破；血量歸零則一半身死道消、一半兵解重修 */
+/** 渡雷劫：逐道扣血，撐過全部即突破；血量歸零先判定保命，否則死亡。 */
 export async function tribulation(g: General, protect?: () => Promise<boolean>): Promise<TribulationResult> {
   if (fx(g).tribulationSuccess) { const fromRealm=g.realm; g.sevenLife=false; g.ward=0; g.demon=0; g.breakBoost=0; levelUp(g); return {bolts:[],success:true,fate:null,fromRealm}; }
   const seven = g.sevenLife;
@@ -204,7 +285,7 @@ export async function tribulation(g: General, protect?: () => Promise<boolean>):
     levelUp(g);
     return { bolts, success: true, fate: null, fromRealm };
   }
-  if (Math.random() < 0.5) {
+  {
     if (seven) {
       g.hp = maxHp(g); g.exp = Math.round(g.exp * 0.5);
       return { bolts, success: false, fate: 'saved', fromRealm };
@@ -217,10 +298,6 @@ export async function tribulation(g: General, protect?: () => Promise<boolean>):
     g.hp = 0;
     return { bolts, success: false, fate: 'death', fromRealm };
   }
-  g.realm = 0;
-  g.exp = 0;
-  g.hp = Math.round(maxHp(g) * 0.3);
-  return { bolts, success: false, fate: 'rebirth', fromRealm };
 }
 
 /** 生死歷練：勝者掠奪敗者一成修為 */
@@ -240,10 +317,13 @@ export function qiDeviation(g: General) {
 
 /** 自廢修為：境界歸零、功法散去，才能改學其他功法 */
 export function abolish(g: General) {
+  if (g.mortalTrial) { g.weapon = g.mortalTrial.weapon; delete g.mortalTrial; }
   g.realm = 0;
   g.exp = 0;
   g.technique = null;
   g.foundation = false;
+  const state = passiveState();
+  if (state) reconcileProgression(state);
   g.hp = Math.min(g.hp, maxHp(g));
 }
 
@@ -274,6 +354,7 @@ export function recruitPrice(g: General, lord: string): number {
 
 /** 裝備寶衣；換下的寶衣放回行囊。 */
 export function equip(lord: Lord, g: General, e: Equipment) {
+  if (g.mortalTrial) return;
   if (g.ghostSourceId) return;
   if (e.kind === 'weapon' || e.fixedGeneralId) throw Error('專屬武器不可更換');
   const old = g[e.kind];

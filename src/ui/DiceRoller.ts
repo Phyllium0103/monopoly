@@ -6,7 +6,7 @@ import {
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { assetUrl } from '../data/assetUrl';
 import { dicePlaybackRate, diceRollResult } from '../world/DiceMotion';
-import { sampleDicePhysics, simulateDiceRoll, type DiceLaunch, type PhysicalDiceRoll } from '../world/DicePhysics';
+import { DICE_PHYSICS_STEP, sampleDicePhysics, simulateDiceRoll, type DiceLaunch, type PhysicalDiceRoll } from '../world/DicePhysics';
 import './dice-roller.css';
 import {prepareDiceWorker,simulateDiceInWorker} from '../world/DiceWorker';
 import {renderPixelRatio} from '../performance/renderBudget';
@@ -18,7 +18,7 @@ function cosmeticRandom(): number {
 
 /** Keep the entire die above the viewport before real gravity brings it in. */
 export function topDropLaunch(gentle=false):DiceLaunch{
-  return {size:1,position:[0,7.2,0],velocity:[0,-.4,0],surface:gentle?'soft':'standard'};
+  return {size:1,position:[0,12,0],velocity:[0,-.4,0],surface:gentle?'soft':'standard'};
 }
 
 /** A visual presentation of an already-authoritative roll; this class never rolls game dice. */
@@ -45,6 +45,7 @@ export class DiceRoller {
   private observing = false;
   private handOrigin:DiceHandOrigin|null=null;
   private framingPhysics:PhysicalDiceRoll|null=null;
+  private playbackStart = 0;
   private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   private readonly resizeObserver = new ResizeObserver(() => this.resize());
 
@@ -177,7 +178,8 @@ export class DiceRoller {
   private clearDice(): void { this.dice.forEach(d => this.scene.remove(d)); this.dice = []; }
 
   private draw(progress: number): void {
-    const poses = this.physics ? sampleDicePhysics(this.physics, progress * this.physics.playbackDuration) : [];
+    const time = this.playbackStart + progress * (1 - this.playbackStart);
+    const poses = this.physics ? sampleDicePhysics(this.physics, time * this.physics.playbackDuration) : [];
     this.dice.forEach((die, i) => {
       const pose = poses[i]; if (!pose) return;
       die.position.copy(pose.position); die.quaternion.copy(pose.rotation);
@@ -196,12 +198,35 @@ export class DiceRoller {
     const centerX = resting.length?resting.reduce((s,p)=>s+p.position.x,0)/resting.length:bounds ? (bounds.minX + bounds.maxX) / 2 : 0;
     const centerZ = resting.length?resting.reduce((s,p)=>s+p.position.z,0)/resting.length:bounds ? (bounds.minZ + bounds.maxZ) / 2 : 0;
     const centerY = resting.length?resting.reduce((s,p)=>s+p.position.y,0)/resting.length:.4;
-    this.camera.position.set(centerX, centerY + 5, centerZ + 12); this.camera.lookAt(centerX, centerY, centerZ);this.camera.updateMatrixWorld();
+    // View the settled result face at 60 degrees above horizontal.
+    const viewAngle = Math.PI / 3;
+    const viewDistance = Math.hypot(7, 12);
+    // Align the projected launch and resting centroids vertically. Physics may
+    // drift sideways while bouncing; camera framing must account for that drift.
+    const launch = resting.length ? framing?.frames[0] : undefined;
+    const launchX = launch?.length ? launch.reduce((sum,p)=>sum+p.position.x,0)/launch.length : centerX;
+    const launchZ = launch?.length ? launch.reduce((sum,p)=>sum+p.position.z,0)/launch.length : centerZ;
+    const horizontal = new Vector3(centerX-launchX,0,centerZ-launchZ);
+    if (horizontal.lengthSq() < 1e-8) horizontal.set(0,0,1);
+    horizontal.normalize().multiplyScalar(Math.cos(viewAngle)*viewDistance);
+    this.camera.position.set(centerX + horizontal.x, centerY + Math.sin(viewAngle) * viewDistance, centerZ + horizontal.z); this.camera.lookAt(centerX, centerY, centerZ);this.camera.updateMatrixWorld();
     // Frame the actual simulated travel BEFORE playback. The camera stays fixed;
     // dice are never teleported or constrained to a hand-drawn screen trajectory.
     const halfHeight = Math.max(3.35, (bounds ? (bounds.maxX - bounds.minX + 1.6) / 2 : 2.2) * height / width);
     this.camera.left = -halfHeight * width / height; this.camera.right = -this.camera.left;
     this.camera.top = halfHeight; this.camera.bottom = -halfHeight; this.camera.updateProjectionMatrix();
+    // Skip only the invisible part of the descent: begin just above the top edge.
+    // Keep the simulated bounce and resting positions intact.
+    this.playbackStart = 0;
+    if (this.options.centerFinal && framing) {
+      const threshold = 1 + (Math.sqrt(3) / 2 + .08) / halfHeight;
+      for (let i = 1; i < framing.frames.length; i++) {
+        if (framing.frames[i].some(p => p.position.clone().project(this.camera).y <= threshold)) {
+          this.playbackStart = Math.min(.9, (i - 1) * DICE_PHYSICS_STEP / framing.playbackDuration);
+          break;
+        }
+      }
+    }
     this.renderer.setPixelRatio(renderPixelRatio(width,height,1_600_000));
     this.renderer.setSize(width, height,false);
     this.renderer.render(this.scene, this.camera);
@@ -232,7 +257,7 @@ export class DiceRoller {
     this.stage.dataset.sequencePhase='large-descent';this.stage.dataset.dieScale='1';this.stage.dataset.phase='0';this.stage.dataset.shadowMode='contact';
     if (!this.physics) this.clearDice();
     const playbackRate = dicePlaybackRate(speed)*DICE_PRESENTATION_RATE;
-    const duration = this.reducedMotion || !this.physics ? 0 : this.physics.playbackDuration * 1000 / playbackRate;
+    const duration = this.reducedMotion || !this.physics ? 0 : this.physics.playbackDuration * (1 - this.playbackStart) * 1000 / playbackRate;
     const hold = 120; const start = performance.now();
     const { total, detail } = diceRollResult(values, bonus, multiplier);
     let resultShown = false;

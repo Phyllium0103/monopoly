@@ -29,6 +29,7 @@ export function facts(rows: ([string, string] | [string, string, 'warn'])[]): st
 /** 通用彈窗：所有需要玩家決定的流程都透過這裡 */
 export class Dialog {
   private el: HTMLDivElement;
+  private personTip: HTMLDivElement;
   /** 按 Esc 時的動作；必須做出選擇的視窗為 null */
   private onEsc: (() => void) | null = null;
   /** 點擊視窗外的空白處：可以略過的視窗才會關閉（戰鬥、購買等不會） */
@@ -40,6 +41,19 @@ export class Dialog {
     this.el = document.createElement('div');
     this.el.className = 'dialog-backdrop hidden';
     root.appendChild(this.el);
+    this.personTip = document.createElement('div');
+    this.personTip.className = 'tooltip dialog-person-tooltip hidden';
+    document.body.appendChild(this.personTip);
+    this.el.addEventListener('mousemove', e => {
+      const person = (e.target as Element).closest('.core-person');
+      const content = person?.querySelector('.core-person-tip');
+      if (!content) { this.personTip.classList.add('hidden'); return; }
+      this.personTip.innerHTML = content.innerHTML;
+      this.personTip.classList.remove('hidden');
+      this.personTip.style.left = `${Math.max(8, Math.min(e.clientX + 14, window.innerWidth - this.personTip.offsetWidth - 8))}px`;
+      this.personTip.style.top = `${Math.max(8, Math.min(e.clientY + 14, window.innerHeight - this.personTip.offsetHeight - 8))}px`;
+    });
+    this.el.addEventListener('mouseleave', () => this.personTip.classList.add('hidden'));
     this.el.addEventListener('click', (e) => {
       if (e.target === this.el) this.onOutside?.();
     });
@@ -60,16 +74,22 @@ export class Dialog {
   }
 
   private open(title: string, text: string, icon = ''): HTMLDivElement {
+    this.personTip.classList.add('hidden');
     this.el.classList.remove('hidden');
     this.el.innerHTML = '';
     const card = document.createElement('div');
     card.className = 'dialog scroll-card';
+    if (['吐納天地', '氣聚成液', '真元極縮', '破而後立', '歷練紅塵', '五行圓滿', '煉化神物', '逆天而行', '九州歸心', '破界飛升'].some(t => title.startsWith(t)) || /仙凡有別|百川匯海|大道初成|破繭成蝶|大象無形|五行歸一|神物為樞|極道承壓|四海歸心|叩問閶闔/.test(title)) {
+      card.style.setProperty('--breakthrough', '1');
+      card.classList.add('breakthrough-dialog');
+    }
     card.innerHTML = `${icon ? `<div class="dialog-icon">${icon}</div>` : ''}<h2>${title}</h2>${text ? `<div class="dialog-text">${text.replace(/\n/g, '<br>')}</div>` : ''}`;
     this.el.appendChild(card);
     return card;
   }
 
   close() {
+    this.personTip.classList.add('hidden');
     this.onEsc = null;
     this.onOutside = null;
     this.onEnter = null;
@@ -81,6 +101,7 @@ export class Dialog {
     const b = document.createElement('button');
     b.className = 'choice';
     b.disabled = !!c.disabled;
+    if (c.reason) b.title = c.reason;
     if (c.color) b.style.borderLeftColor = c.color;
     const text = `<b>${c.label}</b>${c.sub ? `<small>${c.sub}</small>` : ''}${c.disabled && c.reason ? `<small class="reason">${c.reason}</small>` : ''}`;
     if (c.icon) {

@@ -2911,3 +2911,17 @@ body:has(#ui .help-backdrop:not(.hidden), #ui .dialog-backdrop:not(.hidden), #ui
 #ui:has(.relic-map:not([hidden])) .roll-btn {
   visibility: hidden;
 }
+/* 突破八字題字：本機楷書優先，使用金箔明暗而不另載大型字型。 */
+.breakthrough-dialog h2 {
+  font-family: 'DFKai-SB', 'BiauKai', 'KaiTi', serif;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: .12em;
+  background: linear-gradient(135deg, #896027, #fff1b2 35%, #cf9c38 55%, #fff0ad 75%, #a36e28);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 2px #362006);
+}
+.core-person { position: relative; display: inline-block; }
+.core-person strong,.cultivation-name { color: #e8bf65; }
+.core-person-tip { display:none; position:absolute; z-index:10; min-width:300px; background:#151b22; padding:12px; border:1px solid #b69a54; }
+.dialog-person-tooltip { z-index:2147483647; max-width:min(420px, calc(100vw - 16px)); }

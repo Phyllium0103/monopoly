@@ -6,7 +6,6 @@ import { LORDS, LORD_IDS } from '../faction/Faction';
 import { assetUrl } from '../data/assetUrl';
 import { citiesOf, generalsOf } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
-import { generalHoverInfo } from './GeneralInfo';
 import { LORD_PRESENTATION_RATE } from './LordPresentation';
 import { spriteSourceToWorld, type SpritePose } from './LordSpriteRig';
 import './lord-actor-hud.css';
@@ -135,8 +134,6 @@ export class LordActorHud {
     if(this.dock.dataset.order!==order){for(const id of displayOrder)this.dock.append(this.actors.get(id)!.card);this.dock.dataset.order=order;}
     for(const [id,a] of this.actors){
       const lord=state.lords[id],present=!lord.absent;
-      const general=Object.values(state.generals).find(g=>g.isLord&&g.owner===id);
-      if(general)a.rollButton.dataset.tip=generalHoverInfo(general);
       a.card.hidden=!present;a.card.classList.toggle('is-out',!lord.alive);
       if(a.sprite){a.sprite.visible=present;a.sprite.material.opacity=lord.alive?1:.45;}
       const values=[fmtStones(lord.stones,true),lord.soldiers.toLocaleString(),String(citiesOf(state,id).length),String(generalsOf(state,id).length)];

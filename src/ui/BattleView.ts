@@ -5,7 +5,7 @@ import { REALMS } from '../data/generals';
 import { generalBrief, generalHoverInfo, realmTag, statCells } from './GeneralInfo';
 import { portraitBigUrl, portraitUrl } from './Icons';
 import { STAT_NAMES, techniqueBaseName, techniqueTag } from '../data/items';
-import { TRIBULATION_BOLTS, attack, craft, defense, power, type TribulationResult } from '../systems/GeneralSystem';
+import { attack, craft, defense, power, type TribulationResult } from '../systems/GeneralSystem';
 import { WOUNDED_HP, WOUNDED_REDUCE, type ContestResult, type DuelEvent, type SiegeResult, type Side } from '../systems/BattleSystem';
 import type { DuelSnapshot, FighterSnapshot } from '../engine/snapshots';
 import type { DuelAction } from '../engine/prompts';
@@ -280,7 +280,7 @@ export class BattleView {
       const cap = startMax;
       let hp = startHp;
       body.innerHTML = `
-        <p class="dialog-text">${REALMS[r.fromRealm]} → ${REALMS[r.fromRealm + 1]}・天降 ${TRIBULATION_BOLTS[r.fromRealm - 2]} 道天雷</p>
+      <p class="dialog-text">${REALMS[r.fromRealm]} → ${REALMS[r.fromRealm + 1]}・天降 ${r.fromRealm === 3 ? 4 : 9} 道天雷</p>
         <div class="tribulation">
           <div class="sky"></div>
           <div class="fighter trib" data-side="a" style="--fc:#7fb2ff">
@@ -309,7 +309,7 @@ export class BattleView {
         }
         if (r.fate === 'saved') { bar.style.width = '100%'; label.textContent = cap + ' / ' + cap; }
         const actions = body.querySelector('.battle-actions')!;
-        const text = r.success ? `渡劫成功！晉入【${REALMS[r.fromRealm + 1]}】` : r.fate === 'death' ? '身死道消……' : r.fate === 'saved' ? '保命效果生效，滿血復生，境界保留' : '兵解重修，跌回凡人';
+        const text = r.success ? `渡劫成功！晉入【${REALMS[r.fromRealm + 1]}】` : r.fate === 'death' ? '身死道消……' : r.fate === 'saved' ? '保命效果生效，滿血復生，境界保留' : '渡劫失敗';
         actions.innerHTML = `<div class="result ${r.success ? 'win' : 'lose'}">${text}</div>`;
         const ok = document.createElement('button');
         ok.className = 'btn primary';

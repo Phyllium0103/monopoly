@@ -3,7 +3,7 @@ import { ITEM_DEFS, STAT_NAMES } from '../data/items';
 import { canUse, requirement } from '../systems/ItemSystem';
 import { APTITUDE_NAMES, REALMS } from '../data/generals';
 import { attack, defense, craft, expCap, maxHp, maxStamina, power } from '../systems/GeneralSystem';
-import { fxText, passiveOf } from '../data/passives';
+import { fxText, passiveOf, passiveState } from '../data/passives';
 
 type BattleStats = { hp: number; maxHp: number; atk: number; def: number };
 type HoverStat = 'hp' | 'sta' | 'exp' | 'power' | 'atk' | 'def' | CraftStat;
@@ -96,6 +96,9 @@ const gaugeBar = (key: HoverStat, now: number, max: number, text: string) =>
   `<span class="gh-bar gh-bar-${key}"><i style="width:${Math.min(100, (now / Math.max(1, max)) * 100)}%"></i><span>${text}</span></span>`;
 
 /** 右下頭像的懸停資訊：表格排列，血量、體力、修為用進度條，用道具時著重相關數值。 */
+export function fusionSummary(g: General): string {
+  return Object.entries(g.fusionBonus ?? {}).filter(([, value]) => value !== 0).map(([key,value]) => `${key === 'penetration' ? '破防' : key === 'hp' ? '血量' : key === 'defense' ? '防禦' : key === 'force' ? '武力' : STAT_NAMES[key as CraftStat]} +${key === 'penetration' ? Math.round(value*100)+'%' : value}`).join('、');
+}
 export function generalHoverTable(g: General, battle?: BattleStats, focus?: HoverFocus, note = ''): string {
   const v = hoverValues(g, battle), p = passiveText(g);
   const cap = expCap(g);
@@ -122,6 +125,7 @@ export function generalHoverTable(g: General, battle?: BattleStats, focus?: Hove
       return `<tr><th class="gh-focus">${label}</th><td class="gh-focus" colspan="3">${value}</td></tr>`;
     }).join('') +
     wide('gh-passive', `<b>【${p.name}】</b>${p.text}`) +
+    (g.boundCityId ? wide('gh-note', `供奉城池：${passiveState()?.cities[g.boundCityId]?.name ?? g.boundCityId}`) : '') +
     (note ? wide('gh-note', note) : '') +
     '</table>';
 }

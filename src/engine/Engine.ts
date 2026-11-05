@@ -1,4 +1,7 @@
 import { enterRelic, advanceRelic, leaveRelic } from '../systems/RelicSystem';
+import { generalHoverTable } from '../ui/GeneralInfo';
+import { GOLDEN_CORES, BREAKTHROUGH_TITLES, mortalTrialTurns, type GoldenCore, breakthroughSuccess, breakthroughSuccessTitle } from '../data/breakthroughRules';
+import { completeBreak, ascensionCities, ESSENCE_ELEMENTS, ESSENCE_NAMES, reconcileProgression } from '../systems/GeneralSystem';
 import { collectElementalSpirits, reconcileElementalSpirits, spawnElementalSpirits } from '../systems/ElementalSpiritSystem';
 import { MATERIAL_GROUPS, MATERIAL_NAMES, WEAPON_CATALOG, WEAPON_GRADES, WEAPON_PENETRATION, type MaterialGroup } from '../data/weaponCatalog';
 import { materialIncome, synthesize, upgradeRequirement, upgradeWeapon } from '../systems/MaterialSystem';
@@ -23,7 +26,7 @@ import { bindPassiveState, passiveOf, fx, lordHas } from '../data/passives';
 import { talentNode, canLearnTalent, canRefundTalent, canResetTalents, ensureTalentState, learnTalent, lordTalentFx, refundTalent, resetTalents } from '../data/talents';
 import { CRAFT_CSS, ELEMENT_CSS, ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, equipDesc, equipRealm, techniqueDesc } from '../data/items';
 import { GARRISON_STRENGTH, MIN_GARRISON, canOccupy, cityIncome, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll, visitingToll } from '../systems/CitySystem';
-import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, equip, unequip, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
+import { generalSaleValue, boltRange, attack, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, equip, unequip, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
 import { aptTag, generalBlock, generalBrief, realmTag, statCells, vitalBars, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
@@ -73,6 +76,7 @@ export class Engine {
   }
 
   private get view() {
+    reconcileProgression(this.state);
     return this.ports.view;
   }
 
@@ -185,12 +189,17 @@ export class Engine {
       clearThisTurn = this.human(lord) ? await this.dlg(lord).confirm('管寧：全隊清修？', '啟動當回合放棄全部主動行動，隨行隊伍（含主公）修為獲得 +100%，持續五個自身回合；使用後冷卻十個自身回合。', '開始清修', '正常行動') : Math.random() < 0.15;
       if (clearThisTurn) startSeclusion(lord, seclusion);
     }
+    const trialIds = generalsOf(this.state, lord.id).filter(g => !!g.mortalTrial).map(g => g.id);
     const report = await startTurn(this.state, lord, (g) => this.protectDeath(g), async (owner, ex, team, endangered) => {
       if (!this.human(owner)) return true;
       return this.dlg(owner).confirm('破界遁空符：全隊撤離？',
         `${ex.realmName}中，${endangered.map(g => g.name).join('、')}觸發隕落風險。\n消耗一張符可讓本次 ${team.length} 名武將全部平安撤離；境界與修為不變，整趟無獎勵。若不使用，按原規則結算死亡與獎勵（不死圖騰仍可另行選擇）。`,
         '消耗一張・全隊撤離', '不使用・繼續結算', '🌀');
     });
+    if (this.human(lord)) for (const id of trialIds) {
+      const g = this.state.generals[id];
+      if (g.realm === 5 && !g.mortalTrial) await this.dlg(lord).message(breakthroughSuccessTitle(g), breakthroughSuccess(g));
+    }
     this.view.log(`<b style="color:${LORDS[lord.id].css}">【${name}】</b>的回合`, 'turn');
     for (const l of report.lines) this.view.log(`${name}：${l.text}`, this.human(lord) ? l.kind : 'ai');
     if (this.human(lord)) this.pendingBreak = report.bottlenecks;
@@ -263,7 +272,7 @@ export class Engine {
         case 'ability': await this.useAbilityOf(lord, a.generalId); break;
         case 'break-general': {
           const g=this.state.generals[a.generalId];
-          if(!g||g.owner!==lord.id||lord.relicJourney||!canAttemptBreak(g,this.state.round).ok){this.view.toast('武將目前無法突破',lord.id);break;}
+          if(!g||g.owner!==lord.id||lord.relicJourney||!inBottleneck(g)){this.view.toast('武將目前無法突破',lord.id);break;}
           await this.rosterAction(lord,'break',g);break;
         }
         case 'materials': await this.materialsFlow(lord); break;
@@ -444,7 +453,7 @@ export class Engine {
       '進入試煉', '暫不進入', '▧')) return;
     if(!enterRelic(lord))return;
     this.view.log(`${LORDS[lord.id].name}進入山河社稷圖：外圈16格，中央留空，禁用道具，完成一圈才能離開。`,'info');
-    await this.view.relic(lord.id,0,true,lord.relicJourney!.lastResult);this.view.refresh();
+    await this.view.relic(lord.id,0,true,lord.relicJourney!.lastResult);this.view.refresh(); await this.moveRelic(lord);
   }
 
   private async moveRelic(lord:Lord){
@@ -471,7 +480,13 @@ export class Engine {
     await this.view.movementDone?.(lord.id);
     await this.wait(0);
     if (this.state.over) return;
-    if (collectElementalSpirits(this.state, tile)) this.view.syncSpirits(this.state.elementalSpirits ?? []);
+    const collected = (this.state.elementalSpirits ?? []).filter(s => s.tile === tile);
+    if (collectElementalSpirits(this.state, tile, lord.id)) {
+      this.view.syncSpirits(this.state.elementalSpirits ?? []);
+      const result = collected.map(s => `${ESSENCE_NAMES[ESSENCE_ELEMENTS.indexOf(s.element)]} x3`).join('、');
+      this.view.log(`${LORDS[lord.id].name}獲得${result}`, 'good');
+      if (this.human(lord)) await this.dlg(lord).message('五行精靈', `獲得${result}`);
+    }
     const t = this.state.tiles[tile];
     this.view.refresh();
     if (tile === this.state.merchantTile) {
@@ -1328,7 +1343,7 @@ export class Engine {
       if (!selected) return false;
       target = selected;
     }
-    this.view.log(useGeneralAbility(this.state, lord, user, target), 'good');
+    const result = useGeneralAbility(this.state, lord, user, target); this.view.log(result, 'good'); await this.dlg(lord).message('神通施展', result);
     this.view.refresh();
     return true;
   }
@@ -1836,7 +1851,7 @@ export class Engine {
 
   /** 名冊上的單一操作；突破、閉關、升階、換裝只在自己的整備階段，學功法與自廢修為單機時隨時可用 */
   async rosterAction(lord: Lord, type: RosterActionType, g: General) {
-    const away = g.status === 'realm' || !!g.ghostSourceId;
+    const away = g.status === 'realm' || !!g.ghostSourceId || !!g.mortalTrial;
     const ask = this.dlg(lord);
     switch (type) {
       case 'break':
@@ -1901,60 +1916,60 @@ export class Engine {
   }
 
   /** 從武將名冊發起突破：低階機率突破，金丹以上渡雷劫 */
+  private async chooseCore(lord: Lord, g: General) {
+    const core = await this.dlg(lord).choose(BREAKTHROUGH_TITLES[3], `<div class="core-person">選擇<strong>${g.name}</strong>金丹凝煉路線<div class="core-person-tip">${generalHoverTable(g)}</div></div>${g.goldenCore ? `<p>已選擇：${GOLDEN_CORES[g.goldenCore].name}</p>` : ''}`, Object.entries(GOLDEN_CORES)
+      .filter(([id]) => id !== 'heavenly' || g.aptitude === 'heaven')
+      .map(([id, c]) => ({ label: `<span title="所需修為：${c.exp}&#10;${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}">${c.name}</span>`, value: id as GoldenCore, sub: `所需修為：${c.exp}｜${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}` })));
+    if (core) g.goldenCore = core;
+    this.view.refresh();
+    return core !== null;
+  }
+
   private async breakthroughFlow(lord: Lord, g: General) {
-    const can = canAttemptBreak(g, this.state.round);
-    if (!can.ok) {
-      this.view.toast(can.reason, lord.id);
-      return;
-    }
     const ask = this.dlg(lord);
+    if (g.realm === 2 && !await this.chooseCore(lord, g)) return;
+    const can = canAttemptBreak(g, this.state.round);
+    if (!can.ok) { await ask.choose(BREAKTHROUGH_TITLES[g.realm + 1], can.reason, [{label:'突破',value:true,disabled:true,reason:can.reason}]); return; }
+    const target = g.realm + 1;
+    const title = BREAKTHROUGH_TITLES[target];
+    let boundCity: string | undefined;
+    if (g.realm === 8) {
+      const city = await ask.choose(title, '一榮俱榮，一損俱損\n城池過路費x2\n城池被攻佔則境界跌落\n一座城池只能綁定一位大乘境強者',
+        ascensionCities(this.state, g).map(c => ({ label: c.name, sub: `繁榮度 ${c.prosperity}`, value: c.id })));
+      if (!city) return;
+      boundCity = city;
+    }
+    let text = '';
+    if (g.realm < 2) text = `成功率 ${Math.round(breakChance(g) * 100)}%${g.realm === 1 ? '\n失敗會損失25%修為，並氣血翻湧，扣除血量25%' : '\n失敗會損失50%修為'}`;
+    if (g.realm === 4) { const [min,max] = mortalTrialTurns(g.aptitude); text = `自封修為入世化凡，感悟天地法則，持續${min}～${max}回合`; }
+    if (g.realm === 5) text = '消耗五行本源進行突破\n' + ESSENCE_ELEMENTS.map((e,i) => `${ESSENCE_NAMES[i]}x${lord.essences?.[e] ?? 0}`).join('、');
+    if (g.realm === 6) text = `融合天階神物進入自身方可突破\n已裝備：${g.weapon?.name ?? '無武器'}/${g.armor?.name ?? '無寶衣'}`;
+    if (g.realm === 9) text = '暫定，直接升級';
     if (!needsTribulation(g)) {
-      const chance = Math.round(breakChance(g) * 100);
-      const ok = await ask.confirm(
-        `${g.name}・突破${REALMS[g.realm + 1]}`,
-        `成功率 <b>${chance}%</b>${g.foundation ? '（已服築基丹）' : ''}${g.demon ? '\n⚠️ 心魔纏身，成功率大降' : ''}\n失敗會損失 <b>20%</b> 修為，並氣血翻湧：扣 <b>${Math.round(BREAK_FAIL_HP[g.realm] * 100)}%</b> 血量（境界越高扣得越多）。`,
-        '突破',
-        '再等等',
-        '🧘',
-      );
-      if (!ok) return;
-      const failHp = BREAK_FAIL_HP[g.realm];
-      const success = attemptBreak(g, this.state.round);
-      if (success) this.view.beam(lord.id);
-      const msg = success ? `✦ ${g.name}突破成功，晉入【${REALMS[g.realm]}】！` : `${g.name}突破失敗，修為 −20%，血量 −${Math.round(failHp * 100)}%……`;
-      this.view.log(msg, success ? 'good' : 'bad');
-      await ask.message(success ? '突破成功' : '突破失敗', msg, success ? '✨' : '💢');
+      if (g.realm !== 2 && g.realm !== 8 && !await ask.confirm(title, text, '突破', '再等等', '')) return;
+      const success = completeBreak(g, this.state.round, boundCity);
       this.view.refresh();
+      if (!success) { await ask.message('突破失敗', g.realm === 1 ? '損失25%修為與最大血量的25%。' : '損失50%修為。'); return; }
+      if (g.mortalTrial) { await ask.message(title, text); return; }
+      this.view.beam(lord.id);
+      await ask.message(breakthroughSuccessTitle(g), breakthroughSuccess(g));
+      if (g.realm === 2) await this.chooseCore(lord, g);
+      this.view.refresh();
+      if (g.isLord) await this.checkEnd();
       return;
     }
     const rg = boltRange(g);
-    const ok = await ask.confirm(
-      `${g.name}・渡劫晉入${REALMS[g.realm + 1]}`,
-      `天降 <b>${rg.count}</b> 道天雷：\n每道傷害範圍 <b>${rg.min} ～ ${rg.max}</b>（平均 ${rg.avg}）\n全部共 <b>${rg.totalMin} ～ ${rg.totalMax}</b>，平均 <b>${rg.totalAvg}</b>\n目前血量 ${g.hp} / ${maxHp(g)}${g.ward ? `・護法陣減傷 ${Math.round(g.ward * 100)}%` : ''}${g.demon ? '\n⚠️ 心魔纏身，雷劫威力倍增' : ''}\n\n血量歸零則一半機率身死道消、一半機率兵解重修（跌回凡人）。\n可先用大還丹補滿，或用避雷陣、五行防禦陣護法。`,
-      '渡劫',
-      '再準備',
-      '⚡',
-    );
-    if (!ok) return;
-    const cityId = g.cityId;
-    const startHp = g.hp;
-    const startMax = maxHp(g);
-    const r = await tribulation(g, () => this.protectDeath(g));
-    if (r.fate === 'death' && cityId) {
-      this.state.cities[cityId].garrisonGenerals = this.state.cities[cityId].garrisonGenerals.filter((id) => id !== g.id);
-      if (abandonIfEmpty(this.state, cityId)) this.view.log(`🏚️ ${this.state.cities[cityId].name}失去所有駐將，成為空城，守軍離去。`, 'bad');
+    if (!await ask.confirm(title, `${g.realm === 3 ? '抵抗四九天雷' : '祭出底蘊，抵抗九九天雷'}\n每道雷劫${rg.min}～${rg.max}(平均${rg.avg})\n全部${rg.totalMin}～${rg.totalMax}(平均${rg.totalAvg})\n目前血量 ${g.hp}/${maxHp(g)}\n血量歸零則身死道消`, '渡劫', '再準備', '')) return;
+    const cityId = g.cityId, hp = g.hp, maximum = maxHp(g);
+    const result = await tribulation(g, () => this.protectDeath(g));
+    if (result.fate === 'death' && cityId) {
+      this.state.cities[cityId].garrisonGenerals = this.state.cities[cityId].garrisonGenerals.filter(id => id !== g.id);
+      abandonIfEmpty(this.state, cityId);
     }
-    await this.view.tribulation(g.id, lord.id, r, startHp, startMax);
-    if (r.success) this.view.beam(lord.id, 0xbfe0ff);
-    const msg = r.success
-      ? `⚡ ${g.name}渡過 ${r.bolts.length} 道天雷，晉入【${REALMS[g.realm]}】！`
-      : r.fate === 'death'
-        ? `⚡ ${g.name}渡劫失敗，身死道消……`
-        : r.fate === 'saved' ? `⚡ ${g.name}渡劫失敗，保命效果令其滿血復生，境界保留。` : `⚡ ${g.name}渡劫失敗，兵解重修，跌回凡人。`;
-    this.view.log(msg, r.success ? 'good' : 'bad');
-    this.view.syncCities();
-    this.view.refresh();
-    if (r.success && g.isLord && await this.checkEnd()) return;
-    if (r.fate === 'death' && g.isLord) await this.onBankrupt(lord, `${g.name}渡劫失敗身死道消，主公陣亡`);
+    reconcileProgression(this.state);
+    await this.view.tribulation(g.id, lord.id, result, hp, maximum);
+    await ask.message(result.success ? breakthroughSuccessTitle(g) : title, result.success ? breakthroughSuccess(g) : result.fate === 'saved' ? '保命效果生效，境界保留。' : '血量歸零，身死道消。');
+    this.view.syncCities(); this.view.refresh();
+    if (result.fate === 'death' && g.isLord) await this.onBankrupt(lord, '渡劫失敗，主公陣亡');
   }
 }

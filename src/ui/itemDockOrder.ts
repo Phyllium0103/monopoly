@@ -12,6 +12,6 @@ export function sortItemStacks(stacks: ItemStack[]): ItemStack[] {
       || Math.max(...x.price)-Math.max(...y.price)
       || x.name.localeCompare(y.name,'zh-Hant')
       || a.item.defId.localeCompare(b.item.defId)
-      || b.item.tier-a.item.tier;
+      || a.item.tier-b.item.tier;
   });
 }

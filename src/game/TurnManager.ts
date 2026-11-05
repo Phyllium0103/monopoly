@@ -2,7 +2,7 @@ import { tickGeneralAbilities } from '../systems/GeneralAbilities';
 import type { GameState, General, Lord } from './types';
 import { citiesOf, generalsOf } from './GameState';
 import { cityIncomeOf, prosperityGrowth } from '../systems/CitySystem';
-import { addExp, inBottleneck, passiveExp, recover } from '../systems/GeneralSystem';
+import { addExp, inBottleneck, passiveExp, recover, reconcileProgression, levelUp, maxHp } from '../systems/GeneralSystem';
 import { advanceExpeditions, type RealmOutcome, type RealmEscapeDecision } from '../systems/RealmSystem';
 import { ITEM_DEFS, PILL_IDS, beastPower, rollItemId } from '../data/items';
 import { MATERIAL_NAMES } from '../data/weaponCatalog';
@@ -20,6 +20,7 @@ export interface TurnReport {
 /** 主公回合開始：城池收入、繁榮成長、將領修煉與回復、秘境結算、靈獸尋寶 */
 export async function startTurn(state: GameState, lord: Lord, protect?: (g: General) => Promise<boolean>, escape?: RealmEscapeDecision): Promise<TurnReport> {
   const report: TurnReport = { lines: [], realms: [], bottlenecks: [] };
+  reconcileProgression(state);
   for (const text of tickGeneralAbilities(state,lord)) report.lines.push({text,kind:'info'});
   let stones = 0;
   let soldiers = 0;
@@ -52,6 +53,15 @@ export async function startTurn(state: GameState, lord: Lord, protect?: (g: Gene
   // 周天吐納：秘境中的將領不吸納靈氣
   let gained = 0;
   for (const g of generalsOf(state, lord.id)) {
+    if (g.mortalTrial) {
+      if (--g.mortalTrial.turns <= 0) {
+        g.weapon = g.mortalTrial.weapon;
+        delete g.mortalTrial;
+        g.realm = 4; levelUp(g); g.hp = maxHp(g);
+        report.lines.push({ text: `${g.name}化凡悟道圓滿，晉入化神。`, kind: 'good' });
+      }
+      continue;
+    }
     recover(g);
     if (g.status === 'realm') continue;
     const was = inBottleneck(g);
@@ -81,6 +91,10 @@ export function advance(state: GameState): boolean {
       state.turn = 0;
       state.round++;
       newRound = true;
+      // 無主城池也隨每一輪成長；有主城池仍在其主公回合成長。
+      for (const city of Object.values(state.cities)) {
+        if (city.owner === 'neutral') city.prosperity = Math.min(300, Math.round((city.prosperity + prosperityGrowth(city)) * 100) / 100);
+      }
     }
     if (state.lords[state.order[state.turn]].alive) break;
   }

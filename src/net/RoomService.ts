@@ -1,5 +1,5 @@
 import type { GameState, LordId } from '../game/types';
-import { BOARD } from '../data/board';
+import { BOARD, hasCurrentBoard } from '../data/board';
 import {serializeHostSave} from './SaveWorker';
 import { HostRoom, type HostSnapshot } from './HostRoom';
 import { dial, listen, type Link } from './p2p/link';
@@ -355,6 +355,7 @@ export class RoomService {
       // 存檔省略了地圖格子：補回快照與公開狀態
       if (s.record) withTiles(s.record.snapshot);
       if (s.pub) withTiles(s.pub.state);
+      if ((s.record && !hasCurrentBoard(s.record.snapshot)) || (s.pub && !hasCurrentBoard(s.pub.state))) return null;
       return s;
     } catch {
       return null;

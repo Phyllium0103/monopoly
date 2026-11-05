@@ -43,8 +43,21 @@ function tick(now){clock=now;const callbacks=[...frames.values()];frames.clear()
   const end=sampleDicePhysics(physical,physical.playbackDuration)[0].position.project(centered.camera);
   const start=physical.frames[0][0].position.clone().project(centered.camera);
   assert.ok(Math.abs(end.x)<1e-6&&Math.abs(end.y)<1e-6,'resting die is at the exact screen centre');
+  assert.ok(Math.abs(start.x)<1e-6,'die enters from the horizontal screen centre');
   assert.ok(start.y>1.2,'die starts fully above the screen');
+  const visibleStart=sampleDicePhysics(physical,centered.playbackStart*physical.playbackDuration)[0].position.project(centered.camera);
+  const lowerEdge=visibleStart.y-Math.sqrt(3)/2/centered.camera.top;
+  assert.ok(lowerEdge>1&&lowerEdge<1.12,'playback starts only just outside the top edge');
  }
+ // Two dice use their shared centroid, so the pair remains centred too.
+ delete global.document;delete global.window;global.performance=require('node:perf_hooks').performance;
+ seed=456;const pair=await simulateDiceRoll([2,5],()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/0x100000000),topDropLaunch());
+ global.document=mockDocument;global.window=mockWindow;global.performance=mockPerformance;
+ centered.physics=pair;centered.resize();
+ const centroid=poses=>poses.reduce((sum,p)=>sum.add(p.position),new (require('three').Vector3)()).multiplyScalar(1/poses.length).project(centered.camera);
+ const pairStart=centroid(pair.frames[0]),pairEnd=centroid(sampleDicePhysics(pair,pair.playbackDuration));
+ assert.ok(Math.abs(pairStart.x)<1e-6&&pairStart.y>1.2,'pair enters from above the horizontal centre');
+ assert.ok(Math.abs(pairEnd.x)<1e-6&&Math.abs(pairEnd.y)<1e-6,'pair rests at screen centre');
  centered.renderer=null;centered.cancel();
  console.log('PASS real Rapier top drop starts offscreen and rests at screen centre in wide and portrait views');
  // Geometry and GLB loading are tested separately; exercise the numeric backend

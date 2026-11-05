@@ -351,6 +351,7 @@ export class GeneralsView {
         <span class="chip trait" title="【${passiveOf(g).name}】${tip(fxText(passiveOf(g).fx))}${generalCooldownText(lord, g) ? `｜${tip(generalCooldownText(lord, g))}` : ''}｜${tip(passiveOf(g).flavor)}">【${passiveOf(g).name}】</span>
         ${buffs ? `<span class="chip buff">${buffs}</span>` : ''}
         <span class="st">${status}</span>
+        ${g.fusionBonus ? `<div class="fusion-summary">融合加成：${fusionSummary(g)}</div>` : ''}
       </div>
       <div class="gc-body">
         <div class="gc-slots">
@@ -402,6 +403,7 @@ export class GeneralsView {
       card.querySelector(`.eq-row[data-slot="${slot}"]`)!.appendChild(b);
     };
 
+    if (g.realm === 2 && !g.mortalTrial) btn('金丹路線', !manage || away, () => this.emit({ type: 'break', generalId: g.id }));
     if (bottleneck) {
       const can = canAttemptBreak(g, state.round);
       btn(needsTribulation(g) ? '⚡ 渡劫' : '🧘 突破', !manage || !can.ok, () => this.emit({ type: 'break', generalId: g.id }), 'danger');
@@ -426,3 +428,4 @@ export class GeneralsView {
     return card;
   }
 }
+import { fusionSummary } from './GeneralInfo';

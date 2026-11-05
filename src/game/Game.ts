@@ -32,7 +32,7 @@ import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { TILE_INFO, hasCurrentBoard } from '../data/board';
 import { RANK_METRICS, cityIncomeOf, cityRanks, cityToll, garrisonPower, toll } from '../systems/CitySystem';
-import { canAttemptBreak, maxHp, maxStamina, power } from '../systems/GeneralSystem';
+import { inBottleneck, maxHp, maxStamina, power } from '../systems/GeneralSystem';
 import { flameLayersFor } from '../data/realmFrames';
 import { generalHoverInfo, generalHoverTable, itemTargetFocus, itemUserFocus, realmTag, type HoverFocus } from '../ui/GeneralInfo';
 import { bindPassiveState } from '../data/passives';
@@ -297,7 +297,7 @@ export class Game {
   /** 進入多人對局：me 為本機玩家的主公 */
   startOnline(state: GameState, me: LordId, onExit: () => void) {
     if (!hasCurrentBoard(state)) {
-      throw new Error('此房間仍使用舊版地圖。請所有玩家更新網頁並建立新房間；舊對局資料不會被覆寫。');
+      throw new Error('此房間使用舊版遊戲規則。突破系統已更新，請所有玩家更新網頁並建立新對局；舊存檔不轉換。');
     }
     this.reset();
     this.me = me;
@@ -608,7 +608,7 @@ export class Game {
     const lord = this.state.lords[this.me];
     if (!lord.alive) return;
     lord.stones += 100_000_000;
-    lord.soldiers += 100_000;
+    lord.soldiers += 100_000; lord.essences = {metal:1000,wood:1000,water:1000,fire:1000,earth:1000};
     for (const k of MATERIAL_GROUPS) lord.materials[k] = lord.materials[k].map(n => n + 1000) as [number, number, number];
     for (const [defId, d] of Object.entries(ITEM_DEFS)) for (let t = 0; t < d.price.length; t++) lord.items.push(makeItem(nextUid(this.state, 'i'), defId, t));
     for (let tier = 0; tier < 12; tier++) {
@@ -620,7 +620,7 @@ export class Game {
       g.hp = maxHp(g);
       g.stamina = maxStamina(g);
     }
-    this.ui.log('🧪 測試：獲得 100 極品靈石、10 萬士兵，以及所有丹藥、陣法、符籙、法器（各階）、各階寶衣與功法、天階靈獸，以及十八種升階材料各 1000 顆。', 'good');
+    this.ui.log('🧪 測試：獲得 100 極品靈石、10 萬士兵，以及所有丹藥、陣法、符籙、法器（各階）、各階寶衣與功法、天階靈獸，以及十八種升階材料與五種本源各 1000 顆。', 'good');
     this.ui.toast('🧪 測試：已獲得大量靈石與所有物品');
     this.refresh();
   }
@@ -798,6 +798,7 @@ export class Game {
         <tr><td>挖掘</td><td>${c.mining ? `${materialLabel(c.mining, 0)}<small class="ip-sub">每個自身回合 ${materialIncome(c)} 顆</small>` : '佔領時指定基礎材料'}</td></tr>
         <tr><td>駐將</td><td>${gens.length ? gens.map((g) => `${g.name} ${realmTag(g.realm)} 戰力 ${power(g)}`).join('<br>') : '無'}</td></tr>
         <tr><td>比試</td><td>擂台戰（固定）＋${STAT_NAMES[c.contest]}比試</td></tr>
+        <tr><td>供奉仙人</td><td>${Object.values(this.state.generals).find(g=>g.boundCityId===c.id)?.name ?? '無'}</td></tr>
         <tr><td>守軍</td><td>${c.garrisonSoldiers}${c.shieldTurns ? `・護城大陣 ${c.shieldTurns}` : ''}</td></tr>
         ${c.owner !== 'neutral' ? `<tr><td>守城戰力</td><td title="全圖第 ${ranks.defense} 名">${garrisonPower(this.state, c)}<small class="terrain-fx">第 ${ranks.defense} 名</small></td></tr>` : ''}
       </table>${links}${fork}${people}`;
@@ -980,11 +981,11 @@ export class Game {
     const users = abilityUsers(this.state, player);
     const canAct = preroll && !this.auto && !this.dispatchTask && !player.relicJourney;
     const party=freeGenerals(this.state, player.id).sort((a, b) => Number(b.isLord) - Number(a.isLord));
-    const extras=generalsOf(this.state,player.id).filter(g=>g.status!=='free'&&canAttemptBreak(g,this.state.round).ok);
+    const extras=generalsOf(this.state,player.id).filter(g=>g.status!=='free'&&inBottleneck(g));
     return [...party,...extras]
       .map((g) => {
         const inParty=g.status==='free';
-        const breakthrough=canAttemptBreak(g,this.state.round).ok;
+        const breakthrough=inBottleneck(g);
         const hasSkill = inParty && users.includes(g);
         const r = hasSkill ? abilityReady(this.state, player, g) : null;
         const ready = !!r?.ok && canAct;
@@ -1015,7 +1016,7 @@ export class Game {
     const buttons: ActionButton[] = [];
     let hint: string;
     let fullHint = '';
-    const ready = generalsOf(this.state, player.id).filter((g) => canAttemptBreak(g, this.state.round).ok).length;
+    const ready = generalsOf(this.state, player.id).filter((g) => inBottleneck(g)).length;
     const roster: ActionButton = {
       label: '👥 武將',
       sub: ready ? `✨ ${ready} 人可突破` : undefined,

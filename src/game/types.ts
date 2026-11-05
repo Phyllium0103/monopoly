@@ -88,6 +88,11 @@ export type GeneralStatus = 'free' | 'sect' | 'garrison' | 'realm' | 'dead';
 export type Aptitude = 'waste' | Element | 'heaven';
 
 export interface General {
+  goldenCore?: import('../data/breakthroughRules').GoldenCore;
+  coreBonus?: Partial<Stats>;
+  fusionBonus?: Partial<Stats> & { penetration?: number };
+  mortalTrial?: { turns: number; weapon: Equipment | null };
+  boundCityId?: string;
   ghostSourceId?: string;
   ghostTurns?: number;
   ghostReadyTurn?: number;
@@ -146,6 +151,7 @@ export interface Expedition {
 }
 
 export interface Lord {
+  essences?: Partial<Record<Element, number>>;
   personalTurn?: number;
   clearCultivationTurns?: number;
   id: LordId;

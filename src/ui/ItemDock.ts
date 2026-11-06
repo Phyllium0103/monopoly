@@ -1,6 +1,6 @@
 import type { Item } from '../game/types';
 import { ITEM_DEFS, PILL_GRADES, itemName } from '../data/items';
-import { CATEGORY_STYLE, TIER_COLORS } from './ItemUI';
+import { CATEGORY_STYLE } from './ItemUI';
 import { itemIconUrl } from './Icons';
 import { SPECIAL_ITEM_STORAGE } from '../systems/DirectItems';
 import { requirementText } from '../systems/ItemSystem';
@@ -8,6 +8,7 @@ import { shortItemName } from '../data/itemLabels';
 import { sortItemStacks, type ItemStack } from './itemDockOrder';
 import { uiViewportSize } from './UiViewport';
 import './item-dock.css';
+import './technique-roster.css';
 
 export interface ItemDockChoice { id: string; name: string; img?: string; tip?: string; tipHtml?: string; disabled?: boolean; selected?: boolean }
 export interface ItemDockState {
@@ -115,7 +116,11 @@ export class ItemDock {
       b.disabled = !!reason; b.classList.toggle('selected', s.selected === item.uid);
       b.setAttribute('aria-label', `${itemName(item.defId,item.tier)} ×${count}${reason ? '，' + reason : ''}`);
       b.setAttribute('aria-pressed',String(s.selected === item.uid)); b.title = `${itemName(item.defId,item.tier)} ×${count}\n${d.desc(item.tier)}\n${requirementText(item)}${reason ? '\n' + reason : ''}`;
-      b.style.setProperty('--item-tier', d.price.length > 1 ? TIER_COLORS[item.tier] : CATEGORY_STYLE[d.category].color);
+      const borderColors = ['#4d9463', '#367bb9', '#8854ad', '#b98826'];
+      b.style.setProperty('--item-tier', d.price.length > 1 ? borderColors[item.tier] : 'transparent');
+      const esc = (text: string) => text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+      b.dataset.tip = b.title;
+      b.dataset.tipHtml = `<div class="tech-tip"><div class="tech-tip-rank">${esc(d.category)}${d.price.length > 1 ? ` · ${esc(PILL_GRADES[item.tier])}` : ''}</div><strong>${esc(d.name)} ×${count}</strong><div class="tech-tip-rule"></div><div class="tech-tip-detail">${esc(d.desc(item.tier))}<br>${esc(requirementText(item))}${reason ? `<br>${esc(reason)}` : ''}</div></div>`;
       const img = document.createElement('img'); img.src = itemIconUrl(item.defId); img.alt = d.name; img.draggable = false; b.append(img);
       if (d.price.length > 1) { const badge = document.createElement('small'); badge.className = 'item-grade'; badge.textContent = PILL_GRADES[item.tier]; b.append(badge); }
       const qty = document.createElement('span'); qty.className = 'item-quantity'; qty.textContent = String(count); b.append(qty); row.append(b);

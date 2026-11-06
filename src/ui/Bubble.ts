@@ -55,5 +55,17 @@ document.addEventListener('mousemove', (e) => {
 });
 
 document.addEventListener('mouseleave', hide);
+document.addEventListener('focusin', (e) => {
+  const el = (e.target as HTMLElement).closest?.<HTMLElement>('.technique-picture[data-tip]');
+  if (!el) return;
+  current = el;
+  bubble.innerHTML = el.dataset.tipHtml ?? '';
+  bubble.classList.remove('hidden');
+  const rect = el.getBoundingClientRect();
+  place(rect.left, rect.bottom);
+});
+document.addEventListener('focusout', (e) => {
+  if ((e.target as HTMLElement).matches?.('.technique-picture')) hide();
+});
 window.addEventListener('blur', hide);
 window.addEventListener('wheel', hide, { passive: true });

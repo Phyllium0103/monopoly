@@ -1,12 +1,13 @@
 import { upgradeRequirement, weaponUpgradeTip } from '../systems/MaterialSystem';
+import './technique-roster.css';
 import { materialLabel } from './MaterialArt';
 import { generalCooldownText } from '../systems/GeneralAbilities';
-import type { GameState, General, Lord } from '../game/types';
+import type { GameState, General, Lord, Technique } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES } from '../data/generals';
 import { realmTag } from './GeneralInfo';
 import { fxText, passiveOf, fx } from '../data/passives';
-import { equipDesc, techniqueDesc, techniqueTag } from '../data/items';
+import { equipDesc, techniqueDesc, techniqueTag, techniqueBaseName, tierName } from '../data/items';
 import {
   attack,
   boltCount,
@@ -24,7 +25,6 @@ import {
   passiveExp,
   power,
 } from '../systems/GeneralSystem';
-import { bagHtml } from './ItemUI';
 import { LORDS, originKingdom } from '../faction/Faction';
 import { equipIconUrl } from './Icons';
 import { generalHeadUrl, hasHeavenWeapon, rosterArtUrl } from '../data/generalArt';
@@ -42,6 +42,20 @@ const SECTIONS: { status: General['status']; title: string }[] = [
 /** 武將名冊：查看能力、裝備、學功法、突破渡劫、閉關 */
 /** 提示文字：去掉 HTML 標籤並跳脫引號，才能放進 title 屬性 */
 const tip = (html: string) => html.replace(/<br\s*\/?>/g, '｜').replace(/<[^>]+>/g, '').replace(/"/g, '&quot;');
+
+const escapeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+function techniquePicture(t: Technique): string {
+  const grade = Math.max(0, Math.min(3, Math.floor(t.tier / 3)));
+  const family = t.art ?? t.element;
+  const image = family ? `${import.meta.env.BASE_URL}assets/techniques/${family}-${['huang', 'xuan', 'di', 'tian'][grade]}.webp` : '';
+  const name = techniqueBaseName(t);
+  const rank = tierName(t.tier, '階');
+  const tag = techniqueTag(t);
+  const parts = techniqueDesc(t).replace(/<br\s*\/?>/g, '｜').replace(/<[^>]+>/g, '').split('｜').map(escapeHtml);
+  const description = `<span style="color:${tag.css}">${parts[0]}</span><br>${parts.slice(1).join('<br>')}`;
+  const detail = `<div class="tech-tip"><div class="tech-tip-rank">${escapeHtml(rank)} · <span style="color:${tag.css}">${escapeHtml(tag.text)}</span></div><strong>${escapeHtml(name)}</strong><div class="tech-tip-rule"></div><div class="tech-tip-detail">${description}</div></div>`;
+  return `<span class="technique-picture grade-${grade}" tabindex="0" data-tip="${escapeHtml(`${rank}｜${name}｜${tip(techniqueDesc(t))}`)}" data-tip-html="${escapeHtml(detail)}" aria-label="${escapeHtml(`${rank} ${name}`)}">${image ? `<img src="${image}" alt="" loading="lazy" decoding="async">` : '<span aria-hidden="true">卷</span>'}</span>`;
+}
 
 /** 武將名冊可選的排序項目（由大到小；主公永遠排第一） */
 const APTITUDE_ORDER: General['aptitude'][] = ['waste', 'earth', 'fire', 'water', 'wood', 'metal', 'heaven'];
@@ -176,9 +190,10 @@ export class GeneralsView {
     const gens = generalsOf(state, lord.id);
     const manage = this.mode.manage;
 
-    const bag = bagHtml(lord.items);
     const gear = lord.gear.map((e) => `<span class="chip" title="${tip(equipDesc(e))}">${e.name}</span>`).join('') || '<span class="muted">無</span>';
-    const scrolls = lord.scrolls.map((t) => `<span class="chip" style="border-color:${techniqueTag(t).css}" title="${tip(`${t.name.split('・')[0]}｜${techniqueDesc(t)}`)}">${t.name.split('・').slice(1).join('・')}</span>`).join('') || '<span class="muted">無</span>';
+    const families = ['metal', 'wood', 'water', 'fire', 'earth', 'alchemy', 'forging', 'talisman', 'formation'];
+    const familyOrder = (t: Technique) => { const i = families.indexOf(t.art ?? t.element ?? ''); return i < 0 ? families.length : i; };
+    const scrolls = [...lord.scrolls].sort((a, b) => Math.floor(a.tier / 3) - Math.floor(b.tier / 3) || familyOrder(a) - familyOrder(b) || a.tier - b.tier).map(techniquePicture).join('') || '<span class="muted">無</span>';
     const party = gens.filter((g) => g.status === 'free').length;
 
     // 重繪前記住捲動位置：只有下方清單捲動，標題列固定
@@ -194,9 +209,8 @@ export class GeneralsView {
       <div class="drawer-body">
       <div class="ready-section"></div>
       <div class="bag">
-        <div><b>行囊</b>${bag}</div>
         <div><b>行囊寶衣</b>${gear}</div>
-        <div><b>功法秘笈</b>${scrolls}</div>
+        <div class="technique-collection"><b>功法秘笈</b><span class="technique-list">${scrolls}</span></div>
         <div><b>靈獸</b>${lord.beast ? `<span class="chip" title="${tip(lord.beast.desc)}">${lord.beast.name}</span>` : '<span class="muted">無</span>'}</div>
       </div>
       <div class="sections"></div>
@@ -379,7 +393,7 @@ export class GeneralsView {
       <div class="bar hp"><i style="width:${(g.hp / maxHp(g)) * 100}%"></i><span>血量 ${g.hp} / ${maxHp(g)}</span></div>
       <div class="bar sta"><i style="width:${g.stamina / maxStamina(g) * 100}%"></i><span>體力 ${g.stamina} / ${maxStamina(g)}</span></div>
       <div class="equip">
-        <div class="eq-row" data-slot="technique"><span class="eq-info" ${t ? `title="${tip(`${t.name.split('・')[0]}｜${techniqueDesc(t)}`)}"` : ''}>功法：${t ? `<span style="color:${techniqueTag(t).css}">${t.name.split('・').slice(1).join('・')}</span>` : '<span class="muted">未修習</span>'}</span></div>
+        <div class="eq-row" data-slot="technique"><span class="eq-info technique-equipped"><span>功法</span>${t ? `${techniquePicture(t)}<span class="technique-equipped-name grade-text-${Math.max(0, Math.min(3, Math.floor(t.tier / 3)))}">${escapeHtml(techniqueBaseName(t))}</span>` : '<span class="muted">未修習</span>'}</span></div>
       </div>
       <div class="gc-actions"></div>
       </div>`;

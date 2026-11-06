@@ -25,18 +25,20 @@ assert.ok(restored.lords.liu.stones>=0&&restored.lords.liu.soldiers>=0);
 (async()=>{
  const state=createGameState('liu'),lord=state.lords.liu,view=new RecordingView();lord.position=entrance;
  const engine=new Engine(state,{view,send:async(_lord,p)=>p.kind==='confirm',isAuto:()=>false,multiplayer:false});
- await engine.landPortal(lord);
+ const entryRandom=Math.random;Math.random=()=>.999;
+ try{await engine.landPortal(lord);}finally{Math.random=entryRandom;}
+ assert.equal(lord.relicJourney.steps,6);
  const attacker=state.lords.cao,user=freeGenerals(state,'cao')[0],target=freeGenerals(state,'liu').find(g=>!g.isLord);
  const attackItem=makeItem('blocked-relic','cloud',0);attacker.items.push(attackItem);
  const before=JSON.stringify(attacker.items);
  assert.match(await engine.usePrerollWithReaction(attacker,attackItem,user,{general:target}),/結界/);
  assert.equal(JSON.stringify(attacker.items),before);
  const originalRandom=Math.random;Math.random=()=>.999;
- try{await engine.moveRelic(lord);assert.equal(lord.relicJourney.steps,6);await engine.moveRelic(lord);assert.equal(lord.relicJourney.steps,12);await engine.moveRelic(lord);}finally{Math.random=originalRandom;}
+ try{await engine.moveRelic(lord);assert.equal(lord.relicJourney.steps,12);await engine.moveRelic(lord);}finally{Math.random=originalRandom;}
  assert.ok(!lord.relicJourney);assert.equal(lord.position,entrance);
  const events=view.events.filter(e=>e.t==='relic');assert.deepEqual(events.filter(e=>e.a[2]&&e.a[1]>0).map(e=>e.a[1]),Array.from({length:16},(_,i)=>i+1));assert.equal(events.at(-1).a[2],false);
  const clone=JSON.parse(JSON.stringify(view.events));assert.deepEqual(clone,view.events);
- assert.equal(state.rulesVersion,'map-recruitment-20261031');
+ assert.equal(state.rulesVersion,'breakthrough-20261106');
  console.log('PASS all 50-point city boundaries, 300 cap visual, square inverse projection and viewport edge clamps');
  console.log('PASS hollow 5×5 ring has exactly16 adjacent cells, each with good/bad outcomes');
  console.log('PASS persistent journey, forbidden inventory consumption, no early exit, no negative resources or lethal events');

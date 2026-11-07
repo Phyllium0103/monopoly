@@ -71,8 +71,6 @@ export function addExp(g: General, amount: number): number {
 }
 
 const APTITUDE_MULT = { waste: 0.8, metal: 1, wood: 1, water: 1, fire: 1, earth: 1, heaven: 1.2 };
-/** 極品靈脈：駐守者修為加倍 */
-export const SPIRIT_VEINS = new Set(['luoyang', 'changan']);
 
 /** 周天吐納：每回合被動修為；駐守城池依繁榮度（靈氣濃度）額外增加，閉關再加倍；功法提高修練速度 */
 export function passiveExp(g: General, city: City | null): number {
@@ -80,7 +78,7 @@ export function passiveExp(g: General, city: City | null): number {
   let n = 30;
   if (g.status === 'garrison' && city) {
     // 繁榮度即靈氣濃度
-    n += (city.prosperity / 3) * (SPIRIT_VEINS.has(city.id) ? 2 : 1);
+    n += city.prosperity / 3;
     if (g.secluded) n *= 2 * WORLD.seclusionMult * (1 + (fx(g).seclusionExp ?? 0));
   }
   return Math.round(n * (1 + techniqueSpeed(g.technique)) * APTITUDE_MULT[g.aptitude] * WORLD.expMult);

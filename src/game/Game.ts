@@ -13,6 +13,7 @@ import type { PickMode } from '../scene/picking';
 import { World } from '../world/World';
 import { CharacterSprite } from '../character/CharacterSprite';
 import { LORDS, LORD_IDS, ownerCss, ownerName } from '../faction/Faction';
+import { canAttemptBreak } from '../systems/GeneralSystem';
 import { GameUI, type ActionButton, type PartyIcon } from '../ui/GameUI';
 import { Dialog } from '../ui/Dialog';
 import { portraitUrl, preloadArt,prepareArtPack } from '../ui/Icons';
@@ -1019,6 +1020,7 @@ export class Game {
           tip:tip+(breakNote?'｜'+breakNote:''), tipHtml:generalHoverTable(g,fighter||undefined,this.itemHoverFocus(g),breakNote), ready:ready&&!this.selectedItem, hasSkill, breakthrough,
           flame:breakthrough?flameLayersFor(g.realm):0,
           itemState:this.selectedItem ? (this.selectedItem.userId===g.id?'selected':this.canPickItemGeneral(g.id)?'eligible':'disabled') : undefined,
+          onRightClick: () => { if (breakthrough && canAct && !this.selectedItem && canAttemptBreak(g, this.state.round).ok) this.answer({type:'break-general',generalId:g.id} satisfies PrerollAction); },
           onClick: () => {if(this.selectedItem)this.pickItemGeneral(g.id);else if(breakthrough&&canAct)this.answer({type:'break-general',generalId:g.id} satisfies PrerollAction);else if(ready)this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction);},
         };
       });

@@ -40,6 +40,7 @@ export interface PartyIcon {
   /** 可突破時的火焰層數，0 表示沒有火焰 */
   flame: number;
   itemState?: 'eligible' | 'selected' | 'disabled';
+  onRightClick?: () => void;
   onClick: () => void;
 }
 
@@ -268,7 +269,7 @@ export class GameUI {
     const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), i.tip, i.tipHtml, i.ready, i.hasSkill, i.breakthrough, i.flame, i.itemState]));
     // 內容沒變就不重畫，避免滑鼠停在圖示上時提示閃爍
     if (this.party.dataset.key === key) {
-      this.party.querySelectorAll<HTMLButtonElement>('.pd-gen').forEach((b, i) => (b.onclick = () => icons[i]?.onClick()));
+      this.party.querySelectorAll<HTMLButtonElement>('.pd-gen').forEach((b, i) => { b.onclick = () => icons[i]?.onClick(); b.oncontextmenu = e => { e.preventDefault(); icons[i]?.onRightClick?.(); }; });
       return;
     }
     this.party.dataset.key = key;
@@ -287,6 +288,7 @@ export class GameUI {
         `<span class="pd-bars"><i class="hp" style="width:${Math.max(0, Math.min(100, i.hpPct))}%"></i><i class="sta" style="width:${Math.max(0, Math.min(100, i.staPct))}%"></i></span>` +
         `<span class="pd-name">${i.name}</span>`;
       b.onclick = () => i.onClick();
+      b.oncontextmenu = e => { e.preventDefault(); i.onRightClick?.(); };
       this.party.appendChild(b);
       if (i.flame && i.itemState !== 'disabled') burning.push({ id: i.id, layers: i.flame, img: b.querySelector('img')!, badge: i.hasSkill });
     }

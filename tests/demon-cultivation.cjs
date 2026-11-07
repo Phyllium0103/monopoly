@@ -20,7 +20,8 @@ const {startTurn}=require('../src/game/TurnManager.ts');
  for(const status of ['sect','realm','dead']){g.status=status;assert.equal(G.passiveExp(g,city),0);}
  g.status='garrison';lord.talents={c_garrison:3};assert.equal(G.passiveExp(g,city),69);
  WORLD.garrisonExpMult=1.5;assert.equal(G.passiveExp(g,city),104);WORLD.garrisonExpMult=1;lord.talents={};
- console.log('PASS fixed 60/30/0 cultivation; prosperity ignored; garrison talent and tide apply');
+ for(let realm=0;realm<10;realm++){const a={...g,realm,isLord:false,mortalTrial:undefined};assert.equal(G.expCap({...a,isLord:true}),G.expCap(a)*2);}
+ console.log('PASS fixed 60/30/0 cultivation; prosperity ignored; garrison talent and tide apply; lord caps doubled');
  g.status='free';g.demon=0;const normal=G.expMultiplier(g);g.demon=1;
  assert.equal(G.expMultiplier(g),normal/2);assert.equal(G.addExp(g,100),Math.round(50*normal));
  for(const realm of [0,1,2,3,4,5,6,7,8]){
@@ -32,10 +33,11 @@ const {startTurn}=require('../src/game/TurnManager.ts');
  Object.assign(g,{realm:0,exp:0,status:'sect'});const before=g.exp;await startTurn(state,lord);assert.equal(g.exp,before);
  g.mortalTrial={turns:1,weapon:null};await startTurn(state,lord);assert.equal(g.mortalTrial.turns,1);assert.equal(g.realm,0);delete g.mortalTrial;
  g.status='free';g.base.alchemy=200;g.stamina=100;
- assert.ok(PILL_IDS.includes('clearmind'));assert.equal(ITEM_DEFS.demon,undefined);assert.equal(ITEM_DEFS.illusion,undefined);
+ assert.ok(PILL_IDS.includes('clearmind'));assert.ok(ITEM_DEFS.demon);assert.equal(ITEM_DEFS.illusion,undefined);
  const pill=makeItem('clear','clearmind',0);lord.items=[pill];await usePreroll(state,lord,pill,g,{general:g});assert.equal(g.demon,0);
  assert.equal(G.expMultiplier(g),normal);
  console.log('PASS all breakthrough routes blocked without consuming protection; sect turn yields zero; clear pill restores normal gains');
+ {const target=state.lords.cao,pool=Object.values(state.generals).filter(x=>x.owner==='cao'&&x.status!=='realm'&&!x.ghostSourceId); for(const x of pool)x.demon=0;const talisman=makeItem('curse','demon',0);lord.items=[talisman];g.base.talisman=200;g.stamina=100;await usePreroll(state,lord,talisman,g,{lord:target});assert.equal(pool.filter(x=>x.demon).length,Math.min(2,pool.length));}
  const random=Math.random;
  try{
   for(const multiplayer of [false,true])for(const human of [false,true])for(const kind of ['duel','alchemy']){

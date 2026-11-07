@@ -157,7 +157,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   for (const id of ['bowl','bag','breath','wheel']) await useGroup(id);
   logs.push(...await aiBreakthroughs(state, lord, hooks));
   if (!lord.alive || immortalWinner(state)) return logs;
-  for (const item of [...lord.items].filter(i=>['ghost','move','poison','bow','lock','freeze','confuse','confusing','rootdown','sacrifice','graft','citadel','seven'].includes(i.defId))) {
+  for (const item of [...lord.items].filter(i=>['demon','ghost','move','poison','bow','lock','freeze','confuse','confusing','rootdown','sacrifice','graft','citadel','seven'].includes(i.defId))) {
     if(state.over || !lord.alive)break;
     const user=freeGenerals(state,lord.id).find(g=>canUse(item,g).ok);if (!user) continue;
     // 妨礙類物品對準威脅最大的對手：總資產最高的優先，條件不符再換下一位
@@ -165,6 +165,8 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
     const usable=(v: Lord): boolean => {
       const t=def(item).target;
       if (t==='lord') {
+        if (v.relicJourney) return false;
+        if (item.defId==='demon'&&!generalsOf(state,v.id).some(g=>g.status!=='realm'&&!g.ghostSourceId&&!g.demon)) return false;
         if (['poison','bow'].includes(item.defId)&&!freeGenerals(state,v.id).length) return false;
         if (item.defId==='move'&&!v.items.length) return false;
         return true;

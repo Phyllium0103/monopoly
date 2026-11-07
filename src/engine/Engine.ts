@@ -1919,7 +1919,7 @@ export class Engine {
   private async chooseCore(lord: Lord, g: General) {
     const core = await this.dlg(lord).choose(BREAKTHROUGH_TITLES[3], `<div class="core-person">選擇<strong>${g.name}</strong>金丹凝煉路線<div class="core-person-tip">${generalHoverTable(g)}</div></div>${g.goldenCore ? `<p>已選擇：${GOLDEN_CORES[g.goldenCore].name}</p>` : ''}`, Object.entries(GOLDEN_CORES)
       .filter(([id]) => id !== 'heavenly' || g.aptitude === 'heaven')
-      .map(([id, c]) => ({ label: `<span title="所需修為：${c.exp}&#10;${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}">${c.name}</span>`, value: id as GoldenCore, sub: `所需修為：${c.exp}｜${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}` })));
+      .map(([id, c]) => ({ label: `<span title="所需修為：${c.exp * (g.isLord ? 2 : 1)}&#10;${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}">${c.name}</span>`, value: id as GoldenCore, sub: `所需修為：${c.exp * (g.isLord ? 2 : 1)}｜${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}` })));
     if (core) g.goldenCore = core;
     this.view.refresh();
     return core !== null;

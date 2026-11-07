@@ -53,8 +53,8 @@ export function totalCraft(g: General): number {
 
 export function expCap(g: General): number {
   if (g.mortalTrial) return Infinity;
-  if (g.realm === 2) return g.goldenCore ? GOLDEN_CORES[g.goldenCore].exp : 2400;
-  return g.realm < REALM_EXP.length ? REALM_EXP[g.realm] : Infinity;
+  const base = g.realm === 2 ? (g.goldenCore ? GOLDEN_CORES[g.goldenCore].exp : 2400) : g.realm < REALM_EXP.length ? REALM_EXP[g.realm] : Infinity;
+  return base * (g.isLord ? 2 : 1);
 }
 
 /** 修為已滿，需手動突破 */

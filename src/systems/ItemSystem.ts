@@ -1,6 +1,6 @@
 import type { Aptitude, City, Element, GameState, General, Item, Lord } from '../game/types';
 import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemId, rollItemTier, techniqueKeep, type ItemDef } from '../data/items';
-import { freeGenerals, killGeneral, nextUid, reviveGeneral } from '../game/GameState';
+import { generalsOf, freeGenerals, killGeneral, nextUid, reviveGeneral } from '../game/GameState';
 import { addExp, craft, expCap, maxHp, maxStamina } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
 import { fmtStones } from '../game/Currency';
@@ -90,6 +90,7 @@ function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:Pr
  case 'foundation':g!.foundation=true;return head+'，'+g!.name+'下次煉氣突破築基成功率 100%。';
  case 'vigor':g!.stamina=Math.min(maxStamina(g!),g!.stamina+STAMINA_UP[t]);return head+'，'+g!.name+'體力回復 '+STAMINA_UP[t]+'。';
  case 'poison':case 'bow':{const party=freeGenerals(state,target.lord!.id);if(!party.length)return head+'，對方沒有隨行武將。';const victim=party[Math.floor(Math.random()*party.length)];if(item.defId==='poison'&&fx(victim).poisonImmune)return head+'，'+victim.name+'百毒不侵。';const dmg=Math.max(0,Math.min(victim.hp,Math.round(maxHp(victim)*(item.defId==='poison'?POISON_PREROLL:BOW_DAMAGE)[t])));victim.hp-=dmg;target.damagedGeneral=victim;return head+'，'+victim.name+'受到 '+dmg+' 傷害。';}
+ case 'demon':{const pool=generalsOf(state,target.lord!.id).filter(x=>x.status!=='realm'&&!x.ghostSourceId&&!x.demon);const chosen: General[]=[];while(pool.length&&chosen.length<2)chosen.push(...pool.splice(Math.floor(Math.random()*pool.length),1));for(const x of chosen)x.demon=1;return head+(chosen.length?'，'+chosen.map(x=>x.name).join('、')+'染上心魔。':'，對方沒有可染上心魔的武將。');}
  case 'clearmind':g!.demon=0;return head+'，'+g!.name+'心魔盡消。';
  case 'bone':g!.base.hp+=BONE_HP[t];return head+'，'+g!.name+'基礎血量 +'+BONE_HP[t]+'。';
  case 'revive':{const oldExp=g!.exp;reviveGeneral(state,lord.id,g!,REVIVE_HP[t],REVIVE_REALM_LOSS[t]);if(t===3)g!.exp=oldExp;return head+'，'+g!.name+'復活，歸入你的麾下。';}

@@ -9,7 +9,7 @@ const{makeItem}=require('../src/data/items.ts');const{Engine}=require('../src/en
 for(const[p,n]of[[0,1],[49.99,1],[50,2],[99.99,2],[100,3],[149.99,3],[150,4],[199.99,4],[200,5],[249.99,5],[250,6],[300,6],[1000,6],[-1,1],[NaN,1]])assert.equal(cityModelLevel(p),n);
 assert.equal(FLOOR_DEPTH*.5,FLOOR_SIZE);
 for(const u of[-160,160])for(const v of[-160,160]){const p=unprojectGround(u,v),q=projectGround(p.x,p.z);assert.ok(Math.abs(q.u-u)<1e-8&&Math.abs(q.v-v)<1e-8);}
-for(let i=0;i<1000;i++){const p=clampMapTarget(i*10-5000,5000-i*15,80,60),q=projectGround(p.x,p.z);assert.ok(Math.abs(q.u)+40<=160.0000001&&Math.abs(q.v)+30<=160.0000001);}
+for(let i=0;i<1000;i++){const p=clampMapTarget(i*10-5000,5000-i*15,80,60),q=projectGround(p.x,p.z);assert.ok(Math.abs(q.u)+40<=FLOOR_SIZE/2+1e-7&&Math.abs(q.v)+30<=FLOOR_SIZE/2+1e-7);}
 assert.deepEqual(clampMapTarget(999,-999,900,900),{x:0,z:0});
 assert.equal(RELIC_CELLS.length,16);assert.equal(new Set(RELIC_CELLS.map(c=>c.join(','))).size,16);assert.equal(RELIC_EVENTS.length,16);
 RELIC_CELLS.forEach(([x,y],i)=>{assert.ok(x===0||x===4||y===0||y===4);const next=RELIC_CELLS[(i+1)%16];assert.equal(Math.abs(x-next[0])+Math.abs(y-next[1]),1);});
@@ -27,22 +27,23 @@ assert.ok(restored.lords.liu.stones>=0&&restored.lords.liu.soldiers>=0);
  const engine=new Engine(state,{view,send:async(_lord,p)=>p.kind==='confirm',isAuto:()=>false,multiplayer:false});
  const entryRandom=Math.random;Math.random=()=>.999;
  try{await engine.landPortal(lord);}finally{Math.random=entryRandom;}
- assert.equal(lord.relicJourney.steps,12);
+ assert.equal(lord.relicJourney.steps,6);
  const attacker=state.lords.cao,user=freeGenerals(state,'cao')[0],target=freeGenerals(state,'liu').find(g=>!g.isLord);
  const attackItem=makeItem('blocked-relic','cloud',0);attacker.items.push(attackItem);
  const before=JSON.stringify(attacker.items);
  assert.match(await engine.usePrerollWithReaction(attacker,attackItem,user,{general:target}),/結界/);
  assert.equal(JSON.stringify(attacker.items),before);
  const originalRandom=Math.random;Math.random=()=>.999;
- try{await engine.moveRelic(lord);}finally{Math.random=originalRandom;}
+ try{await engine.moveRelic(lord);assert.equal(lord.relicJourney.steps,12);await engine.moveRelic(lord);}finally{Math.random=originalRandom;}
  assert.ok(!lord.relicJourney);assert.equal(lord.position,entrance);
  const events=view.events.filter(e=>e.t==='relic');assert.deepEqual(events.filter(e=>e.a[2]&&e.a[1]>0).map(e=>e.a[1]),Array.from({length:16},(_,i)=>i+1));assert.equal(events.at(-1).a[2],false);
  const clone=JSON.parse(JSON.stringify(view.events));assert.deepEqual(clone,view.events);
-  assert.equal(state.rulesVersion,'rules-20261107');
+  assert.equal(state.rulesVersion,'map-spacing-20261108');
  console.log('PASS all 50-point city boundaries, 300 cap visual, square inverse projection and viewport edge clamps');
  console.log('PASS hollow 5×5 ring has exactly16 adjacent cells, each with good/bad outcomes');
  console.log('PASS persistent journey, forbidden inventory consumption, no early exit, no negative resources or lethal events');
- console.log('PASS actual Engine two-dice 12+4 movement, all16 event playback steps, original entrance return and serializable replay');
+ assert.ok(view.events.filter(e=>e.t==='rollDice').every(e=>e.a[1].length===1));
+ console.log('PASS actual Engine single-die 6+6+4 movement, all16 event playback steps, original entrance return and serializable replay');
 })().catch(e=>{console.error(e);process.exitCode=1;});
 
-for(const h of [0, .824, 10]){const p=clampMapTarget(1000,-1000,80,60,h),q=projectGround(p.x,p.z);assert.ok(Math.abs(q.u)+40<=160.000001&&Math.abs(q.v+h*Math.cos(Math.PI/6))+30<=160.000001);}
+for(const h of [0, .824, 10]){const p=clampMapTarget(1000,-1000,80,60,h),q=projectGround(p.x,p.z);assert.ok(Math.abs(q.u)+40<=FLOOR_SIZE/2+1e-6&&Math.abs(q.v+h*Math.cos(Math.PI/6))+30<=FLOOR_SIZE/2+1e-6);}

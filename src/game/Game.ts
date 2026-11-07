@@ -577,7 +577,7 @@ export class Game {
     this.world.clearHighlights();
     // 多人：擲骰要等伺服器回覆，先讓骰子轉起來，結果到了再停下
     if (this.online && act.prompt.kind === 'preroll' && (a as PrerollAction | null)?.type === 'roll') {
-      this.ui.startRolling(this.state.lords[act.lord].relicJourney ? 2 : this.state.lords[act.lord].fixedDice ? 1 : this.state.lords[act.lord].diceCount);
+      this.ui.startRolling(this.state.lords[act.lord].relicJourney ? 1 : this.state.lords[act.lord].fixedDice ? 1 : this.state.lords[act.lord].diceCount);
     }
     act.resolve(a);
     this.refresh();

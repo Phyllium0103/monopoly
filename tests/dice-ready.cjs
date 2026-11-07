@@ -49,8 +49,9 @@ class Element{
  for(const [width,height]of [[1280,720],[390,844]]){roller.stage.rect={width,height};roller.resize();for(const p of sampleDicePhysics(relabeled,relabeled.playbackDuration)){const projected=p.position.project(roller.camera);assert.ok(Math.abs(projected.x)+Math.sqrt(3)/2/roller.camera.right<=1,'all three dice fit completely at every viewport width');}}
  const cancelled=roller.playRelease({ndc:[.5,-.5]},1,roller.version);roller.cancel();await cancelled;assert.equal(frames.size,0);
  console.log('PASS three visible palm dice, fan-out, physical descent handoff and cancellation without orphan animation frames');
- const {SelectedTerrain}=require('../src/world/SelectedTerrain.ts'),{CELL_SIZE}=require('../src/data/selectedBoard.ts');
+ const {SelectedTerrain}=require('../src/world/SelectedTerrain.ts'),{CELL_SIZE,ROAD_WIDTH,ROAD_GAP,GRID_SPACING,BUILDING_SIZE}=require('../src/data/selectedBoard.ts');
  const load=THREE.TextureLoader.prototype.load;THREE.TextureLoader.prototype.load=(_url,done)=>{const t=new THREE.Texture();queueMicrotask(()=>done?.(t));return t;};
- try{const terrain=new SelectedTerrain();terrain.road.geometry.computeBoundingBox();const width=terrain.road.geometry.boundingBox.getSize(new THREE.Vector3()).x;assert.ok(Math.abs((CELL_SIZE-width)-CELL_SIZE*.1*3)<1e-6);assert.equal(terrain.faces.geometry.parameters.width,CELL_SIZE*.65);}finally{THREE.TextureLoader.prototype.load=load;}
- console.log('PASS actual road mesh gap is exactly three times the previous gap, including bevel width');
+ try{const terrain=new SelectedTerrain();terrain.road.geometry.computeBoundingBox();const width=terrain.road.geometry.boundingBox.getSize(new THREE.Vector3()).x;assert.ok(Math.abs(width-ROAD_WIDTH)<1e-6&&Math.abs(GRID_SPACING-width-ROAD_GAP)<1e-6);assert.equal(terrain.faces.geometry.parameters.width,CELL_SIZE*.89);}finally{THREE.TextureLoader.prototype.load=load;}
+ assert.ok(BUILDING_SIZE>8&&BUILDING_SIZE<2*GRID_SPACING);
+ console.log('PASS original road size, spaced centers, preserved clear gap and enlarged buildings');
 })().catch(e=>{console.error(e);process.exitCode=1});

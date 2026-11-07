@@ -27,11 +27,11 @@ export class SelectedTerrain {
     ground.rotation.x=-Math.PI/2;ground.rotateOnWorldAxis(new THREE.Vector3(0,1,0),FLOOR_ROTATION);ground.position.y=-.08;ground.receiveShadow=true;this.group.add(ground);
     const edge=new THREE.Mesh(new THREE.BoxGeometry(FLOOR_SIZE,.6,FLOOR_DEPTH),new THREE.MeshPhongMaterial({color:0x536851,shininess:5,fog:false}));
     edge.rotation.y=FLOOR_ROTATION;edge.position.y=-.4;this.group.add(edge);
-    // Outer width .70 of a cell: the previous .10-cell gap is now .30 (three times).
-    const shape=new THREE.Shape().moveTo(-.325,-.325).lineTo(.325,-.325).lineTo(.325,.325).lineTo(-.325,.325).closePath();
+    // Original tile dimensions; gridPosition supplies the extra space between tiles.
+    const shape=new THREE.Shape().moveTo(-.445,-.445).lineTo(.445,-.445).lineTo(.445,.445).lineTo(-.445,.445).closePath();
     const body=new THREE.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:true,bevelThickness:.02,bevelSize:.025,bevelSegments:3,steps:1});
     body.rotateX(-Math.PI/2);body.translate(0,.025,0);body.scale(CELL_SIZE,CELL_SIZE,CELL_SIZE);
-    const top=new THREE.PlaneGeometry(.65*CELL_SIZE,.65*CELL_SIZE).rotateX(-Math.PI/2);
+    const top=new THREE.PlaneGeometry(.89*CELL_SIZE,.89*CELL_SIZE).rotateX(-Math.PI/2);
     this.road=new THREE.InstancedMesh(body,new THREE.MeshPhongMaterial({color:0xd1d7db,shininess:18}),BOARD.tiles.length);
     this.faces=new THREE.InstancedMesh(top,new THREE.MeshPhongMaterial({map:load('white-normal.png',[79,81,1176,1166]),shininess:18}),BOARD.tiles.length);
     this.occupied=new THREE.InstancedMesh(top,new THREE.MeshPhongMaterial({map:load('cyan-occupied.png',[74,78,1182,1169]),emissive:0x19434a,emissiveIntensity:.15,shininess:28}),BOARD.tiles.length);

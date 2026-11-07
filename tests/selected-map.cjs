@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),crypto=require('node:crypto');
 const{registerHooks,stripTypeScriptTypes}=require('node:module');const{pathToFileURL,fileURLToPath}=require('node:url');
 registerHooks({resolve(s,c,n){if(s.startsWith('.')&&!path.extname(s)&&c.parentURL){const p=path.resolve(path.dirname(fileURLToPath(c.parentURL)),s+'.ts');if(fs.existsSync(p))return n(pathToFileURL(p).href,c);}return n(s,c);},load(u,c,n){return u.endsWith('.ts')?{format:'module',shortCircuit:true,source:stripTypeScriptTypes(fs.readFileSync(fileURLToPath(u),'utf8'),{mode:'transform'})}:n(u,c);}});
-const{BOARD}=require('../src/data/board.ts');const{BUILDING_LOTS,CELL_SIZE,cityModelLevel}=require('../src/data/selectedBoard.ts');
+const{BOARD}=require('../src/data/board.ts');const{BUILDING_LOTS,CELL_SIZE,GRID_SPACING,cityModelLevel}=require('../src/data/selectedBoard.ts');
 const{createGameState}=require('../src/game/GameState.ts');const{nextMovementTile,enterFork}=require('../src/systems/MovementSystem.ts');
 const source=JSON.parse(fs.readFileSync(path.join(__dirname,'../public/art/map-selected/layout-source.json'),'utf8'));
 assert.equal(BOARD.tiles.length,source.roads.length);assert.equal(BOARD.tiles.length,300);assert.equal(BOARD.cities.length,33);assert.equal(BUILDING_LOTS.length,83);
@@ -15,7 +15,7 @@ for(const lot of BUILDING_LOTS){
  const t=BOARD.tiles[lot.tile];assert.equal(t.name,lot.name);if(lot.type==='city')assert.equal(BOARD.cities.find(c=>c.id===lot.id).prosperity,original.prosperity);
 }
 assert.equal(BOARD.tiles.filter(t=>t.eventAnchor!==undefined).length,166);
-for(const t of BOARD.tiles){assert.ok(t.links.length>=2);for(const n of t.links){assert.ok(BOARD.tiles[n].links.includes(t.index));const p=BOARD.tiles[n].pos;assert.equal(Math.abs(t.pos.x-p.x)+Math.abs(t.pos.z-p.z),CELL_SIZE,'every move is one orthogonal road cell');}}
+for(const t of BOARD.tiles){assert.ok(t.links.length>=2);for(const n of t.links){assert.ok(BOARD.tiles[n].links.includes(t.index));const p=BOARD.tiles[n].pos;assert.ok(Math.abs(Math.abs(t.pos.x-p.x)+Math.abs(t.pos.z-p.z)-GRID_SPACING)<1e-8,'every move is one spaced orthogonal road cell');}}
 const seen=new Set(),queue=[0];while(queue.length){const i=queue.pop();if(seen.has(i))continue;seen.add(i);queue.push(...BOARD.tiles[i].links);}assert.equal(seen.size,300);assert.equal(BOARD.edges.length-300+1,11);
 const facilities={};for(const o of BUILDING_LOTS)if(o.type!=='city')facilities[o.type]=(facilities[o.type]??0)+1;
 assert.deepEqual(facilities,{secret:5,beast:5,treasure:5,forge:5,vein:4,tavern:5,library:5,herb:5,casino:5,relic:3,recruitment:3});

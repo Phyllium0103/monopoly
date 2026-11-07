@@ -461,7 +461,7 @@ export class Engine {
 
   private async moveRelic(lord:Lord){
     if(!lord.relicJourney)return;
-    const values=Array.from({length:2},()=>1+Math.floor(Math.random()*6));
+    const values=[1+Math.floor(Math.random()*6)];
     const dice=values.reduce((sum,value)=>sum+value,0);
     await this.view.rollDice(lord.id,values,0,1);
     this.view.log(`${LORDS[lord.id].name}在山河圖擲出 ${dice} 點。`,'info');

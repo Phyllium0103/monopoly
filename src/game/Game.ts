@@ -1013,14 +1013,14 @@ export class Game {
         const ready = !!r?.ok && canAct;
         const fighter=this.itemDuel&&(['a','b'] as const).map(side=>this.itemDuel!.duel[side]).find(f=>f.generalId===g.id);
         const tip = generalHoverInfo(g,fighter||undefined);
-        const breakNote=breakthrough&&!this.selectedItem?(canAct?'可突破：點擊頭像':'可突破：自己的整備階段可點擊'):'';
+        const breakNote=breakthrough&&!this.selectedItem?(canAct?'左鍵確認突破・右鍵直接突破':'可突破：自己的整備階段可點擊'):'';
         return {
           id: g.id, img: portraitUrl(g), name: g.name, color: LORDS[player.id].css,
           hpPct: (g.hp / Math.max(1, maxHp(g))) * 100, staPct: (g.stamina / Math.max(1, maxStamina(g))) * 100,
           tip:tip+(breakNote?'｜'+breakNote:''), tipHtml:generalHoverTable(g,fighter||undefined,this.itemHoverFocus(g),breakNote), ready:ready&&!this.selectedItem, hasSkill, breakthrough,
           flame:breakthrough?flameLayersFor(g.realm):0,
           itemState:this.selectedItem ? (this.selectedItem.userId===g.id?'selected':this.canPickItemGeneral(g.id)?'eligible':'disabled') : undefined,
-          onRightClick: () => { if (breakthrough && canAct && !this.selectedItem && canAttemptBreak(g, this.state.round).ok) this.answer({type:'break-general',generalId:g.id} satisfies PrerollAction); },
+          onRightClick: () => { if (breakthrough && canAct && !this.selectedItem && canAttemptBreak(g, this.state.round).ok) this.answer({type:'break-general',generalId:g.id,direct:true} satisfies PrerollAction); },
           onClick: () => {if(this.selectedItem)this.pickItemGeneral(g.id);else if(breakthrough&&canAct)this.answer({type:'break-general',generalId:g.id} satisfies PrerollAction);else if(ready)this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction);},
         };
       });

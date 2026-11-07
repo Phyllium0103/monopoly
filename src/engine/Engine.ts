@@ -276,7 +276,8 @@ export class Engine {
         case 'break-general': {
           const g=this.state.generals[a.generalId];
           if(!g||g.owner!==lord.id||lord.relicJourney||!inBottleneck(g)){this.view.toast('武將目前無法突破',lord.id);break;}
-          await this.rosterAction(lord,'break',g);break;
+          if (a.direct) { if (canAttemptBreak(g,this.state.round).ok) await this.breakthroughFlow(lord,g,true); }
+          else await this.rosterAction(lord,'break',g);break;
         }
         case 'materials': await this.materialsFlow(lord); break;
         case 'garrison': await this.manageGarrison(lord); break;
@@ -1925,9 +1926,9 @@ export class Engine {
     return core !== null;
   }
 
-  private async breakthroughFlow(lord: Lord, g: General) {
+  private async breakthroughFlow(lord: Lord, g: General, direct = false) {
     const ask = this.dlg(lord);
-    if (g.realm === 2 && !await this.chooseCore(lord, g)) return;
+    if (g.realm === 2 && (!direct || !g.goldenCore) && !await this.chooseCore(lord, g)) return;
     const can = canAttemptBreak(g, this.state.round);
     if (!can.ok) { await ask.choose(BREAKTHROUGH_TITLES[g.realm + 1], can.reason, [{label:'突破',value:true,disabled:true,reason:can.reason}]); return; }
     const target = g.realm + 1;
@@ -1946,7 +1947,7 @@ export class Engine {
     if (g.realm === 6) text = `融合天階神物進入自身方可突破\n已裝備：${g.weapon?.name ?? '無武器'}/${g.armor?.name ?? '無寶衣'}`;
     if (g.realm === 9) text = '暫定，直接升級';
     if (!needsTribulation(g)) {
-      if (g.realm !== 2 && g.realm !== 8 && !await ask.confirm(title, text, '突破', '再等等', '')) return;
+      if (!direct && g.realm !== 2 && g.realm !== 8 && !await ask.confirm(title, text, '突破', '再等等', '')) return;
       const success = completeBreak(g, this.state.round, boundCity);
       this.view.refresh();
       if (!success) { await ask.message('突破失敗', g.realm === 1 ? '損失25%修為與最大血量的25%。' : '損失50%修為。'); return; }
@@ -1959,7 +1960,7 @@ export class Engine {
       return;
     }
     const rg = boltRange(g);
-    if (!await ask.confirm(title, `${g.realm === 3 ? '抵抗四九天雷' : '祭出底蘊，抵抗九九天雷'}\n每道雷劫${rg.min}～${rg.max}(平均${rg.avg})\n全部${rg.totalMin}～${rg.totalMax}(平均${rg.totalAvg})\n目前血量 ${g.hp}/${maxHp(g)}\n血量歸零則身死道消`, '渡劫', '再準備', '')) return;
+    if (!direct && !await ask.confirm(title, `${g.realm === 3 ? '抵抗四九天雷' : '祭出底蘊，抵抗九九天雷'}\n每道雷劫${rg.min}～${rg.max}(平均${rg.avg})\n全部${rg.totalMin}～${rg.totalMax}(平均${rg.totalAvg})\n目前血量 ${g.hp}/${maxHp(g)}\n血量歸零則身死道消`, '渡劫', '再準備', '')) return;
     const cityId = g.cityId, hp = g.hp, maximum = maxHp(g);
     const result = await tribulation(g, () => this.protectDeath(g));
     if (result.fate === 'death' && cityId) {

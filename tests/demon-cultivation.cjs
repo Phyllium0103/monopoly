@@ -38,6 +38,16 @@ const {startTurn}=require('../src/game/TurnManager.ts');
  assert.equal(G.expMultiplier(g),normal);
  console.log('PASS all breakthrough routes blocked without consuming protection; sect turn yields zero; clear pill restores normal gains');
  {const target=state.lords.cao,pool=Object.values(state.generals).filter(x=>x.owner==='cao'&&x.status!=='realm'&&!x.ghostSourceId); for(const x of pool)x.demon=0;const talisman=makeItem('curse','demon',0);lord.items=[talisman];g.base.talisman=200;g.stamina=100;await usePreroll(state,lord,talisman,g,{lord:target});assert.equal(pool.filter(x=>x.demon).length,Math.min(2,pool.length));}
+ {
+  const s=createGameState('liu'),l=s.lords.liu,g=s.generals.liubei,e=new Engine(s,{view:new RecordingView(),send:async()=>null,isAuto:()=>false,multiplayer:false});
+  g.realm=0;g.exp=G.expCap(g);g.demon=0;
+  let confirms=0;e.dlg=()=>({confirm:async()=>{confirms++;return false;},message:async()=>{},choose:async()=>null});
+  await e.breakthroughFlow(l,g);assert.equal(confirms,1);assert.equal(g.realm,0);
+  const original=Math.random;Math.random=()=>0;
+  try{await e.breakthroughFlow(l,g,true);}finally{Math.random=original;}
+  assert.equal(confirms,1);assert.equal(g.realm,1);
+  console.log('PASS left click confirms; right click breaks through directly');
+ }
  const random=Math.random;
  try{
   for(const multiplayer of [false,true])for(const human of [false,true])for(const kind of ['duel','alchemy']){

@@ -38,7 +38,7 @@ assert.ok(restored.lords.liu.stones>=0&&restored.lords.liu.soldiers>=0);
  assert.ok(!lord.relicJourney);assert.equal(lord.position,entrance);
  const events=view.events.filter(e=>e.t==='relic');assert.deepEqual(events.filter(e=>e.a[2]&&e.a[1]>0).map(e=>e.a[1]),Array.from({length:16},(_,i)=>i+1));assert.equal(events.at(-1).a[2],false);
  const clone=JSON.parse(JSON.stringify(view.events));assert.deepEqual(clone,view.events);
-  assert.equal(state.rulesVersion,'city-cultivation-20261108');
+  assert.equal(state.rulesVersion,'demon-garrison-20261108');
  console.log('PASS all 50-point city boundaries, 300 cap visual, square inverse projection and viewport edge clamps');
  console.log('PASS hollow 5×5 ring has exactly16 adjacent cells, each with good/bad outcomes');
  console.log('PASS persistent journey, forbidden inventory consumption, no early exit, no negative resources or lethal events');

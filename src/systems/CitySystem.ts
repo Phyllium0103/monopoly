@@ -148,7 +148,6 @@ export function sellGeneral(lord: Lord, g: General): number {
   g.owner = null;
   g.status = 'free';
   g.cityId = null;
-  g.secluded = false;
   lord.stones += value;
   return value;
 }
@@ -212,7 +211,6 @@ export function eliminate(state: GameState, lord: Lord) {
     g.owner = null;
     g.status = 'free';
     g.cityId = null;
-    g.secluded = false;
   }
   lord.expeditions = [];
   // 越早出局名次越後

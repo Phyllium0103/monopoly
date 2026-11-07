@@ -108,9 +108,9 @@ export const TALENTS: TalentNode[] = [
   node('cultivate', 'c_safe', '秘境護體', 3, 0, 3, ['c_alchemy', 'c_forging'], '秘境隕落率 −2%', { general: { realmSafety: 0.02 } }),
   node('cultivate', 'c_ward', '避劫', 3, 2, 3, ['c_forging', 'c_talisman'], '雷劫傷害 −2%', { general: { tribulation: 0.02 } }),
   node('cultivate', 'c_thrift', '惜物', 4, 1, 3, ['c_safe', 'c_ward'], '使用物品時 2% 機率不消耗', { general: KEEP(0.02) }),
-  node('cultivate', 'c_retreat', '閉關', 4, 3, 3, ['c_ward'], '駐守閉關修為 +5%', { general: { seclusionExp: 0.05 } }),
+  node('cultivate', 'c_garrison', '駐城修練', 4, 3, 3, ['c_ward'], '駐城修練修為 +5%', { general: { garrisonExp: 0.05 } }),
   node('cultivate', 'c_enlight', '頓悟', 5, 1, 3, ['c_thrift'], '修為獲得 +4%', { general: { exp: 0.04 } }),
-  node('cultivate', 'c_master', '技藝精通', 5, 3, 3, ['c_retreat'], '四項技藝 +3%', { general: { craftPct: 0.03 } }),
+  node('cultivate', 'c_master', '技藝精通', 5, 3, 3, ['c_garrison'], '四項技藝 +3%', { general: { craftPct: 0.03 } }),
   node('cultivate', 'c_unity', '天人合一', 6, 1, 1, ['c_enlight'], '雷劫傷害 −15%・低階突破失敗不損修為', { general: { tribulation: 0.15, keepExpOnFail: true } }),
   node('cultivate', 'c_artisan', '大匠之心', 6, 3, 1, ['c_master'], '四項技藝 +8%', { general: { craftPct: 0.08 } }),
 ];

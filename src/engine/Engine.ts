@@ -27,7 +27,7 @@ import { bindPassiveState, passiveOf, fx, lordHas } from '../data/passives';
 import { talentNode, canLearnTalent, canRefundTalent, canResetTalents, ensureTalentState, learnTalent, lordTalentFx, refundTalent, resetTalents } from '../data/talents';
 import { CRAFT_CSS, ELEMENT_CSS, ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, equipDesc, equipRealm, techniqueDesc } from '../data/items';
 import { GARRISON_STRENGTH, MIN_GARRISON, canOccupy, cityIncome, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll, visitingToll } from '../systems/CitySystem';
-import { generalSaleValue, boltRange, attack, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, equip, unequip, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
+import { generalSaleValue, boltRange, attack, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, equip, unequip, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
 import { aptTag, generalBlock, generalBrief, realmTag, statCells, vitalBars, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
@@ -814,10 +814,10 @@ export class Engine {
     if (this.human(defender)) for (;;) {
       const decision = await this.dlg(defender).choose(
         `${LORDS[attacker.id].name}挑戰${city.name}【${BATTLE_NAMES[kind]}】`,
-        `<b>敵將 ${atkGen.name}</b>${generalBlock(atkGen)}<br>臨陣脫逃會直接判負，保留城池、駐將與其餘守軍。守軍四分之一（${Math.floor(city.garrisonSoldiers / 4)} 人）加入敵方，對方免繳過路費。`,
+        `<b>敵將 ${atkGen.name}</b>${generalBlock(atkGen)}<br>臨陣脫逃會直接判負，保留城池、駐將與其餘守軍。守軍四分之一（${Math.floor(city.garrisonSoldiers / 4)} 人）加入敵方，對方免繳過路費。每名駐將各有獨立 50% 機率染上心魔（修為減半、無法突破）。`,
         [
           { label: '迎戰・選擇應戰武將', value: 'fight', sub: defensePool.map(g => `<b class="gb-name">${g.name}</b>${generalBrief(g, statCells([['戰力', power(g)], ['武力', attack(g)], ['防禦', defense(g)]]) + vitalBars(g), { passive: false })}`).join('') || '沒有可應戰武將，將不戰而敗' },
-          { label: '臨陣脫逃', value: 'flee', sub: `保留${city.name}，${Math.floor(city.garrisonSoldiers / 4)} 名守軍倒戈` },
+          { label: '臨陣脫逃', value: 'flee', sub: `保留${city.name}，${Math.floor(city.garrisonSoldiers / 4)} 名守軍倒戈；每名駐將各有 50% 心魔風險` },
         ], null, '⚔️',
       );
       flee = decision === 'flee';
@@ -833,6 +833,9 @@ export class Engine {
       const joined = Math.floor(city.garrisonSoldiers / 4);
       city.garrisonSoldiers -= joined;
       attacker.soldiers += joined;
+      const afflicted = garrisonOf(this.state, city).filter(() => Math.random() < 0.5);
+      for (const g of afflicted) g.demon = 1;
+      if (afflicted.length) this.view.log(afflicted.map(g => g.name).join('、') + '染上心魔：獲得修為減半，且無法突破。', 'bad');
       this.view.log(`${LORDS[defender.id].name}在${city.name}【${BATTLE_NAMES[kind]}】臨陣脫逃，${joined} 名守軍加入${LORDS[attacker.id].name}；城池與駐將保留，攻方免繳過路費。`, this.human(defender) ? 'bad' : involved ? 'good' : 'ai');
       this.view.syncCities();
       this.view.refresh();
@@ -1011,12 +1014,8 @@ export class Engine {
     }
     for (const g of team) battleExp(g, oldGenerals[0] ?? null);
 
-    // 奪城：原駐將退回主公身邊（閉關中則走火入魔），攻方派將駐守
+    // 奪城：原駐將退回主公身邊，攻方派將駐守
     for (const og of oldGenerals) {
-      if (og.secluded) {
-        qiDeviation(og);
-        this.view.log(`${og.name}閉關被打斷，走火入魔！重傷並損失一半修為。`, this.human(defender) ? 'bad' : involved ? 'good' : 'ai');
-      }
       joinLord(this.state, defender.id, og);
     }
     city.garrisonGenerals = [];
@@ -1402,7 +1401,6 @@ export class Engine {
           if (['heal', 'mend'].includes(defId)) return g.hp < maxHp(g);
           if (['qi', 'essence'].includes(defId)) return !inBottleneck(g);
           if (defId === 'clearmind') return g.demon > 0;
-          if (['demon', 'illusion'].includes(defId)) return inBottleneck(g) && !g.demon;
           if (defId === 'foundation') return !g.foundation;
           if (defId === 'vigor') return g.stamina < maxStamina(g);
           if (['rootup1', 'rootup2'].includes(defId)) return g.aptitude !== 'heaven';
@@ -1854,16 +1852,13 @@ export class Engine {
     }
   }
 
-  /** 名冊上的單一操作；突破、閉關、升階、換裝只在自己的整備階段，學功法與自廢修為單機時隨時可用 */
+  /** 名冊上的單一操作；突破、升階、換裝只在自己的整備階段，學功法與自廢修為單機時隨時可用 */
   async rosterAction(lord: Lord, type: RosterActionType, g: General) {
     const away = g.status === 'realm' || !!g.ghostSourceId || !!g.mortalTrial;
     const ask = this.dlg(lord);
     switch (type) {
       case 'break':
         await this.breakthroughFlow(lord, g);
-        break;
-      case 'seclude':
-        if (g.status === 'garrison') g.secluded = !g.secluded;
         break;
       case 'upgrade': {
         const r = upgradeRequirement(lord, g);

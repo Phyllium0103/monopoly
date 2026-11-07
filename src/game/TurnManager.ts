@@ -54,6 +54,7 @@ export async function startTurn(state: GameState, lord: Lord, protect?: (g: Gene
   let gained = 0;
   for (const g of generalsOf(state, lord.id)) {
     if (g.mortalTrial) {
+      if (g.demon) continue;
       if (--g.mortalTrial.turns <= 0) {
         g.weapon = g.mortalTrial.weapon;
         delete g.mortalTrial;

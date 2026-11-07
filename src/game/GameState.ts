@@ -49,7 +49,6 @@ export function newGeneral(
     demon: 0,
     ward: 0,
     sevenLife: false,
-    secluded: false,
     hp: 0,
     stamina: 100,
     bonusForce: 0,
@@ -207,7 +206,6 @@ export function sectGenerals(state: GameState, lord: LordId): General[] {
 export function joinLord(state: GameState, lord: LordId, g: General) {
   g.owner = lord;
   g.cityId = null;
-  g.secluded = false;
   if (fx(g).fixedParty) {
     const party=freeGenerals(state,lord).filter(p=>p.id!==g.id);
     if (party.length >= PARTY_LIMIT) { const displaced=party.find(p=>!p.isLord && !fx(p).fixedParty && !p.ghostSourceId); if(displaced) displaced.status='sect'; }
@@ -265,7 +263,6 @@ export function killGeneral(state: GameState, g: General): string | null {
   g.lastOwner = g.owner;
   g.owner = null;
   g.cityId = null;
-  g.secluded = false;
   g.hp = 0;
   reconcileProgression(state);
   return abandoned;

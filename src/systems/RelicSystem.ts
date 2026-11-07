@@ -18,7 +18,7 @@ export const RELIC_EVENTS=[
   {name:'玉露池',icon:'💧',good:'玉露回春',bad:'寒氣入體',kind:'health',chance:.6},
   {name:'流金沙',icon:'⌛',good:'砂中淘金',bad:'流沙埋財',kind:'stones',chance:.45},
   {name:'幻兵谷',icon:'♜',good:'幻兵相助',bad:'疑陣折兵',kind:'soldiers',chance:.45},
-  {name:'清心亭',icon:'♧',good:'心境澄明',bad:'心魔低語',kind:'exp',chance:.65},
+  {name:'清心亭',icon:'♧',good:'心境澄明',bad:'雜念紛擾',kind:'exp',chance:.65},
   {name:'陰陽井',icon:'◒',good:'生息回流',bad:'陰氣侵襲',kind:'health',chance:.5},
   {name:'星落坪',icon:'★',good:'星砂化金',bad:'隕石毀財',kind:'stones',chance:.55},
   {name:'山河印',icon:'▧',good:'山河賜福',bad:'承印耗神',kind:'exp',chance:.65},

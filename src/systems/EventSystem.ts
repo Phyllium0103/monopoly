@@ -49,7 +49,7 @@ export const WORLD_EVENTS: WorldEventDef[] = [
   { id: 'shuffle', name: '乾坤大挪移', icon: '☯', category: 'disaster', desc: '天機錯亂，所有主公的位置隨機互換。' },
   { id: 'tradeBoom', name: '商路暢通', icon: '🛒', category: 'economy', duration: 5, desc: '接下來 5 輪，所有商店商品購買價格七折（不含招募、復活與拍賣），可與旅行商人五折疊加。' },
   { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件玄階至地階的寶衣。' },
-  { id: 'spiritTide', name: '靈潮湧動', icon: '🌊', category: 'cultivation', duration: 5, desc: '地底靈脈潮汐翻湧，接下來 5 輪駐守城池閉關修煉的武將，修為再 ×1.5。' },
+  { id: 'spiritTide', name: '靈潮湧動', icon: '🌊', category: 'cultivation', duration: 5, desc: '地底靈脈潮汐翻湧，接下來 5 輪駐守城池修煉的武將，修為再 ×1.5。' },
   { id: 'meteor', name: '隕星墜落', icon: '☄️', category: 'cultivation', desc: '流星墜入人間，星髓入藥：每位主公得到兩顆玄品至地品的丹藥。' },
   { id: 'rebirth', name: '天道輪轉', icon: '🌀', category: 'cultivation', desc: '天道輪轉，萬法歸元：每位主公得到一顆輪迴丹，可將天賦樹全部重置。' },
   { id: 'debate', name: '論道大會', icon: '☯️', category: 'cultivation', desc: '各路修士雲集論道，每位主公所有隨行武將獲得目前境界修為上限的 10% 修為（再套用人物修為加成，不超過瓶頸）。' },
@@ -84,7 +84,7 @@ export function syncWorldMods(state: GameState) {
   WORLD.realmBlessed = isActive(state, 'ancientRealm');
   WORLD.incomeMult = isActive(state, 'locust') ? 0.6 : 1;
   WORLD.purchaseMult = isActive(state, 'tradeBoom') ? 0.7 : 1;
-  WORLD.seclusionMult = isActive(state, 'spiritTide') ? 1.5 : 1;
+  WORLD.garrisonExpMult = isActive(state, 'spiritTide') ? 1.5 : 1;
   WORLD.recruitMult = isActive(state, 'summon') ? 0.5 : 1;
 }
 

@@ -62,14 +62,12 @@ export interface PassiveFx {
   itemStamina?: number;
   /** 煉丹煉器畫符佈陣比試得分 */
   contest?: number;
-  /** 駐守閉關的修為 */
-  seclusionExp?: number;
+  /** 駐城修練的修為 */
+  garrisonExp?: number;
   /** 四項技藝比例加成 */
   craftPct?: number;
   /** 低階突破失敗不損修為 */
   keepExpOnFail?: boolean;
-  /** 心魔效果減免 */
-  demonResist?: number;
 }
 
 export interface Passive {
@@ -330,9 +328,8 @@ export function fxText(f: PassiveFx): string {
   if (f.realmSafety) t.push(`秘境隕落率 ${pct(-f.realmSafety)}`);
   if (f.itemStamina) t.push(`使用物品體力 ${pct(-f.itemStamina)}`);
   if (f.contest) t.push(`比試得分 ${pct(f.contest)}`);
-  if (f.seclusionExp) t.push(`駐守閉關修為 ${pct(f.seclusionExp)}`);
+  if (f.garrisonExp) t.push(`駐城修練修為 ${pct(f.garrisonExp)}`);
   if (f.craftPct) t.push(`四項技藝 ${pct(f.craftPct)}`);
   if (f.keepExpOnFail) t.push('低階突破失敗不損修為');
-  if (f.demonResist) t.push(`心魔效果 ${pct(-f.demonResist)}`);
   return t.join('・');
 }

@@ -39,7 +39,7 @@ export function useGeneralAbility(state: GameState, lord: Lord, g: General, targ
     g.stamina-=100; reviveGeneral(state,lord.id,target,1,1);
     return `${g.name}起死回生：${target.name}復活，血量全滿、境界降一級、修為歸零。`;
   }
-  const ghost:General={...target,id:nextUid(state,'spirit'),name:`${target.name}冤魂`,ghostSourceId:target.id,ghostTurns:5,ghostReadyTurn:undefined,owner:lord.id,lastOwner:null,status:'free',cityId:null,secluded:false,isLord:false,base:{...target.base},weapon:null,armor:null,technique:null,sevenLife:false,ward:0};
+  const ghost:General={...target,id:nextUid(state,'spirit'),name:`${target.name}冤魂`,ghostSourceId:target.id,ghostTurns:5,ghostReadyTurn:undefined,owner:lord.id,lastOwner:null,status:'free',cityId:null,isLord:false,base:{...target.base},weapon:null,armor:null,technique:null,sevenLife:false,ward:0};
   ghost.hp=maxHp(ghost);state.generals[ghost.id]=ghost;g.ghostReadyTurn=(lord.personalTurn??0)+5;
   return `${g.name}召喚${target.name}冤魂，保留境界與修為、血量全滿，隨行五回合。`;
 }

@@ -39,7 +39,7 @@ const SECTIONS: { status: General['status']; title: string }[] = [
   { status: 'realm', title: '外出中（秘境）' },
 ];
 
-/** 武將名冊：查看能力、裝備、學功法、突破渡劫、閉關 */
+/** 武將名冊：查看能力、裝備、學功法、突破渡劫 */
 /** 提示文字：去掉 HTML 標籤並跳脫引號，才能放進 title 屬性 */
 const tip = (html: string) => html.replace(/<br\s*\/?>/g, '｜').replace(/<[^>]+>/g, '').replace(/"/g, '&quot;');
 
@@ -95,7 +95,7 @@ const COLUMNS: { cls: string; label: string; sort?: string }[] = [
 ];
 
 export interface RosterMode {
-  /** 自己的整備階段：可突破、閉關、升階、換裝 */
+  /** 自己的整備階段：可突破、升階、換裝 */
   manage: boolean;
   /** 不在整備階段時仍可學功法、自廢修為（單機） */
   free: boolean;
@@ -201,7 +201,7 @@ export class GeneralsView {
     this.el.innerHTML = `
       <div class="drawer-head">
         <h2 style="color:${LORDS[lord.id].css}">${LORDS[lord.id].name}・武將名冊</h2>
-        <span class="muted">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : '・非你的回合，無法突破或閉關'}</span>
+        <span class="muted">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : '・非你的回合，無法突破'}</span>
         <label class="sort-box">排序 <select class="sort-select">${SORTS.map((x) => `<option value="${x.id}" ${x.id === this.sortId ? 'selected' : ''}>${x.name}</option>`).join('')}</select></label>
         <button class="btn mini toggle-all">${gens.length && gens.every((g) => this.expanded.has(g.id)) ? '全部收合' : '全部展開'}</button>
         <button class="btn close">關閉 ✕</button>
@@ -308,7 +308,7 @@ export class GeneralsView {
   private rowHtml(state: GameState, lord: Lord, g: General, ready: boolean): string {
     const city = g.cityId ? state.cities[g.cityId] : null;
     const trip = lord.expeditions.find((e) => e.generalIds.includes(g.id));
-    const place = g.ghostSourceId ? `冤魂・${g.ghostTurns} 回合` : g.status === 'garrison' ? `${city?.name ?? '駐守'}${g.secluded ? '・閉關' : ''}` : g.status === 'realm' ? `${trip?.realmName ?? '外出'}・${trip?.turnsLeft ?? 0} 回合` : g.status === 'sect' ? '宗門' : '隨行';
+    const place = g.ghostSourceId ? `冤魂・${g.ghostTurns} 回合` : g.status === 'garrison' ? `${city?.name ?? '駐守'}` : g.status === 'realm' ? `${trip?.realmName ?? '外出'}・${trip?.turnsLeft ?? 0} 回合` : g.status === 'sect' ? '宗門' : '隨行';
     const p = passiveOf(g);
     // 頭像用背景圖，避免點頭像時被看圖功能攔下而無法展開
     return `
@@ -344,14 +344,14 @@ export class GeneralsView {
     const t = g.technique;
     const city = g.cityId ? state.cities[g.cityId] : null;
     const trip = lord.expeditions.find((e) => e.generalIds.includes(g.id));
-    const status = g.ghostSourceId ? `冤魂（剩餘 ${g.ghostTurns} 回合）` : g.status === 'garrison' ? `駐守${city?.name ?? ''}${g.secluded ? '・閉關中' : ''}` : g.status === 'realm' ? `${trip?.realmName ?? '外出'}（${trip?.turnsLeft ?? 0} 回合）` : g.status === 'sect' ? '宗門' : '隨行';
+    const status = g.ghostSourceId ? `冤魂（剩餘 ${g.ghostTurns} 回合）` : g.status === 'garrison' ? `駐守${city?.name ?? ''}` : g.status === 'realm' ? `${trip?.realmName ?? '外出'}（${trip?.turnsLeft ?? 0} 回合）` : g.status === 'sect' ? '宗門' : '隨行';
     const bottleneck = inBottleneck(g);
-    const breakInfo = !bottleneck
+    const breakInfo = g.demon ? '心魔纏身，需先服用清心丹' : !bottleneck
       ? ''
       : needsTribulation(g)
         ? fx(g).tribulationSuccess ? '⚡ 專屬被動：渡劫必定成功' : `⚡ 渡劫：${boltCount(g)} 道天雷・每道約 ${Math.round(boltDamage(g))}`
         : `突破成功率 ${Math.round(breakChance(g) * 100)}%`;
-    const buffs = [g.foundation ? '已服築基丹' : '', g.sevenLife ? '七星續命護法' : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? `心魔 ×${g.demon}` : ''].filter(Boolean).join('・');
+    const buffs = [g.foundation ? '已服築基丹' : '', g.sevenLife ? '七星續命護法' : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? '心魔：修為減半・無法突破' : ''].filter(Boolean).join('・');
 
     const req = upgradeRequirement(lord, g);
     card.innerHTML = `
@@ -421,9 +421,6 @@ export class GeneralsView {
     if (bottleneck) {
       const can = canAttemptBreak(g, state.round);
       btn(needsTribulation(g) ? '⚡ 渡劫' : '🧘 突破', !manage || !can.ok, () => this.emit({ type: 'break', generalId: g.id }), 'danger');
-    }
-    if (g.status === 'garrison') {
-      btn(g.secluded ? '出關' : '閉關修煉', !manage, () => this.emit({ type: 'seclude', generalId: g.id }));
     }
     rowBtn('weapon', req.reason === '已達天階' ? '已達天階' : (g.weapon ? '武器升階' : '無專屬武器'), !manage || away || !req.ok, () => this.emit({ type: 'upgrade', generalId: g.id }));
     const weaponButton = card.querySelector<HTMLButtonElement>('.eq-row[data-slot="weapon"] button');

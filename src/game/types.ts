@@ -114,7 +114,7 @@ export interface General {
   failedRound: number;
   /** 已服築基丹 */
   foundation: boolean;
-  /** 心魔層數：降低突破率、加重雷劫 */
+  /** 心魔：獲得修為減半且無法突破（0 無、1 有） */
   demon: number;
   /** 避雷陣等護法：雷劫傷害減免比例 */
   ward: number;
@@ -124,8 +124,6 @@ export interface General {
   lastOwner: LordId | null;
   /** 主公本人：可出戰，但不能駐守城池、不會戰死、不能被變賣 */
   isLord: boolean;
-  /** 駐守城池時閉關修煉 */
-  secluded: boolean;
   hp: number;
   stamina: number;
   bonusForce: number;

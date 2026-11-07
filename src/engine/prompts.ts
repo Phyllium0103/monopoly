@@ -77,7 +77,7 @@ export type ShopAction =
 
 export type RosterAction =
   | { type: 'close' }
-  | { type: 'break' | 'seclude' | 'upgrade' | 'equip' | 'learn' | 'abolish'; generalId: string };
+  | { type: 'break' | 'upgrade' | 'equip' | 'learn' | 'abolish'; generalId: string };
 
 export type DuelAction = 'attack' | 'skill' | 'item' | { type: 'use-item'; itemUid: string; userId: string; targetSide: 'a' | 'b' };
 

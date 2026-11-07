@@ -101,7 +101,6 @@ function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:Pr
  case 'confuse':case 'confusing':target.lord!.forcedTile=target.tile!;return head+'，'+LORDS[target.lord!.id].name+'下回合擲骰時強制前往'+state.tiles[target.tile!].name+'。';
  case 'citadel':target.city!.shieldTurns=5;return head+'，'+target.city!.name+'守軍戰力 ×1.5（5 回合）。';
  case 'thunderward':case 'fiveward':g!.ward=Math.min(.8,g!.ward+(item.defId==='thunderward'?.4:.2));return head+'，'+g!.name+'下次雷劫減傷 '+Math.round(g!.ward*100)+'%。';
- case 'illusion':case 'demon':g!.demon=Math.max(g!.demon,2);return head+'，'+g!.name+'下次突破率 -60%，或雷劫威力 ×2。';
  case 'mend':{const party=freeGenerals(state,lord.id);for(const x of party)x.hp=Math.min(maxHp(x),x.hp+Math.round(maxHp(x)*MEND_HEAL[t]));return head+'，全體隨行武將回血 '+Math.round(MEND_HEAL[t]*100)+'%。';}
  case 'vein':target.city!.prosperity=Math.min(300,target.city!.prosperity+VEIN_PROSPERITY[t]);return head+'，'+target.city!.name+'繁榮度 +'+VEIN_PROSPERITY[t]+'。';
  case 'sacrifice':{const c=target.city!,loss=Math.round(c.garrisonSoldiers*SACRIFICE_LOSS[t]);c.garrisonSoldiers-=loss;return head+'，'+c.name+'守軍 -'+loss+'。';}

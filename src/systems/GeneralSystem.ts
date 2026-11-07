@@ -20,7 +20,7 @@ export function maxStamina(g: General): number { return Math.max(0, 100 + (fx(g)
 export function expMultiplier(g: General): number {
   if (g.ghostSourceId) return 0;
   const aura=g.owner && g.status === 'free' ? lordAura(g.owner,'partyExp') + (g.isLord ? lordAura(g.owner,'partyLordExp') : 0) + ((passiveState()?.lords[g.owner].clearCultivationTurns ?? 0)>0 ? 1 : 0) : 0;
-  return Math.max(0,1+(fx(g).exp??0)+aura);
+  return Math.max(0,1+(fx(g).exp??0)+aura) * (g.demon ? 0.5 : 1);
 }
 export function attack(g: General): number {
   const t = techniqueForce(g.technique);
@@ -72,16 +72,11 @@ export function addExp(g: General, amount: number): number {
 
 const APTITUDE_MULT = { waste: 0.8, metal: 1, wood: 1, water: 1, fire: 1, earth: 1, heaven: 1.2 };
 
-/** 周天吐納：每回合被動修為；駐守城池依繁榮度（靈氣濃度）額外增加，閉關再加倍；功法提高修練速度 */
+/** 周天吐納：隨行基礎30、駐城60；宗門與外出不獲得被動修為。 */
 export function passiveExp(g: General, city: City | null): number {
-  if (g.ghostSourceId) return 0;
-  let n = 30;
-  if (g.status === 'garrison' && city) {
-    // 繁榮度即靈氣濃度
-    n += city.prosperity / 3;
-    if (g.secluded) n *= 2 * WORLD.seclusionMult * (1 + (fx(g).seclusionExp ?? 0));
-  }
-  return Math.round(n * (1 + techniqueSpeed(g.technique)) * APTITUDE_MULT[g.aptitude] * WORLD.expMult);
+  if (g.ghostSourceId || !['free', 'garrison'].includes(g.status)) return 0;
+  const n = g.status === 'garrison' && city ? 60 * WORLD.garrisonExpMult * (1 + (fx(g).garrisonExp ?? 0)) : 30;
+  return roundStat(n * (1 + techniqueSpeed(g.technique)) * APTITUDE_MULT[g.aptitude] * WORLD.expMult);
 }
 
 // ───────────────────────── 突破 ─────────────────────────
@@ -98,6 +93,7 @@ export function breakChance(g: General): number {
 }
 
 export function canAttemptBreak(g: General, round: number): { ok: boolean; reason: string } {
+  if (g.demon) return { ok: false, reason: '心魔纏身，需先服用清心丹' };
   if (g.mortalTrial) return { ok: false, reason: '正在紅塵化凡' };
   if (!inBottleneck(g)) return { ok: false, reason: '修為未滿' };
   if (g.ghostSourceId || g.status === 'realm' || g.status === 'dead') return { ok: false, reason: '不在宗門掌控中' };
@@ -177,7 +173,7 @@ export function reconcileProgression(state: GameState) {
 }
 
 export function levelUp(g: General) {
-  if (g.realm>=REALMS.length-1) return;
+  if (g.demon || g.realm>=REALMS.length-1) return;
   const ratio = g.hp / maxHp(g);
   g.realm++;
   if (g.realm === 3 && g.goldenCore && !g.coreBonus) {
@@ -209,7 +205,6 @@ export function attemptBreak(g: General, round: number): boolean {
   if (g.realm > 1 || !canAttemptBreak(g, round).ok) return false;
   const ok = Math.random() < breakChance(g);
   if (g.realm === 1) g.foundation = false;
-  g.demon = 0;
   if (ok) {
     levelUp(g);
     return true;
@@ -227,7 +222,7 @@ export function boltCount(g: General): number {
   return g.realm === 3 ? TRIBULATION_RULES.nascentSoul.bolts : g.realm === 7 ? TRIBULATION_RULES.tribulation.bolts : 0;
 }
 
-/** 單道天雷的預估傷害（基礎境界血量、護法、雷劫被動、心魔及世界事件；防禦不影響） */
+/** 單道天雷的預估傷害（基礎境界血量、護法、雷劫被動及世界事件；防禦不影響） */
 export function boltDamage(g: General): number {
   if (!needsTribulation(g)) return 0;
   const baselineHp = maxHp({ ...g, armor: null, weapon: null });
@@ -262,7 +257,8 @@ export interface TribulationResult {
 
 /** 渡雷劫：逐道扣血，撐過全部即突破；血量歸零先判定保命，否則死亡。 */
 export async function tribulation(g: General, protect?: () => Promise<boolean>): Promise<TribulationResult> {
-  if (fx(g).tribulationSuccess) { const fromRealm=g.realm; g.sevenLife=false; g.ward=0; g.demon=0; levelUp(g); return {bolts:[],success:true,fate:null,fromRealm}; }
+  if (g.demon) return { bolts: [], success: false, fate: null, fromRealm: g.realm };
+  if (fx(g).tribulationSuccess) { const fromRealm=g.realm; g.sevenLife=false; g.ward=0; levelUp(g); return {bolts:[],success:true,fate:null,fromRealm}; }
   const seven = g.sevenLife;
   g.sevenLife = false;
   const fromRealm = g.realm;
@@ -276,7 +272,6 @@ export async function tribulation(g: General, protect?: () => Promise<boolean>):
     if (hp <= 0) break;
   }
   g.ward = 0;
-  g.demon = 0;
   if (hp > 0) {
     g.hp = hp;
     levelUp(g);
@@ -305,12 +300,6 @@ export function battleExp(winner: General, loser: General | null): number {
   return addExp(winner, gain);
 }
 
-/** 閉關被打斷：走火入魔，重傷並損失一半修為 */
-export function qiDeviation(g: General) {
-  g.secluded = false;
-  g.hp = Math.max(1, Math.round(maxHp(g) * 0.1));
-  g.exp = Math.round(g.exp / 2);
-}
 
 /** 自廢修為：境界歸零、功法散去，才能改學其他功法 */
 export function abolish(g: General) {

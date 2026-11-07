@@ -30,12 +30,12 @@ world.targetFrame=new THREE.LineLoop(new THREE.BufferGeometry(),new THREE.LineBa
 World.prototype.setTargetHover.call(world,tile,true,camera);assert.equal(world.targetFrame.visible,true);assert.ok(world.targetFrame.position.distanceTo(world.tilePosition(tile.userData.tile))<.07);
 World.prototype.setTargetHover.call(world,null,false,camera);assert.equal(world.targetFrame.visible,false);
 console.log('PASS tile/city/lord surfaces stay separate; selection frame uses the picked cell and clears');
-const labels=Object.keys(ITEM_DEFS).map(shortItemName);assert.ok(labels.every(x=>Array.from(x).length===3));assert.equal(new Set(labels).size,64);
+const labels=Object.keys(ITEM_DEFS).map(shortItemName);assert.ok(labels.every(x=>Array.from(x).length===3));assert.equal(new Set(labels).size,labels.length);
 const fields=generalHoverInfo(state.generals.liubei).split('｜').map(line=>line.split('：')[0]);
 assert.deepEqual(fields,['名稱','境界','血量','體力','戰力','武力','防禦','煉丹','煉器','畫符','佈陣','被動技能']);
 const combatTip=generalHoverInfo(state.generals.liubei,{hp:123,maxHp:600,atk:91,def:44});
 for(const value of ['血量：123 / 600','武力：91','防禦：44'])assert.ok(combatTip.includes(value));
-console.log('PASS 64 distinct three-character captions and only the requested portrait information');
+console.log('PASS distinct three-character captions and only the requested portrait information');
 {
  const g=state.generals.liubei;
  const plain=generalHoverTable(g);

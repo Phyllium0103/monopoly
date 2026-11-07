@@ -141,12 +141,15 @@ test('Cities no longer depend on terrain: same prosperity, same income everywher
 
 test('All cities use the same cultivation formula, including Luoyang and Changan', () => {
   const state = createGameState('cao', 40);
-  const g = { ...state.generals.caocao, status: 'garrison', aptitude: 'metal', technique: null, secluded: false };
+  const g = { ...state.generals.caocao, status: 'garrison', aptitude: 'metal', technique: null };
   for (const city of Object.values(state.cities)) {
     const sameProsperity = { ...city, prosperity: 90 };
     assert.equal(passiveExp(g, sameProsperity), 60, city.name);
-    assert.equal(passiveExp({ ...g, secluded: true }, sameProsperity), 120, city.name + ' closed cultivation');
+    assert.equal(passiveExp(g, { ...city, prosperity: 300 }), 60);
   }
 });
+
+assert.equal(passiveExp({ ...createGameState('cao').generals.caocao, status: 'sect' }, null), 0);
+assert.equal(passiveExp({ ...createGameState('cao').generals.caocao, status: 'realm' }, null), 0);
 
 console.log(`${passed} balance rule groups passed.`);

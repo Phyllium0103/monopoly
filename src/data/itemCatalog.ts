@@ -1,5 +1,6 @@
 /** 物品種類按權重抽取，再獨立決定品階；0 表示不隨機出現。 */
 export const ITEM_CATALOG = [
+  { id: "clearmind", name: "清心丹", category: "丹藥", stat: "alchemy", timing: "preroll", target: "ownGeneral", battleTarget: "none", min: [50], stamina: [50], price: [2500], sellPrice: [1250], effects: ["化解一名武將身上的心魔，恢復正常修為獲得與突破"], noUser: false, weight: 1 },
   {
     "id": "heal",
     "name": "大還丹",

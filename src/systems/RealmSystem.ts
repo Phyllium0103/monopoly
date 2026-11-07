@@ -167,7 +167,7 @@ async function resolveExploration(state: GameState, lord: Lord, ex: Expedition, 
     joinLord(state, lord.id, g);
     survivors.push(g);
     const gain = addExp(g, (200 + score / 6 + Math.random() * 300) * REALM_LEVELS[ex.level].exp);
-    if (g.realm < 2 && Math.random() < 0.15) {
+    if (!g.demon && g.realm < 2 && Math.random() < 0.15) {
       levelUp(g);
       insights.push(`${g.name}於秘境頓悟，直接突破至【${REALMS[g.realm]}】！`);
     } else insights.push(`${g.name}修為 +${gain}`);

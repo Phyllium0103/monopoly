@@ -1,0 +1,20 @@
+<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>結算與地圖驗證</title>
+<style>body{margin:0}#checks{position:fixed;z-index:10000;top:0;left:0;display:flex;gap:8px;background:#fff;padding:6px;font:14px sans-serif}#status{max-width:500px}</style>
+<div id="checks"><button id="wide">寬版</button><button id="narrow">窄版</button><button id="next">下一模式</button><button id="map">地圖與山河圖</button><button id="result">顯示結算</button><button id="finish">完整結算流程</button><span id="status">載入中</span></div>
+<div id="scene"></div><div id="ui"></div>
+<script type="module">
+import '/src/style.css';
+import '/src/ui/proportional-ui.css';
+import {Game} from '/src/game/Game.ts';
+import {createGameState,ROUND_OPTIONS} from '/src/game/GameState.ts';
+import {showEndScreen} from '/src/ui/Screens.ts';
+import {enterRelic} from '/src/systems/RelicSystem.ts';
+const ui=document.querySelector('#ui'),status=document.querySelector('#status');
+let mode=0,narrow=false,game,state;
+function size(){const width=narrow?390:innerWidth,height=innerHeight,scale=Math.min(1,innerWidth/width);ui.classList.add('proportional-ui');for(const [key,value]of Object.entries({'--ui-width':width+'px','--ui-height':height+'px','--ui-scale':scale,'--ui-vw':width/100+'px','--ui-vh':height/100+'px'}))ui.style.setProperty(key,value);}
+function result(){state=createGameState('liu',[...ROUND_OPTIONS,null][mode]);state.over=true;state.winner='cao';state.endReason='回合結束，依總資產論英雄。';state.lords.cao.stones=1e12;showEndScreen(ui,state,state.endReason,()=>{status.textContent='返回流程正常';},'返回選單','liu');requestAnimationFrame(()=>{const body=ui.querySelector('.rc-body'),card=ui.querySelector('.result-card'),foot=ui.querySelector('.rc-foot');status.textContent=`${narrow?'窄':'寬'}版・${state.maxRounds??'無盡'}・捲動 ${body.scrollHeight>body.clientHeight}・按鈕 ${foot.getBoundingClientRect().bottom<=card.getBoundingClientRect().bottom+1}・無橫向溢出 ${body.scrollWidth<=body.clientWidth+1}`;});}
+document.querySelector('#wide').onclick=()=>{narrow=false;size();result();};document.querySelector('#narrow').onclick=()=>{narrow=true;size();result();};document.querySelector('#next').onclick=()=>{mode=(mode+1)%([...ROUND_OPTIONS,null].length);result();};document.querySelector('#result').onclick=result;
+document.querySelector('#map').onclick=async()=>{ui.querySelector('.end-screen')?.remove();narrow=false;size();game??=new Game(document.querySelector('#scene'),ui);status.textContent='載入地圖';await game.prepare(()=>{});state=createGameState('liu');const portal=state.tiles.find(t=>t.kind==='portal');state.lords.liu.position=portal.index;enterRelic(state.lords.liu);game.startOnline(state,'liu',()=>{});await game.view.relic('liu',0,true,'入口主公應保留在大地圖。');status.textContent='主公入口可見 '+game.sprites.get('liu').group.visible;};
+document.querySelector('#finish').onclick=async()=>{if(!game)return;state.over=true;state.winner='liu';state.endReason='劉備晉入真仙，立即贏得遊戲！';game.syncOnlineState(state);await game.view.gameOver(state.endReason);await game.view.gameOver(state.endReason);status.textContent=`結算 ${ui.querySelectorAll('.end-screen').length}・山河圖關閉 ${ui.querySelector('.relic-map').hidden}・HUD關閉 ${ui.querySelector('.hud').classList.contains('hidden')}`;};
+size();result();
+</script></html>

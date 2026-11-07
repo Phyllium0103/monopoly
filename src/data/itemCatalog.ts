@@ -355,47 +355,6 @@ export const ITEM_CATALOG = [
     "weight": 0.25
   },
   {
-    "id": "breakpill",
-    "name": "引雷丹",
-    "category": "丹藥",
-    "stat": "alchemy",
-    "timing": "preroll",
-    "target": "ownGeneral",
-    "battleTarget": "none",
-    "min": [
-      50,
-      60,
-      70,
-      80
-    ],
-    "stamina": [
-      50,
-      60,
-      70,
-      80
-    ],
-    "price": [
-      1000,
-      2500,
-      5000,
-      10000
-    ],
-    "sellPrice": [
-      500,
-      1250,
-      2500,
-      5000
-    ],
-    "effects": [
-      "下次渡劫天雷傷害 -10%",
-      "下次渡劫天雷傷害 -15%",
-      "下次渡劫天雷傷害 -20%",
-      "下次渡劫天雷傷害 -30%"
-    ],
-    "noUser": false,
-    "weight": 0.25
-  },
-  {
     "id": "revive",
     "name": "還魂丹",
     "category": "丹藥",
@@ -1011,7 +970,7 @@ export const ITEM_CATALOG = [
     "category": "符籙",
     "stat": "talisman",
     "timing": "preroll",
-    "target": "none",
+    "target": "diceCount",
     "battleTarget": "none",
     "min": [
       40
@@ -1026,7 +985,7 @@ export const ITEM_CATALOG = [
       750
     ],
     "effects": [
-      "本回合擲兩顆骰子"
+      "本回合可選擇擲一顆、兩顆或三顆骰子"
     ],
     "noUser": false,
     "weight": 1

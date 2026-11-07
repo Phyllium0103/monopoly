@@ -89,6 +89,7 @@ export class Game {
   private turnToast = '';
   /** 電腦託管中（單機） */
   private autoPlay = false;
+  private endShown = false;
   /** 本局的畫面效果實作，交給引擎使用 */
   readonly view: EngineView;
 
@@ -235,6 +236,14 @@ export class Game {
 
   /** 清掉上一局的引擎、視窗與棋子 */
   private reset() {
+    this.endShown = false;
+    this.uiRoot.querySelector('.end-screen')?.remove();
+    this.relicMap.hide();
+    this.help.close();
+    this.rankView.close();
+    this.talentView.close();
+    this.lordView.close();
+    this.ui.hideReport();
     this.occupancyKey='';
     this.world.clearSpirits();
     this.token++;
@@ -272,7 +281,7 @@ export class Game {
       this.sm.scene.add(s.group);
       this.sprites.set(id, s);
       s.setGroundPosition(this.slotPosition(id, state.lords[id].position));
-      s.group.visible = state.lords[id].alive && !state.lords[id].relicJourney;
+      s.group.visible = state.lords[id].alive;
     }
     this.sm.setPickables([...this.world.pickables, ...[...this.sprites.values()].map((s) => s.group)]);
     this.ui.reset();
@@ -316,7 +325,7 @@ export class Game {
       const s = this.sprites.get(id);
       if (!s) continue;
       s.setGroundPosition(this.slotPosition(id, state.lords[id].position));
-      s.group.visible = state.lords[id].alive && !state.lords[id].relicJourney;
+      s.group.visible = state.lords[id].alive;
     }
     this.world.syncCities(state);
     this.world.setEventMarkers(state.merchantTile, state.banditTiles);
@@ -431,7 +440,7 @@ export class Game {
       },
       movementDone: (lord:LordId)=>this.ui.movementDone(lord),
       relic: async (lord:LordId,step:number,active:boolean,text:string)=>{
-        const s=this.sprites.get(lord);if(s)s.group.visible=!active&&this.state.lords[lord].alive;
+        const s=this.sprites.get(lord);if(s)s.group.visible=this.state.lords[lord].alive;
         if(active)this.relicMap.show(lord,step,text);else this.relicMap.hide();this.relicMap.setReady(this.me,false);
         await sleep(180/this.speed);
       },
@@ -482,10 +491,20 @@ export class Game {
         await this.dialog.message(title, text, icon, button);
       },
       gameOver: async (reason: string) => {
-        this.generalsView.close();
-        this.active = null;
-        this.refresh();
-        await this.dialog.message('天下大勢已定', reason, '📜', '查看結算');
+        if (this.endShown) return;
+        this.endShown = true;
+        this.selectedItem = null;
+        this.itemDuel = null;
+        this.cancelPrompt();
+        this.battleView.closeAll();
+        this.relicMap.hide();
+        this.help.close();
+        this.rankView.close();
+        this.talentView.close();
+        this.lordView.close();
+        this.ui.hideReport();
+        this.ui.showTooltip(null);
+        this.ui.hide();
         showEndScreen(this.uiRoot, this.state, reason, () => this.restart(), this.online ? '返回大廳' : '重新開始', this.me);
       },
     };
@@ -558,7 +577,7 @@ export class Game {
     this.world.clearHighlights();
     // 多人：擲骰要等伺服器回覆，先讓骰子轉起來，結果到了再停下
     if (this.online && act.prompt.kind === 'preroll' && (a as PrerollAction | null)?.type === 'roll') {
-      this.ui.startRolling(this.state.lords[act.lord].doubleDice ? 2 : 1);
+      this.ui.startRolling(this.state.lords[act.lord].relicJourney ? 2 : this.state.lords[act.lord].fixedDice ? 1 : this.state.lords[act.lord].diceCount);
     }
     act.resolve(a);
     this.refresh();
@@ -818,7 +837,7 @@ export class Game {
     if(s.stage==='user')return 'lord';
     if(s.stage==='destination')return 'tile';
     if(s.stage==='ownCity')return 'city';
-    return ({ownGeneral:'lord',enemyGeneral:'lord',deadGeneral:'none',lord:'lord',ownCity:'city',enemyCity:'city',tile:'tile',dice:'none',none:'none'} as const)[ITEM_DEFS[item.defId].target];
+    return ({ownGeneral:'lord',enemyGeneral:'lord',deadGeneral:'none',lord:'lord',ownCity:'city',enemyCity:'city',tile:'tile',dice:'none',diceCount:'none',none:'none'} as const)[ITEM_DEFS[item.defId].target];
   }
   private enemyItemLords(item:Item){
     const owners=new Set(itemGeneralTargets(this.state,this.state.lords[this.me],item).map(g=>g.owner));
@@ -918,6 +937,7 @@ export class Game {
     else if(kind==='lord')this.pickItemLord(id as LordId);
     else if(kind==='city'){const city=this.state.cities[id];if(city)this.pickItemTile(city.tile);}
     else if(kind==='dice'){s.target.dice=Number(id);this.sendItem();}
+    else if(kind==='diceCount'&&[1,2,3].includes(Number(id))){s.target.diceCount=Number(id) as 1|2|3;this.sendItem();}
     else if(kind==='element'&&ITEM_ELEMENTS.includes(id as typeof ITEM_ELEMENTS[number])){s.target.element=id as typeof ITEM_ELEMENTS[number];this.sendItem();}
   }
   private sendItem(){
@@ -945,7 +965,7 @@ export class Game {
     if(s.stage==='ownCity')return prefix+'再點選交換的己方城池';
     if(this.itemDuel)return prefix+(ITEM_DEFS[item.defId].battleTarget==='ownGeneral'?'點我方出戰武將':'點敵方出戰武將');
     if(ITEM_DEFS[item.defId].target==='enemyGeneral')return prefix+(s.enemyLordId?`點${LORDS[s.enemyLordId].name}麾下的生效武將`:'先點敵方主公，再選其武將');
-    return prefix+({ownGeneral:'點生效武將（可與施放者相同）',deadGeneral:'點要復活的亡將',enemyGeneral:'點敵方武將',lord:'點敵方主公',ownCity:'點己方城池',enemyCity:'點敵方城池',tile:'點地圖上的目的地',dice:'選擇骰子點數',none:'施放'}[ITEM_DEFS[item.defId].target]);
+    return prefix+({ownGeneral:'點生效武將（可與施放者相同）',deadGeneral:'點要復活的亡將',enemyGeneral:'點敵方武將',lord:'點敵方主公',ownCity:'點己方城池',enemyCity:'點敵方城池',tile:'點地圖上的目的地',dice:'選擇骰子點數',diceCount:'選擇一、二或三顆骰子',none:'施放'}[ITEM_DEFS[item.defId].target]);
   }
   private updateItemHighlights(){
     this.world.clearHighlights();this.world.setHover(null);this.world.setTargetHover(null,false,this.sm.camera);this.ui.showTooltip(null);this.sm.pickMode=this.itemPickMode();
@@ -968,6 +988,7 @@ export class Game {
         }
         else if(d.target==='lord')for(const l of itemLordTargets(this.state,lord,current)){const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===l.id);choices.push({id:'lord:'+l.id,name:LORDS[l.id].name,img:g?portraitUrl(g):undefined,...(g?this.generalTips(g):{})});}
         else if(d.target==='dice')for(let dice=1;dice<=6;dice++)choices.push({id:'dice:'+dice,name:dice+' 點'});
+        else if(d.target==='diceCount')for(const count of [1,2,3])choices.push({id:'diceCount:'+count,name:count+' 顆骰子'});
       }
     }
     this.ui.setItemTargeting(!!selected);
@@ -1006,7 +1027,7 @@ export class Game {
   private refresh() {
     if (!this.state) return;
     this.ui.renderTop(this.state, this.me);
-    for(const [id,sprite] of this.sprites)sprite.group.visible=this.state.lords[id].alive&&!this.state.lords[id].relicJourney;
+    for(const [id,sprite] of this.sprites)sprite.group.visible=this.state.lords[id].alive;
     this.world.syncForkArrows(this.state, this.shownForks ?? this.state.forkDirections);
     this.updateFacing();
     const player = this.state.lords[this.me];
@@ -1073,7 +1094,7 @@ export class Game {
     if (!this.state.over && !this.dispatchTask && player.alive && preroll && !this.auto) this.ui.showRoll(() => this.answer({ type: 'roll' } satisfies PrerollAction));
     else this.ui.hideRoll();
 
-    this.relicMap.setReady(this.me,preroll&&!this.auto);
+    this.relicMap.setReady(this.me,!this.state.over&&preroll&&!this.auto);
     this.ui.renderInfo(this.tileInfoHtml(this.hoverTile ?? player.position));
     this.hoverTile = null;
   }

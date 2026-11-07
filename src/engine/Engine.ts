@@ -10,6 +10,7 @@ import { tournamentBracket, tournamentWinner, grantTournamentPrize } from '../sy
 import { abilityUsers, abilityReady, abilityTargets, useGeneralAbility, seclusionUser, startSeclusion, itemBlockUser, triggerItemBlock } from '../systems/GeneralAbilities';
 import { sectDispatchFee, sectTransferRequirement, transferSectGeneral } from '../systems/SectSystem';
 import { garrisonDispatch } from '../systems/GarrisonSystem';
+import { resultStandings } from '../game/Results';
 import { immortalWinner } from '../systems/VictorySystem';
 import type { City, CraftStat, Equipment, General, GameState, Item, Lord, LordId } from '../game/types';
 import type { ContestKind } from '../game/types';
@@ -166,6 +167,8 @@ export class Engine {
   private async endGame(reason: string) {
     await this.wait(0);
     if (this.state.over) return;
+    this.state.winner = resultStandings(this.state).find(r => r.l.alive)?.id ?? null;
+    this.state.endReason = reason;
     this.state.over = true;
     this.view.refresh();
     await this.view.gameOver(reason);
@@ -366,7 +369,7 @@ export class Engine {
   }
 
   private async rollDice(lord: Lord): Promise<number> {
-    const draw = () => Array.from({ length: lord.doubleDice ? 2 : 1 }, () => 1 + Math.floor(Math.random() * 6));
+    const draw = () => Array.from({ length: lord.diceCount }, () => 1 + Math.floor(Math.random() * 6));
     let values = lord.fixedDice ? [lord.fixedDice] : draw();
     if (!lord.fixedDice && lordHas(lord.id, 'divination')) {
       const candidates = Array.from({ length: 3 }, draw);
@@ -458,8 +461,9 @@ export class Engine {
 
   private async moveRelic(lord:Lord){
     if(!lord.relicJourney)return;
-    const dice=1+Math.floor(Math.random()*6);
-    await this.view.rollDice(lord.id,[dice],0,1);
+    const values=Array.from({length:2},()=>1+Math.floor(Math.random()*6));
+    const dice=values.reduce((sum,value)=>sum+value,0);
+    await this.view.rollDice(lord.id,values,0,1);
     this.view.log(`${LORDS[lord.id].name}在山河圖擲出 ${dice} 點。`,'info');
     const count=Math.min(dice,16-lord.relicJourney.steps);
     for(let i=0;i<count;i++){
@@ -1444,6 +1448,7 @@ export class Engine {
         }
         return { city };
       }
+      if (d.target === 'diceCount') { const diceCount = await this.dlg(lord).choose('縮地符：選擇骰子數量', '本回合改用指定數量，下回合恢復兩顆。', ([1,2,3] as const).map(value => ({ label: value + ' 顆骰子', value }))); return diceCount ? { diceCount } : null; }
       if (d.target === 'dice') { const dice = await this.dlg(lord).choose('控骰符：選擇點數', '', [1, 2, 3, 4, 5, 6].map(value => ({ label: value + ' 點', value }))); return dice ? { dice } : null; }
       if (d.target === 'tile') {
         const allowCasino = this.pickCasinoOk;

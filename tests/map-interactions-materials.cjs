@@ -33,7 +33,7 @@ const make=(state,send,multiplayer=false,auto=false)=>{const view=new RecordingV
    await engine.landPortal(lord);assert.equal(prompts.length,1);assert.equal(prompts[0].kind,'confirm');
    assert.match(prompts[0].yes,/進入/);assert.match(prompts[0].no,/不進入/);
    assert.deepEqual(JSON.parse(JSON.stringify(prompts)),prompts);
-   if(response===true){assert.ok(lord.relicJourney.steps>=1&&lord.relicJourney.steps<=6);assert.equal(lord.relicJourney.entryTile,before.position);await engine.landPortal(lord);assert.equal(prompts.length,1)}
+   if(response===true){assert.ok(lord.relicJourney.steps>=2&&lord.relicJourney.steps<=12);assert.equal(lord.relicJourney.entryTile,before.position);await engine.landPortal(lord);assert.equal(prompts.length,1)}
    else{assert.deepEqual(lord,before);assert.equal(view.events.some(e=>e.t==='relic'),false)}
   }
  });

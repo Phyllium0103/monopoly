@@ -19,7 +19,7 @@ const {CELL_SIZE}=require('../src/data/selectedBoard.ts');
  const batch=pool.batches.get('forge:'+ACTIVE_MAP_LOD);assert.equal(batch.meshes[0].count,1,'offscreen individual instances are omitted');
  const matrix=new THREE.Matrix4();batch.meshes[0].getMatrixAt(0,matrix);
  const point=new THREE.Vector3(geometry.attributes.position.getX(1),0,0).applyMatrix4(matrix);
- assert.ok(Math.abs(point.x-CELL_SIZE)<1e-6,'quantized source node scale must survive instancing');
+ assert.ok(Math.abs(point.x-CELL_SIZE*.96)<1e-6,'quantized source node scale must survive instancing');
  assert.deepEqual([...raw],original,'never bake world coordinates into normalized integer vertex buffers');
  const color=new THREE.Color();batch.meshes[0].getColorAt(0,color);assert.ok(Math.abs(color.r-new THREE.Color(0x11aa33).r)<1e-6);
  const mesh=batch.meshes[0];await pool.sync([{...placements[0],color:0xcc3311},placements[1]]);pool.update(camera,1000);assert.equal(pool.batches.get('forge:'+ACTIVE_MAP_LOD).meshes[0],mesh,'ownership update preserves the existing batch');

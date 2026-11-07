@@ -1,0 +1,61 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const {registerHooks,stripTypeScriptTypes}=require('node:module');
+registerHooks({resolve(s,c,n){if(s.startsWith('.')&&!path.extname(s)&&c.parentURL){const p=new URL(s+'.ts',c.parentURL);if(fs.existsSync(p))return n(p.href,c);}return n(s,c);},load(u,c,n){if(u.endsWith('/net/supabase.ts'))return {format:'module',shortCircuit:true,source:'export const projectKey=x=>x,localP2P=()=>false,supabase=()=>null,multiplayerAvailable=()=>false;'};if(u.endsWith('.css'))return {format:'module',shortCircuit:true,source:''};return u.endsWith('.ts')?{format:'module',shortCircuit:true,source:stripTypeScriptTypes(fs.readFileSync(new URL(u),'utf8'),{mode:'transform'})}:n(u,c);}});
+const {createGameState,ROUND_OPTIONS}=require('../src/game/GameState.ts');
+const {resultStandings}=require('../src/game/Results.ts');
+const {Engine}=require('../src/engine/Engine.ts');
+const {RecordingView}=require('../src/engine/view.ts');
+const {makeItem,ITEM_DEFS,PILL_IDS}=require('../src/data/items.ts');
+const {resolveItemTarget}=require('../src/systems/DirectItems.ts');
+const {usePreroll}=require('../src/systems/ItemSystem.ts');
+const {startTurn}=require('../src/game/TurnManager.ts');
+const {showEndScreen}=require('../src/ui/Screens.ts');
+const {OnlineSession}=require('../src/net/OnlineSession.ts');
+let screen=null;
+const button={focus(){},onclick:null};
+global.document={createElement(){return {className:'',innerHTML:'',setAttribute(){},querySelector(){return button;},remove(){screen=null;}};}};
+const root={querySelector(){return screen;},appendChild(el){screen=el;}};
+const engineFor=state=>new Engine(state,{view:new RecordingView(),send:async()=>null,isAuto:()=>false,multiplayer:false});
+(async()=>{
+  assert.equal(ITEM_DEFS.breakpill,undefined);assert.ok(!PILL_IDS.includes('breakpill'));
+  for(const rounds of [...ROUND_OPTIONS,null]){
+    const state=createGameState('liu',rounds),engine=engineFor(state);
+    state.lords.cao.stones=1e12;
+    await engine.endGame('資產結算');
+    assert.equal(state.winner,'cao');assert.equal(state.endReason,'資產結算');assert.equal(state.over,true);
+    showEndScreen(root,state,state.endReason,()=>{},'重新開始','liu');
+    assert.ok(screen.innerHTML.includes('天下結算'));assert.ok(!screen.innerHTML.includes('undefined'));
+    assert.ok(!screen.innerHTML.includes('真仙勝利'));
+    assert.ok(screen.innerHTML.includes(rounds===null?'無盡模式':rounds+' 輪模式'));
+    let restarted=false;showEndScreen(root,state,state.endReason,()=>{restarted=true;},'返回大廳','liu');button.onclick();assert.equal(restarted,true);assert.equal(screen,null);
+  }
+  console.log('PASS every round mode: winner, reason, result content, restart and lobby callback');
+  const state=createGameState('liu'),engine=engineFor(state);
+  state.lords.cao.stones=1e12;state.winner='liu';await engine.endGame('真仙勝利');assert.equal(resultStandings(state)[0].id,'liu');
+  const sole=createGameState('liu');for(const l of Object.values(sole.lords))l.alive=l.id==='sun';await engineFor(sole).checkEnd();assert.equal(sole.winner,'sun');
+  const dead=createGameState('liu');Object.values(dead.lords).forEach((l,i)=>{l.alive=false;l.rank=4-i;});await engineFor(dead).checkEnd();assert.equal(dead.winner,null);assert.deepEqual(resultStandings(dead).map(r=>r.l.rank),[1,2,3,4]);
+  dead.lords.cao.absent=true;assert.ok(!resultStandings(dead).some(r=>r.id==='cao'));showEndScreen(root,dead,dead.endReason,()=>{},'重新開始','cao');assert.ok(screen.innerHTML.includes('本局未參戰'));
+  console.log('PASS immortal precedence, last survivor, all bankrupt, elimination ranks and absent seats');
+  for(const count of [1,2,3]){
+    const s=createGameState('liu'),lord=s.lords.liu,user=s.generals.liubei,item=makeItem('stride-'+count,'stride',0);
+    user.base.talisman=200;user.stamina=200;lord.items=[item];assert.equal(lord.diceCount,2);
+    const target=resolveItemTarget(s,lord,item,{diceCount:count});assert.ok(target.target);
+    await usePreroll(s,lord,item,user,target.target);assert.equal(lord.diceCount,count);
+    const e=engineFor(s);await e.rollDice(lord);assert.equal(e.view.events.find(e=>e.t==='rollDice').a[1].length,count);
+    await startTurn(s,lord);assert.equal(lord.diceCount,2);
+  }
+  const s=createGameState('liu'),lord=s.lords.liu,item=makeItem('invalid','stride',0);lord.items=[item];
+  for(const diceCount of [undefined,0,4,1.5,'2',NaN])assert.ok(resolveItemTarget(s,lord,item,{diceCount}).reason);
+  const e=engineFor(s);lord.fixedDice=5;assert.equal(await e.rollDice(lord),5);assert.equal(e.view.events.find(e=>e.t==='rollDice').a[1].length,1);
+  console.log('PASS default two dice, stride 1/2/3, turn reset, invalid requests and fixed-die override');
+  const latest=createGameState('liu');latest.over=true;latest.endReason='連線最終結果';latest.winner='sun';
+  const order=[],pub={version:2,state:latest,pending:null,over:true,paused:false};
+  const session=Object.create(OnlineSession.prototype);Object.assign(session,{version:1,roomId:'test',endShown:false,svc:{fetchGame:async()=>pub},game:{hasGeneral:()=>true,syncOnlineState:state=>{assert.equal(state.winner,'sun');order.push('sync');},playEvents:async()=>{assert.deepEqual(order,['sync']);order.push('end');}}});
+  await session.playRow({version:2,events:[{t:'gameOver',a:['連線最終結果']}]},null);assert.deepEqual(order,['sync','end']);assert.equal(session.endShown,true);
+  Object.assign(session,{version:1,endShown:false,svc:{fetchGame:async()=>null}});
+  await assert.rejects(()=>session.playRow({version:2,events:[{t:'gameOver',a:['結果']}]},null),/最終結算/);assert.equal(session.version,1);assert.equal(session.endShown,false);
+  let reconnectReason;
+  Object.assign(session,{members:[],game:{syncOnlineState(){},setWaiting(){},view:{gameOver:async reason=>{reconnectReason=reason;}}},updateBar(){}});
+  session.handlePublic(pub);assert.equal(reconnectReason,latest.endReason);
+  console.log('PASS online terminal snapshot precedes gameOver even without supplied snapshot');
+})().catch(e=>{console.error(e);process.exitCode=1;});

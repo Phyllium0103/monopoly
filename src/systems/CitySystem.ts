@@ -35,9 +35,9 @@ export function prosperityGrowth(city: City): number {
   return (0.5 + city.prosperity * 0.005) * (1 + (ownerTalent(city).growth ?? 0));
 }
 
-/** 過路費：繁榮度^1.4 ×7（前期便宜、後期昂貴），首都 ×1.2，同一主公城池越多也越貴 */
+/** 過路費：繁榮度^1.5 ×7（前期便宜、後期昂貴），首都 ×1.2，同一主公城池越多也越貴 */
 export function toll(city: City, ownerCities = 1): number {
-  return Math.round(Math.pow(city.prosperity, 1.4) * 7 * (city.capital ? 1.2 : 1) * (1 + 0.1 * Math.max(0, ownerCities - 1)));
+  return Math.round(Math.pow(city.prosperity, 1.5) * 7 * (city.capital ? 1.2 : 1) * (1 + 0.1 * Math.max(0, ownerCities - 1)));
 }
 
 export function cityToll(state: GameState, city: City): number {

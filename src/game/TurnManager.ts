@@ -75,7 +75,7 @@ export async function startTurn(state: GameState, lord: Lord, protect?: (g: Gene
   lord.tollFree = lord.tollFreeTurns > 0;
   lord.moveMultiplier = 1;
   lord.siegeBoost = 1;
-  lord.doubleDice = false;
+  lord.diceCount = 2;
   lord.fixedDice = null;
   lord.bonusSteps = 0;
   lord.veinsTapped = [];

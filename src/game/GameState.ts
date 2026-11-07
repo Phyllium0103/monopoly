@@ -48,7 +48,6 @@ export function newGeneral(
     foundation: false,
     demon: 0,
     ward: 0,
-    breakBoost: 0,
     sevenLife: false,
     secluded: false,
     hp: 0,
@@ -124,7 +123,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       moveMultiplier: 1,
       forkChoice: false,
       siegeBoost: 1,
-      doubleDice: false,
+      diceCount: 2,
       fixedDice: null,
       bonusSteps: 0,
       materials: emptyMaterials(),
@@ -153,6 +152,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     tiles: BOARD.tiles,
     forkDirections: createForkDirections(BOARD.tiles),
     over: false,
+    endReason: null,
     winner: null,
     uid: 1,
     events: [],
@@ -229,7 +229,6 @@ export function reviveGeneral(state: GameState, lord: LordId, g: General, hpRati
   g.exp = 0;
   g.demon = 0;
   g.ward = 0;
-  g.breakBoost = 0;
   g.peakRealm ??= g.realm;
   g.realm = Math.max(0, g.realm - realmLoss);
   reconcileProgression(state);

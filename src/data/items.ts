@@ -300,7 +300,7 @@ export function makeBeast(uid: string, tier: Tier): Beast {
 
 // ───────────────────────── 丹藥、法器、陣法、符籙 ─────────────────────────
 
-export type ItemTarget = 'deadGeneral' | 'ownGeneral' | 'enemyGeneral' | 'lord' | 'tile' | 'ownCity' | 'enemyCity' | 'dice' | 'none';
+export type ItemTarget = 'deadGeneral' | 'ownGeneral' | 'enemyGeneral' | 'lord' | 'tile' | 'ownCity' | 'enemyCity' | 'dice' | 'diceCount' | 'none';
 export type ItemTiming = 'preroll' | 'battle' | 'both' | 'event';
 
 export interface ItemDef {
@@ -335,7 +335,6 @@ export const STAMINA_UP = [30, 50, 80, 100];
 export const POISON = [0.04, 0.07, 0.1, 0.15];
 export const POISON_PREROLL = [0.1, 0.18, 0.25, 0.35];
 export const BONE_HP = [15, 30, 60, 120];
-export const BREAK_BOOST = [0.1, 0.15, 0.2, 0.3];
 export const RAGE_ATK = [0.15, 0.25, 0.35, 0.5];
 export const MEND_HEAL = [0.15, 0.3, 0.45, 0.7];
 export const VEIN_PROSPERITY = [10, 15, 20, 30];

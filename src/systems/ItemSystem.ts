@@ -1,5 +1,5 @@
 import type { Aptitude, City, Element, GameState, General, Item, Lord } from '../game/types';
-import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, BREAK_BOOST, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemId, rollItemTier, techniqueKeep, type ItemDef } from '../data/items';
+import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemId, rollItemTier, techniqueKeep, type ItemDef } from '../data/items';
 import { freeGenerals, killGeneral, nextUid, reviveGeneral } from '../game/GameState';
 import { addExp, craft, expCap, maxHp, maxStamina } from './GeneralSystem';
 import type { Duel, DuelEvent, Side } from './BattleSystem';
@@ -53,13 +53,14 @@ export function changeAptitude(state:GameState,g:General,aptitude:Aptitude):void
  g.aptitude=aptitude;
  if(g.technique?.element&&aptitude!=='heaven'&&aptitude!==g.technique.element)unloadTechnique(state,g);
 }
-export interface PrerollTarget {general?:General;lord?:Lord;city?:City;ownCity?:City;tile?:number;dice?:number;element?:Element;damagedGeneral?:General;}
+export interface PrerollTarget {general?:General;lord?:Lord;city?:City;ownCity?:City;tile?:number;dice?:number;diceCount?:1|2|3;element?:Element;damagedGeneral?:General;}
 export async function usePreroll(state:GameState,lord:Lord,item:Item,user:General,target:PrerollTarget,blocked=false,onFatal?: (g:General)=>Promise<boolean>):Promise<string> {
  if(lord.relicJourney)throw Error('山河圖內禁止使用道具');
  if(target.general?.owner&&state.lords[target.general.owner].relicJourney&&(target.general.isLord||target.general.status==='free'))return '山河結界內外道具無效，未消耗物品。';
  if(target.lord?.relicJourney)return '山河結界內外道具無效，未消耗物品。';
  if(!usableIn(item,'preroll'))throw Error('此物品不可在擲骰前使用');
  if(item.defId==='five'&&(!target.general||['waste','heaven'].includes(target.general.aptitude)||!target.element))throw Error('五行轉生丹只能對五行靈根使用');
+ if(item.defId==='stride'&&![1,2,3].includes(target.diceCount!))throw Error('請選擇一至三顆骰子');
  delete target.damagedGeneral;
  const gain=consumeItem(lord,item,user);
  const effect=enhancedItem(item,user);
@@ -91,7 +92,6 @@ function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:Pr
  case 'poison':case 'bow':{const party=freeGenerals(state,target.lord!.id);if(!party.length)return head+'，對方沒有隨行武將。';const victim=party[Math.floor(Math.random()*party.length)];if(item.defId==='poison'&&fx(victim).poisonImmune)return head+'，'+victim.name+'百毒不侵。';const dmg=Math.max(0,Math.min(victim.hp,Math.round(maxHp(victim)*(item.defId==='poison'?POISON_PREROLL:BOW_DAMAGE)[t])));victim.hp-=dmg;target.damagedGeneral=victim;return head+'，'+victim.name+'受到 '+dmg+' 傷害。';}
  case 'clearmind':g!.demon=0;return head+'，'+g!.name+'心魔盡消。';
  case 'bone':g!.base.hp+=BONE_HP[t];return head+'，'+g!.name+'基礎血量 +'+BONE_HP[t]+'。';
- case 'breakpill':g!.breakBoost=Math.max(g!.breakBoost,BREAK_BOOST[t]);return head+'，'+g!.name+'下次雷劫傷害 -'+Math.round(g!.breakBoost*100)+'%。';
  case 'revive':{const oldExp=g!.exp;reviveGeneral(state,lord.id,g!,REVIVE_HP[t],REVIVE_REALM_LOSS[t]);if(t===3)g!.exp=oldExp;return head+'，'+g!.name+'復活，歸入你的麾下。';}
  case 'rootup1':case 'rootup2':if(g!.aptitude==='heaven')return head+'，'+g!.name+'已是天靈根。';changeAptitude(state,g!,item.defId==='rootup2'||g!.aptitude!=='waste'?'heaven':elements[Math.floor(Math.random()*5)]);return head+'，靈根提升為'+APTITUDE_NAMES[g!.aptitude]+'。';
  case 'reset':unloadTechnique(state,g!);return head+'，'+g!.name+'卸下功法，境界與修為保留。';
@@ -110,7 +110,7 @@ function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:Pr
  case 'graft':{const a=target.ownCity!,b=target.city!;[a.owner,b.owner]=[b.owner,a.owner];[a.garrisonGenerals,b.garrisonGenerals]=[b.garrisonGenerals,a.garrisonGenerals];[a.garrisonSoldiers,b.garrisonSoldiers]=[b.garrisonSoldiers,a.garrisonSoldiers];for(const c of [a,b])for(const id of c.garrisonGenerals)state.generals[id].cityId=c.id;return head+'，'+a.name+'與'+b.name+'交換所有權，駐將與士兵隨原主公轉移。';}
  case 'cushion':case 'prison':lord.stayThisTurn=true;return head+'，己方主公本回合擲骰時原地停留，並觸發所在格事件。';
  case 'dice':lord.fixedDice=target.dice!;return head+'，本回合骰子 '+target.dice+' 點。';
- case 'stride':lord.doubleDice=true;return head+'，本回合擲兩顆骰子。';
+ case 'stride':lord.diceCount=target.diceCount!;return head+'，本回合擲 '+lord.diceCount+' 顆骰子。';
  case 'ghost':{const amount=Math.round(target.lord!.stones*.1);target.lord!.stones-=amount;lord.stones+=amount;return head+'，盜取'+fmtStones(amount)+'。';}
  case 'siegebreak':lord.siegeBoost=1.2;return head+'，本回合攻城戰力 ×1.2。';
  case 'soldiers':lord.soldiers+=SOLDIER_CALL[t];return head+'，化出 '+SOLDIER_CALL[t]+' 名士兵。';

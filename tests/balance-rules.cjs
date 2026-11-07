@@ -124,10 +124,10 @@ test('Cultivation speed scales per-turn cultivation; force bonus applies, craft 
   assert.equal(attack(g), baseAtk);
 });
 
-test('Toll = prosperity^1.4 ×7 (capital ×1.2, +10% per extra city); growth +0.5 + 0.5% of the city', () => {
+test('Toll = prosperity^1.5 ×7 (capital ×1.2, +10% per extra city); growth +0.5 + 0.5% of the city', () => {
   const city = { prosperity: 100, capital: false };
-  assert.equal(toll(city), Math.round(Math.pow(100, 1.4) * 7));
-  assert.equal(toll({ prosperity: 100, capital: true }, 3), Math.round(Math.pow(100, 1.4) * 7 * 1.2 * 1.2));
+  assert.equal(toll(city), Math.round(Math.pow(100, 1.5) * 7));
+  assert.equal(toll({ prosperity: 100, capital: true }, 3), Math.round(Math.pow(100, 1.5) * 7 * 1.2 * 1.2));
   close(prosperityGrowth({ prosperity: 0 }), 0.5, 'growth at 0');
   close(prosperityGrowth({ prosperity: 200 }), 1.5, 'growth at 200');
 });

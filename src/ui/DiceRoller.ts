@@ -191,7 +191,7 @@ export class DiceRoller {
     if (!this.renderer || this.stage.hidden) return;
     const rect=this.stage.getBoundingClientRect(),width=rect.width,height=rect.height;
     if (!width || !height) return;
-    // A portrait screen retains enough horizontal room for two dice.
+    // A portrait screen retains enough horizontal room for up to three dice.
     const framing=this.framingPhysics??this.physics;
     const bounds = framing?.bounds;
     const resting=this.options.centerFinal&&framing?sampleDicePhysics(framing,framing.playbackDuration):[];

@@ -74,8 +74,8 @@ export function roundedDiceSupport(rotation: Quaternion): number {
  * This preserves the game's authoritative values without steering a moving die.
  */
 export async function simulateDiceRoll(values: readonly number[], random: () => number, launch?: DiceLaunch): Promise<PhysicalDiceRoll> {
-  if (values.length < 1 || values.length > 2 || values.some(v => !Number.isInteger(v) || !DICE_FACE_NORMALS[v])) {
-    throw new RangeError('Expected one or two dice with values 1..6');
+  if (values.length < 1 || values.length > 3 || values.some(v => !Number.isInteger(v) || !DICE_FACE_NORMALS[v])) {
+    throw new RangeError('Expected one to three dice with values 1..6');
   }
   const R = await prepareDicePhysics();
   const size = launch?.size ?? 1;
@@ -95,9 +95,9 @@ export async function simulateDiceRoll(values: readonly number[], random: () => 
       const ground = world.createCollider(R.ColliderDesc.cuboid(20, .1, 20).setTranslation(0, -.1, 0)
         .setFriction(friction).setRestitution(restitution));
       const bodies = values.map((_, i) => {
-        const side = i ? 1 : -1;
+        const side = values.length === 3 ? i - 1 : i ? 1 : -1;
         const rotation = new Quaternion().setFromEuler(new Euler(random() * Math.PI * 2, random() * Math.PI * 2, random() * Math.PI * 2));
-        const x = launch ? launch.position[0] + i * size * 1.5 : values.length === 1 ? (random() - .5) * .4 : side * (.76 + random() * .12);
+        const x = launch ? launch.position[0] + i * size * 1.5 : values.length === 1 ? (random() - .5) * .4 : side * ((values.length === 3 ? 1.35 : .76) + random() * .12);
         const y = launch?.position[1] ?? 7.2 + i * .5, z = launch?.position[2] ?? (random() - .5) * .35;
         const vx = launch?.velocity[0] ?? (values.length === 1 ? (random() - .5) * .4 : -side * (.15 + random() * .2));
         const vy = launch?.velocity[1] ?? -.4, vz = launch?.velocity[2] ?? (random() - .5) * .3;

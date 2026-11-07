@@ -236,7 +236,7 @@ export function boltDamage(g: General): number {
   // 天雷依基礎境界血量成長，不受防禦數值影響。
   const thunder = Math.max(0, 1 - (fx(g).tribulation ?? 0));
   return baselineHp * (g.realm === 3 ? TRIBULATION_RULES.nascentSoul.totalHpRatio : TRIBULATION_RULES.tribulation.totalHpRatio) / boltCount(g)
-    * Math.max(0, 1 - g.ward) * thunder * Math.max(0, 1 - g.breakBoost);
+    * Math.max(0, 1 - g.ward) * thunder;
 }
 
 /** 天雷傷害的實際範圍與平均（單道與全部） */
@@ -264,7 +264,7 @@ export interface TribulationResult {
 
 /** 渡雷劫：逐道扣血，撐過全部即突破；血量歸零先判定保命，否則死亡。 */
 export async function tribulation(g: General, protect?: () => Promise<boolean>): Promise<TribulationResult> {
-  if (fx(g).tribulationSuccess) { const fromRealm=g.realm; g.sevenLife=false; g.ward=0; g.demon=0; g.breakBoost=0; levelUp(g); return {bolts:[],success:true,fate:null,fromRealm}; }
+  if (fx(g).tribulationSuccess) { const fromRealm=g.realm; g.sevenLife=false; g.ward=0; g.demon=0; levelUp(g); return {bolts:[],success:true,fate:null,fromRealm}; }
   const seven = g.sevenLife;
   g.sevenLife = false;
   const fromRealm = g.realm;
@@ -279,7 +279,6 @@ export async function tribulation(g: General, protect?: () => Promise<boolean>):
   }
   g.ward = 0;
   g.demon = 0;
-  g.breakBoost = 0;
   if (hp > 0) {
     g.hp = hp;
     levelUp(g);

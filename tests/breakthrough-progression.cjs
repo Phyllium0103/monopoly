@@ -40,7 +40,7 @@ const {cityToll}=require('../src/systems/CitySystem.ts');
  g.realm=2;g.exp=2400;g.goldenCore='heavenly';g.aptitude='heaven';
  g.aptitude='waste';assert.equal(canAttemptBreak(g,1).ok,false);g.aptitude='heaven';
  const force=g.base.force;assert.equal(canAttemptBreak(g,1).ok,true);assert.equal(completeBreak(g,1),true);assert.equal(g.base.force,force+20);
- g.hp=maxHp(g);g.ward=0;g.breakBoost=0;
+ g.hp=maxHp(g);g.ward=0;
  const range=boltRange(g);assert.equal(range.count,4);assert(range.totalAvg>0);
  const {fx}=require('../src/data/passives.ts');
  assert.equal(range.totalAvg,Math.round(maxHp({...g,armor:null,weapon:null})*1.5*Math.max(0,1-(fx(g).tribulation??0))));

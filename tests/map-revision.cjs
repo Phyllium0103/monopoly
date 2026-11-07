@@ -27,22 +27,22 @@ assert.ok(restored.lords.liu.stones>=0&&restored.lords.liu.soldiers>=0);
  const engine=new Engine(state,{view,send:async(_lord,p)=>p.kind==='confirm',isAuto:()=>false,multiplayer:false});
  const entryRandom=Math.random;Math.random=()=>.999;
  try{await engine.landPortal(lord);}finally{Math.random=entryRandom;}
- assert.equal(lord.relicJourney.steps,6);
+ assert.equal(lord.relicJourney.steps,12);
  const attacker=state.lords.cao,user=freeGenerals(state,'cao')[0],target=freeGenerals(state,'liu').find(g=>!g.isLord);
  const attackItem=makeItem('blocked-relic','cloud',0);attacker.items.push(attackItem);
  const before=JSON.stringify(attacker.items);
  assert.match(await engine.usePrerollWithReaction(attacker,attackItem,user,{general:target}),/結界/);
  assert.equal(JSON.stringify(attacker.items),before);
  const originalRandom=Math.random;Math.random=()=>.999;
- try{await engine.moveRelic(lord);assert.equal(lord.relicJourney.steps,12);await engine.moveRelic(lord);}finally{Math.random=originalRandom;}
+ try{await engine.moveRelic(lord);}finally{Math.random=originalRandom;}
  assert.ok(!lord.relicJourney);assert.equal(lord.position,entrance);
  const events=view.events.filter(e=>e.t==='relic');assert.deepEqual(events.filter(e=>e.a[2]&&e.a[1]>0).map(e=>e.a[1]),Array.from({length:16},(_,i)=>i+1));assert.equal(events.at(-1).a[2],false);
  const clone=JSON.parse(JSON.stringify(view.events));assert.deepEqual(clone,view.events);
- assert.equal(state.rulesVersion,'breakthrough-20261106');
+  assert.equal(state.rulesVersion,'rules-20261107');
  console.log('PASS all 50-point city boundaries, 300 cap visual, square inverse projection and viewport edge clamps');
  console.log('PASS hollow 5×5 ring has exactly16 adjacent cells, each with good/bad outcomes');
  console.log('PASS persistent journey, forbidden inventory consumption, no early exit, no negative resources or lethal events');
- console.log('PASS actual Engine 6+6+4 movement, all16 event playback steps, original entrance return and serializable replay');
+ console.log('PASS actual Engine two-dice 12+4 movement, all16 event playback steps, original entrance return and serializable replay');
 })().catch(e=>{console.error(e);process.exitCode=1;});
 
 for(const h of [0, .824, 10]){const p=clampMapTarget(1000,-1000,80,60,h),q=projectGround(p.x,p.z);assert.ok(Math.abs(q.u)+40<=160.000001&&Math.abs(q.v+h*Math.cos(Math.PI/6))+30<=160.000001);}

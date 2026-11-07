@@ -44,7 +44,7 @@ export interface AiStyle {
 
 export const AI_STYLES: Record<Lord['id'], AiStyle> = {
   // 曹操：重修煉與丹藥，穩健出手
-  cao: { siegeRatio: 1.3, duelRatio: 1.15, craftRatio: 1.2, occupyReserve: 8000, occupyMinProsperity: 50, shopReserve: 6000, shopSkip: 0.2, recruitCap: 15, realmChance: 0.8, realmRisk: 0.15, soldierFloor: 8000, likes: ['qi', 'essence', 'foundation', 'breakpill', 'bone'] },
+  cao: { siegeRatio: 1.3, duelRatio: 1.15, craftRatio: 1.2, occupyReserve: 8000, occupyMinProsperity: 50, shopReserve: 6000, shopSkip: 0.2, recruitCap: 15, realmChance: 0.8, realmRisk: 0.15, soldierFloor: 8000, likes: ['qi', 'essence', 'foundation', 'bone'] },
   // 劉備：廣佔城池、經營為本，不輕易攻城
   liu: { siegeRatio: 1.6, duelRatio: 1.2, craftRatio: 1.25, occupyReserve: 4000, occupyMinProsperity: 35, shopReserve: 5000, shopSkip: 0.3, recruitCap: 16, realmChance: 0.7, realmRisk: 0.15, soldierFloor: 8000, likes: ['soldiers', 'vein', 'mend', 'heal'] },
   // 孫權：守成，保守出擊、秘境挑安全的、留足備用金與守備
@@ -200,7 +200,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   // 縮地符
   const stride = lord.items.find((i) => i.defId === 'stride');
   const strideUser = stride && gens.find((u) => u.status === 'free' && canUse(stride, u).ok);
-  if (stride && strideUser && Math.random() < 0.4) logs.push(await apply(stride, strideUser, {}));
+  if (stride && strideUser && Math.random() < 0.4) logs.push(await apply(stride, strideUser, {diceCount:3}));
   // 士兵只在停靠募兵司時補充，擲骰前不再遠端徵兵。
   return logs;
 }
@@ -233,7 +233,6 @@ export async function aiBreakthroughs(state: GameState, lord: Lord, hooks: ItemH
     }
     // 雷劫：先回血、佈陣
     if (g.hp < maxHp(g) * 0.9) await helper('heal');
-    if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('breakpill');
     if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('thunderward');
     if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('fiveward');
     if (!fx(g).tribulationSuccess && boltDamage(g) * boltCount(g) * 1.1 > g.hp) continue;

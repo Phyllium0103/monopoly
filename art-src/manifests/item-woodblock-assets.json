@@ -1,8 +1,8 @@
 {
   "style": "古樸版畫",
-  "count": 64,
-  "sourceBytes": 54411858,
-  "gameBytes": 897090,
+  "count": 63,
+  "sourceBytes": 53742182,
+  "gameBytes": 887938,
   "oldGameBytes": 189642,
   "compression": {
     "format": "WebP",
@@ -138,18 +138,6 @@
       "sourceBytes": 820084,
       "bytes": 10332,
       "sha256": "d91bf5272205c8cbff3eb4f7fa36ec3d1f444126744f0cd4a5dde55c4e50e275",
-      "width": 384,
-      "height": 384,
-      "alphaExact": true
-    },
-    {
-      "id": "breakpill",
-      "name": "引雷丹",
-      "category": "丹藥",
-      "file": "art/icons/丹藥/引雷丹.webp",
-      "sourceBytes": 669676,
-      "bytes": 9152,
-      "sha256": "e0d3bb58f2b1c0d49013245e746f13d654978f0d9d9e071db2e7e5c42847a4c6",
       "width": 384,
       "height": 384,
       "alphaExact": true

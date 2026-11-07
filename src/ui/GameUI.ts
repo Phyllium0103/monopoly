@@ -53,6 +53,7 @@ export class GameUI {
   private toastEl: HTMLDivElement;
   private tooltip: HTMLDivElement;
   private dice: DiceRoller;
+  private rollVersion = 0;
   private actors: LordActorHud;
   private itemDock: ItemDock;
   private currentLord: LordId | null = null;
@@ -152,12 +153,14 @@ export class GameUI {
   }
 
   hide() {
+    this.rollVersion++;
     this.dice.cancel();
     this.hud.classList.add('hidden');
     this.actors.show(false);
   }
 
   reset() {
+    this.rollVersion++;
     this.dice.cancel();
     this.actors.reset();
     this.logEl.innerHTML = '';
@@ -413,14 +416,18 @@ export class GameUI {
   /** 等待房主的權威結果；結果收到後才掉落真正 3D 骰子。 */
   startRolling(_count = 1) { this.dice.startWaiting(); }
 
-  stopRolling() { this.actors.cancel(); this.dice.cancel(); }
+  stopRolling() { this.rollVersion++; this.actors.cancel(); this.dice.cancel(); }
 
   movementDone(lord:LordId) { return this.actors.movementDone(lord); }
 
   focusLord(lord:LordId) { this.actors.focus(lord); }
 
   async rollDice(values: number[], bonus = 0, multiplier = 1, lord:LordId|null=this.currentLord): Promise<void> {
-    const drop=(origin?:DiceHandOrigin)=>this.dice.roll(values,bonus,multiplier,this.speed,false,origin);
+    const version=++this.rollVersion;
+    const prepared=this.dice.prepareRoll(values);
+    await prepared;
+    if(version!==this.rollVersion)return;
+    const drop=(origin?:DiceHandOrigin)=>this.dice.roll(values,bonus,multiplier,this.speed,false,origin,prepared);
     if(lord)await this.actors.playRoll(lord,drop);else await drop();
   }
 }

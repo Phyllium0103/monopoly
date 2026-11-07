@@ -78,7 +78,7 @@ export class MapModelPool{
   for(const [key,batch]of this.batches)if(!visible.has(key)&&batch.signature!==''){batch.signature='';for(const mesh of batch.meshes){mesh.visible=false;mesh.count=0;}changed=true;}
   if(changed)this.onChange();
  }
- private matrix(p:Placement){this.dummy.position.set(p.x,0,p.z);this.dummy.rotation.set(0,p.rotation,0);const scale=CELL_SIZE*2/10;this.dummy.scale.set(scale*.96,scale,scale*.96);this.dummy.updateMatrix();return this.dummy.matrix;}
+  private matrix(p:Placement){this.dummy.position.set(p.x,0,p.z);this.dummy.rotation.set(0,p.rotation,0);const scale=CELL_SIZE*2/10;this.dummy.scale.set(scale*.88,scale,scale*.88);this.dummy.updateMatrix();return this.dummy.matrix;}
  private load(key:Key,lod:number){const id=key+':'+lod;let promise=this.cache.get(id);if(promise)return promise;
   const url=runtimeModelUrl(key,Math.min(lod,MAP_RUNTIME_MODELS[key].length-1));promise=(async()=>{
    const gltf=await this.loader.parseAsync(await fetchCached(url),url.replace(/[^/]*$/,''));gltf.scene.updateMatrixWorld(true);

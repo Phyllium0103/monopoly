@@ -51,6 +51,8 @@ export interface DiceLaunch {
   surface?: 'standard' | 'soft';
   /** Explicit viewport allowance for a HUD hand-to-centre launch; default limits are unchanged. */
   maxTravel?: readonly [number,number];
+  /** Count-specific launch offsets; all bodies keep their actual simulated trajectories. */
+  offsets?: readonly (readonly [number,number,number])[];
 }
 
 export function upperDiceFace(rotation: Quaternion): { value: number; alignment: number } {
@@ -80,6 +82,7 @@ export async function simulateDiceRoll(values: readonly number[], random: () => 
   const R = await prepareDicePhysics();
   const size = launch?.size ?? 1;
   if (!Number.isFinite(size) || size < .1 || size > 2) throw new RangeError('Invalid die size');
+  if (launch?.offsets && (launch.offsets.length !== values.length || launch.offsets.some(p => p.length !== 3 || p.some(v => !Number.isFinite(v))))) throw new RangeError('Invalid launch offsets');
   const soft = launch?.surface === 'soft';
   const restitution = soft ? .055 : .32, friction = soft ? .88 : .65;
   const spin = soft ? .58 : 1;
@@ -97,8 +100,9 @@ export async function simulateDiceRoll(values: readonly number[], random: () => 
       const bodies = values.map((_, i) => {
         const side = values.length === 3 ? i - 1 : i ? 1 : -1;
         const rotation = new Quaternion().setFromEuler(new Euler(random() * Math.PI * 2, random() * Math.PI * 2, random() * Math.PI * 2));
-        const x = launch ? launch.position[0] + i * size * 1.5 : values.length === 1 ? (random() - .5) * .4 : side * ((values.length === 3 ? 1.35 : .76) + random() * .12);
-        const y = launch?.position[1] ?? 7.2 + i * .5, z = launch?.position[2] ?? (random() - .5) * .35;
+        const offset = launch?.offsets?.[i] ?? [i * size * 1.5, 0, 0];
+        const x = launch ? launch.position[0] + offset[0] : values.length === 1 ? (random() - .5) * .4 : side * ((values.length === 3 ? 1.35 : .76) + random() * .12);
+        const y = launch ? launch.position[1] + offset[1] : 7.2 + i * .5, z = launch ? launch.position[2] + offset[2] : (random() - .5) * .35;
         const vx = launch?.velocity[0] ?? (values.length === 1 ? (random() - .5) * .4 : -side * (.15 + random() * .2));
         const vy = launch?.velocity[1] ?? -.4, vz = launch?.velocity[2] ?? (random() - .5) * .3;
         const body = world.createRigidBody(R.RigidBodyDesc.dynamic()
@@ -131,7 +135,7 @@ export async function simulateDiceRoll(values: readonly number[], random: () => 
         frames.push(snapshot());
         if (bodies.every(body => body.isSleeping())) break;
         // Worker is preferred; this also keeps the fallback cooperative.
-        if(typeof document!=='undefined'&&step%128===0)await new Promise<void>(resolve=>setTimeout(resolve,0));
+        if(typeof document!=='undefined'&&step%16===0)await new Promise<void>(resolve=>setTimeout(resolve,0));
       }
       const end = frames[frames.length - 1];
       // Reject cocked/stacked or out-of-view rolls; never move them into place.
@@ -143,7 +147,7 @@ export async function simulateDiceRoll(values: readonly number[], random: () => 
         minX: Math.min(...poses.map(p=>p.position.x)), maxX: Math.max(...poses.map(p=>p.position.x)),
         minZ: Math.min(...poses.map(p=>p.position.z)), maxZ: Math.max(...poses.map(p=>p.position.z)),
       };
-      if (bounds.maxX - bounds.minX > (launch?.maxTravel?.[0]??4.8) || bounds.maxZ - bounds.minZ > (launch?.maxTravel?.[1]??4)) { failures.push('outside'); continue; }
+      if (bounds.maxX - bounds.minX > (launch?.maxTravel?.[0]??4.8) || bounds.maxZ - bounds.minZ > (launch?.maxTravel?.[1]??4)) { failures.push(`outside:${(bounds.maxX-bounds.minX).toFixed(2)}/${(bounds.maxZ-bounds.minZ).toFixed(2)}`); continue; }
       const labelRotations = end.map((pose, i) => resultQuaternion(upperDiceFace(pose.rotation).value).invert().multiply(resultQuaternion(values[i])));
       let stationaryStart = frames.length - 1;
       for (let i = frames.length - 2; i >= 0; i--) {
@@ -159,6 +163,13 @@ export async function simulateDiceRoll(values: readonly number[], random: () => 
     } finally { events.free(); world.free(); }
   }
   throw new Error(`Physics roll did not settle flat inside the presentation area (${failures.join(';')})`);
+}
+
+/** Reuse prepared motion with new printed faces; physical poses are never changed. */
+export function withDiceValues(roll: PhysicalDiceRoll, values: readonly number[]): PhysicalDiceRoll {
+  if (values.length !== roll.values.length || values.some(v => !Number.isInteger(v) || !DICE_FACE_NORMALS[v])) throw new RangeError('Invalid prepared dice values');
+  return { ...roll, values: [...values], labelRotations: roll.frames[roll.frames.length - 1].map((pose, i) =>
+    resultQuaternion(upperDiceFace(pose.rotation).value).invert().multiply(resultQuaternion(values[i]))) };
 }
 
 /** Interpolate only between adjacent fixed simulation ticks, never toward a forced result. */

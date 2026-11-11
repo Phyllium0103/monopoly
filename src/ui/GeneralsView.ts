@@ -47,6 +47,7 @@ const SORTS: { id: string; name: string; value: (g: General) => number }[] = [
   { id: 'location', name: '位置', value: () => 0 },
   { id: 'name', name: '姓名', value: () => 0 },
   { id: 'exp', name: '修為', value: g => g.exp },
+  { id: 'weapon', name: '本命武器', value: () => 0 },
   { id: 'armor', name: '仙衣', value: () => 0 },
   { id: 'technique', name: '功法', value: () => 0 },
   { id: 'power', name: '戰力', value: (g) => power(g) },
@@ -72,7 +73,7 @@ const COLUMNS: { cls: string; label: string; sort?: string }[] = [
   { cls: 'c-apt', label: '靈根', sort: 'aptitude' },
   { cls: 'c-st', label: '位置', sort: 'location' },
   { cls: 'c-hp', label: '血量／修為' },
-  { cls: 'c-weapon', label: '本命武器' },
+  { cls: 'c-weapon', label: '本命武器', sort: 'weapon' },
   { cls: 'c-armor', label: '仙衣', sort: 'armor' },
   { cls: 'c-technique', label: '功法', sort: 'technique' },
   { cls: 'c-power', label: '戰力', sort: 'power' },
@@ -89,6 +90,7 @@ const COLUMNS: { cls: string; label: string; sort?: string }[] = [
 export interface RosterMode {
   /** 自己的整備階段：可突破、升階、換裝 */
   manage: boolean;
+  inspect?: boolean;
   /** 不在整備階段時仍可學功法、自廢修為（單機） */
   free: boolean;
 }
@@ -99,6 +101,7 @@ export function sortRosterGenerals(gens: General[], state: GameState, sortId: st
   const location = (a: General, b: General) => locationOrder(a) - locationOrder(b) || (a.status === 'garrison' && b.status === 'garrison' ? (state.cities[b.cityId!]?.prosperity ?? 0) - (state.cities[a.cityId!]?.prosperity ?? 0) : 0) || power(b) - power(a);
   const compare = (a: General, b: General) => {
     if (sortId === 'default') return Number(b.isLord) - Number(a.isLord) || location(a,b);
+    if (sortId === 'weapon') return Math.floor((b.weapon?.tier ?? -3)/3) - Math.floor((a.weapon?.tier ?? -3)/3) || Number(b.isLord) - Number(a.isLord) || location(a,b);
     if (sortId === 'location') return location(a,b);
     if (sortId === 'name') return a.name.localeCompare(b.name, 'zh-Hant-u-co-stroke');
     if (sortId === 'armor' || sortId === 'technique') {
@@ -132,13 +135,15 @@ export class GeneralsView {
     root.appendChild(this.el);
     this.equipmentControls = new RosterEquipment(this.el, a => this.emit(a));
     window.addEventListener('keydown', e => {
+      const visible = [...document.querySelectorAll('.roster-screen:not(.hidden)')];
+      if (visible[visible.length - 1] !== this.el) return;
       if (e.key !== 'Escape' || !this.isOpen || e.defaultPrevented) return;
       if (this.el.classList.contains('equipment-carrying')) { this.equipmentControls.clear(); return; }
       if (this.detailId) this.closeDetail(); else this.close();
     });
     this.el.addEventListener('click', e => {
       const weapon = (e.target as HTMLElement).closest<HTMLElement>('[data-weapon-general]');
-      if (!weapon || !this.current) return;
+      if (!weapon || !this.current || this.mode.inspect || weapon.closest('.general-modal') || this.el.classList.contains('equipment-carrying')) return;
       e.stopPropagation();
       const g = this.current.state.generals[weapon.dataset.weaponGeneral!];
       const req = upgradeRequirement(this.current.lord, g);
@@ -196,6 +201,7 @@ export class GeneralsView {
   /** 重新繪製（狀態更新後） */
   refresh(state: GameState, lord: Lord) {
     if (!this.isOpen) return;
+    lord = this.mode.inspect && this.current ? state.lords[this.current.lord.id] : lord;
     this.current = { state, lord };
     this.render(state, lord);
   }
@@ -259,6 +265,7 @@ export class GeneralsView {
   }
 
   private render(state: GameState, lord: Lord) {
+    this.el.classList.toggle('roster-readonly', !!this.mode.inspect);
     const gens = generalsOf(state, lord.id);
     const manage = this.mode.manage;
 
@@ -270,25 +277,19 @@ export class GeneralsView {
     this.el.innerHTML = `
       <div class="drawer-head">
         <div class="roster-title"><small>將星錄 · ${LORDS[lord.id].name}</small><h2>武將名冊</h2></div>
-        <span class="muted">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : '・非你的回合，無法突破'}</span>
-        <label class="sort-box">排序 <select class="sort-select">${[{id:'default',name:'預設'}, ...SORTS].map((x) => `<option value="${x.id}" ${x.id === this.sortId ? 'selected' : ''}>${x.name}</option>`).join('')}</select></label>
-        <button class="btn close">關閉 ✕</button>
+        <span class="muted">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : this.mode.inspect ? '・查看名冊' : '・非你的回合，無法突破'}</span>
+        <button class="btn close roster-close" aria-label="關閉武將名冊">✕</button>
       </div>
       <div class="drawer-body">
       <div class="sections"></div>
       </div>
-      <footer class="roster-inventory">
+      ${this.mode.inspect ? '' : `<footer class="roster-inventory">
         <div class="inventory-heading"><div><b>隨身行囊</b><span>仙衣 · 功法</span></div><span class="inventory-count">${bagItems(lord).length} / ${EQUIPMENT_CAPACITY}</span></div>
         <div class="inventory-grid">${cells}</div>
         <div class="equipment-feedback" role="status" aria-live="polite">點選圖片拿起，再點裝備格放入；已修習功法的取下操作在武將詳情中。</div>
-      </footer>`;
+      </footer>`}`;
 
     (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
-    (this.el.querySelector('.sort-select') as HTMLSelectElement).onchange = (e) => {
-      const id = (e.target as HTMLSelectElement).value;
-      this.reverse = this.sortId === id ? !this.reverse : false; this.sortId = id;
-      this.render(state, lord);
-    };
     this.el.querySelector('.sections')!.appendChild(this.list(state, lord, sortRosterGenerals(gens, state, this.sortId, this.reverse), manage));
     this.el.querySelector('.drawer-body')!.scrollTop = scrollTop;
     if (this.detailId && state.generals[this.detailId]?.owner === lord.id) this.openDetail(state, lord, state.generals[this.detailId], manage);
@@ -339,8 +340,10 @@ export class GeneralsView {
       row.setAttribute('role', 'group');
       row.setAttribute('aria-label', g.name);
       row.innerHTML = this.rowHtml(state, lord, g, ready);
+      if (this.mode.inspect) this.displayOnly(row);
       item.appendChild(row);
       row.onclick = e => {
+        if (this.el.classList.contains('equipment-carrying')) return;
         if ((e.target as HTMLElement).closest('[data-equipment-kind], [data-inventory-slot], [data-weapon-general]')) return;
         this.openDetail(state, lord, g, manage);
       };
@@ -381,6 +384,16 @@ export class GeneralsView {
       <span class="c-craft">${craft(g, 'formation')}</span>
       <span class="c-passive" title="${tip(`【${p.name}】${fxText(p.fx)}`)}">【${p.name}】</span>
       <button type="button" class="c-caret roster-toggle" aria-label="查看${g.name}詳細資訊" aria-haspopup="dialog">›</button></span>`;
+  }
+
+  private displayOnly(root: HTMLElement) {
+    root.querySelectorAll<HTMLElement>('[data-equipment-kind], [data-weapon-general]').forEach(el => {
+      const display = document.createElement('span');
+      display.className = el.className;
+      for (const name of ['data-tip','data-tip-html','aria-label']) { const value = el.getAttribute(name); if (value) display.setAttribute(name,value.replace('<br>點擊突破本命武器','').replace('・突破本命武器','')); }
+      display.innerHTML = el.innerHTML;
+      el.replaceWith(display);
+    });
   }
 
   private weaponPicture(g: General): string {
@@ -460,10 +473,10 @@ export class GeneralsView {
     if (g.realm === 2 && !g.mortalTrial) btn('金丹路線', !manage || away, () => this.emit({ type: 'break', generalId: g.id }));
     if (bottleneck) {
       const can = canAttemptBreak(g, state.round);
-      btn(needsTribulation(g) ? '⚡ 渡劫' : '🧘 突破', !manage || !can.ok, () => this.emit({ type: 'break', generalId: g.id }), 'danger');
+      btn(needsTribulation(g) ? '渡劫' : '突破境界', !manage || !can.ok, () => this.emit({ type: 'break', generalId: g.id }), 'danger');
     }
     rowBtn('weapon', req.reason === '已達天階' ? '已達天階' : (g.weapon ? '武器升階' : '無本命武器'), !manage || away || !req.ok, () => this.emit({ type: 'upgrade', generalId: g.id }));
-    const weaponButton = card.querySelector<HTMLButtonElement>('.eq-row[data-slot="weapon"] button');
+    const weaponButton = card.querySelector<HTMLButtonElement>('.eq-row[data-slot="weapon"] button.btn');
     if (weaponButton) weaponButton.title = req.reason;
     if (g.weapon && req.group && req.stage !== undefined && req.cost) {
       const cost = document.createElement('div');
@@ -476,6 +489,17 @@ export class GeneralsView {
     rowBtn('armor', '取下仙衣', !manage || away || !g.armor, () => this.equipmentControls.unequip(g.id));
     if (t) rowBtn('technique', '自廢修為', !free || away, () => this.emit({ type: 'abolish', generalId: g.id }));
     const note = document.createElement('p'); note.className = 'dossier-warning'; note.textContent = '自廢會散去功法、境界回到凡人、修為歸零。功法不會回到行囊。'; if (t) card.querySelector('.eq-row[data-slot="technique"]')!.appendChild(note);
+    const breakthrough = actions.querySelector('button.danger');
+    if (breakthrough) { breakthrough.classList.add('dossier-breakthrough'); card.querySelector('.dossier-identity')!.insertBefore(breakthrough, card.querySelector('.dossier-passive'));  }
+    // Detail equipment is informational; actions live on the explicit buttons.
+    this.displayOnly(card);
+    if (this.mode.inspect) {
+      card.querySelectorAll('button, .gc-actions, .weapon-material-cost, .dossier-warning').forEach(el => el.remove());
+    }
+    const weaponRow = card.querySelector('[data-slot="weapon"]');
+    const cost = weaponRow?.querySelector('.weapon-material-cost');
+    const upgrade = weaponRow?.querySelector('button');
+    if (cost && upgrade) weaponRow!.insertBefore(cost, upgrade);
     return card;
   }
 }

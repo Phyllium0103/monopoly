@@ -7,17 +7,19 @@ import '/src/style.css';
 import {GeneralsView} from '/src/ui/GeneralsView.ts';
 import {createGameState} from '/src/game/GameState.ts';
 import {ARMOR_DEFS,makeEquipment,makeTechnique} from '/src/data/items.ts';
-import {transferArmor,equipTechnique,maxHp} from '/src/systems/GeneralSystem.ts';
+import {transferArmor,equipTechnique,maxHp,expCap} from '/src/systems/GeneralSystem.ts';
 import {moveBagItem,syncBagSlots} from '/src/systems/EquipmentInventory.ts';
 const state=createGameState('liu'),lord=state.lords.liu;
 lord.gear=ARMOR_DEFS.slice(0,9).map(d=>makeEquipment('preview-'+d.id,'armor',d.tier,d.id));
 lord.scrolls=['metal','wood','water','fire','earth','alchemy','forging','talisman','formation'].map((family,i)=>makeTechnique('preview-scroll-'+i,i<5?0:6,family));
 syncBagSlots(lord);
 for(const g of Object.values(state.generals).filter(g=>g.owner==='liu')){g.realm=6;g.exp=0;g.aptitude='heaven';g.hp=maxHp(g);}
+if(new URLSearchParams(location.search).has('ready'))state.generals.liubei.exp=expCap(state.generals.liubei);
 const root=document.querySelector('#preview-root'),view=new GeneralsView(root);
 const requestedWidth=Number(new URLSearchParams(location.search).get('width'));
 if(requestedWidth>=280&&requestedWidth<=innerWidth)root.style.width=requestedWidth+'px';
-view.open(state,lord,{manage:true,free:true},a=>{
+const inspect=new URLSearchParams(location.search).has('inspect');
+view.open(state,lord,{manage:!inspect,free:!inspect,inspect},a=>{
  if(a.type==='transfer-armor')transferArmor(state,lord,a.itemUid,a.fromGeneralId,a.toGeneralId,a.bagSlot);
  if(a.type==='move-bag-item')moveBagItem(lord,a.itemUid,a.slot);
  if(a.type==='learn-technique')equipTechnique(state,lord,a.itemUid,a.generalId);

@@ -15,7 +15,7 @@ const attrs = (kind: Kind, uid?: string, id?: string) => `data-equipment-kind="$
 export function armorPicture(e: Equipment | null, id?: string): string {
   const label = e ? `${e.name} ${equipDesc(e, false).replace(/<br\s*\/?>/g, ' ').replace(/｜/g, ' ')}` : '未裝備仙衣';
   const detail = e ? `<div class="tech-tip"><div class="tech-tip-rank">${armorGradeName(e.tier)} · 仙衣</div><strong>${esc(e.name.split('・').pop()!)}</strong><div class="tech-tip-rule"></div><div class="tech-tip-detail">${equipStats(e)}<br>需要${REALMS[equipRealm(e.tier)]}以上</div></div>` : '';
-  return `<button type="button" class="technique-picture armor-picture grade-${e ? armorGrade(e.tier) : 0}${e ? '' : ' armor-empty'}" ${attrs('armor', e?.uid, id)} data-tip="${esc(label)}" ${detail ? `data-tip-html="${esc(detail)}"` : ''} aria-label="${esc(label)}">${e ? `<img src="${equipIconUrl(e)}" alt="" loading="lazy" decoding="async" draggable="false">` : ''}</button>`;
+  return `<button type="button" class="technique-picture armor-picture grade-${e ? armorGrade(e.tier) : 0}${e ? '' : ' armor-empty'}" ${attrs('armor', e?.uid, id)} ${detail ? `data-tip="${esc(label)}"` : ''} ${detail ? `data-tip-html="${esc(detail)}"` : ''} aria-label="${esc(label)}">${e ? `<img src="${equipIconUrl(e)}" alt="" loading="lazy" decoding="async" draggable="false">` : ''}</button>`;
 }
 export function techniqueIconUrl(t: Technique): string {
   return `${import.meta.env?.BASE_URL ?? './'}assets/techniques/${t.art ?? t.element}-${['huang', 'xuan', 'di', 'tian'][armorGrade(t.tier)]}.webp`;
@@ -26,7 +26,7 @@ export function techniquePicture(t: Technique | null, id?: string): string {
   const tag = t ? techniqueTag(t) : null;
   const detail = t && tag ? `<div class="tech-tip"><div class="tech-tip-rank">${esc(rank)} · <span style="color:${tag.css}">${esc(tag.text)}</span></div><strong>${esc(name)}</strong><div class="tech-tip-rule"></div><div class="tech-tip-detail">${techniqueDesc(t)}${id ? '<br>已修習，須先自廢修為才能更換' : ''}</div></div>` : '';
   // Learned techniques are bound; unused scrolls can be selected.
-  return `<button type="button" class="technique-picture armor-picture grade-${t ? armorGrade(t.tier) : 0}${t ? '' : ' armor-empty'}" ${attrs('technique', id ? undefined : t?.uid, id)} data-tip="${esc(label)}" ${detail ? `data-tip-html="${esc(detail)}"` : ''} aria-label="${esc(label)}">${t ? `<img src="${techniqueIconUrl(t)}" alt="" loading="lazy" decoding="async" draggable="false">` : ''}</button>`;
+  return `<button type="button" class="technique-picture armor-picture grade-${t ? armorGrade(t.tier) : 0}${t ? '' : ' armor-empty'}" ${attrs('technique', id ? undefined : t?.uid, id)} ${detail ? `data-tip="${esc(label)}"` : ''} ${detail ? `data-tip-html="${esc(detail)}"` : ''} aria-label="${esc(label)}">${t ? `<img src="${techniqueIconUrl(t)}" alt="" loading="lazy" decoding="async" draggable="false">` : ''}</button>`;
 }
 
 /** Click to carry, click to place. Only host-validated actions change ownership. */
@@ -36,6 +36,9 @@ export class RosterEquipment {
   private cursor: HTMLDivElement | null = null;
   private pointer = { x: 0, y: 0 };
   constructor(private root: HTMLElement, private emit: (a: RosterAction) => void) {
+    root.addEventListener('click', e => {
+      if (this.selected && !(e.target as HTMLElement).closest('[data-equipment-kind], [data-inventory-slot]')) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
     root.addEventListener('pointermove', e => { this.pointer = { x: e.clientX, y: e.clientY }; this.positionCursor(); if (this.cursor) this.cursor.hidden = false; });
     root.addEventListener('pointerleave', () => { if (this.cursor) this.cursor.hidden = true; });
     root.addEventListener('focusin', e => { if (!this.pointer.x && !this.pointer.y) { const rect = (e.target as HTMLElement).getBoundingClientRect(); this.pointer = { x: rect.right, y: rect.bottom }; this.positionCursor(); } });
@@ -43,6 +46,7 @@ export class RosterEquipment {
     root.addEventListener('keydown', e => { if (e.key === 'Escape' && this.selected) { e.preventDefault(); e.stopPropagation(); this.clear(); } });
     root.addEventListener('contextmenu', e => { if (this.selected) { e.preventDefault(); this.clear(); } });
     root.addEventListener('click', e => {
+      if ((e.target as HTMLElement).closest('.general-modal, .roster-readonly')) return;
       const el = (e.target as HTMLElement).closest<HTMLElement>('[data-equipment-kind], [data-inventory-slot], [data-equipment-cancel]');
       if (!el || !root.contains(el)) return;
       if (e.clientX || e.clientY) this.pointer = { x: e.clientX, y: e.clientY };
@@ -63,14 +67,14 @@ export class RosterEquipment {
         return;
       }
       if (!kind) { this.message('先點選一件仙衣或功法，再點目的格'); return; }
-      if (!this.allowed(kind)) { this.message(kind === 'armor' ? '只能在自己的整備階段換裝' : '目前無法修習功法', true); return; }
+      if (!this.allowed(kind)) { this.message(kind === 'armor' ? '只能在自己的整備階段換裝' : '目前無法修習功法', true, kind === 'technique' ? '無法修習' : '無法裝備'); return; }
       if (this.selected) {
         if (this.selected.uid === uid || (to && to === this.selected.from)) { this.clear(); return; }
         if (kind !== this.selected.kind) { this.message(labelOf(this.selected.kind) + '只能放入' + labelOf(this.selected.kind) + '格', true); return; }
         if (to) this.move(this.selected, to);
         return;
       }
-      if (to && kind === 'technique' && this.context?.state.generals[to]?.technique) { this.message('已修習功法不能直接取下，請開啟武將詳情使用「自廢修為」', true); return; }
+      if (to && kind === 'technique' && this.context?.state.generals[to]?.technique) { this.message('已修習功法不能直接取下，請開啟武將詳情使用「自廢修為」', true, '無法修習'); return; }
       if (!uid) { this.message('先點選行囊中的' + labelOf(kind) + '，再點這個格子'); return; }
       const s: Source = { kind, uid, from: to };
       if (to) { const check = this.targetCheck(kind, to); if (!check.ok) { this.message(check.reason, true); return; } }
@@ -85,7 +89,7 @@ export class RosterEquipment {
     if (this.selected && (!this.allowed(this.selected.kind) || !this.sourceItem(this.selected))) this.selected = null;
     this.paint();
   }
-  notify(text: string) { this.message(text, true); }
+  notify(text: string) { this.message(text, true, '無法突破'); }
   clear() { this.selected = null; this.paint(); this.message('已取消選擇'); }
   unequip(generalId: string) { const item = this.context?.state.generals[generalId]?.armor; if (item) this.move({ kind: 'armor', uid: item.uid, from: generalId }); }
   private allowed(kind: Kind) { return !!this.context && (this.context.manage || (kind === 'technique' && this.context.free)); }
@@ -112,19 +116,20 @@ export class RosterEquipment {
     this.selected = null; this.paint();
     this.emit(s.kind === 'armor' ? { type: 'transfer-armor', itemUid: s.uid, fromGeneralId: s.from, toGeneralId: to, bagSlot } : { type: 'learn-technique', itemUid: s.uid, generalId: to! });
   }
-  private message(text: string, error = false) {
+  private message(text: string, error = false, heading?: string) {
     const el = this.root.querySelector<HTMLElement>('.equipment-feedback');
     if (el) { el.textContent = text; el.classList.toggle('is-error', error); }
     const old = this.root.querySelector('.equipment-notice'); old?.remove();
     if (error) {
       const notice = this.root.ownerDocument.createElement('div'); notice.className = 'equipment-notice'; notice.setAttribute('role', 'alert');
-      notice.innerHTML = '<span class="notice-mark">!</span><div><strong>無法放入</strong><p>' + esc(text) + '</p></div><button type="button" aria-label="關閉提示">✕</button>';
+      notice.innerHTML = '<span class="notice-mark">!</span><div><strong>' + (heading ?? (this.selected?.kind === 'technique' ? '無法修習' : '無法裝備')) + '</strong><p>' + esc(text) + '</p></div><button type="button" aria-label="關閉提示">✕</button>';
       notice.querySelector('button')!.onclick = () => notice.remove(); this.root.appendChild(notice);
       setTimeout(() => notice.remove(), 5000);
     }
   }
   private paint() {
     for (const el of this.root.querySelectorAll<HTMLElement>('[data-equipment-kind], [data-inventory-slot]')) {
+      if (el.closest('.general-modal, .roster-readonly')) continue;
       const kind = el.dataset.equipmentKind as Kind, id = el.dataset.equipmentTarget;
       const selected = !!this.selected && el.dataset.equipmentItem === this.selected.uid;
       el.classList.toggle('armor-selected', selected); el.setAttribute('aria-pressed', String(selected)); el.draggable = false;

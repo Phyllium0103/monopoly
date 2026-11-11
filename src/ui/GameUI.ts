@@ -77,6 +77,7 @@ export class GameUI {
   onRank: (() => void) | null = null;
   onAuto: (() => void) | null = null;
   onCheat: (() => void) | null = null;
+  onLordDetails: (() => void) | null = null;
   onLord: ((id: LordId) => void) | null = null;
   /** 電腦託管中 */
   auto = false;
@@ -201,7 +202,7 @@ export class GameUI {
       <div class="round"></div>
       <div class="lords"></div>
       <div class="top-actions"></div>
-      <div class="speed">
+      <div class="speed"><button class="btn mini lord-details-btn" data-tip="主公詳細資料">主公</button>
         <button class="btn mini tool log-btn" data-tip="天下紀事（開／關）">📜</button>
         <button class="btn mini tool auto-btn" data-tip="電腦代打你的回合">🤖</button>
         <button class="btn mini tool rank-btn" data-tip="城池榜">🏆</button>
@@ -212,6 +213,7 @@ export class GameUI {
       </div>`;
     this.top.querySelector('.top-actions')!.appendChild(this.actions.parentElement!);
     const q = <T extends HTMLElement>(sel: string) => this.top.querySelector(sel) as T;
+    q('.lord-details-btn').onclick = () => this.onLordDetails?.();
     q('.help-btn').onclick = () => this.onHelp?.();
     q('.rank-btn').onclick = () => this.onRank?.();
     q('.auto-btn').onclick = () => this.onAuto?.();

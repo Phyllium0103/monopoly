@@ -64,6 +64,7 @@ export class Game {
   private ui: GameUI;
   private dialog: Dialog;
   private generalsView: GeneralsView;
+  private inspectRoster: GeneralsView;
   private battleView: BattleView;
   private shop: ShopPanel;
   private casino: CasinoPanel;
@@ -104,6 +105,7 @@ export class Game {
     this.ui = new GameUI(uiRoot);
     this.dialog = new Dialog(uiRoot);
     this.generalsView = new GeneralsView(uiRoot);
+    this.inspectRoster = new GeneralsView(uiRoot);
     this.battleView = new BattleView(uiRoot);
     this.shop = new ShopPanel(this.dialog);
     this.casino = new CasinoPanel(this.dialog);
@@ -115,7 +117,8 @@ export class Game {
     };
     this.lordView = new LordView(uiRoot);
     this.lordView.facingText = (id) => this.facingText(this.state.lords[id]);
-    this.ui.onLord = (id) => {if(this.selectedItem)this.pickItemLord(id);else this.lordView.open(this.state,id);};
+    this.ui.onLordDetails = () => this.lordView.open(this.state,this.me);
+    this.ui.onLord = (id) => {if(this.selectedItem)this.pickItemLord(id);else if(id===this.me){this.inspectRoster.close();if(!this.generalsView.isOpen)this.openRoster();}else void this.inspectRoster.open(this.state,this.state.lords[id],{manage:false,free:false,inspect:true});};
     this.battleView.onItemGeneral = (id) => this.pickItemGeneral(id);
     this.battleView.generalById = id => this.state?.generals[id];
     this.ui.onHelp = () => this.help.open();
@@ -261,6 +264,7 @@ export class Game {
     this.casino.close();
     this.battleView.closeAll();
     this.generalsView.close();
+    this.inspectRoster.close();
     this.dialog.close();
     for (const s of this.sprites.values()) s.dispose();
     this.sprites.clear();
@@ -334,6 +338,7 @@ export class Game {
     // During replay, the syncSpirits event follows the final landing instead.
     if (placeSprites) this.world.syncSpirits(state.elementalSpirits ?? []);
     this.generalsView.refresh(state, state.lords[this.me]);
+    this.inspectRoster.refresh(state, state.lords[this.me]);
     this.refresh();
   }
 

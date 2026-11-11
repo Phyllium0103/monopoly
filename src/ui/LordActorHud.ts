@@ -79,7 +79,7 @@ export class LordActorHud {
       const card=document.createElement('article');card.className='lord-actor';card.dataset.lord=id;
       card.style.setProperty('--fc',LORDS[id].css);
       const button=document.createElement('button');button.type='button';button.className='lord-actor-hit';
-      button.setAttribute('aria-label',`${LORDS[id].name}，查看詳細資料`);
+      button.setAttribute('aria-label',`${LORDS[id].name}，查看武將名冊`);
       button.onclick=()=>onLord(id);
       const island=document.createElement('span');island.className='lord-island-artwork';
       const image=document.createElement('img');image.className='lord-island-image';image.src=assetUrl('art/lord-base-images-r5/03-tall.webp');image.alt='';island.append(image);

@@ -56,11 +56,13 @@ function allIds(state){return Object.values(state.lords).flatMap(l=>[...bagItems
  const {state,lord}=setup(false),owned=Object.values(state.generals).filter(g=>g.owner===lord.id),cities=Object.values(state.cities).slice(0,2);
  cities[0].prosperity=30;cities[1].prosperity=150;
  const examples=owned.slice(0,5);examples.forEach((g,i)=>{g.status=i===0?'sect':i===1?'free':i===2||i===3?'garrison':'realm';g.cityId=i===2?cities[0].id:i===3?cities[1].id:null;});
+ assert.equal(sortRosterGenerals(examples,state,'default')[0].id,examples[0].id);
  const sorted=sortRosterGenerals(examples,state,'location');assert.deepEqual(sorted.map(g=>g.id),[examples[1],examples[3],examples[2],examples[4],examples[0]].map(g=>g.id));assert.equal(examples[0].isLord,true,'lord is deliberately last');
  examples[1].exp=expCap(examples[1]);examples[0].realm=0;examples[1].realm=9;assert.equal(sortRosterGenerals(examples,state,'realm')[0].id,examples[1].id,'sorting never pins lord or separates ready generals');
- const html=GeneralsView.prototype.rowHtml.call(GeneralsView.prototype,state,lord,examples[1],true);assert.equal((html.match(/role="meter"/g)||[]).length,3);assert.match(html,/aria-haspopup="dialog"/);assert(!html.includes('＋'));assert(!html.includes('has-realm-frame'));
+ assert.deepEqual(sortRosterGenerals(examples,state,'location',true).map(g=>g.id), [...sorted].reverse().map(g=>g.id));
+ const html=GeneralsView.prototype.rowHtml.call(GeneralsView.prototype,state,lord,examples[1],true);assert.equal((html.match(/role="meter"/g)||[]).length,2);assert.match(html,/aria-haspopup="dialog"/);assert(!html.includes('＋'));assert(!html.includes('has-realm-frame'));
  const max={...examples[1],realm:10};assert(!GeneralsView.prototype.vitals(max).includes('NaN'));assert(!GeneralsView.prototype.vitals(max).includes('Infinity'));
- console.log('PASS one roster: party, descending-prosperity cities, expeditions, sect; no pinned lord; three accessible vital bars and dialog trigger');
+ console.log('PASS one roster: party, descending-prosperity cities, expeditions, sect; no pinned lord; two accessible vital bars and dialog trigger');
 }
 (async()=>{
  const {state,lord}=setup();const reward=makeEquipment('chosen','armor',9,'chiyou-tian');receiveEquipment(lord,reward);let calls=0;

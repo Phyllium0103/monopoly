@@ -11,14 +11,14 @@
 .roster-screen .roster-item { border:1px solid #63746540; border-left:2px solid #a5a37b66; border-radius:8px; background:#1d272199; box-shadow:none; }
 .roster-screen .roster-item:nth-child(odd) { background:#25302766; }
 .roster-screen .roster-item.ready { border-color:#bda66b77; box-shadow:inset 2px 0 #e2c477; }
-.roster-screen .roster-list .roster-head,.roster-screen .roster-list .roster-row { display:grid; grid-template-columns:minmax(0,1fr) 116px minmax(0,1fr); gap:16px; padding:10px 12px; box-sizing:border-box; }
+.roster-screen .roster-list .roster-head,.roster-screen .roster-list .roster-row { display:grid; grid-template-columns:minmax(0,1fr) 178px minmax(0,1fr); gap:16px; padding:10px 12px; box-sizing:border-box; }
 .roster-screen .roster-list .roster-head { border:0; border-radius:0; background:#101b16; color:#adbaab; min-height:38px; font-size:11px; padding-top:4px; padding-bottom:4px; z-index:3; }
 .roster-screen .roster-list .roster-row { min-height:92px; font-size:13px; }
 .roster-screen .roster-list .roster-row:hover { background:#afa16f0c; }
 .roster-screen .roster-list .roster-before,.roster-screen .roster-list .roster-after { display:grid; gap:8px; align-items:center; min-width:0; padding:0; }
 .roster-screen .roster-list .roster-before { grid-template-columns:42px minmax(60px,.9fr) 34px 52px 40px minmax(48px,.7fr) minmax(100px,1.7fr); }
 .roster-screen .roster-list .roster-after { grid-template-columns:repeat(7,minmax(30px,1fr)) minmax(60px,1.4fr) 18px; }
-.roster-screen .roster-list .roster-equipment { display:grid; grid-template-columns:54px 54px; gap:8px; align-items:center; padding:0; overflow:visible; }
+.roster-screen .roster-list .roster-equipment { display:grid; grid-template-columns:repeat(3,54px); gap:8px; align-items:center; padding:0; overflow:visible; }
 .roster-screen .roster-list .roster-equipment > span { display:grid; place-items:center; min-width:0; overflow:visible; }
 .roster-screen .roster-list .roster-equipment .technique-picture { width:54px; height:54px; }
 .roster-screen .roster-list .roster-before > *,.roster-screen .roster-list .roster-after > * { min-width:0; overflow:hidden; text-overflow:ellipsis; }
@@ -167,3 +167,18 @@
   .detail-equipment { gap:6px; }
 }
 @media (prefers-reduced-motion:reduce) { .roster-screen * { transition:none!important; } }
+
+/* Compact roster; the sticky heading starts at the scroll boundary. */
+.roster-screen > .drawer-body { padding-top:0; }
+.roster-screen .roster-list .roster-head { position:sticky; top:0; margin:0; min-height:38px; }
+.roster-screen .roster-list .roster-row { min-height:68px; padding-top:6px; padding-bottom:6px; }
+.roster-screen .roster-list { gap:4px; }
+.roster-screen .roster-list .roster-head .ascending.sorted::after { content:' ↑'; }
+.roster-screen .roster-list .roster-head .c-hp { display:flex; justify-content:center; align-items:center; }
+.roster-screen .drawer-body,.roster-screen .inventory-grid,.general-modal-content { scrollbar-width:none; }
+.roster-screen .drawer-body::-webkit-scrollbar,.roster-screen .inventory-grid::-webkit-scrollbar,.general-modal-content::-webkit-scrollbar { display:none; }
+.roster-screen .general-modal .gc-art { display:flex; align-items:center; justify-content:center; transform:none; position:static; }
+.roster-screen .general-modal .gc-art img { position:static; margin:auto; transform:none; object-position:center; }
+.roster-screen .break-info:empty,.roster-screen .gc-actions:empty { display:none; }
+.roster-screen .roster-item::before,.roster-screen .roster-item::after { display:none; }
+.abolish-dialog h2 { color:#ef8884; background:none; -webkit-text-fill-color:#ef8884; }

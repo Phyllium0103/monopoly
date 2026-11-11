@@ -13,7 +13,7 @@ const tipOf = (el: HTMLElement): string => {
     el.dataset.tip = title;
     el.removeAttribute('title');
   }
-  return el.dataset.tip ?? '';
+  return el.dataset.tip ?? el.dataset.tipHtml ?? '';
 };
 
 function place(x: number, y: number) {
@@ -35,7 +35,7 @@ function hide() {
 }
 
 document.addEventListener('mouseover', (e) => {
-  const el = (e.target as HTMLElement).closest?.<HTMLElement>('[title], [data-tip]');
+  const el = (e.target as HTMLElement).closest?.<HTMLElement>('[title], [data-tip], [data-tip-html]');
   if (!el || el === current) return;
   const text = tipOf(el);
   if (!text) return hide();
@@ -59,7 +59,9 @@ document.addEventListener('focusin', (e) => {
   const el = (e.target as HTMLElement).closest?.<HTMLElement>('.technique-picture[data-tip]');
   if (!el) return;
   current = el;
-  bubble.innerHTML = el.dataset.tipHtml ?? '';
+  const content = el.dataset.tipHtml || tipOf(el);
+  if (!content.trim()) return hide();
+  if (el.dataset.tipHtml) bubble.innerHTML = content; else bubble.textContent = content;
   bubble.classList.remove('hidden');
   const rect = el.getBoundingClientRect();
   place(rect.left, rect.bottom);

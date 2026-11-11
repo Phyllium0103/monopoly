@@ -1916,9 +1916,9 @@ export class Engine {
         const r = upgradeRequirement(lord, g);
         if (away || !r.ok || r.stage === undefined || !r.group || !r.cost) return;
         const name = WEAPON_CATALOG[g.id].names[r.stage + 1];
-        const ok = await ask.confirm(`${g.name}・武器升階`,
+        const ok = await ask.confirm(`${g.name}・本命武器突破`,
           `${g.weapon!.name} → ${WEAPON_GRADES[r.stage + 1]}・${name}。\n消耗 ${r.cost} 顆${materialLabel(r.group, r.stage)}；無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage] * 100)}% → ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%。`,
-          '消耗材料・升階', '返回名冊', '⚔️');
+          '消耗材料・升階', '返回名冊', '');
         if (ok && upgradeRequirement(lord, g).ok) await ask.message('武器升階完成', upgradeWeapon(lord, g), '⚔️');
         break;
       }
@@ -1942,7 +1942,7 @@ export class Engine {
       }
       case 'abolish': {
         if (away || !g.technique) return;
-        const ok = await ask.confirm('自廢修為', `${g.name}將散去「${g.technique.name}」，境界跌回凡人，修為歸零。\n此後可改修其他功法。確定嗎？`, '自廢', '取消', '⚠️');
+        const ok = await ask.confirm('自廢修為', `${g.name}將散去「${g.technique.name}」，境界跌回凡人，修為歸零。\n此後可改修其他功法。確定嗎？`, '自廢', '取消', '');
         if (ok) abolish(g);
         break;
       }

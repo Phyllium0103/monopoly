@@ -83,6 +83,7 @@ export class Dialog {
       card.style.setProperty('--breakthrough', '1');
       card.classList.add('breakthrough-dialog');
     }
+    if (title.includes('自廢修為') || title.includes('本命武器突破')) { card.classList.add('breakthrough-dialog'); icon = ''; if (title.includes('自廢修為')) card.classList.add('abolish-dialog'); }
     card.innerHTML = `${icon ? `<div class="dialog-icon">${icon}</div>` : ''}<h2>${title}</h2>${text ? `<div class="dialog-text">${text.replace(/\n/g, '<br>')}</div>` : ''}`;
     this.el.appendChild(card);
     return card;

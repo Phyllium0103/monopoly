@@ -40,7 +40,8 @@ export class RosterEquipment {
     root.addEventListener('pointerleave', () => { if (this.cursor) this.cursor.hidden = true; });
     root.addEventListener('focusin', e => { if (!this.pointer.x && !this.pointer.y) { const rect = (e.target as HTMLElement).getBoundingClientRect(); this.pointer = { x: rect.right, y: rect.bottom }; this.positionCursor(); } });
     root.addEventListener('dragstart', e => { if ((e.target as HTMLElement).closest('[data-equipment-kind], [data-inventory-slot]')) e.preventDefault(); });
-    root.addEventListener('keydown', e => { if (e.key === 'Escape' && this.selected) { e.stopPropagation(); this.clear(); } });
+    root.addEventListener('keydown', e => { if (e.key === 'Escape' && this.selected) { e.preventDefault(); e.stopPropagation(); this.clear(); } });
+    root.addEventListener('contextmenu', e => { if (this.selected) { e.preventDefault(); this.clear(); } });
     root.addEventListener('click', e => {
       const el = (e.target as HTMLElement).closest<HTMLElement>('[data-equipment-kind], [data-inventory-slot], [data-equipment-cancel]');
       if (!el || !root.contains(el)) return;
@@ -84,6 +85,7 @@ export class RosterEquipment {
     if (this.selected && (!this.allowed(this.selected.kind) || !this.sourceItem(this.selected))) this.selected = null;
     this.paint();
   }
+  notify(text: string) { this.message(text, true); }
   clear() { this.selected = null; this.paint(); this.message('已取消選擇'); }
   unequip(generalId: string) { const item = this.context?.state.generals[generalId]?.armor; if (item) this.move({ kind: 'armor', uid: item.uid, from: generalId }); }
   private allowed(kind: Kind) { return !!this.context && (this.context.manage || (kind === 'technique' && this.context.free)); }

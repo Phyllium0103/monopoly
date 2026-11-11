@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>武將名冊裝備格檢查</title>
+<style>#preview-root{position:fixed;inset:0;container-name:game-ui;container-type:inline-size}#preview-root>.drawer{position:absolute}#layout-check{position:fixed;bottom:0;left:0;z-index:10000;background:#102b20;color:#b6ffd2;padding:3px 8px;font:12px monospace;pointer-events:none}</style>
+<div id="preview-root"></div><output id="layout-check">檢查中</output>
+<script type="module">
+import '/src/style.css';
+import {GeneralsView} from '/src/ui/GeneralsView.ts';
+import {createGameState} from '/src/game/GameState.ts';
+import {ARMOR_DEFS,makeEquipment,makeTechnique} from '/src/data/items.ts';
+import {transferArmor,equipTechnique,maxHp} from '/src/systems/GeneralSystem.ts';
+const state=createGameState('liu'),lord=state.lords.liu;
+lord.gear=ARMOR_DEFS.map(d=>makeEquipment('preview-'+d.id,'armor',d.tier,d.id));
+lord.scrolls=['metal','wood','water','fire','earth','alchemy','forging','talisman','formation'].map((family,i)=>makeTechnique('preview-scroll-'+i,i<5?0:6,family));
+for(const g of Object.values(state.generals).filter(g=>g.owner==='liu')){g.realm=6;g.exp=0;g.aptitude='heaven';g.hp=maxHp(g);}
+const root=document.querySelector('#preview-root'),view=new GeneralsView(root);
+const requestedWidth=Number(new URLSearchParams(location.search).get('width'));
+if(requestedWidth>=280&&requestedWidth<=innerWidth)root.style.width=requestedWidth+'px';
+view.open(state,lord,{manage:true,free:true},a=>{
+ if(a.type==='transfer-armor')transferArmor(state,lord,a.itemUid,a.fromGeneralId,a.toGeneralId);
+ if(a.type==='learn-technique')equipTechnique(state,lord,a.itemUid,a.generalId);
+ view.refresh(state,lord);verify();
+});
+let interactions='';
+if(new URLSearchParams(location.search).has('interactions')){
+ try{
+  const ensure=(ok,label)=>{if(!ok)throw Error(label);},g=state.generals.liubei;
+  const slot=kind=>root.querySelector(`.roster-row [data-equipment-kind="${kind}"][data-equipment-target="${g.id}"]`);
+  const bagItem=kind=>root.querySelector(`[data-equipment-kind="${kind}"][data-equipment-item]:not([data-equipment-target])`);
+  let source=bagItem('armor'),uid=source.dataset.equipmentItem;source.click();
+  root.querySelector('.drawer').dispatchEvent(new PointerEvent('pointermove',{clientX:320,clientY:260}));
+  const cursorRect=document.querySelector('.equipment-cursor').getBoundingClientRect();
+  ensure(Math.abs(cursorRect.left-336)<.1&&Math.abs(cursorRect.top-276)<.1,'cursor follows pointer');
+  slot('armor').click();ensure(g.armor?.uid===uid,'armor equipped from collapsed row');ensure(!root.querySelector('.roster-item.open'),'equipment click does not expand row');
+  ensure(!document.querySelector('.equipment-cursor'),'cursor clears after equip');
+  source=bagItem('technique');uid=source.dataset.equipmentItem;source.click();slot('armor').click();
+  ensure(lord.scrolls.some(t=>t.uid===uid)&&document.querySelector('.equipment-cursor'),'wrong slot preserves scroll and selection');
+  root.querySelector('.drawer').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));ensure(!document.querySelector('.equipment-cursor'),'Escape cancels');
+  source.click();slot('technique').click();ensure(g.technique?.uid===uid&&!lord.scrolls.some(t=>t.uid===uid),'technique direct learning');
+  source=bagItem('armor');uid=source.dataset.equipmentItem;const dt=new DataTransfer();
+  source.dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:dt}));slot('technique').dispatchEvent(new DragEvent('drop',{bubbles:true,dataTransfer:dt}));
+  ensure(lord.gear.some(e=>e.uid===uid),'invalid drag preserves armor');
+  source.dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:dt}));slot('armor').dispatchEvent(new DragEvent('drop',{bubbles:true,dataTransfer:dt}));
+  ensure(g.armor?.uid===uid,'drag equips in collapsed row');
+  bagItem('armor').click();root.querySelector('.drawer').dispatchEvent(new PointerEvent('pointermove',{clientX:950,clientY:600}));
+  interactions=' | 互動 PASS：游標、點選、拖放、錯格、Esc、功法、收合列';
+ }catch(error){interactions=' | 互動 FAIL：'+error.message;}
+}
+function verify(){requestAnimationFrame(()=>{
+ const rows=[...root.querySelectorAll('.roster-row')],deltas=rows.map(row=>{const r=row.getBoundingClientRect(),m=row.querySelector('.roster-equipment').getBoundingClientRect();return Math.abs((m.left+m.right-r.left-r.right)/2);});
+ const max=Math.max(0,...deltas),buttons=[...root.querySelectorAll('.roster-row .roster-equipment button')];
+ const sizeOK=buttons.every(b=>Math.abs(b.getBoundingClientRect().width-54)<.1&&Math.abs(b.getBoundingClientRect().height-54)<.1);
+ const frame=root.getBoundingClientRect(),inBounds=rows.every(row=>{const r=row.getBoundingClientRect();return r.left>=frame.left-.1&&r.right<=frame.right+.1;});
+ document.querySelector('#layout-check').textContent=`${max<.1&&sizeOK&&inBounds?'PASS':'FAIL'} | ${rows.length} 列 | 中央偏差 ${max.toFixed(3)}px | 兩格 54px: ${sizeOK} | 名冊 ${root.clientWidth}px | 邊界 ${inBounds}${interactions}`;
+});}
+new ResizeObserver(verify).observe(root);verify();
+if(new URLSearchParams(location.search).has('rows'))requestAnimationFrame(()=>root.querySelector('.roster-list').scrollIntoView({block:'start'}));
+</script></html>

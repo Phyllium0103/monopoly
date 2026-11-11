@@ -4,6 +4,7 @@ import { merchantStock } from './EventSystem';
 import { WORLD } from './WorldMods';
 import { fmtStones } from '../game/Currency';
 import { ARTIFACT_IDS, ITEM_DEFS, equipDesc, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, requirementOf, rollItemId, rollItemTier, rollTier, techniqueDesc } from '../data/items';
+import { compareArmor } from '../data/armorCatalog';
 import { APTITUDE_NAMES, HIDDEN_SEEDS, REALMS } from '../data/generals';
 import { fxText, passiveOf, lordAura, lordHas } from '../data/passives';
 import { lordTalentFx } from '../data/talents';
@@ -265,7 +266,11 @@ function offerTier(o: Offer): number {
 }
 /** 品階／境界由高到低，同階價格由低到高，再按中文名稱。 */
 export function sortOffers<T extends Offer>(offers: readonly T[]): T[] {
-  return [...offers].sort((a,b)=>offerTier(b)-offerTier(a)||a.price-b.price||a.label.localeCompare(b.label,'zh-Hant'));
+  // Keep non-armor positions/order; sort the armor collection independently, including mixed merchants.
+  const sorted = [...offers].sort((a,b)=>offerTier(b)-offerTier(a)||a.price-b.price||a.label.localeCompare(b.label,'zh-Hant'));
+  const armor = sorted.filter(o => o.kind === 'equipment').sort((a,b) => a.kind === 'equipment' && b.kind === 'equipment' ? compareArmor(a.equipment,b.equipment) : 0);
+  let index = 0;
+  return sorted.map(o => o.kind === 'equipment' ? armor[index++] : o);
 }
 function saleBasis(asset: {price:number;purchasePrice?:number}): number {
   return asset.purchasePrice??asset.price;

@@ -1,14 +1,16 @@
 import { upgradeRequirement, weaponUpgradeTip } from '../systems/MaterialSystem';
 import './technique-roster.css';
 import { materialLabel } from './MaterialArt';
-import { ArmorRoster, armorPicture } from './ArmorRoster';
+import { RosterEquipment, armorPicture, techniquePicture } from './RosterEquipment';
+import { compareArmor } from '../data/armorCatalog';
+import './roster-equipment.css';
 import { generalCooldownText } from '../systems/GeneralAbilities';
 import type { GameState, General, Lord, Technique } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES } from '../data/generals';
 import { realmTag } from './GeneralInfo';
 import { fxText, passiveOf, fx } from '../data/passives';
-import { equipDesc, techniqueDesc, techniqueTag, techniqueBaseName, tierName } from '../data/items';
+import { equipDesc, techniqueBaseName } from '../data/items';
 import {
   attack,
   boltCount,
@@ -45,18 +47,7 @@ const SECTIONS: { status: General['status']; title: string }[] = [
 const tip = (html: string) => html.replace(/<br\s*\/?>/g, '｜').replace(/<[^>]+>/g, '').replace(/"/g, '&quot;');
 
 const escapeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-function techniquePicture(t: Technique): string {
-  const grade = Math.max(0, Math.min(3, Math.floor(t.tier / 3)));
-  const family = t.art ?? t.element;
-  const image = family ? `${import.meta.env.BASE_URL}assets/techniques/${family}-${['huang', 'xuan', 'di', 'tian'][grade]}.webp` : '';
-  const name = techniqueBaseName(t);
-  const rank = tierName(t.tier, '階');
-  const tag = techniqueTag(t);
-  const parts = techniqueDesc(t).replace(/<br\s*\/?>/g, '｜').replace(/<[^>]+>/g, '').split('｜').map(escapeHtml);
-  const description = `<span style="color:${tag.css}">${parts[0]}</span><br>${parts.slice(1).join('<br>')}`;
-  const detail = `<div class="tech-tip"><div class="tech-tip-rank">${escapeHtml(rank)} · <span style="color:${tag.css}">${escapeHtml(tag.text)}</span></div><strong>${escapeHtml(name)}</strong><div class="tech-tip-rule"></div><div class="tech-tip-detail">${description}</div></div>`;
-  return `<span class="technique-picture grade-${grade}" tabindex="0" data-tip="${escapeHtml(`${rank}｜${name}｜${tip(techniqueDesc(t))}`)}" data-tip-html="${escapeHtml(detail)}" aria-label="${escapeHtml(`${rank} ${name}`)}">${image ? `<img src="${image}" alt="" loading="lazy" decoding="async">` : '<span aria-hidden="true">卷</span>'}</span>`;
-}
+
 
 /** 武將名冊可選的排序項目（由大到小；主公永遠排第一） */
 const APTITUDE_ORDER: General['aptitude'][] = ['waste', 'earth', 'fire', 'water', 'wood', 'metal', 'heaven'];
@@ -84,6 +75,8 @@ const COLUMNS: { cls: string; label: string; sort?: string }[] = [
   { cls: 'c-apt', label: '靈根', sort: 'aptitude' },
   { cls: 'c-st', label: '位置' },
   { cls: 'c-hp', label: '血量', sort: 'hp' },
+  { cls: 'c-armor', label: '仙衣' },
+  { cls: 'c-technique', label: '功法' },
   { cls: 'c-power', label: '戰力', sort: 'power' },
   { cls: 'c-attack', label: '武力', sort: 'attack' },
   { cls: 'c-defense', label: '防禦', sort: 'defense' },
@@ -114,13 +107,13 @@ export class GeneralsView {
   private expanded = new Set<string>();
   /** 下次重繪時展開並捲到這名武將（點右下大頭貼進來時） */
   private focusId: string | null = null;
-  private armorControls: ArmorRoster;
+  private equipmentControls: RosterEquipment;
 
   constructor(root: HTMLElement) {
     this.el = document.createElement('div');
     this.el.className = 'drawer hidden';
     root.appendChild(this.el);
-    this.armorControls = new ArmorRoster(this.el, a => this.emit(a));
+    this.equipmentControls = new RosterEquipment(this.el, a => this.emit(a));
   }
 
   get isOpen() {
@@ -178,7 +171,7 @@ export class GeneralsView {
   close() {
     if (!this.isOpen) return;
     this.el.classList.add('hidden');
-    this.armorControls.clear();
+    this.equipmentControls.clear();
     const action = this.onAction;
     this.onAction = null;
     action?.({ type: 'close' });
@@ -194,10 +187,10 @@ export class GeneralsView {
     const gens = generalsOf(state, lord.id);
     const manage = this.mode.manage;
 
-    const gear = [...lord.gear].sort((a, b) => a.tier - b.tier || a.designId.localeCompare(b.designId)).map(e => armorPicture(e)).join('') || '<span class="muted">尚無仙衣</span>';
+    const gear = [...lord.gear].sort((a, b) => compareArmor(a, b)).map(e => armorPicture(e)).join('') || '<span class="muted">尚無仙衣</span>';
     const families = ['metal', 'wood', 'water', 'fire', 'earth', 'alchemy', 'forging', 'talisman', 'formation'];
     const familyOrder = (t: Technique) => { const i = families.indexOf(t.art ?? t.element ?? ''); return i < 0 ? families.length : i; };
-    const scrolls = [...lord.scrolls].sort((a, b) => Math.floor(a.tier / 3) - Math.floor(b.tier / 3) || familyOrder(a) - familyOrder(b) || a.tier - b.tier).map(techniquePicture).join('') || '<span class="muted">無</span>';
+    const scrolls = [...lord.scrolls].sort((a, b) => Math.floor(a.tier / 3) - Math.floor(b.tier / 3) || familyOrder(a) - familyOrder(b) || a.tier - b.tier).map(t => techniquePicture(t)).join('') || '<span class="muted">無</span>';
     const party = gens.filter((g) => g.status === 'free').length;
 
     // 重繪前記住捲動位置：只有下方清單捲動，標題列固定
@@ -214,9 +207,9 @@ export class GeneralsView {
       <div class="ready-section"></div>
       <div class="bag">
         <div class="armor-collection">
-          <div class="armor-collection-head"><b>行囊仙衣</b><span class="muted">拖曳圖片到仙衣格，或依序點選兩邊圖片</span><button type="button" class="btn mini" data-armor-cancel>取消選擇</button></div>
-          <div class="armor-bag-items" data-armor-bag>${gear}<button type="button" class="armor-unequip" data-armor-bag>放回行囊</button></div>
-          <div class="armor-feedback" role="status" aria-live="polite">${manage ? '換下的仙衣自動回到行囊；點選已穿著的仙衣再放回行囊可卸下' : '只能在自己的整備階段換裝'}</div>
+          <div class="armor-collection-head"><b>行囊仙衣</b><span class="muted">拖曳圖片到仙衣格，或依序點選兩邊圖片</span><button type="button" class="btn mini" data-equipment-cancel>取消選擇</button></div>
+          <div class="armor-bag-items" data-equipment-kind="armor" data-equipment-bag>${gear}<button type="button" class="armor-unequip" data-equipment-kind="armor" data-equipment-bag>放回行囊</button></div>
+          <div class="equipment-feedback" role="status" aria-live="polite">${manage ? '換下的仙衣自動回到行囊；點選已穿著的仙衣再放回行囊可卸下' : '只能在自己的整備階段換裝'}</div>
         </div>
         <div class="technique-collection"><b>功法秘笈</b><span class="technique-list">${scrolls}</span></div>
         <div><b>靈獸</b>${lord.beast ? `<span class="chip" title="${tip(lord.beast.desc)}">${lord.beast.name}</span>` : '<span class="muted">無</span>'}</div>
@@ -258,7 +251,7 @@ export class GeneralsView {
       sections.append(h, this.list(state, lord, list, manage));
     }
     this.el.querySelector('.drawer-body')!.scrollTop = scrollTop;
-    this.armorControls.update(state, lord, manage);
+    this.equipmentControls.update(state, lord, manage, this.mode.free);
   }
 
   /** 條列式名冊：每位武將一列，點一下展開原本的詳細卡片，再點一次收合 */
@@ -267,7 +260,14 @@ export class GeneralsView {
     list.className = 'roster-list';
     const head = document.createElement('div');
     head.className = 'roster-head';
-    for (const c of COLUMNS) {
+    const groups = ['roster-before', 'roster-equipment', 'roster-after'].map(cls => {
+      const group = document.createElement('span');
+      group.className = cls;
+      head.appendChild(group);
+      return group;
+    });
+    const center = COLUMNS.findIndex(c => c.cls === 'c-armor');
+    for (const [index, c] of COLUMNS.entries()) {
       const cell = document.createElement(c.sort ? 'button' : 'span');
       cell.className = `${c.cls}${c.sort === this.sortId ? ' sorted' : ''}`;
       cell.textContent = c.label;
@@ -279,7 +279,7 @@ export class GeneralsView {
           this.render(state, lord);
         };
       }
-      head.appendChild(cell);
+      groups[index < center ? 0 : index < center + 2 ? 1 : 2].appendChild(cell);
     }
     list.appendChild(head);
 
@@ -287,22 +287,25 @@ export class GeneralsView {
       const ready = canAttemptBreak(g, state.round).ok;
       const item = document.createElement('div');
       item.className = `roster-item s-${g.status}${ready ? ' ready' : ''}${g.isLord ? ' is-lord' : ''}`;
-      const row = document.createElement('button');
+      const row = document.createElement('div');
       row.className = 'roster-row';
+      row.setAttribute('role', 'group');
+      row.setAttribute('aria-label', g.name);
       row.innerHTML = this.rowHtml(state, lord, g, ready);
       item.appendChild(row);
       const show = (open: boolean) => {
         item.classList.toggle('open', open);
-        row.setAttribute('aria-expanded', String(open));
+        row.querySelector('.roster-toggle')!.setAttribute('aria-expanded', String(open));
         if (open) item.appendChild(this.card(state, lord, g, manage));
         else item.querySelector('.general-card')?.remove();
       };
-      row.onclick = () => {
+      row.onclick = e => {
+        if ((e.target as HTMLElement).closest('[data-equipment-kind]')) return;
         const open = !this.expanded.has(g.id);
         if (open) this.expanded.add(g.id);
         else this.expanded.delete(g.id);
         show(open);
-        this.armorControls.update(state, lord, manage);
+        this.equipmentControls.update(state, lord, manage, this.mode.free);
       };
       show(this.expanded.has(g.id));
       list.appendChild(item);
@@ -322,6 +325,7 @@ export class GeneralsView {
     const p = passiveOf(g);
     // 頭像用背景圖，避免點頭像時被看圖功能攔下而無法展開
     return `
+      <span class="roster-before">
       <span class="c-face" style="background-image:url('${generalHeadUrl(g)}')"></span>
       <span class="c-name"><b>${g.name}</b>${g.isLord ? '<span class="lord-tag">主公</span>' : ''}${ready ? '<span class="rr-ready" title="修為圓滿，可以突破">✨</span>' : ''}</span>
       <span class="c-origin">${originKingdom(g.origin)}</span>
@@ -329,6 +333,9 @@ export class GeneralsView {
       <span class="c-apt"><span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude].replace('靈根', '')}</span></span>
       <span class="c-st">${place}</span>
       <span class="c-hp"><span class="bar hp"><i style="width:${Math.min(100, (g.hp / maxHp(g)) * 100)}%"></i><span>${g.hp}/${maxHp(g)}</span></span></span>
+      </span>
+      <span class="roster-equipment"><span class="c-armor">${armorPicture(g.armor, g.id)}</span><span class="c-technique">${techniquePicture(g.technique, g.id)}</span></span>
+      <span class="roster-after">
       <span class="c-power"><b>${power(g)}</b></span>
       <span class="c-attack">${attack(g)}</span>
       <span class="c-defense">${defense(g)}</span>
@@ -337,7 +344,7 @@ export class GeneralsView {
       <span class="c-craft">${craft(g, 'talisman')}</span>
       <span class="c-craft">${craft(g, 'formation')}</span>
       <span class="c-passive" title="${tip(`【${p.name}】${fxText(p.fx)}`)}">【${p.name}】</span>
-      <span class="c-caret" aria-hidden="true">▸</span>`;
+      <button type="button" class="c-caret roster-toggle" aria-label="展開／收合${g.name}詳細資訊" aria-expanded="false">▸</button></span>`;
   }
 
   private card(state: GameState, lord: Lord, g: General, manage: boolean): HTMLDivElement {
@@ -403,7 +410,7 @@ export class GeneralsView {
       <div class="bar hp"><i style="width:${(g.hp / maxHp(g)) * 100}%"></i><span>血量 ${g.hp} / ${maxHp(g)}</span></div>
       <div class="bar sta"><i style="width:${g.stamina / maxStamina(g) * 100}%"></i><span>體力 ${g.stamina} / ${maxStamina(g)}</span></div>
       <div class="equip">
-        <div class="eq-row" data-slot="technique"><span class="eq-info technique-equipped"><span>功法</span>${t ? `${techniquePicture(t)}<span class="technique-equipped-name grade-text-${Math.max(0, Math.min(3, Math.floor(t.tier / 3)))}">${escapeHtml(techniqueBaseName(t))}</span>` : '<span class="muted">未修習</span>'}</span></div>
+        <div class="eq-row" data-slot="technique"><span class="eq-info technique-equipped"><span>功法</span>${techniquePicture(t, g.id)}${t ? `<span class="technique-equipped-name grade-text-${Math.max(0, Math.min(3, Math.floor(t.tier / 3)))}">${escapeHtml(techniqueBaseName(t))}</span>` : '<span class="muted">未修習</span>'}</span></div>
       </div>
       <div class="gc-actions"></div>
       </div>`;

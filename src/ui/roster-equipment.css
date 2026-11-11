@@ -1,0 +1,60 @@
+/* Equal outer tracks keep both equipment slots at the true center of every row. */
+.drawer .roster-list .roster-head,
+.drawer .roster-list .roster-row {
+  --equipment-size:54px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) calc(var(--equipment-size) * 2 + 8px) minmax(0,1fr);
+  gap:10px;
+  padding:6px 8px;
+  box-sizing:border-box;
+}
+.drawer .roster-list .roster-head { padding:4px 8px; }
+.drawer .roster-list .roster-row { min-height:68px; }
+.drawer .roster-list .roster-before,
+.drawer .roster-list .roster-after { display:grid; gap:6px; align-items:center; min-width:0; padding:0; }
+.drawer .roster-list .roster-before { grid-template-columns:repeat(7,minmax(0,1fr)); }
+.drawer .roster-list .roster-after { grid-template-columns:repeat(9,minmax(0,1fr)); }
+.drawer .roster-list .roster-equipment { display:grid; grid-template-columns:repeat(2,var(--equipment-size)); gap:8px; align-items:center; overflow:visible; padding:0; }
+.drawer .roster-list .roster-equipment > span { display:grid; place-items:center; min-width:0; overflow:visible; }
+.drawer .roster-list .roster-equipment .technique-picture { width:var(--equipment-size); height:var(--equipment-size); }
+.drawer .roster-list .roster-before > *,
+.drawer .roster-list .roster-after > * { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+.drawer .roster-list .roster-head button { font:inherit; color:inherit; border:0; padding:4px 0; background:none; cursor:pointer; white-space:nowrap; }
+.drawer .roster-list .roster-head button:hover { color:white; }
+.drawer .roster-list .roster-head .sorted::after { content:' ▼'; font-size:10px; }
+.drawer .roster-list .roster-toggle { border:0; background:none; padding:10px 0; cursor:pointer; font:inherit; }
+.drawer .roster-list .roster-toggle:focus-visible { outline:2px solid #ffe48e; outline-offset:-2px; }
+.drawer .roster-list .roster-before .c-name,
+.drawer .roster-list .roster-before .c-st,
+.drawer .roster-list .roster-after .c-passive { text-align:center; justify-content:center; }
+.drawer .roster-list .roster-before .c-face { justify-self:center; max-width:100%; }
+.equipment-compatible { box-shadow:0 0 0 2px #81df9970; }
+.equipment-feedback { min-height:1.5em; color:#e7ce97; font-size:13px; }
+.equipment-cursor { position:fixed; left:0; top:0; z-index:2147483000; display:flex; align-items:center; gap:7px; width:154px; padding:5px; border:1px solid #f0ce74; border-radius:10px; background:#171e28ee; box-shadow:0 4px 16px #0008; pointer-events:none; user-select:none; will-change:transform; }
+.equipment-cursor[hidden] { display:none; }
+.equipment-cursor img { width:54px; height:54px; object-fit:contain; flex:none; }
+.equipment-cursor > span { min-width:0; font-size:12px; color:#ffe8aa; line-height:1.45; overflow-wrap:anywhere; }
+.equipment-cursor small { display:block; color:#c8c2b4; }
+@container game-ui (max-width:1180px) {
+  .drawer .roster-list .c-origin, .drawer .roster-list .c-st { display:none; }
+  .drawer .roster-list .roster-before { grid-template-columns:repeat(5,minmax(0,1fr)); }
+  .drawer .roster-list .roster-after { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+@container game-ui (max-width:760px) {
+  .drawer .drawer-head { flex-wrap:wrap; gap:8px; }
+  .drawer .bag { display:grid; grid-template-columns:minmax(0,1fr); }
+  .drawer .bag > div { min-width:0; }
+  .drawer .technique-collection .technique-list { min-width:0; flex:1; }
+  .drawer .roster-list .roster-row, .drawer .roster-list .roster-head { gap:6px; padding-left:4px; padding-right:4px; }
+  .drawer .roster-list .c-face, .drawer .roster-list .c-apt { display:none; }
+  .drawer .roster-list .c-hp { display:block; }
+  .drawer .roster-list .roster-before { grid-template-columns:repeat(3,minmax(0,1fr)); gap:3px; }
+  .drawer .roster-list .roster-after { grid-template-columns:repeat(2,minmax(0,1fr)); gap:3px; }
+  .drawer .roster-list .c-name b { font-size:14px; }
+  .drawer .roster-list .c-name .lord-tag { display:none; }
+  .drawer .roster-list .c-hp .bar span { font-size:10px; }
+}
+@container game-ui (max-width:460px) {
+  .drawer .roster-list .c-realm { display:none; }
+  .drawer .roster-list .roster-before { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}

@@ -54,7 +54,7 @@ export function makeEquipment(uid: string, kind: 'armor', tier: Tier, designId?:
     force: d.force, defense: d.defense, hp: d.hp, craft: { ...d.craft }, price: d.price };
 }
 
-/** 黃階凡人、玄階煉氣、地階金丹、天階化神。 */
+/** 黃階凡人、玄階築基、地階元嬰、天階煉虛。 */
 export function equipRealm(tier: Tier): number {
   return ARMOR_REALMS[armorGrade(tier)];
 }

@@ -13,8 +13,10 @@ const { makeStock, makeSellStock } = require('../src/systems/ShopSystem.ts');
 const { auctionLot } = require('../src/systems/EventSystem.ts');
 const { grantTournamentPrize } = require('../src/systems/TournamentSystem.ts');
 const { Engine } = require('../src/engine/Engine.ts'), { RecordingView } = require('../src/engine/view.ts');
-const { ArmorRoster, armorPicture } = require('../src/ui/ArmorRoster.ts');
+const { RosterEquipment, armorPicture, techniquePicture } = require('../src/ui/RosterEquipment.ts');
 const { equipIconUrl } = require('../src/ui/Icons.ts');
+const { compareArmor } = require('../src/data/armorCatalog.ts');
+const { equipTechnique, techniqueTransferCheck } = require('../src/systems/GeneralSystem.ts');
 const cases = [
   ['chiyou', ['染血的布篷', '山賊獸皮氅', '蠻王獸骨氅', '蚩尤魔神氅'], 'force'],
   ['houtou', ['散架的竹編甲', '民兵竹編甲', '烏戈藤甲', '后土承天甲'], 'defense'],
@@ -39,7 +41,7 @@ for (let grade = 0; grade < 4; grade++) for (const [family, names, stat] of case
   assert.equal(e.hp, (stat === 'hp' ? [150, 300, 450, 750] : [60, 120, 200, 300])[grade], e.name);
   for (const art of arts) assert.equal(e.craft[art] ?? 0, stat === art ? primary : stat === 'arts' ? [5, 10, 15, 30][grade] : 0, e.name + art);
   assert.equal(e.price, (['combat', 'arts'].includes(stat) ? [2500, 6000, 18000, 60000] : [1500, 4000, 12000, 40000])[grade], e.name);
-  assert.equal(equipRealm(e.tier), [0, 1, 3, 5][grade]);
+  assert.equal(equipRealm(e.tier), [0, 2, 4, 6][grade]);
   assert.ok(!/[上中下]品|黃品|玄品|地品|天品/.test(e.name));
   assert.equal(equipIconUrl(e), `./art/icons/armor/${e.designId}.webp`);
 }
@@ -51,12 +53,19 @@ for (let t = 0; t < 12; t++) for (let n = 0; n < 20; n++) {
 assert.throws(() => makeEquipment('bad', 'armor', 0, 'armor-雲紋袍'));
 assert.equal(makeTechnique('tech', 11, 'metal').tier, 11, 'technique subgrades remain independent');
 console.log('PASS all 36 approved names, every stat, prices, four grades, realm gates and technique isolation');
+const sortedArmor = [...ARMOR_DEFS].reverse().map(d => makeEquipment('order-' + d.id, 'armor', d.tier, d.id)).sort(compareArmor);
+assert.deepEqual(sortedArmor.map(e => e.designId), grades.flatMap(g => ['nuwa','chiyou','houtou','shennong','pangu','cangjie','fuxi','hongjun','buddha'].map(f => `${f}-${g}`)));
+const { sortOffers } = require('../src/systems/ShopSystem.ts');
+const armorOffers = sortedArmor.map(e => ({ kind: 'equipment', equipment: e, label: e.name, price: e.price, sub: '' }));
+assert.deepEqual(sortOffers([...armorOffers].reverse()).map(o => o.equipment.designId), sortedArmor.map(e => e.designId));
+assert.deepEqual(sortOffers([...armorOffers].reverse().concat({kind:'technique',technique:makeTechnique('mixed',11,'metal'),price:100,label:'功法',sub:''})).filter(o=>o.kind==='equipment').map(o=>o.equipment.designId), sortedArmor.map(e=>e.designId));
+console.log('PASS grade-first HP/force/defense/alchemy/forging/talisman/formation/combat/arts ordering in bags and shops');
 
 function fixture() {
   const state = createGameState('liu'); bindPassiveState(state);
   const lord = state.lords.liu;
   const own = Object.values(state.generals).filter(g => g.owner === lord.id);
-  const [a, b] = own; a.realm = b.realm = 5;
+  const [a, b] = own; a.realm = b.realm = 6;
   const low = makeEquipment('low', 'armor', 0, 'chiyou-huang');
   const high = makeEquipment('high', 'armor', 9, 'buddha-tian'); high.purchasePrice = 45678;
   lord.gear = [low, high];
@@ -79,7 +88,7 @@ function ids(state) { return [...Object.values(state.lords).flatMap(l => l.gear.
 {
   const { state, lord, a, b, high } = fixture();
   const reject = (uid, from, to) => { const before = JSON.stringify(state); assert.equal(transferArmor(state, lord, uid, from, to), false); assert.equal(JSON.stringify(state), before); };
-  a.realm = 0; reject(high.uid, undefined, a.id); a.realm = 5;
+  a.realm = 0; reject(high.uid, undefined, a.id); a.realm = 6;
   reject(high.uid, undefined, 'caocao'); reject('missing', undefined, a.id); reject(high.uid, undefined, 'missing');
   for (const flag of ['realm', 'ghost', 'mortal']) {
     if (flag === 'realm') a.status = 'realm';
@@ -96,7 +105,7 @@ function ids(state) { return [...Object.values(state.lords).flatMap(l => l.gear.
 {
   const { lord, a, high } = fixture(); a.realm = 0;
   equip(lord, a, high); assert.equal(a.armor, null);
-  a.realm = 5; equip(lord, a, high); const count = lord.gear.length;
+  a.realm = 6; equip(lord, a, high); const count = lord.gear.length;
   equip(lord, a, high); assert.equal(lord.gear.length, count); assert.equal(a.armor, high);
 }
 console.log('PASS atomic exchanges, unequip, UID conservation, purchase records, roundtrip, repeats, realm/ownership/away/duplicate rejection');
@@ -119,7 +128,7 @@ console.log('PASS forge stock, auction, tournament rewards and gift sell values 
 
 // Minimal DOM adapter exercises real delegated listeners without a browser or renderer.
 class Element {
-  constructor(dataset = {}) { this.dataset = dataset; this.attributes = {}; this.classes = new Set(); this.classList = { toggle: (k, on) => on ? this.classes.add(k) : this.classes.delete(k), remove: (...keys) => keys.forEach(k => this.classes.delete(k)) }; }
+  constructor(dataset = {}) { this.dataset = { equipmentKind: 'armor', ...dataset }; this.attributes = {}; this.classes = new Set(); this.classList = { toggle: (k, on) => on ? this.classes.add(k) : this.classes.delete(k), remove: (...keys) => keys.forEach(k => this.classes.delete(k)) }; }
   hasAttribute(k) { return k.startsWith('data-') && Object.hasOwn(this.dataset, k.slice(5).replace(/-([a-z])/g, (_, c) => c.toUpperCase())); }
   closest(selector) { return selector.split(',').some(s => this.hasAttribute(s.trim().slice(1, -1))) ? this : null; }
   setAttribute(k, v) { this.attributes[k] = v; }
@@ -134,22 +143,22 @@ class Root {
 }
 {
   const { state, lord, a, b, low, high } = fixture();
-  const bagLow = new Element({ armorItem: low.uid }), bagHigh = new Element({ armorItem: high.uid });
-  const target = new Element({ armorTarget: a.id }), other = new Element({ armorTarget: b.id }), bag = new Element({ armorBag: '' });
+  const bagLow = new Element({ equipmentItem: low.uid }), bagHigh = new Element({ equipmentItem: high.uid });
+  const target = new Element({ equipmentTarget: a.id }), other = new Element({ equipmentTarget: b.id }), bag = new Element({ equipmentBag: '' });
   const root = new Root([bagLow, bagHigh, target, other, bag]), actions = [];
-  const controls = new ArmorRoster(root, a => actions.push(a)); controls.update(state, lord, true);
+  const controls = new RosterEquipment(root, a => actions.push(a)); controls.update(state, lord, true);
   root.fire('click', bagLow); assert.ok(bagLow.classes.has('armor-selected'));
   root.fire('keydown', bagLow, { key: 'Escape' }); assert.ok(!bagLow.classes.has('armor-selected')); assert.equal(actions.length, 0);
   root.fire('click', target); root.fire('click', bagLow);
   assert.deepEqual(actions.pop(), { type: 'transfer-armor', itemUid: low.uid, fromGeneralId: undefined, toGeneralId: a.id });
   assert.equal(a.armor, null, 'UI delegates mutation to host');
-  transferArmor(state, lord, low.uid, undefined, a.id); target.dataset.armorItem = low.uid;
+  transferArmor(state, lord, low.uid, undefined, a.id); target.dataset.equipmentItem = low.uid;
   controls.update(state, lord, true); root.fire('click', target); root.fire('click', bag);
   assert.equal(actions.pop().toGeneralId, undefined, 'two clicks unequip');
   controls.update(state, lord, false); root.fire('click', bagHigh); root.fire('click', target); assert.equal(actions.length, 0);
   controls.update(state, lord, true); a.realm = 0;
-  root.fire('click', bagHigh); root.fire('click', target); assert.equal(actions.length, 0); assert.match(root.status.textContent, /需要化神/);
-  controls.clear(); a.realm = 5;
+  root.fire('click', bagHigh); root.fire('click', target); assert.equal(actions.length, 0); assert.match(root.status.textContent, /需要煉虛/);
+  controls.clear(); a.realm = 6;
   const dt = { setData(k, v) { this[k] = v; } };
   root.fire('drop', target, { dataTransfer: dt }); assert.equal(actions.length, 0, 'external drops cannot forge a transfer');
   root.fire('dragstart', bagHigh, { dataTransfer: dt }); assert.equal(dt.effectAllowed, 'move');
@@ -161,6 +170,48 @@ class Root {
   const html = armorPicture(high, a.id); assert.match(html, /<button type="button"/); assert.match(html, /aria-label=/); assert.match(html, /grade-3/); assert.ok(!/onerror=/.test(html));
 }
 console.log('PASS real delegated click, reverse click, drag/drop, invalid drop, Escape, touch/keyboard button markup and read-only roster controls');
+
+{
+  const { state, lord, a, b } = fixture(); a.aptitude = 'heaven'; b.aptitude = 'water';
+  const scroll = makeTechnique('direct-fire', 0, 'fire'); lord.scrolls = [scroll];
+  const reject = id => { const before = JSON.stringify(state); assert.equal(equipTechnique(state,lord,scroll.uid,id),false); assert.equal(JSON.stringify(state),before); };
+  reject('caocao'); reject(b.id);
+  for(const flag of ['realm','mortal','ghost']) {
+    if(flag==='realm')a.status='realm'; if(flag==='mortal')a.mortalTrial={turns:2,weapon:null}; if(flag==='ghost')a.ghostSourceId='caocao';
+    reject(a.id); a.status='free'; delete a.mortalTrial; delete a.ghostSourceId;
+  }
+  lord.scrolls.push(scroll); reject(a.id); lord.scrolls.pop();
+  assert.equal(techniqueTransferCheck(state,lord,scroll.uid,a.id).ok,true);
+  assert.equal(equipTechnique(state,lord,scroll.uid,a.id),true); assert.equal(a.technique,scroll); assert.equal(lord.scrolls.length,0);
+  reject(a.id); assert.equal(a.technique,scroll);
+}
+{
+  const { state, lord, a, b, low } = fixture(); a.aptitude='heaven'; b.aptitude='water';
+  const scroll=makeTechnique('pointer-fire',0,'fire'); lord.scrolls=[scroll];
+  const source=new Element({equipmentKind:'technique',equipmentItem:scroll.uid});
+  const target=new Element({equipmentKind:'technique',equipmentTarget:a.id});
+  const wrongRoot=new Element({equipmentKind:'technique',equipmentTarget:b.id});
+  const armor=new Element({equipmentItem:low.uid}),armorTarget=new Element({equipmentTarget:a.id});
+  const root=new Root([source,target,wrongRoot,armor,armorTarget]),actions=[],children=[];
+  root.ownerDocument={defaultView:{innerWidth:800,innerHeight:600},body:{appendChild(el){children.push(el);}},createElement(){return {dataset:{},style:{},setAttribute(){},remove(){const i=children.indexOf(this);if(i>=0)children.splice(i,1);}};}};
+  const controls=new RosterEquipment(root,a=>actions.push(a));controls.update(state,lord,true);
+  root.fire('pointermove',source,{clientX:100,clientY:140});root.fire('click',source);
+  assert.equal(children.length,1);assert.match(children[0].innerHTML,/pointer-fire|離火訣/);assert.equal(children[0].style.transform,'translate3d(116px,156px,0)');
+  root.fire('pointermove',source,{clientX:260,clientY:280});assert.equal(children[0].style.transform,'translate3d(276px,296px,0)');
+  assert.ok(target.classes.has('equipment-compatible')); assert.ok(wrongRoot.classes.has('armor-unavailable'));
+  root.fire('click',armorTarget);assert.equal(actions.length,0);assert.equal(children.length,1,'wrong slot retains selection and item');
+  root.fire('click',target);assert.deepEqual(actions.pop(),{type:'learn-technique',itemUid:scroll.uid,generalId:a.id});assert.equal(children.length,0);
+  root.fire('click',source);root.fire('keydown',source,{key:'Escape'});assert.equal(children.length,0);
+  controls.update(state,lord,false,true);assert.equal(armor.draggable,false);assert.equal(source.draggable,true,'solo free mode still supports direct learning');
+  const dt={setData(){}};root.fire('dragstart',source,{dataTransfer:dt});assert.equal(children.length,0,'native drag uses one ghost, not a second cursor');
+  root.fire('dragover',armorTarget,{dataTransfer:dt});assert.equal(dt.dropEffect,'none');
+  root.fire('drop',armorTarget,{dataTransfer:dt});assert.equal(actions.length,0);assert.equal(lord.scrolls.length,1);
+  root.fire('dragstart',source,{dataTransfer:dt});root.fire('drop',target,{dataTransfer:dt});assert.equal(actions.pop().type,'learn-technique');
+  controls.clear();root.fire('click',target);root.fire('click',source);assert.equal(actions.pop().generalId,a.id,'target-first learning works');
+  controls.update(state,lord,false,false);assert.equal(children.length,0);assert.equal(source.draggable,false);
+  assert.ok(!/data-equipment-item=/.test(techniquePicture(scroll,a.id)),'learned scrolls are bound');
+}
+console.log('PASS direct technique ownership/root/away/duplicate validation, typed slots, follow-cursor, cancellation, reverse click and free-mode learning');
 
 {
   const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../art-src/manifests/armor-icons.json')));
@@ -180,14 +231,19 @@ console.log('PASS 36 distinct compressed RGBA WebPs, dimensions, hashes, total b
 
 (async () => {
   const { state, lord, a, high } = fixture();
+  a.aptitude='heaven';const scroll=makeTechnique('host-scroll',0,'fire');lord.scrolls=[scroll];
   const actions = [
     { type: 'transfer-armor', itemUid: high.uid, toGeneralId: 'caocao' },
     { type: 'transfer-armor', itemUid: high.uid, toGeneralId: a.id },
+    { type: 'learn-technique', itemUid: scroll.uid, generalId: 'caocao' },
+    { type: 'learn-technique', itemUid: scroll.uid, generalId: a.id },
+    { type: 'learn-technique', itemUid: scroll.uid, generalId: a.id },
     { type: 'transfer-armor', itemUid: high.uid, toGeneralId: a.id },
     { type: 'close' },
   ];
   const engine = new Engine(state, { view: new RecordingView(), send: async () => actions.shift(), isAuto: () => false, multiplayer: true });
   await engine.rosterFlow(lord);
   assert.equal(a.armor, high); assert.ok(!lord.gear.includes(high)); assert.equal(new Set(ids(state)).size, ids(state).length);
-  console.log('PASS multiplayer roster host applies valid armor actions and rejects enemy/replayed transfers');
+  assert.equal(a.technique,scroll);assert.equal(lord.scrolls.length,0);
+  console.log('PASS multiplayer roster host applies valid armor/technique actions and rejects enemy/replayed transfers');
 })().catch(e => { console.error(e); process.exitCode = 1; });

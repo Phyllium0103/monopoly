@@ -415,3 +415,22 @@ export function learn(lord: Lord, g: General, t: Technique): boolean {
   lord.scrolls = lord.scrolls.filter((x) => x.uid !== t.uid);
   return true;
 }
+
+/** Direct roster placement uses the actual owned scroll and all existing learning restrictions. */
+export function techniqueTransferCheck(state: GameState, lord: Lord, uid: string, generalId: string): { ok: boolean; reason: string } {
+  if (state.over || !lord.alive || state.lords[lord.id] !== lord) return { ok: false, reason: '目前無法修習功法' };
+  const g = state.generals[generalId];
+  if (!g || g.owner !== lord.id) return { ok: false, reason: '只能讓己方武將修習功法' };
+  if (g.status === 'realm' || g.mortalTrial) return { ok: false, reason: '外出或化凡中的武將無法修習功法' };
+  const t = lord.scrolls.find(t => t.uid === uid);
+  if (!t) return { ok: false, reason: '功法已移動，請重新選擇' };
+  const copies = Object.values(state.lords).reduce((n, l) => n + l.scrolls.filter(t => t.uid === uid).length, 0)
+    + Object.values(state.generals).filter(g => g.technique?.uid === uid).length;
+  if (copies !== 1) return { ok: false, reason: '功法識別重複，無法修習' };
+  return canLearn(g, t);
+}
+
+export function equipTechnique(state: GameState, lord: Lord, uid: string, generalId: string): boolean {
+  if (!techniqueTransferCheck(state, lord, uid, generalId).ok) return false;
+  return learn(lord, state.generals[generalId], lord.scrolls.find(t => t.uid === uid)!);
+}

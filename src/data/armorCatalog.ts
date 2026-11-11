@@ -4,7 +4,7 @@ export const ARMOR_GRADES = ['黃階', '玄階', '地階', '天階'] as const;
 export const ARMOR_GRADE_IDS = ['huang', 'xuan', 'di', 'tian'] as const;
 /** Equipment shares the grade bands with techniques and personal weapons; armor has no subgrades. */
 export const ARMOR_TIERS = [0, 3, 6, 9] as const;
-export const ARMOR_REALMS = [0, 1, 3, 5] as const;
+export const ARMOR_REALMS = [0, 2, 4, 6] as const;
 const PRIMARY = [10, 20, 35, 50];
 const HP = [60, 120, 200, 300];
 const PRICE = [1500, 4000, 12000, 40000];
@@ -13,9 +13,9 @@ const ARTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
 type Bonus = 'force' | 'defense' | 'hp' | CraftStat | 'combat' | 'arts';
 interface ArmorFamily { id: string; names: readonly string[]; bonus: Bonus }
 export const ARMOR_FAMILIES: readonly ArmorFamily[] = [
+  { id: 'nuwa', names: ['褪色的紅頭巾', '舞姬紅綾巾', '洛神流雲綾', '女媧補天綾'], bonus: 'hp' },
   { id: 'chiyou', names: ['染血的布篷', '山賊獸皮氅', '蠻王獸骨氅', '蚩尤魔神氅'], bonus: 'force' },
   { id: 'houtou', names: ['散架的竹編甲', '民兵竹編甲', '烏戈藤甲', '后土承天甲'], bonus: 'defense' },
-  { id: 'nuwa', names: ['褪色的紅頭巾', '舞姬紅綾巾', '洛神流雲綾', '女媧補天綾'], bonus: 'hp' },
   { id: 'shennong', names: ['燒焦的粗布衣', '藥鋪學徒衫', '華佗青囊袍', '神農百草衣'], bonus: 'alchemy' },
   { id: 'pangu', names: ['變形的舊皮鎧', '皮製鐵匠圍裙', '干將鑄魂鎧', '盤古開天鎧'], bonus: 'forging' },
   { id: 'cangjie', names: ['畫錯符文的法袍', '太平道袍', '南華天書袍', '倉頡泣鬼袍'], bonus: 'talisman' },
@@ -51,3 +51,8 @@ export const ARMOR_DEFS: readonly ArmorDefinition[] = ARMOR_TIERS.flatMap((tier,
 }));
 export const armorGrade = (tier: Tier) => Math.floor(tier / 3);
 export const armorGradeName = (tier: Tier) => ARMOR_GRADES[armorGrade(tier)];
+/** Catalog order is grade first, then HP/force/defense/four arts/combat/all arts. */
+export function compareArmor(a: Equipment, b: Equipment): number {
+  return armorGrade(a.tier) - armorGrade(b.tier)
+    || ARMOR_DEFS.findIndex(d => d.id === a.designId) - ARMOR_DEFS.findIndex(d => d.id === b.designId);
+}

@@ -27,7 +27,7 @@ import { bindPassiveState, passiveOf, fx, lordHas } from '../data/passives';
 import { talentNode, canLearnTalent, canRefundTalent, canResetTalents, ensureTalentState, learnTalent, lordTalentFx, refundTalent, resetTalents } from '../data/talents';
 import { CRAFT_CSS, ELEMENT_CSS, ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, techniqueDesc } from '../data/items';
 import { GARRISON_STRENGTH, MIN_GARRISON, canOccupy, cityIncome, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll, visitingToll } from '../systems/CitySystem';
-import { generalSaleValue, boltRange, attack, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, transferArmor, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, tribulation } from '../systems/GeneralSystem';
+import { generalSaleValue, boltRange, attack, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, transferArmor, equipTechnique, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
 import { aptTag, generalBlock, generalBrief, realmTag, statCells, vitalBars, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
@@ -44,7 +44,7 @@ import type { EngineView } from './view';
 import { duelSnapshot } from './snapshots';
 
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
-export type RosterActionType = Exclude<RosterAction, { type: 'close' | 'transfer-armor' }>['type'];
+export type RosterActionType = Exclude<RosterAction, { type: 'close' | 'transfer-armor' | 'learn-technique' }>['type'];
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
 
@@ -1852,10 +1852,20 @@ export class Engine {
         this.view.refresh();
         continue;
       }
+      if (a.type === 'learn-technique') {
+        this.learnTechniqueFromRoster(lord, a.itemUid, a.generalId);
+        continue;
+      }
       const g = this.state.generals[a.generalId];
       if (!g || g.owner !== lord.id) continue;
       await this.rosterAction(lord, a.type, g);
     }
+  }
+
+  learnTechniqueFromRoster(lord: Lord, uid: string, generalId: string): boolean {
+    const ok = equipTechnique(this.state, lord, uid, generalId);
+    if (ok) this.view.refresh();
+    return ok;
   }
 
   /** 名冊上的單一操作；突破、升階、換裝只在自己的整備階段，學功法與自廢修為單機時隨時可用 */

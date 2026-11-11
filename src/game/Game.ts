@@ -682,6 +682,11 @@ export class Game {
     if (this.active?.prompt.kind === 'preroll') return this.answer({ type: 'roster' } satisfies PrerollAction);
     const engine = this.online ? null : this.engine;
     void this.generalsView.open(this.state, lord, { manage: false, free: !!engine }, engine ? (a: RosterAction) => {
+      if (a.type === 'learn-technique') {
+        engine.learnTechniqueFromRoster(lord, a.itemUid, a.generalId);
+        this.generalsView.refresh(this.state, lord);
+        return;
+      }
       if (a.type !== 'learn' && a.type !== 'abolish') return;
       const g = this.state.generals[a.generalId];
       if (g) void engine.rosterAction(lord, a.type, g).then(() => this.generalsView.refresh(this.state, lord));

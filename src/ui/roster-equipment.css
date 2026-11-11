@@ -194,5 +194,6 @@
 
 .general-modal .dossier-tags > .gb-tag,.general-modal .dossier-tags > .chip { min-width:46px; min-height:26px; box-sizing:border-box; padding:3px 9px; margin:0; font-size:13px; line-height:20px; text-align:center; vertical-align:middle; }
 .dossier-identity { position:relative; }
-.general-modal .dossier-breakthrough { display:block; margin:18px 0 0 auto; padding:10px 20px; border:1px solid #dfc58b; border-radius:6px; background:linear-gradient(135deg,#55472a,#2b3120); color:#ffe6ac; font-size:15px; letter-spacing:.12em; box-shadow:0 3px 12px #0005; }
+.general-modal .dossier-location { display:flex; align-items:center; justify-content:center; gap:10px; }
+.general-modal .dossier-breakthrough { display:inline-block; margin:0; padding:4px 9px; border:1px solid #bca66e88; border-radius:4px; background:#303823; color:#efd7a1; font-size:12px; line-height:1.4; letter-spacing:.04em; box-shadow:none; }
 .general-modal .dossier-breakthrough:disabled { opacity:.4; }

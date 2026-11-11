@@ -490,7 +490,7 @@ export class GeneralsView {
     if (t) rowBtn('technique', '自廢修為', !free || away, () => this.emit({ type: 'abolish', generalId: g.id }));
     const note = document.createElement('p'); note.className = 'dossier-warning'; note.textContent = '自廢會散去功法、境界回到凡人、修為歸零。功法不會回到行囊。'; if (t) card.querySelector('.eq-row[data-slot="technique"]')!.appendChild(note);
     const breakthrough = actions.querySelector('button.danger');
-    if (breakthrough) { breakthrough.classList.add('dossier-breakthrough'); card.querySelector('.dossier-identity')!.insertBefore(breakthrough, card.querySelector('.dossier-passive'));  }
+    if (breakthrough) { breakthrough.classList.add('dossier-breakthrough'); card.querySelector('.dossier-location')!.appendChild(breakthrough); }
     // Detail equipment is informational; actions live on the explicit buttons.
     this.displayOnly(card);
     if (this.mode.inspect) {

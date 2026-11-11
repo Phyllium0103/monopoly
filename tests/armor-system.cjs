@@ -149,8 +149,9 @@ class Root extends Element {
   const bagLow=new Element({equipmentKind:'armor',equipmentItem:low.uid}),bagHigh=new Element({equipmentKind:'armor',equipmentItem:high.uid});
   const target=new Element({equipmentKind:'armor',equipmentTarget:a.id}),other=new Element({equipmentKind:'armor',equipmentTarget:b.id}),empty=new Element({inventorySlot:'19'});
   const root=new Root([bagLow,bagHigh,target,other,empty]),actions=[],controls=new RosterEquipment(root,a=>actions.push(a));
-  controls.update(state,lord,true);assert(target.classes.has('equipment-compatible'));
+  controls.update(state,lord,true);assert(!target.classes.has('equipment-compatible'));
   root.fire('click',bagLow);assert(bagLow.classes.has('armor-selected'));assert(root.classes.has('equipment-carrying'));
+  assert(target.classes.has('equipment-compatible'));
   root.fire('keydown',bagLow,{key:'Escape'});assert(!root.classes.has('equipment-carrying'));assert.equal(actions.length,0);
   root.fire('click',bagLow);root.fire('click',target);assert.equal(actions.pop().toGeneralId,a.id);assert.equal(a.armor,null,'only host mutates items');
   transferArmor(state,lord,low.uid,undefined,a.id);target.dataset.equipmentItem=low.uid;controls.update(state,lord,true);

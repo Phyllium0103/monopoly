@@ -138,7 +138,8 @@ export class RosterEquipment {
       el.classList.toggle('armor-unavailable', blocked); el.setAttribute('aria-disabled', String(blocked));
       const bag = el.hasAttribute('data-inventory-slot');
       const canBag = bag && !!this.selected && (!this.selected.from || !el.querySelector('[data-equipment-item]') && this.check(this.selected).ok || !!el.querySelector('[data-equipment-kind="armor"]'));
-      el.classList.toggle('equipment-compatible', !selected && (!!id && !blocked && (!this.selected || kind === this.selected.kind) || !!canBag));
+      const canPlace = !!this.selected && !selected && (!!id && !blocked && kind === this.selected.kind || !!canBag);
+      el.classList.toggle('equipment-compatible', canPlace);
     }
     this.paintCursor();
   }

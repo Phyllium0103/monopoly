@@ -184,7 +184,7 @@
 .abolish-dialog h2 { color:#ef8884; background:none; -webkit-text-fill-color:#ef8884; }
 
 .roster-screen .roster-close { margin-left:auto; width:38px; height:38px; padding:0; border-radius:50%; border:1px solid #baa47766; background:#1c281f; color:#e7d8b5; font-size:22px; }
-.roster-screen .equipment-compatible { border:2px solid #bfff9d!important; background:radial-gradient(ellipse,#68965099,#253c25)!important; box-shadow:0 0 0 2px #80d76755,0 0 18px #aeff8077,inset 0 0 14px #caff9344!important; }
+.roster-screen .equipment-compatible { border:1px solid #b4c887!important; background:radial-gradient(ellipse,#40543888,#253329)!important; box-shadow:0 0 0 1px #b4c88755,inset 0 0 8px #b4c88722!important; }
 .roster-screen .armor-unavailable { filter:saturate(.35); opacity:.5; }
 .roster-screen.equipment-carrying .roster-head,.roster-screen.equipment-carrying .roster-toggle,.roster-screen.equipment-carrying .roster-close { pointer-events:none; opacity:.4; }
 .general-modal .chip,.general-modal .realm-tag { display:inline-flex; align-items:center; justify-content:center; line-height:1; padding-top:5px; padding-bottom:5px; }

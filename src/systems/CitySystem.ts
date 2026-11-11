@@ -140,7 +140,7 @@ export function citySaleValue(city: City): number {
   return Math.round(city.prosperity * 150);
 }
 
-/** 變賣一名隨行武將：寶衣卸回行囊、專屬武器隨身保留，武將離開進入聽風樓，換得靈石 */
+/** 變賣一名隨行武將：仙衣卸回行囊、專屬武器隨身保留，武將離開進入聽風樓，換得靈石 */
 export function sellGeneral(lord: Lord, g: General): number {
   if (g.ghostSourceId || fx(g).fixedParty || g.isLord) return 0;
   const value = generalSaleValue(g);

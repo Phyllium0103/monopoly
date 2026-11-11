@@ -93,12 +93,12 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
       });
     }
     case 'forge': {
-      // 寶衣 10 件；武器固定由武將持有。
+      // 仙衣 10 件；武器固定由武將持有。
       const out: Offer[] = [];
       for (const kindE of ['armor'] as const) {
         for (let i = 0; i < 10; i++) {
           const e = makeEquipment(uid('e'), kindE, rollTier(bias));
-          out.push({ kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e, false), price: e.price, group: '寶衣' });
+          out.push({ kind: 'equipment', equipment: e, label: e.name, sub: equipDesc(e, false), price: e.price, group: '仙衣' });
         }
       }
       return out;

@@ -1,0 +1,622 @@
+{
+  "version": 1,
+  "style": "approved-technique-style-02",
+  "encoding": "WebP quality85 method6; transparent RGBA",
+  "count": 36,
+  "sourceBytes": 46891576,
+  "bytes": 641088,
+  "assets": [
+    {
+      "id": "chiyou-huang",
+      "file": "public/art/icons/armor/chiyou-huang.webp",
+      "source": "output/armor-four-tiers-style02-20261111/chiyou-huang.png",
+      "sourceSha256": "2e12525c7eab12a11d3ea3ca683e4ad8cd71ead6f53fd341be32bc2d48863186",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1077968,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 11904,
+      "sha256": "cf7daa0b174cb884d96c41915ab2001b194dd828ff2a587a0acd01526434e324"
+    },
+    {
+      "id": "chiyou-xuan",
+      "file": "public/art/icons/armor/chiyou-xuan.webp",
+      "source": "output/armor-four-tiers-style02-20261111/chiyou-xuan.png",
+      "sourceSha256": "f841c66f22d445c0e1319f3781c4a7a8b5819f0f4947c20812a35972b9649d4e",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1411969,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 14044,
+      "sha256": "f1dabd62b6abb7602cd1e2033530adcbb9a7b4b559dbccd2982a546d16f7a5ad"
+    },
+    {
+      "id": "chiyou-di",
+      "file": "public/art/icons/armor/chiyou-di.webp",
+      "source": "output/armor-four-tiers-style02-20261111/chiyou-di.png",
+      "sourceSha256": "39e067839ad92c946447a0f30e71310d7b642e26a0b3914b695476f509348399",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1557052,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 17736,
+      "sha256": "90116803f038140219be352aafc5463d0bee351e6c0193a08deba0f7143d8c7b"
+    },
+    {
+      "id": "chiyou-tian",
+      "file": "public/art/icons/armor/chiyou-tian.webp",
+      "source": "output/armor-four-tiers-style02-20261111/chiyou-tian.png",
+      "sourceSha256": "30c4c4bd4ab38d8cad4fc7292776aa820dfeccb30b0baa30034f094f023d5437",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1374831,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 18178,
+      "sha256": "8ea8b9755f3e358ee5eeac94dcb546daca780ec85808e621b14cc8eb9b2407cd"
+    },
+    {
+      "id": "houtou-huang",
+      "file": "public/art/icons/armor/houtou-huang.webp",
+      "source": "output/armor-four-tiers-style02-20261111/houtou-huang.png",
+      "sourceSha256": "64c50c170bbc57ddd0f99945f17b1b0dafa6bb309df997b27c7a6e62e4018e09",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1226634,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 20480,
+      "sha256": "064ad1df3b1f31fbac12716feb381e508fdd8579bee99f08e010944750b00fb4"
+    },
+    {
+      "id": "houtou-xuan",
+      "file": "public/art/icons/armor/houtou-xuan.webp",
+      "source": "output/armor-four-tiers-style02-20261111/houtou-xuan.png",
+      "sourceSha256": "0af62767f013dd79999183f6c7424e58a9769e8f91973ce8ac86f0820ea67bbe",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1249283,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 18942,
+      "sha256": "188621d35018844db224d30d285b3def941a33b3ab7b96e7218f4733bb2e7743"
+    },
+    {
+      "id": "houtou-di",
+      "file": "public/art/icons/armor/houtou-di.webp",
+      "source": "output/armor-four-tiers-style02-20261111/houtou-di.png",
+      "sourceSha256": "b937d3f9ea60d64bd11cf18fb3e754349b8c525eb5f8c4740e0faa1de2e6e43a",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1653077,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 22716,
+      "sha256": "59c7187a25930658484efb37b2521f64410f54da75981a91ed886d543843900d"
+    },
+    {
+      "id": "houtou-tian",
+      "file": "public/art/icons/armor/houtou-tian.webp",
+      "source": "output/armor-four-tiers-style02-20261111/houtou-tian.png",
+      "sourceSha256": "b78723af63796faf74e3e13a2e0a9007b0cc8572704215a9b495cae363faddda",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1537571,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 20878,
+      "sha256": "e0d29dad5dc04986dbbc6dd312c14bf3d3c8d7f92983988753432a739c9b5613"
+    },
+    {
+      "id": "nuwa-huang",
+      "file": "public/art/icons/armor/nuwa-huang.webp",
+      "source": "output/armor-four-tiers-style02-20261111/nuwa-huang.png",
+      "sourceSha256": "839a1cf662f816e1f8e1c79022190cb946e28ecc384145b5f3e2f8b2a18e4f00",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 892037,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 11618,
+      "sha256": "c1014c0d3ff10d049dad71f4ff8dd79be0166fdb5f70eb5b6dff33aa552413d9"
+    },
+    {
+      "id": "nuwa-xuan",
+      "file": "public/art/icons/armor/nuwa-xuan.webp",
+      "source": "output/armor-four-tiers-style02-20261111/nuwa-xuan.png",
+      "sourceSha256": "f8400772a1cdec8fea8a9547784cd6c064706bcc773a7f02d23c82945b6d2691",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 893234,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 17434,
+      "sha256": "aaf62c6850b52233708bcf891696a5d3c604b549a1ab76c7b5866f4dae003145"
+    },
+    {
+      "id": "nuwa-di",
+      "file": "public/art/icons/armor/nuwa-di.webp",
+      "source": "output/armor-four-tiers-style02-20261111/nuwa-di.png",
+      "sourceSha256": "ff2f82a40c88b99d00876849ed941e9e0ca3df9adfdcab102326068c4330983d",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1203945,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 19090,
+      "sha256": "f64fc86c484c16a8a770876d9fd4afaa254d86e6638d222d01346b15be3368e9"
+    },
+    {
+      "id": "nuwa-tian",
+      "file": "public/art/icons/armor/nuwa-tian.webp",
+      "source": "output/armor-four-tiers-style02-20261111/nuwa-tian.png",
+      "sourceSha256": "280c977d9ee806668bb3bdbab8c70baefa49d437706cef011b6970d42df6a8a9",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1496006,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 25578,
+      "sha256": "c95e139e1399ae6726a4f2d70e5cd6d052aaf5a427e32977ca41a5c0a594d8a0"
+    },
+    {
+      "id": "shennong-huang",
+      "file": "public/art/icons/armor/shennong-huang.webp",
+      "source": "output/armor-four-tiers-style02-20261111/shennong-huang.png",
+      "sourceSha256": "d7b7adf26dc41f2f79f235020da80c014c8cef5058fb35b067afd989817fe8b6",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1052055,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 14722,
+      "sha256": "2afbfa2d40d26bdd1e1c2aab3d0eff1aef2903fd61ea4862d56f201d8bda0f2c"
+    },
+    {
+      "id": "shennong-xuan",
+      "file": "public/art/icons/armor/shennong-xuan.webp",
+      "source": "output/armor-four-tiers-style02-20261111/shennong-xuan.png",
+      "sourceSha256": "e0002ef8dd8a22ca9bafa185a78f26f0aac17ab65035e13bad4e63e04c396544",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1175945,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 13944,
+      "sha256": "d2d9524f63043a0274d4d1680a2e5312550d29b6b2f090bef950054e0362ab14"
+    },
+    {
+      "id": "shennong-di",
+      "file": "public/art/icons/armor/shennong-di.webp",
+      "source": "output/armor-four-tiers-style02-20261111/shennong-di.png",
+      "sourceSha256": "2c292aa743f57e4c46a6f51d5099d6c466aeca16f9b6ec81cee08f7933f01ca0",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1403645,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 18152,
+      "sha256": "3f75f77558b3664d98e79a3546f1018a5ac6f6748e013f299641849dec63fce0"
+    },
+    {
+      "id": "shennong-tian",
+      "file": "public/art/icons/armor/shennong-tian.webp",
+      "source": "output/armor-four-tiers-style02-20261111/shennong-tian.png",
+      "sourceSha256": "45727a22047c562670c1ecc3c90559cd83951f22ab8dce0ab5ad0b8a083fd048",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1455647,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 22526,
+      "sha256": "0c1fa197b0284212dbca097a3a111ff8f21fa8725a019fca4a85c5843b3f903a"
+    },
+    {
+      "id": "pangu-huang",
+      "file": "public/art/icons/armor/pangu-huang.webp",
+      "source": "output/armor-four-tiers-style02-20261111/pangu-huang.png",
+      "sourceSha256": "34c60d38ded229ab488968bd7932a134bb8c7545fe492fd1ce6e816ad071a4df",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1125253,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 12876,
+      "sha256": "1e8238410575e6897ef2ea610caa3aa65788a92bbc58814c9b49f68cb67691a2"
+    },
+    {
+      "id": "pangu-xuan",
+      "file": "public/art/icons/armor/pangu-xuan.webp",
+      "source": "output/armor-four-tiers-style02-20261111/pangu-xuan.png",
+      "sourceSha256": "639e7174f863da0f51ec221a5094a382bbff0b6340a31600d6104a35a1baf041",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1000344,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 9934,
+      "sha256": "d1f43d87151f5eac3a3f2291aeb782f9cca8bc06978d3c9d442232267934075a"
+    },
+    {
+      "id": "pangu-di",
+      "file": "public/art/icons/armor/pangu-di.webp",
+      "source": "output/armor-four-tiers-style02-20261111/pangu-di.png",
+      "sourceSha256": "57c129ce2de22d7fcc6c7d751a89916129ed1ea918f4dd540c370a53a803ba1d",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1216730,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 15282,
+      "sha256": "368a00f863f00943e1727dbbe8c1700c8ac9cd10333a7454c66ec27fdf21a835"
+    },
+    {
+      "id": "pangu-tian",
+      "file": "public/art/icons/armor/pangu-tian.webp",
+      "source": "output/armor-four-tiers-style02-20261111/pangu-tian.png",
+      "sourceSha256": "b6a270cee66300d12cb630276a859b3bdd3813885d2245e4f842f8b6a85f7a28",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1533975,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 23300,
+      "sha256": "56173747e8ba6dd8c275a5481a917bdb2d98069acfdba7a494977c333fd1a1b7"
+    },
+    {
+      "id": "cangjie-huang",
+      "file": "public/art/icons/armor/cangjie-huang.webp",
+      "source": "output/armor-four-tiers-style02-20261111/cangjie-huang.png",
+      "sourceSha256": "2d8f62725f9414c0526fa28860f615433aaf4fc3a794638432647f0f088dc354",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1247005,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 14832,
+      "sha256": "dc8d9a3686b79a1560f26c06ec0f215f9acb3d894a0a82ab8304be8cd4835b0b"
+    },
+    {
+      "id": "cangjie-xuan",
+      "file": "public/art/icons/armor/cangjie-xuan.webp",
+      "source": "output/armor-four-tiers-style02-20261111/cangjie-xuan.png",
+      "sourceSha256": "20dc7d3907b8205830e528ec4ef6ffbf3ec9e7c3eac5bf4e4721e101357f0914",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1252614,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 16226,
+      "sha256": "552ea7ef3e75fc726a3c1da55df09671e84443f0d52da936882f695f000b24cc"
+    },
+    {
+      "id": "cangjie-di",
+      "file": "public/art/icons/armor/cangjie-di.webp",
+      "source": "output/armor-four-tiers-style02-20261111/cangjie-di.png",
+      "sourceSha256": "7e15c83f571ba2cc43ef173a8efde4435921670bc039dd8f2880d7b238b22e1c",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1426878,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 18368,
+      "sha256": "ce2359cf4b061bd8403ade38db6c7b20f60a59bc61af1f0e4a5fd4568f0e1206"
+    },
+    {
+      "id": "cangjie-tian",
+      "file": "public/art/icons/armor/cangjie-tian.webp",
+      "source": "output/armor-four-tiers-style02-20261111/cangjie-tian.png",
+      "sourceSha256": "67719f8d3f5d462945e4680915868333de99fae56508154a5b74e26f9f5cb3f6",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1166393,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 18470,
+      "sha256": "2fbe2bb680d3f7026daac6d617da739558e916e4c0c060a917a05a3852ee5838"
+    },
+    {
+      "id": "fuxi-huang",
+      "file": "public/art/icons/armor/fuxi-huang.webp",
+      "source": "output/armor-four-tiers-style02-20261111/fuxi-huang.png",
+      "sourceSha256": "6397567bb65d19a2a0c29b0b74ade0c6a39dd64856eaecc761e8d78aa471cac2",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1080048,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 23910,
+      "sha256": "8b2826b12612c6623a2374745eed36231c120c3f899710b6d1f598b5767bff18"
+    },
+    {
+      "id": "fuxi-xuan",
+      "file": "public/art/icons/armor/fuxi-xuan.webp",
+      "source": "output/armor-four-tiers-style02-20261111/fuxi-xuan.png",
+      "sourceSha256": "ebdde14d499b2b78eaddf7ce2322afeb42d8bd3d7461c738635f8ec5991d29fc",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1403825,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 19662,
+      "sha256": "3f02e9b722bcb99ebb7a1e1890e0f951f3bcbe5da70497d158197b17945be66d"
+    },
+    {
+      "id": "fuxi-di",
+      "file": "public/art/icons/armor/fuxi-di.webp",
+      "source": "output/armor-four-tiers-style02-20261111/fuxi-di.png",
+      "sourceSha256": "11610e860fd8cae39cf38d83bb175d4902cd08572c17a19e64d5eff7b54be475",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1645582,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 20766,
+      "sha256": "5a4582fcc3d65f47ced8c8532284b54ff6b2c93517fee110f998cd4dd92f0de1"
+    },
+    {
+      "id": "fuxi-tian",
+      "file": "public/art/icons/armor/fuxi-tian.webp",
+      "source": "output/armor-four-tiers-style02-20261111/fuxi-tian.png",
+      "sourceSha256": "8955387f01c183ea28838aa57b68ef4bcf0a45b8f4b0a71a9a843431b762ae4e",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1407674,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 19388,
+      "sha256": "3a7772d2ab2fe556144e022388602062b5201f2435a50eb89d1fcc1834b93ae6"
+    },
+    {
+      "id": "hongjun-huang",
+      "file": "public/art/icons/armor/hongjun-huang.webp",
+      "source": "output/armor-four-tiers-style02-20261111/hongjun-huang.png",
+      "sourceSha256": "f8c96ae65acd079594b331f02097d36f99f1e1d1e157f0bb6a748842cb7c9cf4",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1381072,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 16856,
+      "sha256": "1d891b2aa48b946455dcfaa041e5f5f9bf8a9c4ef8e6cc1a0b830c4ba1eb31c1"
+    },
+    {
+      "id": "hongjun-xuan",
+      "file": "public/art/icons/armor/hongjun-xuan.webp",
+      "source": "output/armor-four-tiers-style02-20261111/hongjun-xuan.png",
+      "sourceSha256": "0b5b6df8d25bd45cd9db24261ff81f6d70f29f0a87b40984746bf61cd0a38f18",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1170622,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 9692,
+      "sha256": "2f35e34e3f84a79fe872044380c94cd504cc2d17321fe04959997fa1a9370117"
+    },
+    {
+      "id": "hongjun-di",
+      "file": "public/art/icons/armor/hongjun-di.webp",
+      "source": "output/armor-four-tiers-style02-20261111/hongjun-di.png",
+      "sourceSha256": "bc8c0ea7586f282fd8455c9aba65be8f66ebe890b7d62b279084cb1e002b3803",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1407571,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 20128,
+      "sha256": "9079c7d29e55c9239616654556b52e799dc186fca9d506fe48b7e07b1fb1c967"
+    },
+    {
+      "id": "hongjun-tian",
+      "file": "public/art/icons/armor/hongjun-tian.webp",
+      "source": "output/armor-four-tiers-style02-20261111/hongjun-tian.png",
+      "sourceSha256": "9c91670a7ec5fb299df26301a8200c6c193a2948c64c7ca36f11fb5b8f111612",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1614554,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 23614,
+      "sha256": "55ffc21453a05a5f536108b19261f5b3cd980eab1b5578a5000ec264f0f7cb39"
+    },
+    {
+      "id": "buddha-huang",
+      "file": "public/art/icons/armor/buddha-huang.webp",
+      "source": "output/armor-four-tiers-style02-20261111/buddha-huang.png",
+      "sourceSha256": "b772f5f81284c8801c318d9f2198511b1163c64472da64ea6bf2a84fe7f85fa9",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1100525,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 11204,
+      "sha256": "189dc7074b8da39eb7b9a42b17754f10e10f4072c70f14eb56f29d97f3b7fb8c"
+    },
+    {
+      "id": "buddha-xuan",
+      "file": "public/art/icons/armor/buddha-xuan.webp",
+      "source": "output/armor-four-tiers-style02-20261111/buddha-xuan.png",
+      "sourceSha256": "24865159fef388c441c0021ec03f8621cb57dbfb9aed19f331d2bafc2bd59c13",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1267478,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 14720,
+      "sha256": "a91b0ac23360fd1f60a62bd4ef93393d5de7e120fe4429fe132bf4a16c1bb2ca"
+    },
+    {
+      "id": "buddha-di",
+      "file": "public/art/icons/armor/buddha-di.webp",
+      "source": "output/armor-four-tiers-style02-20261111/buddha-di.png",
+      "sourceSha256": "10cb854b5e4c8ed6b16deff164c3410ce3abe9a75297965541cc0a11b0ca99b7",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1345130,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 22116,
+      "sha256": "31c96829e500966f196f863c7099efcb0816350af20706d61d1591fb046b3287"
+    },
+    {
+      "id": "buddha-tian",
+      "file": "public/art/icons/armor/buddha-tian.webp",
+      "source": "output/armor-four-tiers-style02-20261111/buddha-tian.png",
+      "sourceSha256": "8201c8d9c95b2538eecefdec4ed15c8792f4977bcd6442d6efb78763741d6b97",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceBytes": 1437404,
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 21802,
+      "sha256": "bbd42c8995a465e06ae3a9cf9894c2e90db1df86038dce652a8222478df43cbe"
+    }
+  ]
+}

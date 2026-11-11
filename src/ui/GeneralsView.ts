@@ -1,6 +1,7 @@
 import { upgradeRequirement, weaponUpgradeTip } from '../systems/MaterialSystem';
 import './technique-roster.css';
 import { materialLabel } from './MaterialArt';
+import { ArmorRoster, armorPicture } from './ArmorRoster';
 import { generalCooldownText } from '../systems/GeneralAbilities';
 import type { GameState, General, Lord, Technique } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
@@ -113,11 +114,13 @@ export class GeneralsView {
   private expanded = new Set<string>();
   /** 下次重繪時展開並捲到這名武將（點右下大頭貼進來時） */
   private focusId: string | null = null;
+  private armorControls: ArmorRoster;
 
   constructor(root: HTMLElement) {
     this.el = document.createElement('div');
     this.el.className = 'drawer hidden';
     root.appendChild(this.el);
+    this.armorControls = new ArmorRoster(this.el, a => this.emit(a));
   }
 
   get isOpen() {
@@ -175,6 +178,7 @@ export class GeneralsView {
   close() {
     if (!this.isOpen) return;
     this.el.classList.add('hidden');
+    this.armorControls.clear();
     const action = this.onAction;
     this.onAction = null;
     action?.({ type: 'close' });
@@ -190,7 +194,7 @@ export class GeneralsView {
     const gens = generalsOf(state, lord.id);
     const manage = this.mode.manage;
 
-    const gear = lord.gear.map((e) => `<span class="chip" title="${tip(equipDesc(e))}">${e.name}</span>`).join('') || '<span class="muted">無</span>';
+    const gear = [...lord.gear].sort((a, b) => a.tier - b.tier || a.designId.localeCompare(b.designId)).map(e => armorPicture(e)).join('') || '<span class="muted">尚無仙衣</span>';
     const families = ['metal', 'wood', 'water', 'fire', 'earth', 'alchemy', 'forging', 'talisman', 'formation'];
     const familyOrder = (t: Technique) => { const i = families.indexOf(t.art ?? t.element ?? ''); return i < 0 ? families.length : i; };
     const scrolls = [...lord.scrolls].sort((a, b) => Math.floor(a.tier / 3) - Math.floor(b.tier / 3) || familyOrder(a) - familyOrder(b) || a.tier - b.tier).map(techniquePicture).join('') || '<span class="muted">無</span>';
@@ -209,7 +213,11 @@ export class GeneralsView {
       <div class="drawer-body">
       <div class="ready-section"></div>
       <div class="bag">
-        <div><b>行囊寶衣</b>${gear}</div>
+        <div class="armor-collection">
+          <div class="armor-collection-head"><b>行囊仙衣</b><span class="muted">拖曳圖片到仙衣格，或依序點選兩邊圖片</span><button type="button" class="btn mini" data-armor-cancel>取消選擇</button></div>
+          <div class="armor-bag-items" data-armor-bag>${gear}<button type="button" class="armor-unequip" data-armor-bag>放回行囊</button></div>
+          <div class="armor-feedback" role="status" aria-live="polite">${manage ? '換下的仙衣自動回到行囊；點選已穿著的仙衣再放回行囊可卸下' : '只能在自己的整備階段換裝'}</div>
+        </div>
         <div class="technique-collection"><b>功法秘笈</b><span class="technique-list">${scrolls}</span></div>
         <div><b>靈獸</b>${lord.beast ? `<span class="chip" title="${tip(lord.beast.desc)}">${lord.beast.name}</span>` : '<span class="muted">無</span>'}</div>
       </div>
@@ -250,6 +258,7 @@ export class GeneralsView {
       sections.append(h, this.list(state, lord, list, manage));
     }
     this.el.querySelector('.drawer-body')!.scrollTop = scrollTop;
+    this.armorControls.update(state, lord, manage);
   }
 
   /** 條列式名冊：每位武將一列，點一下展開原本的詳細卡片，再點一次收合 */
@@ -293,6 +302,7 @@ export class GeneralsView {
         if (open) this.expanded.add(g.id);
         else this.expanded.delete(g.id);
         show(open);
+        this.armorControls.update(state, lord, manage);
       };
       show(this.expanded.has(g.id));
       list.appendChild(item);
@@ -370,7 +380,7 @@ export class GeneralsView {
       <div class="gc-body">
         <div class="gc-slots">
           <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(`${equipDesc(g.weapon)}｜${weaponUpgradeTip(lord, g)}`)}"` : ''}><small>武器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b class="gc-slot-name" data-name-space="${weaponNameSpace}"><span>${g.weapon.name.split('・').pop()}</span></b><em class="slot-tier" data-tier-space="天階・破防 100%"><span>${g.weapon.name.split('・')[0]}・破防 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</span></em>` : '<b><span class="muted">無</span></b>'}</div>
-          <div class="gc-slot eq-row" data-slot="armor" ${g.armor ? `title="${tip(equipDesc(g.armor))}"` : ''}><small>寶衣</small>${g.armor ? `<img class="slot-icon" src="${equipIconUrl(g.armor)}" alt="" onerror="this.style.visibility='hidden'"><b>${g.armor.name.split('・').pop()}</b><em class="slot-tier">${g.armor.name.split('・')[0]}</em>` : '<b><span class="muted">無</span></b>'}</div>
+          <div class="gc-slot eq-row" data-slot="armor"><small>仙衣</small>${armorPicture(g.armor, g.id)}<b class="armor-equipped-name">${g.armor?.name.split('・').pop() ?? '未裝備'}</b><em class="slot-tier">${g.armor?.name.split('・')[0] ?? '點選或拖入'}</em><span class="armor-slot-hint">${manage ? '拖曳／點選換裝' : '整備階段可換裝'}</span></div>
         </div>
         <table class="gc-table">
           <tr class="gc-row-main">
@@ -431,8 +441,6 @@ export class GeneralsView {
       cost.innerHTML = `升階：${materialLabel(req.group, req.stage)} × ${req.cost}`;
       card.querySelector('.eq-row[data-slot="weapon"]')!.appendChild(cost);
     }
-    const pool = lord.gear.filter((e) => e.kind === 'armor');
-    rowBtn('armor', g.armor ? '更換／卸下' : '裝備', !manage || away || (!pool.length && !g.armor), () => this.emit({ type: 'equip', generalId: g.id }));
     // 已經修習功法就不再顯示學習按鈕
     if (!t) rowBtn('technique', g.aptitude === 'waste' ? '廢靈根' : '學習功法', !free || away || !lord.scrolls.length || g.aptitude === 'waste', () => this.emit({ type: 'learn', generalId: g.id }));
     btn('自廢修為', !free || away || !t, () => this.emit({ type: 'abolish', generalId: g.id }));

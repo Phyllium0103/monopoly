@@ -33,7 +33,7 @@ export interface Equipment extends PurchasedAsset {
   kind: 'weapon' | 'armor';
   name: string;
   tier: Tier;
-  /** 款式編號（見 EQUIP_DESIGNS） */
+  /** 仙衣的固定定義編號（見 ARMOR_DEFS）；專屬武器使用自己的圖鑑編號。 */
   designId: string;
   /** 專屬武器不可卸下、更換或出售。 */
   fixedGeneralId?: string;

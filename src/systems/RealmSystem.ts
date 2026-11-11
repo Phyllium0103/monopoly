@@ -119,7 +119,7 @@ function grantReward(state: GameState, lord: Lord, team: General[], all: General
     case 'armor': {
       const e = makeEquipment(uid('e'), kind, tier);
       lord.gear.push(e);
-      return `寶衣「${e.name}」`;
+      return `仙衣「${e.name}」`;
     }
     case 'pill': {
       const defId = rollItemId(PILL_IDS);

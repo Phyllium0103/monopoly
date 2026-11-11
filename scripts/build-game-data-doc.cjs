@@ -33,7 +33,8 @@ const { BOARD } = src('data/board.ts');
 const { SELECTED_LAYOUT } = src('data/selectedLayout.ts');
 const { LORDS, LORD_IDS } = src('faction/Faction.ts');
 const City = src('systems/CitySystem.ts');
-const { TRIBULATION_BOLTS, TRIBULATION_HP_RATIO } = src('systems/GeneralSystem.ts');
+const { needsTribulation } = src('systems/GeneralSystem.ts');
+const { TRIBULATION_RULES } = src('data/breakthroughRules.ts');
 const { REALM_LEVELS, deathChance } = src('systems/RealmSystem.ts');
 const { RELIC_EVENTS } = src('systems/RelicSystem.ts');
 const { WORLD_EVENTS, FIXED_WORLD_EVENTS } = src('systems/EventSystem.ts');
@@ -68,7 +69,7 @@ add(
     ['人物（含主公與方外）', allGenerals.length],
     ['物品種類', Items.ITEM_CATALOG?.length ?? Object.keys(Items.ITEM_DEFS).length],
     ['物品品階列數', Object.values(Items.ITEM_DEFS).reduce((s, d) => s + d.price.length, 0)],
-    ['寶衣款式', Items.EQUIP_DESIGNS.length],
+    ['仙衣數量', Items.ARMOR_DEFS.length],
     ['靈獸', Items.BEASTS.length],
     ['天賦節點', TALENTS.length],
     ['九州風雲事件', WORLD_EVENTS.length],
@@ -83,12 +84,12 @@ add('### 地圖建築', '', table(['建築', '數量'], Object.entries(objectKin
 add(
   '## 境界',
   '',
-  '「修為上限」是該境界進入瓶頸前需要的修為。「天雷」與「平均傷害」是從該境界突破時的雷劫，傷害以基礎境界血量的比例計算。',
+  '「修為上限」是一般武將進入瓶頸前需要的修為，主公所需修為加倍；金丹路線另計。「天雷」與「平均傷害」是從該境界突破時的雷劫，傷害以不含裝備的境界血量比例計算。',
   '',
   table(['編號', '境界', '修為上限', '武防血倍率', '四藝倍率', '突破入此境的天賦點', '天雷', '平均傷害'], REALMS.map((name, r) => [
     r, name, REALM_EXP[r] ?? '—', REALM_MULT[r], (1 + r * 0.1).toFixed(1), r === 0 ? '—' : talentPointsFor(r),
-    r >= 2 && r - 2 < TRIBULATION_BOLTS.length ? TRIBULATION_BOLTS[r - 2] : '—',
-    r >= 2 && r - 2 < TRIBULATION_HP_RATIO.length ? pct(TRIBULATION_HP_RATIO[r - 2]) : '—',
+    needsTribulation({ realm: r }) ? TRIBULATION_RULES[r === 3 ? 'nascentSoul' : 'tribulation'].bolts : '—',
+    needsTribulation({ realm: r }) ? pct(TRIBULATION_RULES[r === 3 ? 'nascentSoul' : 'tribulation'].totalHpRatio) : '—',
   ])),
 );
 
@@ -134,20 +135,15 @@ for (const category of Items.ITEM_CATEGORIES) {
   add(`### ${category}`, '', table(['物品', '品階', '權重', '技藝', '時機', '門檻', '體力', '售價', '回收', '效果'], rows));
 }
 
-// ───────── 寶衣 ─────────
-const armor = (design, tier) => Items.makeEquipment('doc', 'armor', tier, design.id);
-const craftText = (e) => Object.entries(e.craft).map(([k, v]) => `${STAT[k]} ${v}`).join('、') || '—';
+// ───────── 仙衣 ─────────
+const craftText = (e) => Object.entries(e.craft).map(([k, v]) => STAT[k] + ' ' + v).join('、') || '—';
 add(
-  '## 寶衣',
-  '',
-  '共 12 個品階，下表列出最低與最高品階的數值。裝備需要的境界是「品階編號除以 2 取整」。',
-  '',
-  table(['款式', '黃品下 武/防/血', '黃品下 技藝', '黃品下 售價', '天品上 武/防/血', '天品上 技藝', '天品上 售價'], Items.EQUIP_DESIGNS.map((d) => {
-    const lo = armor(d, 0), hi = armor(d, 11);
-    return [d.name, `${lo.force}/${lo.defense}/${lo.hp}`, craftText(lo), lo.price, `${hi.force}/${hi.defense}/${hi.hp}`, craftText(hi), hi.price];
+  '## 仙衣', '',
+  '九系列、黃玄地天四階，共 36 件；不分上中下品。標準購買價另套用商店世界事件與天賦折扣。', '',
+  table(['品階', '仙衣', '武力', '防禦', '血量', '四藝加成', '需要境界', '購買價'], Items.ARMOR_DEFS.map(d => {
+    const e = Items.makeEquipment('doc', 'armor', d.tier, d.id);
+    return [Items.armorGradeName(d.tier), d.name, e.force, e.defense, e.hp, craftText(e), REALMS[Items.equipRealm(d.tier)], e.price];
   })),
-  '',
-  table(['編號', '品階', '需要境界'], Array.from({ length: 12 }, (_, t) => [t, Items.tierName(t), REALMS[Items.equipRealm(t)]])),
 );
 
 // ───────── 功法 ─────────

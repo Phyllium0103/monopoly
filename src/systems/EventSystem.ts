@@ -48,7 +48,7 @@ export const WORLD_EVENTS: WorldEventDef[] = [
   { id: 'bandits', name: '黃巾餘黨', icon: '🏴', category: 'disaster', duration: 5, desc: '黃巾餘黨盤踞 4 處驛道 5 輪，停在賊窩要繳買路錢，否則損兵。' },
   { id: 'shuffle', name: '乾坤大挪移', icon: '☯', category: 'disaster', desc: '天機錯亂，所有主公的位置隨機互換。' },
   { id: 'tradeBoom', name: '商路暢通', icon: '🛒', category: 'economy', duration: 5, desc: '接下來 5 輪，所有商店商品購買價格七折（不含招募、復活與拍賣），可與旅行商人五折疊加。' },
-  { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件玄階至地階的寶衣。' },
+  { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件玄階至地階的仙衣。' },
   { id: 'spiritTide', name: '靈潮湧動', icon: '🌊', category: 'cultivation', duration: 5, desc: '地底靈脈潮汐翻湧，接下來 5 輪駐守城池修煉的武將，修為再 ×1.5。' },
   { id: 'meteor', name: '隕星墜落', icon: '☄️', category: 'cultivation', desc: '流星墜入人間，星髓入藥：每位主公得到兩顆玄品至地品的丹藥。' },
   { id: 'rebirth', name: '天道輪轉', icon: '🌀', category: 'cultivation', desc: '天道輪轉，萬法歸元：每位主公得到一顆輪迴丹，可將天賦樹全部重置。' },
@@ -64,7 +64,7 @@ export const WORLD_EVENTS: WorldEventDef[] = [
 
 export const FIXED_WORLD_EVENTS: WorldEventDef[] = [
   {id:'immortals',name:'仙人出世',icon:'🧙',category:'cultivation',desc:'第 15 輪起每 15 輪固定有兩位尚未出世的方外人物現身，不占九州風雲抽選。'},
-  {id:'tournament',name:'九州比武大會',icon:'🏆',category:'politics',desc:'每完成 20 輪固定舉辦隨行武將 1v1 晉級賽，隨機分組，冠軍獲得一件天階上品功法或寶衣。'},
+  {id:'tournament',name:'九州比武大會',icon:'🏆',category:'politics',desc:'每完成 20 輪固定舉辦隨行武將 1v1 晉級賽，隨機分組，冠軍獲得一件天階上品功法或天階仙衣。'},
 ];
 
 export function eventDef(id: string): WorldEventDef {
@@ -222,7 +222,7 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
       for (const l of alive) {
         const e = makeEquipment(nextUid(state, 'e'), 'armor', 3 + Math.floor(Math.random() * 6));
         l.gear.push(e);
-        lines.push(`${LORDS[l.id].name} 得 寶衣「${e.name}」`);
+        lines.push(`${LORDS[l.id].name} 得 仙衣「${e.name}」`);
       }
       break;
     case 'rebirth':

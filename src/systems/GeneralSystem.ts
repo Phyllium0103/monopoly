@@ -2,7 +2,7 @@ import type { City, CraftStat, Equipment, General, Lord, LordId, Technique, Game
 import { makePersonalWeapon } from '../data/weaponCatalog';
 import { mortalTrialTurns, TRIBULATION_RULES } from '../data/breakthroughRules';
 import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
-import { techniqueForce, techniqueSpeed } from '../data/items';
+import { equipRealm, techniqueForce, techniqueSpeed } from '../data/items';
 import { WORLD } from './WorldMods';
 import { fx, lordAura, passiveState } from '../data/passives';
 import { awardBreakthrough } from '../data/talents';
@@ -103,7 +103,7 @@ export function canAttemptBreak(g: General, round: number): { ok: boolean; reaso
   if (g.realm === 2 && !g.goldenCore) return { ok: false, reason: '請先選擇金丹路線' };
   if (g.realm === 2 && g.goldenCore === 'heavenly' && g.aptitude !== 'heaven') return { ok: false, reason: '天道金丹僅天靈根可修煉' };
   if (g.realm === 5 && (!lord || ESSENCE_ELEMENTS.some(e => (lord.essences?.[e] ?? 0) < 1))) return { ok: false, reason: '五行本源各需一個' };
-  if (g.realm === 6 && ![g.weapon, g.armor].some(e => e && e.tier >= 9)) return { ok: false, reason: '需裝備天階武器或寶衣' };
+  if (g.realm === 6 && ![g.weapon, g.armor].some(e => e && e.tier >= 9)) return { ok: false, reason: '需裝備天階武器或仙衣' };
   if (g.realm === 8 && (!state || !ascensionCities(state, g).length)) return { ok: false, reason: '需有未綁定且繁榮度大於200的麾下城池' };
   return { ok: true, reason: '' };
 }
@@ -338,19 +338,58 @@ export function recruitPrice(g: General, lord: string): number {
   return Math.round((base * (g.origin === lord ? 0.6 : 1.5) * WORLD.recruitMult * Math.max(0,1-lordAura(lord as LordId,'partyRecruit'))) / 100) * 100;
 }
 
-/** 裝備寶衣；換下的寶衣放回行囊。 */
+export function canWearArmor(lord: Lord, g: General, e?: Equipment): { ok: boolean; reason: string } {
+  if (g.owner !== lord.id) return { ok: false, reason: '只能更換己方武將的仙衣' };
+  if (g.status === 'realm' || g.ghostSourceId || g.mortalTrial) return { ok: false, reason: '外出、冤魂或化凡中的武將無法換裝' };
+  if (e && (e.kind !== 'armor' || e.fixedGeneralId)) return { ok: false, reason: '此處只能裝備仙衣' };
+  if (e && g.realm < equipRealm(e.tier)) return { ok: false, reason: `需要${REALMS[equipRealm(e.tier)]}以上` };
+  return { ok: true, reason: '' };
+}
+
+/** Plan without mutating; both UI and host validate the actual owned instance. */
+export function armorTransferCheck(state: GameState, lord: Lord, uid: string, fromGeneralId?: string, toGeneralId?: string): { ok: boolean; reason: string } {
+  if (state.over || !lord.alive || state.lords[lord.id] !== lord) return { ok: false, reason: '目前無法換裝' };
+  if ((!fromGeneralId && !toGeneralId) || fromGeneralId === toGeneralId) return { ok: false, reason: '請選擇另一個裝備位置' };
+  const source = fromGeneralId ? state.generals[fromGeneralId] : undefined;
+  const target = toGeneralId ? state.generals[toGeneralId] : undefined;
+  if ((fromGeneralId && !source) || (toGeneralId && !target)) return { ok: false, reason: '武將不存在' };
+  if (source) { const r = canWearArmor(lord, source); if (!r.ok) return r; }
+  const item = source ? source.armor : lord.gear.find(e => e.uid === uid);
+  if (!item || item.uid !== uid || item.kind !== 'armor' || item.fixedGeneralId) return { ok: false, reason: '仙衣已移動，請重新選擇' };
+  const copies = Object.values(state.lords).reduce((n, l) => n + l.gear.filter(e => e.uid === uid).length, 0)
+    + Object.values(state.generals).filter(g => g.armor?.uid === uid).length;
+  if (copies !== 1) return { ok: false, reason: '仙衣識別重複，無法移動' };
+  return target ? canWearArmor(lord, target, item) : { ok: true, reason: '' };
+}
+
+/** Atomic move: displaced armor returns to the bag; failed/repeated commands change nothing. */
+export function transferArmor(state: GameState, lord: Lord, uid: string, fromGeneralId?: string, toGeneralId?: string): boolean {
+  if (!armorTransferCheck(state, lord, uid, fromGeneralId, toGeneralId).ok) return false;
+  const source = fromGeneralId ? state.generals[fromGeneralId] : undefined;
+  const target = toGeneralId ? state.generals[toGeneralId] : undefined;
+  const item = source ? source.armor! : lord.gear.find(e => e.uid === uid)!;
+  const gear = source ? [...lord.gear] : lord.gear.filter(e => e.uid !== uid);
+  if (target?.armor) gear.push(target.armor);
+  if (!target) gear.push(item);
+  lord.gear = gear;
+  if (source) source.armor = null;
+  if (target) target.armor = item;
+  for (const g of [source, target]) if (g) g.hp = Math.min(g.hp, maxHp(g));
+  return true;
+}
+
+/** AI equipment uses the same ownership, availability and realm rules. */
 export function equip(lord: Lord, g: General, e: Equipment) {
-  if (g.mortalTrial) return;
-  if (g.ghostSourceId) return;
-  if (e.kind === 'weapon' || e.fixedGeneralId) throw Error('專屬武器不可更換');
-  const old = g[e.kind];
-  g[e.kind] = e;
-  lord.gear = lord.gear.filter((x) => x.uid !== e.uid);
+  const item = lord.gear.find(x => x.uid === e.uid);
+  if (!item || !canWearArmor(lord, g, item).ok) return;
+  const old = g.armor;
+  g.armor = item;
+  lord.gear = lord.gear.filter((x) => x.uid !== item.uid);
   if (old) lord.gear.push(old);
   g.hp = Math.min(g.hp, maxHp(g));
 }
 
-/** 卸下寶衣，專屬武器不可卸下。 */
+/** 卸下仙衣，專屬武器不可卸下。 */
 export function unequip(lord: Lord, g: General, kind: 'weapon' | 'armor') {
   const e = g[kind];
   if (!e || e.fixedGeneralId) return;

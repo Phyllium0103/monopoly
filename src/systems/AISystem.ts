@@ -84,7 +84,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   const gens = generalsOf(state, lord.id).filter((g) => g.status !== 'realm' && !g.ghostSourceId);
   const style = AI_STYLES[lord.id];
 
-  // 自動裝備最好的寶衣
+  // 自動裝備最好的仙衣
   for (const kind of ['armor'] as const) {
     const pool = lord.gear.filter((e) => e.kind === kind).sort((a, b) => equipScore(b) - equipScore(a));
     for (const e of pool) {

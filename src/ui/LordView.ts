@@ -83,7 +83,7 @@ export class LordView {
             <h3 style="color:${d.css}">${d.kingdom}・${d.name}　${lord.alive ? '' : '（已出局）'}</h3>
             <table class="terrain-table"><tr><th>靈石</th><th>士兵</th><th>城池</th><th>武將</th><th>總資產</th><th>所在</th><th>面向</th></tr>
               <tr><td>${fmtStones(lord.stones)}</td><td>${lord.soldiers}</td><td>${assets.cities} 座</td><td>${assets.generals} 名</td><td>${fmtStones(assets.total, true)}</td><td>${here.name}</td><td>${this.facingText?.(id) ?? '—'}</td></tr></table>
-            <p>行囊：${bag}｜行囊寶衣 ${lord.gear.length} 件｜功法 ${lord.scrolls.length} 本｜靈獸：${lord.beast ? lord.beast.name : '無'}${lord.expeditions.length ? `｜秘境探索中 ${lord.expeditions.length} 隊` : ''}</p>
+            <p>行囊：${bag}｜行囊仙衣 ${lord.gear.length} 件｜功法 ${lord.scrolls.length} 本｜靈獸：${lord.beast ? lord.beast.name : '無'}${lord.expeditions.length ? `｜秘境探索中 ${lord.expeditions.length} 隊` : ''}</p>
             <h4>升階材料</h4>${materialsHtml(lord)}
             <h4>城池（${assets.cities}）</h4>
             <table class="terrain-table rank-detail"><tr><th>城池</th><th>繁榮</th><th>每回合收入</th><th>守軍</th><th>駐將</th><th>守城戰力</th><th>過路費</th><th>擂台與比試</th></tr>${cities || '<tr><td colspan="8">沒有城池</td></tr>'}</table>

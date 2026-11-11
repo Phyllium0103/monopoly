@@ -30,7 +30,7 @@ import { RankView } from '../ui/RankView';
 import { TalentView } from '../ui/TalentView';
 import { LordView } from '../ui/LordView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
-import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
+import { ARMOR_DEFS, ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { TILE_INFO, hasCurrentBoard } from '../data/board';
 import { RANK_METRICS, cityIncomeOf, cityRanks, cityToll, garrisonPower, toll } from '../systems/CitySystem';
 import { inBottleneck, maxHp, maxStamina, power } from '../systems/GeneralSystem';
@@ -632,15 +632,15 @@ export class Game {
     for (const k of MATERIAL_GROUPS) lord.materials[k] = lord.materials[k].map(n => n + 1000) as [number, number, number];
     for (const [defId, d] of Object.entries(ITEM_DEFS)) for (let t = 0; t < d.price.length; t++) lord.items.push(makeItem(nextUid(this.state, 'i'), defId, t));
     for (let tier = 0; tier < 12; tier++) {
-      lord.gear.push(makeEquipment(nextUid(this.state, 'e'), 'armor', tier));
       lord.scrolls.push(makeTechnique(nextUid(this.state, 't'), tier));
     }
+    for (const d of ARMOR_DEFS) lord.gear.push(makeEquipment(nextUid(this.state, 'e'), 'armor', d.tier, d.id));
     lord.beast = makeBeast(nextUid(this.state, 'b'), 11);
     for (const g of generalsOf(this.state, lord.id)) {
       g.hp = maxHp(g);
       g.stamina = maxStamina(g);
     }
-    this.ui.log('🧪 測試：獲得 100 極品靈石、10 萬士兵，以及所有丹藥、陣法、符籙、法器（各階）、各階寶衣與功法、天階靈獸，以及十八種升階材料與五種本源各 1000 顆。', 'good');
+    this.ui.log('🧪 測試：獲得 100 極品靈石、10 萬士兵，以及所有丹藥、陣法、符籙、法器（各階）、各階仙衣與功法、天階靈獸，以及十八種升階材料與五種本源各 1000 顆。', 'good');
     this.ui.toast('🧪 測試：已獲得大量靈石與所有物品');
     this.refresh();
   }

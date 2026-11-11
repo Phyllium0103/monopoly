@@ -13,7 +13,7 @@
     "test:dice": "node tests/dice-motion.cjs && node tests/dice-physics.cjs && node tests/dice-presentation.cjs && node tests/dice-ready.cjs",
     "test:spirits": "node tests/elemental-spirits.cjs",
     "test:map": "node tests/selected-map.cjs && node tests/map-revision.cjs && node tests/display-facilities.cjs && node tests/map-interactions-materials.cjs && node tests/recruitment.cjs",
-    "test:assets": "node tests/deployment-assets.cjs",
+    "test:assets": "node tests/deployment-assets.cjs && node tests/armor-system.cjs",
     "optimize:models": "node scripts/optimize-map-models.mjs"
   },
   "dependencies": {

@@ -12,22 +12,22 @@ import { sectDispatchFee, sectTransferRequirement, transferSectGeneral } from '.
 import { garrisonDispatch } from '../systems/GarrisonSystem';
 import { resultStandings } from '../game/Results';
 import { immortalWinner } from '../systems/VictorySystem';
-import type { City, CraftStat, Equipment, General, GameState, Item, Lord, LordId } from '../game/types';
+import type { City, CraftStat, General, GameState, Item, Lord, LordId } from '../game/types';
 import type { ContestKind } from '../game/types';
 import { GARRISON_LIMIT, abandonIfEmpty, deployable, PARTY_LIMIT, citiesOf, garrisonOf, currentLord, freeGenerals, generalsOf, joinLord, killGeneral, sectGenerals } from '../game/GameState';
 import { advance, aliveLords, startTurn } from '../game/TurnManager';
 import { fmtProsperity, fmtStones } from '../game/Currency';
 import { LORDS, LORD_IDS, originCss, ownerCss, ownerName } from '../faction/Faction';
 import { facts, type Choice } from '../ui/Dialog';
-import { portraitUrl, equipIconUrl, itemIconUrl } from '../ui/Icons';
+import { portraitUrl, itemIconUrl } from '../ui/Icons';
 import { itemDisabledReason, itemUsers, resolveItemTarget } from '../systems/DirectItems';
 import { CASINO_MIN_BET, CASINO_NAME, aiCasinoBet, diceTotal, maxBet, playCasino, type CasinoResult } from '../systems/CasinoSystem';
 import { REALMS } from '../data/generals';
 import { bindPassiveState, passiveOf, fx, lordHas } from '../data/passives';
 import { talentNode, canLearnTalent, canRefundTalent, canResetTalents, ensureTalentState, learnTalent, lordTalentFx, refundTalent, resetTalents } from '../data/talents';
-import { CRAFT_CSS, ELEMENT_CSS, ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, equipDesc, equipRealm, techniqueDesc } from '../data/items';
+import { CRAFT_CSS, ELEMENT_CSS, ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, techniqueDesc } from '../data/items';
 import { GARRISON_STRENGTH, MIN_GARRISON, canOccupy, cityIncome, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll, visitingToll } from '../systems/CitySystem';
-import { generalSaleValue, boltRange, attack, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, equip, unequip, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, tribulation } from '../systems/GeneralSystem';
+import { generalSaleValue, boltRange, attack, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, transferArmor, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
 import { aptTag, generalBlock, generalBrief, realmTag, statCells, vitalBars, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
@@ -44,7 +44,7 @@ import type { EngineView } from './view';
 import { duelSnapshot } from './snapshots';
 
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
-export type RosterActionType = Exclude<RosterAction, { type: 'close' }>['type'];
+export type RosterActionType = Exclude<RosterAction, { type: 'close' | 'transfer-armor' }>['type'];
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
 
@@ -1744,7 +1744,7 @@ export class Engine {
     }
     if (!champion) { this.view.log('九州比武大會無人完成參賽，本屆沒有冠軍。', 'info'); return; }
     const prize = grantTournamentPrize(this.state, champion);
-    const result = `${LORDS[champion.id].name}奪得冠軍，獲得天階上品獎勵「${prize.label}」！`;
+    const result = `${LORDS[champion.id].name}奪得冠軍，獲得天階獎勵「${prize.label}」！`;
     this.view.log('🏆 ' + result, champion.isPlayer ? 'good' : 'info'); this.view.refresh();
     await this.notifyAll('九州比武大會・冠軍', result + '\n\n' + prize.sub, '🏆', '確定');
   }
@@ -1847,6 +1847,11 @@ export class Engine {
       if (this.state.over || !lord.alive) return;
       const a = (await this.ask(lord, { kind: 'roster' })) as RosterAction | null;
       if (!a || a.type === 'close') return;
+      if (a.type === 'transfer-armor') {
+        transferArmor(this.state, lord, a.itemUid, a.fromGeneralId, a.toGeneralId);
+        this.view.refresh();
+        continue;
+      }
       const g = this.state.generals[a.generalId];
       if (!g || g.owner !== lord.id) continue;
       await this.rosterAction(lord, a.type, g);
@@ -1871,24 +1876,7 @@ export class Engine {
         if (ok && upgradeRequirement(lord, g).ok) await ask.message('武器升階完成', upgradeWeapon(lord, g), '⚔️');
         break;
       }
-      case 'equip': {
-        const kind = 'armor' as const;
-        const pool = lord.gear.filter((e) => e.kind === kind);
-        if (away || (!pool.length && !g[kind])) return;
-        const choices: Choice<Equipment | 'off'>[] = pool.map((x) => ({
-          label: x.name,
-          icon: equipIconUrl(x),
-          sub: equipDesc(x),
-          value: x,
-          disabled: g.realm < equipRealm(x.tier),
-          reason: `需達${REALMS[equipRealm(x.tier)]}`,
-        }));
-        if (g[kind]) choices.unshift({ label: `卸下${g[kind]!.name}`, sub: '取下寶衣放回行囊', value: 'off' });
-        const e = await ask.choose(`${g.name}・寶衣`, '', choices);
-        if (e === 'off') unequip(lord, g, kind);
-        else if (e) equip(lord, g, e);
-        break;
-      }
+
       case 'learn': {
         if (away || g.technique || !lord.scrolls.length || g.aptitude === 'waste') return;
         const s = await ask.choose(
@@ -1944,7 +1932,7 @@ export class Engine {
     if (g.realm < 2) text = `成功率 ${Math.round(breakChance(g) * 100)}%${g.realm === 1 ? '\n失敗會損失25%修為，並氣血翻湧，扣除血量25%' : '\n失敗會損失50%修為'}`;
     if (g.realm === 4) { const [min,max] = mortalTrialTurns(g.aptitude); text = `自封修為入世化凡，感悟天地法則，持續${min}～${max}回合`; }
     if (g.realm === 5) text = '消耗五行本源進行突破\n' + ESSENCE_ELEMENTS.map((e,i) => `${ESSENCE_NAMES[i]}x${lord.essences?.[e] ?? 0}`).join('、');
-    if (g.realm === 6) text = `融合天階神物進入自身方可突破\n已裝備：${g.weapon?.name ?? '無武器'}/${g.armor?.name ?? '無寶衣'}`;
+    if (g.realm === 6) text = `融合天階神物進入自身方可突破\n已裝備：${g.weapon?.name ?? '無武器'}/${g.armor?.name ?? '無仙衣'}`;
     if (g.realm === 9) text = '暫定，直接升級';
     if (!needsTribulation(g)) {
       if (!direct && g.realm !== 2 && g.realm !== 8 && !await ask.confirm(title, text, '突破', '再等等', '')) return;

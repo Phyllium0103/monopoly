@@ -1,3 +1,4 @@
+import { receiveEquipment } from './EquipmentInventory';
 import type { Aptitude, City, Element, GameState, General, Item, Lord } from '../game/types';
 import { BLOOD_LIFESTEAL, BONE_HP, BOW_DAMAGE, BOWL_GAIN, CHARGE_ENERGY, ESSENCE_EXP, HEAL, ITEM_DEFS, MEND_HEAL, MIST_ATK, POISON, POISON_PREROLL, QI_EXP, RAGE_ATK, REVIVE_HP, REVIVE_REALM_LOSS, RING_TURNS, SACRIFICE_LOSS, SHIELD_RATIO, SOLDIER_CALL, STAMINA_UP, STAT_NAMES, STAT_UP, VEIN_PROSPERITY, itemName, makeItem, rollItemId, rollItemTier, techniqueKeep, type ItemDef } from '../data/items';
 import { generalsOf, freeGenerals, killGeneral, nextUid, reviveGeneral } from '../game/GameState';
@@ -46,7 +47,7 @@ function enhancedItem(item:Item,user:General):Item {
 export function unloadTechnique(state:GameState,g:General):void {
  if(!g.technique)return;
  const owner=g.owner&&state.lords[g.owner];
- if(owner&&!owner.scrolls.some(t=>t.uid===g.technique!.uid))owner.scrolls.push(g.technique);
+ if(owner&&!owner.scrolls.some(t=>t.uid===g.technique!.uid))receiveEquipment(owner, g.technique);
  g.technique=null;
 }
 export function changeAptitude(state:GameState,g:General,aptitude:Aptitude):void {

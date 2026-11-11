@@ -1,3 +1,4 @@
+import { bagHasRoom } from '../systems/EquipmentInventory';
 import type { Lord } from '../game/types';
 import { fmtStones } from '../game/Currency';
 import { SHOP_NAMES, SHOP_REFRESH_COSTS, type Offer, type ShopKind } from '../systems/ShopSystem';
@@ -162,6 +163,7 @@ export class ShopPanel {
       const blocked = unavailable || sold.has(i) || (kind === 'tavern' && data.recruited >= data.recruitLimit) || (otherRevive && data.revivedOther);
       b.textContent = sold.has(i) ? (o.kind === 'revive' ? '已復活' : '已購') : kind === 'tavern' ? '招募' : o.kind === 'revive' ? '復活' : '購買';
       b.disabled = busy || blocked || lord.stones < o.price;
+      if ((o.kind === 'equipment' || o.kind === 'technique') && !bagHasRoom(lord)) { b.disabled = true; b.textContent = '行囊已滿'; b.title = '請先裝備或出售物品，空出一格'; }
       if (s.confirmBeast === i) b.textContent = '放生舊靈獸並購買？';
       if (otherRevive && data.revivedOther && !sold.has(i)) b.textContent = '一次一人';
       if (s.mode === 'sell') {

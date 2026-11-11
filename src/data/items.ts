@@ -200,7 +200,7 @@ export function techniqueDesc(t: Technique): string {
   const parts = [`修練速度 +${Math.round(techniqueSpeed(t) * 100)}%`];
   if (techniqueForce(t)) parts.push(`武力 +${Math.round(techniqueForce(t) * 100)}%`);
   if (t.art) parts.push(`使用${CRAFT_ITEM[t.art]}時 ${Math.round(techniqueKeep(t) * 100)}% 不消耗`);
-  return `${head}｜${parts.join('、')}<br>技能「${techniqueBaseName(t)}」造成 ×${techniqueSkillPower(t)} 傷害（能量滿 100 施放）`;
+  return `${head}<br>${parts.join('、')}<br>技能「${techniqueBaseName(t)}」造成 ×${techniqueSkillPower(t)} 傷害（能量滿 100 施放）`;
 }
 
 // ───────────────────────── 靈獸 ─────────────────────────

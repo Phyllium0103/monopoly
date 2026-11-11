@@ -1,3 +1,4 @@
+import { receiveEquipment } from './EquipmentInventory';
 import type { GameState, General, Lord } from '../game/types';
 import { joinLord, killGeneral, nextUid } from '../game/GameState';
 import { addExp, craft, levelUp, power, totalCraft } from './GeneralSystem';
@@ -118,7 +119,7 @@ function grantReward(state: GameState, lord: Lord, team: General[], all: General
   switch (kind) {
     case 'armor': {
       const e = makeEquipment(uid('e'), kind, tier);
-      lord.gear.push(e);
+      receiveEquipment(lord, e);
       return `仙衣「${e.name}」`;
     }
     case 'pill': {
@@ -132,7 +133,7 @@ function grantReward(state: GameState, lord: Lord, team: General[], all: General
     }
     case 'technique': {
       const t = makeTechnique(uid('t'), tier);
-      lord.scrolls.push(t);
+      receiveEquipment(lord, t);
       return `功法「${t.name}」`;
     }
     default: {

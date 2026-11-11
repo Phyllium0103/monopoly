@@ -1,4 +1,6 @@
 import { enterRelic, advanceRelic, leaveRelic } from '../systems/RelicSystem';
+import { bagItems, bagHasRoom, moveBagItem, receiveEquipment, resolveEquipmentReward, isArmor, EQUIPMENT_CAPACITY } from '../systems/EquipmentInventory';
+import { equipDesc } from '../data/items';
 import { generalHoverTable } from '../ui/GeneralInfo';
 import { GOLDEN_CORES, BREAKTHROUGH_TITLES, mortalTrialTurns, type GoldenCore, breakthroughSuccess, breakthroughSuccessTitle } from '../data/breakthroughRules';
 import { completeBreak, ascensionCities, ESSENCE_ELEMENTS, ESSENCE_NAMES, reconcileProgression } from '../systems/GeneralSystem';
@@ -44,7 +46,7 @@ import type { EngineView } from './view';
 import { duelSnapshot } from './snapshots';
 
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
-export type RosterActionType = Exclude<RosterAction, { type: 'close' | 'transfer-armor' | 'learn-technique' }>['type'];
+export type RosterActionType = Exclude<RosterAction, { type: 'close' | 'transfer-armor' | 'learn-technique' | 'move-bag-item' }>['type'];
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
 
@@ -87,11 +89,33 @@ export class Engine {
   }
 
   private dlg(lord: Lord | LordId) {
-    return new Ask(typeof lord === 'string' ? lord : lord.id, this.ports.send);
+    return new Ask(typeof lord === 'string' ? lord : lord.id, (id, prompt) => this.ask(this.state.lords[id], prompt));
   }
 
-  private ask(lord: Lord, prompt: Prompt) {
+  private async ask(lord: Lord, prompt: Prompt) {
+    await this.resolvePendingEquipment(lord);
     return this.ports.send(lord.id, prompt);
+  }
+
+  private async resolvePendingEquipment(lord: Lord) {
+    while (lord.alive && !this.state.over && lord.pendingEquipment.length) {
+      const reward = lord.pendingEquipment[0];
+      if (bagHasRoom(lord)) { lord.pendingEquipment.shift(); receiveEquipment(lord, reward); continue; }
+      const items = bagItems(lord);
+      let replace: string | null = null;
+      if (this.human(lord)) {
+        const dialog = new Ask(lord.id, this.ports.send);
+        replace = await dialog.choose('行囊已滿・選擇保留',
+          `仙衣與功法共用 ${EQUIPMENT_CAPACITY} 格。新獲得「${reward.name}」：<br>${isArmor(reward) ? equipDesc(reward, false) : techniqueDesc(reward)}<br>選擇一件未裝備物品替換，或放棄這份獎勵。被替換的物品將消失。`,
+          items.map(item => ({ label: `替換 ${item.name}`, sub: isArmor(item) ? equipDesc(item, false) : techniqueDesc(item), value: item.uid })), '放棄新獎勵', '行囊');
+      } else {
+        const least = [...items].sort((a, b) => a.price - b.price)[0];
+        if (least && reward.price > least.price) replace = least.uid;
+      }
+      if (!resolveEquipmentReward(lord, reward.uid, replace)) continue;
+      this.view.log(replace ? `保留「${reward.name}」，替換行囊中的物品。` : `放棄「${reward.name}」。`, this.human(lord) ? 'info' : 'ai');
+      this.view.refresh();
+    }
   }
 
   private wait(ms: number) {
@@ -118,6 +142,7 @@ export class Engine {
     if (lord.alive) {
       if (!this.human(lord)) this.view.beginReport(lord.id);
       await this.takeTurn(lord);
+      for (const owner of aliveLords(this.state)) await this.resolvePendingEquipment(owner);
       if (lord.tollFreeTurns > 0) lord.tollFreeTurns--;
       if (lord.clearCultivationTurns) lord.clearCultivationTurns--;
       lord.tollFree = lord.tollFreeTurns > 0;
@@ -140,6 +165,7 @@ export class Engine {
       }
       this.view.log(`── 第 ${this.state.round} 輪 ──`, 'turn');
       await this.newRoundEvents();
+      for (const owner of aliveLords(this.state)) await this.resolvePendingEquipment(owner);
       if (this.stopped || this.state.over) return false;
       reconcileElementalSpirits(this.state);
       spawnElementalSpirits(this.state);
@@ -1744,6 +1770,7 @@ export class Engine {
     }
     if (!champion) { this.view.log('九州比武大會無人完成參賽，本屆沒有冠軍。', 'info'); return; }
     const prize = grantTournamentPrize(this.state, champion);
+    await this.resolvePendingEquipment(champion);
     const result = `${LORDS[champion.id].name}奪得冠軍，獲得天階獎勵「${prize.label}」！`;
     this.view.log('🏆 ' + result, champion.isPlayer ? 'good' : 'info'); this.view.refresh();
     await this.notifyAll('九州比武大會・冠軍', result + '\n\n' + prize.sub, '🏆', '確定');
@@ -1785,6 +1812,10 @@ export class Engine {
 
   /** 玩家密封出價；回傳 0 表示放棄 */
   private async playerBid(lord: Lord, lot: Offer): Promise<number> {
+    if ((lot.kind === 'equipment' || lot.kind === 'technique') && !bagHasRoom(lord)) {
+      this.view.toast('行囊已滿，無法競標仙衣或功法', lord.id);
+      return 0;
+    }
     const a = await this.ask(lord, { kind: 'bid', lot: { label: lot.label, sub: lot.sub, price: lot.price } });
     if (typeof a !== 'number' || !Number.isFinite(a)) return 0;
     return Math.max(0, Math.min(lord.stones, Math.round(a / 100) * 100));
@@ -1848,12 +1879,17 @@ export class Engine {
       const a = (await this.ask(lord, { kind: 'roster' })) as RosterAction | null;
       if (!a || a.type === 'close') return;
       if (a.type === 'transfer-armor') {
-        transferArmor(this.state, lord, a.itemUid, a.fromGeneralId, a.toGeneralId);
+        transferArmor(this.state, lord, a.itemUid, a.fromGeneralId, a.toGeneralId, a.bagSlot);
         this.view.refresh();
         continue;
       }
       if (a.type === 'learn-technique') {
         this.learnTechniqueFromRoster(lord, a.itemUid, a.generalId);
+        continue;
+      }
+      if (a.type === 'move-bag-item') {
+        moveBagItem(lord, a.itemUid, a.slot);
+        this.view.refresh();
         continue;
       }
       const g = this.state.generals[a.generalId];

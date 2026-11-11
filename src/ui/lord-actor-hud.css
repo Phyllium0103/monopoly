@@ -64,7 +64,7 @@
 .party-arrow{flex:0 0 22px;height:36px;padding:0;border:1px solid #bda870;border-radius:5px;background:#1e3028e8;color:#f5e5b2;font-size:24px;line-height:1;cursor:pointer;pointer-events:auto}
 .party-arrow:disabled{opacity:.3;cursor:default}.party-shell:not(.has-overflow) .party-arrow{visibility:hidden}
 .hud.lord-actors-enabled .pd-gen{
-  flex:0 0 58px;min-width:0;height:auto;aspect-ratio:58 / 80;container-type:inline-size;scroll-snap-align:start;
+  flex:0 0 58px;min-width:0;height:auto;aspect-ratio:58 / 88;container-type:inline-size;scroll-snap-align:start;
 }
 .hud.lord-actors-enabled .pd-gen img{width:93.1034cqw;height:93.1034cqw;border-width:3.4483cqw}
 .hud.lord-actors-enabled .pd-skill{top:-3.4483cqw;font-size:24.1379cqw}

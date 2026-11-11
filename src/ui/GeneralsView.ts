@@ -1,16 +1,16 @@
-import { upgradeRequirement, weaponUpgradeTip } from '../systems/MaterialSystem';
+import { upgradeRequirement } from '../systems/MaterialSystem';
 import './technique-roster.css';
 import { materialLabel } from './MaterialArt';
 import { RosterEquipment, armorPicture, techniquePicture } from './RosterEquipment';
-import { compareArmor } from '../data/armorCatalog';
+import { bagSlots, bagItems, EQUIPMENT_CAPACITY, isArmor } from '../systems/EquipmentInventory';
 import './roster-equipment.css';
 import { generalCooldownText } from '../systems/GeneralAbilities';
-import type { GameState, General, Lord, Technique } from '../game/types';
+import type { GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
 import { APTITUDE_DESC, APTITUDE_NAMES } from '../data/generals';
-import { realmTag } from './GeneralInfo';
+import { realmTag, fusionSummary } from './GeneralInfo';
 import { fxText, passiveOf, fx } from '../data/passives';
-import { equipDesc, techniqueBaseName } from '../data/items';
+import { techniqueBaseName } from '../data/items';
 import {
   attack,
   boltCount,
@@ -31,16 +31,8 @@ import {
 import { LORDS, originKingdom } from '../faction/Faction';
 import { equipIconUrl } from './Icons';
 import { generalHeadUrl, hasHeavenWeapon, rosterArtUrl } from '../data/generalArt';
-import { WEAPON_CATALOG } from '../data/weaponCatalog';
-import { realmFrameHtml } from './RealmFrame';
 import type { RosterAction } from '../engine/prompts';
 
-const SECTIONS: { status: General['status']; title: string }[] = [
-  { status: 'free', title: '隨行' },
-  { status: 'garrison', title: '駐守城池' },
-  { status: 'sect', title: '留守宗門' },
-  { status: 'realm', title: '外出中（秘境）' },
-];
 
 /** 武將名冊：查看能力、裝備、學功法、突破渡劫 */
 /** 提示文字：去掉 HTML 標籤並跳脫引號，才能放進 title 屬性 */
@@ -49,9 +41,10 @@ const tip = (html: string) => html.replace(/<br\s*\/?>/g, '｜').replace(/<[^>]+
 const escapeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 
-/** 武將名冊可選的排序項目（由大到小；主公永遠排第一） */
+/** 武將名冊可選的排序項目（由大到小） */
 const APTITUDE_ORDER: General['aptitude'][] = ['waste', 'earth', 'fire', 'water', 'wood', 'metal', 'heaven'];
 const SORTS: { id: string; name: string; value: (g: General) => number }[] = [
+  { id: 'location', name: '位置', value: () => 0 },
   { id: 'power', name: '戰力', value: (g) => power(g) },
   { id: 'attack', name: '武力', value: (g) => attack(g) },
   { id: 'defense', name: '防禦', value: (g) => defense(g) },
@@ -73,8 +66,8 @@ const COLUMNS: { cls: string; label: string; sort?: string }[] = [
   { cls: 'c-origin', label: '所屬' },
   { cls: 'c-realm', label: '境界', sort: 'realm' },
   { cls: 'c-apt', label: '靈根', sort: 'aptitude' },
-  { cls: 'c-st', label: '位置' },
-  { cls: 'c-hp', label: '血量', sort: 'hp' },
+  { cls: 'c-st', label: '位置', sort: 'location' },
+  { cls: 'c-hp', label: '血量／修為／體力', sort: 'hp' },
   { cls: 'c-armor', label: '仙衣' },
   { cls: 'c-technique', label: '功法' },
   { cls: 'c-power', label: '戰力', sort: 'power' },
@@ -95,23 +88,31 @@ export interface RosterMode {
   free: boolean;
 }
 
+export function sortRosterGenerals(gens: General[], state: GameState, sortId: string): General[] {
+  const key = (SORTS.find(x => x.id === sortId) ?? SORTS[0]).value;
+  const locationOrder = (g: General) => g.status === 'free' ? 0 : g.status === 'garrison' ? 1 : g.status === 'realm' ? 2 : 3;
+  return [...gens].sort((a, b) => sortId === 'location'
+    ? locationOrder(a) - locationOrder(b) || (a.status === 'garrison' && b.status === 'garrison' ? (state.cities[b.cityId!]?.prosperity ?? 0) - (state.cities[a.cityId!]?.prosperity ?? 0) || (a.cityId ?? '').localeCompare(b.cityId ?? '') : 0) || power(b) - power(a)
+    : key(b) - key(a) || power(b) - power(a));
+}
+
 export class GeneralsView {
   /** 目前的排序項目，預設戰力 */
-  private sortId = 'power';
+  private sortId = 'location';
   private el: HTMLDivElement;
   private resolve: (() => void) | null = null;
   private mode: RosterMode = { manage: false, free: false };
   private onAction: ((a: RosterAction) => void) | null = null;
   private current: { state: GameState; lord: Lord } | null = null;
-  /** 目前展開詳細資訊的武將；重繪後保持展開 */
-  private expanded = new Set<string>();
-  /** 下次重繪時展開並捲到這名武將（點右下大頭貼進來時） */
+  /** 目前詳情彈窗中的武將；重繪後保留 */
+  private detailId: string | null = null;
+  /** 下次重繪時開啟詳情並捲到這名武將（點右下大頭貼進來時） */
   private focusId: string | null = null;
   private equipmentControls: RosterEquipment;
 
   constructor(root: HTMLElement) {
     this.el = document.createElement('div');
-    this.el.className = 'drawer hidden';
+    this.el.className = 'drawer roster-screen hidden';
     root.appendChild(this.el);
     this.equipmentControls = new RosterEquipment(this.el, a => this.emit(a));
   }
@@ -120,10 +121,10 @@ export class GeneralsView {
     return !this.el.classList.contains('hidden');
   }
 
-  /** 指定下次開啟名冊時要展開並捲到的武將 */
+  /** 指定下次開啟名冊時要開啟詳情並捲到的武將 */
   focus(generalId: string) {
     this.focusId = generalId;
-    this.expanded.add(generalId);
+    this.detailId = generalId;
   }
 
   /** 開啟名冊；onAction 收到按鈕動作（關閉時收到 close） */
@@ -171,6 +172,7 @@ export class GeneralsView {
   close() {
     if (!this.isOpen) return;
     this.el.classList.add('hidden');
+    this.closeDetail();
     this.equipmentControls.clear();
     const action = this.onAction;
     this.onAction = null;
@@ -183,78 +185,85 @@ export class GeneralsView {
     this.onAction?.(a);
   }
 
+  private vitals(g: General): string {
+    const cap = expCap(g);
+    const bar = (cls: string, name: string, value: number, max: number) => `<span class="bar ${cls}" role="meter" aria-label="${name}" aria-valuemin="0" aria-valuemax="${Number.isFinite(max) ? max : 100}" aria-valuenow="${Number.isFinite(max) ? Math.min(max, value) : 100}"><i style="width:${Number.isFinite(max) ? Math.max(0, Math.min(100, value / Math.max(1, max) * 100)) : 100}%"></i><span>${name} ${Math.round(value)}${Number.isFinite(max) ? ` / ${max}` : '・圓滿'}</span></span>`;
+    return bar('hp', '血量', g.hp, maxHp(g)) + bar('exp', '修為', g.exp, cap) + bar('sta', '體力', g.stamina, maxStamina(g));
+  }
+
+  private closeDetail() {
+    const id = this.detailId;
+    this.detailId = null;
+    this.el.querySelector('.general-modal-backdrop')?.remove();
+    for (const el of this.el.querySelectorAll<HTMLElement>('[data-roster-inert]')) { el.inert = false; el.removeAttribute('data-roster-inert'); }
+    if (id) this.el.querySelector<HTMLButtonElement>(`[data-general-id="${id}"] .roster-toggle`)?.focus({ preventScroll: true });
+  }
+
+  private openDetail(state: GameState, lord: Lord, g: General, manage: boolean) {
+    this.el.querySelector('.general-modal-backdrop')?.remove();
+    this.detailId = g.id;
+    const backdrop = document.createElement('div');
+    backdrop.className = 'general-modal-backdrop';
+    backdrop.innerHTML = `<section class="general-modal" role="dialog" aria-modal="true" aria-labelledby="general-detail-title"><header class="general-modal-head"><div><small>武將檔案</small><h2 id="general-detail-title">${escapeHtml(g.name)}</h2></div><button type="button" class="btn detail-close" aria-label="關閉武將詳情">✕</button></header><div class="general-modal-content"></div></section>`;
+    backdrop.querySelector('.general-modal-content')!.appendChild(this.card(state, lord, g, manage));
+    backdrop.querySelector<HTMLButtonElement>('.detail-close')!.onclick = () => this.closeDetail();
+    backdrop.onclick = e => { if (e.target === backdrop) this.closeDetail(); };
+    backdrop.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        // Let the equipment controller consume the first Escape while carrying an item.
+        if (this.el.classList.contains('equipment-carrying')) return;
+        e.stopPropagation(); this.closeDetail();
+      }
+      if (e.key === 'Tab') {
+        const buttons = [...backdrop.querySelectorAll<HTMLElement>('button:not(:disabled), [tabindex="0"]')];
+        const first = buttons[0], last = buttons[buttons.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
+    });
+    for (const child of this.el.children) { const el = child as HTMLElement; el.inert = true; el.setAttribute('data-roster-inert', ''); }
+    this.el.appendChild(backdrop);
+    this.equipmentControls.update(state, lord, manage, this.mode.free);
+    backdrop.querySelector<HTMLButtonElement>('.detail-close')!.focus({ preventScroll: true });
+  }
+
   private render(state: GameState, lord: Lord) {
     const gens = generalsOf(state, lord.id);
     const manage = this.mode.manage;
 
-    const gear = [...lord.gear].sort((a, b) => compareArmor(a, b)).map(e => armorPicture(e)).join('') || '<span class="muted">尚無仙衣</span>';
-    const families = ['metal', 'wood', 'water', 'fire', 'earth', 'alchemy', 'forging', 'talisman', 'formation'];
-    const familyOrder = (t: Technique) => { const i = families.indexOf(t.art ?? t.element ?? ''); return i < 0 ? families.length : i; };
-    const scrolls = [...lord.scrolls].sort((a, b) => Math.floor(a.tier / 3) - Math.floor(b.tier / 3) || familyOrder(a) - familyOrder(b) || a.tier - b.tier).map(t => techniquePicture(t)).join('') || '<span class="muted">無</span>';
+    const cells = bagSlots(lord).map((item, index) => '<div class="inventory-cell" data-inventory-slot="' + index + '">' + (item ? isArmor(item) ? armorPicture(item) : techniquePicture(item) : '<button type="button" class="technique-picture armor-picture armor-empty" aria-label="行囊空格 ' + (index + 1) + '"></button>') + '</div>').join('');
     const party = gens.filter((g) => g.status === 'free').length;
 
     // 重繪前記住捲動位置：只有下方清單捲動，標題列固定
     const scrollTop = this.el.querySelector('.drawer-body')?.scrollTop ?? 0;
     this.el.innerHTML = `
       <div class="drawer-head">
-        <h2 style="color:${LORDS[lord.id].css}">${LORDS[lord.id].name}・武將名冊</h2>
+        <div class="roster-title"><small>將星錄 · ${LORDS[lord.id].name}</small><h2>武將名冊</h2></div>
         <span class="muted">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : '・非你的回合，無法突破'}</span>
         <label class="sort-box">排序 <select class="sort-select">${SORTS.map((x) => `<option value="${x.id}" ${x.id === this.sortId ? 'selected' : ''}>${x.name}</option>`).join('')}</select></label>
-        <button class="btn mini toggle-all">${gens.length && gens.every((g) => this.expanded.has(g.id)) ? '全部收合' : '全部展開'}</button>
         <button class="btn close">關閉 ✕</button>
       </div>
       <div class="drawer-body">
-      <div class="ready-section"></div>
-      <div class="bag">
-        <div class="armor-collection">
-          <div class="armor-collection-head"><b>行囊仙衣</b><span class="muted">拖曳圖片到仙衣格，或依序點選兩邊圖片</span><button type="button" class="btn mini" data-equipment-cancel>取消選擇</button></div>
-          <div class="armor-bag-items" data-equipment-kind="armor" data-equipment-bag>${gear}<button type="button" class="armor-unequip" data-equipment-kind="armor" data-equipment-bag>放回行囊</button></div>
-          <div class="equipment-feedback" role="status" aria-live="polite">${manage ? '換下的仙衣自動回到行囊；點選已穿著的仙衣再放回行囊可卸下' : '只能在自己的整備階段換裝'}</div>
-        </div>
-        <div class="technique-collection"><b>功法秘笈</b><span class="technique-list">${scrolls}</span></div>
-        <div><b>靈獸</b>${lord.beast ? `<span class="chip" title="${tip(lord.beast.desc)}">${lord.beast.name}</span>` : '<span class="muted">無</span>'}</div>
-      </div>
       <div class="sections"></div>
-      </div>`;
+      </div>
+      <footer class="roster-inventory">
+        <div class="inventory-heading"><div><b>隨身行囊</b><span>仙衣 · 功法</span></div><span class="inventory-count">${bagItems(lord).length} / ${EQUIPMENT_CAPACITY}</span><button type="button" class="btn mini" data-equipment-cancel>取消選取 <kbd>Esc</kbd></button></div>
+        <div class="inventory-grid">${cells}</div>
+        <div class="equipment-feedback" role="status" aria-live="polite">點選圖片拿起，再點裝備格放入；已修習功法的取下操作在武將詳情中。</div>
+      </footer>`;
+
     (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
-    (this.el.querySelector('.toggle-all') as HTMLButtonElement).onclick = () => {
-      if (gens.every((g) => this.expanded.has(g.id))) this.expanded.clear();
-      else for (const g of gens) this.expanded.add(g.id);
-      this.render(state, lord);
-    };
     (this.el.querySelector('.sort-select') as HTMLSelectElement).onchange = (e) => {
       this.sortId = (e.target as HTMLSelectElement).value;
       this.render(state, lord);
     };
-    const key = (SORTS.find((x) => x.id === this.sortId) ?? SORTS[0]).value;
-    // 主公固定第一，其餘依所選數值由大到小，同分再比戰力
-    const order = (a: General, b: General) => Number(b.isLord) - Number(a.isLord) || key(b) - key(a) || power(b) - power(a);
-
-    // 可以突破的武將暫時移到最上方
-    const ready = gens.filter((g) => canAttemptBreak(g, state.round).ok).sort(order);
-    const readyBox = this.el.querySelector('.ready-section') as HTMLElement;
-    if (ready.length) {
-      const h = document.createElement('h3');
-      h.className = 'section-title ready-title';
-      h.textContent = `✨ 可以突破的武將（${ready.length}）`;
-      readyBox.append(h, this.list(state, lord, ready, manage));
-    }
-    const readyIds = new Set(ready.map((g) => g.id));
-
-    const sections = this.el.querySelector('.sections')!;
-    for (const sec of SECTIONS) {
-      const list = gens.filter((g) => g.status === sec.status && !readyIds.has(g.id)).sort(order);
-      if (!list.length) continue;
-      const h = document.createElement('h3');
-      h.className = 'section-title';
-      h.textContent = `${sec.title}（${list.length}${sec.status === 'free' ? `/${PARTY_LIMIT}` : ''}）`;
-      sections.append(h, this.list(state, lord, list, manage));
-    }
+    this.el.querySelector('.sections')!.appendChild(this.list(state, lord, sortRosterGenerals(gens, state, this.sortId), manage));
     this.el.querySelector('.drawer-body')!.scrollTop = scrollTop;
+    if (this.detailId && state.generals[this.detailId]?.owner === lord.id) this.openDetail(state, lord, state.generals[this.detailId], manage);
     this.equipmentControls.update(state, lord, manage, this.mode.free);
   }
 
-  /** 條列式名冊：每位武將一列，點一下展開原本的詳細卡片，再點一次收合 */
+  /** 條列式名冊：每位武將一列，點選開啟獨立詳情彈窗 */
   private list(state: GameState, lord: Lord, gens: General[], manage: boolean): HTMLDivElement {
     const list = document.createElement('div');
     list.className = 'roster-list';
@@ -287,27 +296,17 @@ export class GeneralsView {
       const ready = canAttemptBreak(g, state.round).ok;
       const item = document.createElement('div');
       item.className = `roster-item s-${g.status}${ready ? ' ready' : ''}${g.isLord ? ' is-lord' : ''}`;
+      item.dataset.generalId = g.id;
       const row = document.createElement('div');
       row.className = 'roster-row';
       row.setAttribute('role', 'group');
       row.setAttribute('aria-label', g.name);
       row.innerHTML = this.rowHtml(state, lord, g, ready);
       item.appendChild(row);
-      const show = (open: boolean) => {
-        item.classList.toggle('open', open);
-        row.querySelector('.roster-toggle')!.setAttribute('aria-expanded', String(open));
-        if (open) item.appendChild(this.card(state, lord, g, manage));
-        else item.querySelector('.general-card')?.remove();
-      };
       row.onclick = e => {
-        if ((e.target as HTMLElement).closest('[data-equipment-kind]')) return;
-        const open = !this.expanded.has(g.id);
-        if (open) this.expanded.add(g.id);
-        else this.expanded.delete(g.id);
-        show(open);
-        this.equipmentControls.update(state, lord, manage, this.mode.free);
+        if ((e.target as HTMLElement).closest('[data-equipment-kind], [data-inventory-slot]')) return;
+        this.openDetail(state, lord, g, manage);
       };
-      show(this.expanded.has(g.id));
       list.appendChild(item);
       if (this.focusId === g.id) {
         this.focusId = null;
@@ -317,13 +316,13 @@ export class GeneralsView {
     return list;
   }
 
-  /** 收合時只顯示摘要；武器圖片與名稱在展開後的詳細卡片顯示。 */
+  /** 名冊列顯示摘要；完整武器與能力資訊在詳情彈窗顯示。 */
   private rowHtml(state: GameState, lord: Lord, g: General, ready: boolean): string {
     const city = g.cityId ? state.cities[g.cityId] : null;
     const trip = lord.expeditions.find((e) => e.generalIds.includes(g.id));
     const place = g.ghostSourceId ? `冤魂・${g.ghostTurns} 回合` : g.status === 'garrison' ? `${city?.name ?? '駐守'}` : g.status === 'realm' ? `${trip?.realmName ?? '外出'}・${trip?.turnsLeft ?? 0} 回合` : g.status === 'sect' ? '宗門' : '隨行';
     const p = passiveOf(g);
-    // 頭像用背景圖，避免點頭像時被看圖功能攔下而無法展開
+    // 頭像用背景圖，避免點頭像時被看圖功能攔下而無法開啟詳情
     return `
       <span class="roster-before">
       <span class="c-face" style="background-image:url('${generalHeadUrl(g)}')"></span>
@@ -332,7 +331,7 @@ export class GeneralsView {
       <span class="c-realm">${realmTag(g.realm)}</span>
       <span class="c-apt"><span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude].replace('靈根', '')}</span></span>
       <span class="c-st">${place}</span>
-      <span class="c-hp"><span class="bar hp"><i style="width:${Math.min(100, (g.hp / maxHp(g)) * 100)}%"></i><span>${g.hp}/${maxHp(g)}</span></span></span>
+      <span class="c-hp roster-vitals">${this.vitals(g)}</span>
       </span>
       <span class="roster-equipment"><span class="c-armor">${armorPicture(g.armor, g.id)}</span><span class="c-technique">${techniquePicture(g.technique, g.id)}</span></span>
       <span class="roster-after">
@@ -344,7 +343,7 @@ export class GeneralsView {
       <span class="c-craft">${craft(g, 'talisman')}</span>
       <span class="c-craft">${craft(g, 'formation')}</span>
       <span class="c-passive" title="${tip(`【${p.name}】${fxText(p.fx)}`)}">【${p.name}】</span>
-      <button type="button" class="c-caret roster-toggle" aria-label="展開／收合${g.name}詳細資訊" aria-expanded="false">▸</button></span>`;
+      <button type="button" class="c-caret roster-toggle" aria-label="查看${g.name}詳細資訊" aria-haspopup="dialog">›</button></span>`;
   }
 
   private card(state: GameState, lord: Lord, g: General, manage: boolean): HTMLDivElement {
@@ -353,11 +352,8 @@ export class GeneralsView {
     const ready = canAttemptBreak(g, state.round).ok;
     const heavenWeapon = hasHeavenWeapon(g);
     // 預留各品階最長的武器名稱，升階換圖時不讓右側文字撐高圖片框。
-    const weaponNames = WEAPON_CATALOG[g.ghostSourceId ?? g.id]?.names ?? [];
-    const weaponNameSpace = weaponNames.reduce((longest, name) => name.length > longest.length ? name : longest, g.weapon?.name.split('・').pop() ?? '');
     card.className = `general-card s-${g.status}${ready ? ' ready' : ''}${heavenWeapon ? ' has-fx-art' : ''}`;
-    const art = `<div class="gc-portrait has-realm-frame"><div class="gc-art"><img src="${rosterArtUrl(g)}" data-full-art="${rosterArtUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></div>${realmFrameHtml(g.realm)}</div>`;
-    const cap = expCap(g);
+    const art = `<div class="gc-portrait"><div class="gc-art"><img src="${rosterArtUrl(g)}" data-full-art="${rosterArtUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></div></div>`;
     const t = g.technique;
     const city = g.cityId ? state.cities[g.cityId] : null;
     const trip = lord.expeditions.find((e) => e.generalIds.includes(g.id));
@@ -371,48 +367,31 @@ export class GeneralsView {
     const buffs = [g.foundation ? '已服築基丹' : '', g.sevenLife ? '七星續命護法' : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? '心魔：修為減半・無法突破' : ''].filter(Boolean).join('・');
 
     const req = upgradeRequirement(lord, g);
+    const passive = passiveOf(g);
+    const stat = (label: string, value: number) => '<div class="detail-stat"><small>' + label + '</small><b>' + value + '</b></div>';
     card.innerHTML = `
-      <div class="gc-details">
-      ${ready ? `<div class="ready-banner">✨ 修為圓滿，可以${needsTribulation(g) ? '渡劫' : '突破'}了！</div>` : ''}
-      <div class="gc-overview">
-      ${art}
-      <div class="gc-head">
-        <b>${g.name}</b><small>${originKingdom(g.origin)}</small>${realmTag(g.realm)}${g.isLord ? '<span class="lord-tag">主公</span>' : ''}
-        <span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span>
-        <span class="chip trait" title="【${passiveOf(g).name}】${tip(fxText(passiveOf(g).fx))}${generalCooldownText(lord, g) ? `｜${tip(generalCooldownText(lord, g))}` : ''}｜${tip(passiveOf(g).flavor)}">【${passiveOf(g).name}】</span>
-        ${buffs ? `<span class="chip buff">${buffs}</span>` : ''}
-        <span class="st">${status}</span>
-        ${g.fusionBonus ? `<div class="fusion-summary">融合加成：${fusionSummary(g)}</div>` : ''}
-      </div>
-      <div class="gc-body">
-        <div class="gc-slots">
-          <div class="gc-slot eq-row" data-slot="weapon" ${g.weapon ? `title="${tip(`${equipDesc(g.weapon)}｜${weaponUpgradeTip(lord, g)}`)}"` : ''}><small>武器</small>${g.weapon ? `<img class="slot-icon" src="${equipIconUrl(g.weapon)}" alt="" onerror="this.style.visibility='hidden'"><b class="gc-slot-name" data-name-space="${weaponNameSpace}"><span>${g.weapon.name.split('・').pop()}</span></b><em class="slot-tier" data-tier-space="天階・破防 100%"><span>${g.weapon.name.split('・')[0]}・破防 ${Math.round((g.weapon.penetration ?? 0) * 100)}%</span></em>` : '<b><span class="muted">無</span></b>'}</div>
-          <div class="gc-slot eq-row" data-slot="armor"><small>仙衣</small>${armorPicture(g.armor, g.id)}<b class="armor-equipped-name">${g.armor?.name.split('・').pop() ?? '未裝備'}</b><em class="slot-tier">${g.armor?.name.split('・')[0] ?? '點選或拖入'}</em><span class="armor-slot-hint">${manage ? '拖曳／點選換裝' : '整備階段可換裝'}</span></div>
+      <div class="dossier-layout">
+        <aside class="dossier-identity">${art}<div class="dossier-name"><h3>${g.name}</h3><span>${originKingdom(g.origin)}${g.isLord ? ' · 主公' : ''}</span></div>
+          <div class="dossier-tags">${realmTag(g.realm)}<span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span></div>
+          <p class="dossier-location">${status}</p>
+          <section class="dossier-passive"><small>專屬天賦</small><h4>${passive.name}</h4><p>${fxText(passive.fx)}</p>${generalCooldownText(lord,g) ? '<p>'+generalCooldownText(lord,g)+'</p>' : ''}<em>${passive.flavor}</em></section>
+        </aside>
+        <div class="dossier-main">
+          <section class="dossier-section"><div class="dossier-section-head"><h3>身心狀態</h3><span>每回合修為 +${Math.round(passiveExp(g, city) * expMultiplier(g))}</span></div><div class="dossier-vitals">${this.vitals(g)}</div>
+            ${buffs ? '<p class="dossier-condition">'+buffs+'</p>' : ''}
+            ${breakInfo ? '<p class="break-info">'+breakInfo+'</p>' : ''}
+            ${ready ? '<p class="dossier-ready">修為圓滿，可以'+(needsTribulation(g) ? '渡劫' : '突破')+'</p>' : ''}
+          </section>
+          <section class="dossier-section"><div class="dossier-section-head"><h3>戰鬥與四藝</h3></div><div class="detail-combat">${stat('戰力',power(g))}${stat('武力',attack(g))}${stat('防禦',defense(g))}</div><div class="detail-crafts">${stat('煉丹',craft(g,'alchemy'))}${stat('煉器',craft(g,'forging'))}${stat('畫符',craft(g,'talisman'))}${stat('佈陣',craft(g,'formation'))}</div>
+            ${g.fusionBonus ? '<p class="fusion-summary">融合加成：'+fusionSummary(g)+'</p>' : ''}
+          </section>
+          <section class="dossier-section"><div class="dossier-section-head"><h3>隨身裝備</h3><span>滑鼠停留查看能力</span></div><div class="detail-equipment">
+            <div class="eq-row detail-weapon" data-slot="weapon"><small>專屬武器</small>${g.weapon ? '<img class="slot-icon" src="'+equipIconUrl(g.weapon)+'" alt="" draggable="false"><b>'+g.weapon.name+'</b><span class="muted">破防 '+Math.round((g.weapon.penetration??0)*100)+'%</span>' : '<b>無專屬武器</b>'}</div>
+            <div class="eq-row" data-slot="armor"><small>仙衣</small>${armorPicture(g.armor,g.id)}<b>${g.armor?.name ?? '未裝備'}</b></div>
+            <div class="eq-row" data-slot="technique"><small>功法</small>${techniquePicture(t,g.id)}<b>${t ? escapeHtml(techniqueBaseName(t)) : '未修習'}</b></div>
+          </div></section>
+          <div class="gc-actions"></div>
         </div>
-        <table class="gc-table">
-          <tr class="gc-row-main">
-            <td><small>戰力</small><b>${power(g)}</b></td>
-            <td><small>武力</small><b>${attack(g)}</b></td>
-            <td><small>防禦</small><b>${defense(g)}</b></td>
-            <td><small>修為／回合</small><b>+${Math.round(passiveExp(g, city) * expMultiplier(g))}</b></td>
-          </tr>
-          <tr class="gc-row-craft">
-            <td><small>煉丹</small><b>${craft(g, 'alchemy')}</b></td>
-            <td><small>煉器</small><b>${craft(g, 'forging')}</b></td>
-            <td><small>畫符</small><b>${craft(g, 'talisman')}</b></td>
-            <td><small>佈陣</small><b>${craft(g, 'formation')}</b></td>
-          </tr>
-        </table>
-      </div>
-      </div>
-      <div class="bar exp ${bottleneck ? 'full' : ''}"><i style="width:${Number.isFinite(cap) ? Math.min(100, (g.exp / cap) * 100) : 100}%"></i><span>修為 ${g.exp}${Number.isFinite(cap) ? ` / ${cap}` : '（真仙圓滿）'}${bottleneck ? '・瓶頸' : ''}</span></div>
-      ${breakInfo ? `<div class="break-info">${breakInfo}</div>` : ''}
-      <div class="bar hp"><i style="width:${(g.hp / maxHp(g)) * 100}%"></i><span>血量 ${g.hp} / ${maxHp(g)}</span></div>
-      <div class="bar sta"><i style="width:${g.stamina / maxStamina(g) * 100}%"></i><span>體力 ${g.stamina} / ${maxStamina(g)}</span></div>
-      <div class="equip">
-        <div class="eq-row" data-slot="technique"><span class="eq-info technique-equipped"><span>功法</span>${techniquePicture(t, g.id)}${t ? `<span class="technique-equipped-name grade-text-${Math.max(0, Math.min(3, Math.floor(t.tier / 3)))}">${escapeHtml(techniqueBaseName(t))}</span>` : '<span class="muted">未修習</span>'}</span></div>
-      </div>
-      <div class="gc-actions"></div>
       </div>`;
 
     const actions = card.querySelector('.gc-actions')!;
@@ -450,8 +429,9 @@ export class GeneralsView {
     }
     // 已經修習功法就不再顯示學習按鈕
     if (!t) rowBtn('technique', g.aptitude === 'waste' ? '廢靈根' : '學習功法', !free || away || !lord.scrolls.length || g.aptitude === 'waste', () => this.emit({ type: 'learn', generalId: g.id }));
-    btn('自廢修為', !free || away || !t, () => this.emit({ type: 'abolish', generalId: g.id }));
+    rowBtn('armor', '取下仙衣', !manage || away || !g.armor, () => this.equipmentControls.unequip(g.id));
+    btn('自廢修為・取下功法', !free || away || !t, () => this.emit({ type: 'abolish', generalId: g.id }));
+    const note = document.createElement('p'); note.className = 'dossier-warning'; note.textContent = '自廢會散去功法、境界回到凡人、修為歸零。功法不會回到行囊。'; actions.appendChild(note);
     return card;
   }
 }
-import { fusionSummary } from './GeneralInfo';

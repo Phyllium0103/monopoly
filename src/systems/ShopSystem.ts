@@ -1,3 +1,4 @@
+import { receiveEquipment, bagHasRoom, syncBagSlots } from './EquipmentInventory';
 import type { GameState, Lord, TileKind } from '../game/types';
 import { joinLord, newGeneral, nextUid, reviveGeneral } from '../game/GameState';
 import { merchantStock } from './EventSystem';
@@ -151,6 +152,7 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
 
 /** 購買；回傳結果文字，失敗回傳 null */
 export function buy(state: GameState, lord: Lord, offer: Offer): { ok: boolean; message: string } {
+  if ((offer.kind === 'equipment' || offer.kind === 'technique') && !bagHasRoom(lord)) return { ok: false, message: '行囊已滿，請先裝備或出售物品，空出一格。' };
   if (lord.stones < offer.price) return { ok: false, message: '靈石不足。' };
   if (offer.kind === 'general' && (offer.general.owner || offer.general.status==='dead')) return { ok: false, message: '此人已出仕。' };
   if (offer.kind === 'revive' && offer.general.status !== 'dead') return { ok: false, message: '此人已經復活了。' };
@@ -162,11 +164,11 @@ export function buy(state: GameState, lord: Lord, offer: Offer): { ok: boolean; 
       break;
     case 'equipment':
       offer.equipment.purchasePrice=offer.price;
-      lord.gear.push(offer.equipment);
+      receiveEquipment(lord, offer.equipment);
       break;
     case 'technique':
       offer.technique.purchasePrice=offer.price;
-      lord.scrolls.push(offer.technique);
+      receiveEquipment(lord, offer.technique);
       break;
     case 'beast':
       offer.beast.purchasePrice=offer.price;
@@ -232,6 +234,7 @@ export function sell(lord: Lord, kind: ShopKind, offer: SaleOffer): { ok: boolea
   const uid = saleUid(offer);
   const owned = makeSellStock(lord, kind).find((o) => o.kind === offer.kind && saleUid(o) === uid);
   if (!owned) return { ok: false, message: '此物品不在行囊中，或店家不收購。' };
+  syncBagSlots(lord);
   switch (owned.kind) {
     case 'item': lord.items = lord.items.filter((i) => i.uid !== uid); break;
     case 'equipment': lord.gear = lord.gear.filter((i) => i.uid !== uid); break;
@@ -239,6 +242,7 @@ export function sell(lord: Lord, kind: ShopKind, offer: SaleOffer): { ok: boolea
     case 'beast': lord.beast = null; break;
   }
   lord.stones += owned.price;
+  syncBagSlots(lord);
   return { ok: true, message: `出售「${owned.label}」，獲得 ${fmtStones(owned.price)}。` };
 }
 

@@ -1,3 +1,4 @@
+import { EQUIPMENT_CAPACITY } from '../systems/EquipmentInventory';
 import { bindPassiveState, fx } from '../data/passives';
 import { ensureTalentState } from '../data/talents';
 import type { City, General, GameState, Lord, LordId } from './types';
@@ -128,6 +129,8 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       materials: emptyMaterials(),
       items: [],
       gear: [],
+      equipmentSlots: Array(EQUIPMENT_CAPACITY).fill(null),
+      pendingEquipment: [],
       scrolls: [],
       beast: null,
       expeditions: [],

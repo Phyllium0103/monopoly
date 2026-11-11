@@ -1,3 +1,4 @@
+import { receiveEquipment, bagHasRoom } from './EquipmentInventory';
 import type { Element, GameState, General, Lord, LordId } from '../game/types';
 import { citiesOf, freeGenerals, generalsOf, newGeneral, nextUid } from '../game/GameState';
 import { HIDDEN_SEEDS } from '../data/generals';
@@ -221,7 +222,7 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
     case 'armory':
       for (const l of alive) {
         const e = makeEquipment(nextUid(state, 'e'), 'armor', 3 + Math.floor(Math.random() * 6));
-        l.gear.push(e);
+        receiveEquipment(l, e);
         lines.push(`${LORDS[l.id].name} 得 仙衣「${e.name}」`);
       }
       break;
@@ -383,15 +384,15 @@ export interface AuctionResult {
 
 /** 價高者得、付自己的出價；同價隨機 */
 export function resolveAuction(state: GameState, lot: Offer, bids: { id: LordId; bid: number }[]): AuctionResult {
-  const valid = bids.filter((b) => b.bid > 0 && state.lords[b.id].stones >= b.bid);
+  const valid = bids.filter((b) => b.bid > 0 && state.lords[b.id].stones >= b.bid && (lot.kind !== 'equipment' && lot.kind !== 'technique' || bagHasRoom(state.lords[b.id])));
   if (!valid.length) return { winner: null, price: 0, bids };
   const top = Math.max(...valid.map((b) => b.bid));
   const tied = valid.filter((b) => b.bid === top);
   const w = tied[Math.floor(Math.random() * tied.length)];
   const lord = state.lords[w.id];
   lord.stones -= w.bid;
-  if (lot.kind === 'equipment') {lot.equipment.purchasePrice=w.bid;lord.gear.push(lot.equipment);}
-  else if (lot.kind === 'technique') {lot.technique.purchasePrice=w.bid;lord.scrolls.push(lot.technique);}
+  if (lot.kind === 'equipment') {lot.equipment.purchasePrice=w.bid;receiveEquipment(lord, lot.equipment);}
+  else if (lot.kind === 'technique') {lot.technique.purchasePrice=w.bid;receiveEquipment(lord, lot.technique);}
   else if (lot.kind === 'beast') {lot.beast.purchasePrice=w.bid;lord.beast=lot.beast;}
   return { winner: w.id, price: w.bid, bids };
 }

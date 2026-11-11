@@ -1,3 +1,4 @@
+import { bagHasRoom, bagItems, syncBagSlots, moveBagItem, receiveEquipment, EQUIPMENT_CAPACITY } from './EquipmentInventory';
 import type { City, CraftStat, Equipment, General, Lord, LordId, Technique, GameState, Stats } from '../game/types';
 import { makePersonalWeapon } from '../data/weaponCatalog';
 import { mortalTrialTurns, TRIBULATION_RULES } from '../data/breakthroughRules';
@@ -124,7 +125,7 @@ export function completeBreak(g: General, round: number, cityId?: string): boole
   if (g.realm === 4) {
     const [min, max] = mortalTrialTurns(g.aptitude);
     g.mortalTrial = { turns: min + Math.floor(Math.random() * (max - min + 1)), weapon: g.weapon };
-    if (g.armor) lord.gear.push(g.armor);
+    if (g.armor) receiveEquipment(lord, g.armor);
     g.weapon = null; g.armor = null; g.realm = 0; g.exp = 0;
     g.hp = Math.min(g.hp, maxHp(g));
     return true;
@@ -359,22 +360,29 @@ export function armorTransferCheck(state: GameState, lord: Lord, uid: string, fr
   const copies = Object.values(state.lords).reduce((n, l) => n + l.gear.filter(e => e.uid === uid).length, 0)
     + Object.values(state.generals).filter(g => g.armor?.uid === uid).length;
   if (copies !== 1) return { ok: false, reason: '仙衣識別重複，無法移動' };
+  const nextSize = bagItems(lord).length - (source ? 0 : 1) + (target?.armor ? 1 : 0) + (target ? 0 : 1);
+  if (nextSize > EQUIPMENT_CAPACITY) return { ok: false, reason: '行囊已滿，請先空出一格再卸下或交換仙衣' };
   return target ? canWearArmor(lord, target, item) : { ok: true, reason: '' };
 }
 
 /** Atomic move: displaced armor returns to the bag; failed/repeated commands change nothing. */
-export function transferArmor(state: GameState, lord: Lord, uid: string, fromGeneralId?: string, toGeneralId?: string): boolean {
+export function transferArmor(state: GameState, lord: Lord, uid: string, fromGeneralId?: string, toGeneralId?: string, bagSlot?: number): boolean {
   if (!armorTransferCheck(state, lord, uid, fromGeneralId, toGeneralId).ok) return false;
+  if (bagSlot !== undefined && (!Number.isInteger(bagSlot) || bagSlot < 0 || bagSlot >= EQUIPMENT_CAPACITY)) return false;
+  syncBagSlots(lord);
   const source = fromGeneralId ? state.generals[fromGeneralId] : undefined;
   const target = toGeneralId ? state.generals[toGeneralId] : undefined;
   const item = source ? source.armor! : lord.gear.find(e => e.uid === uid)!;
   const gear = source ? [...lord.gear] : lord.gear.filter(e => e.uid !== uid);
-  if (target?.armor) gear.push(target.armor);
+  const displaced = target?.armor;
+  if (displaced) gear.push(displaced);
   if (!target) gear.push(item);
   lord.gear = gear;
   if (source) source.armor = null;
   if (target) target.armor = item;
   for (const g of [source, target]) if (g) g.hp = Math.min(g.hp, maxHp(g));
+  syncBagSlots(lord);
+  if (bagSlot !== undefined) moveBagItem(lord, target ? displaced?.uid ?? '' : uid, bagSlot);
   return true;
 }
 
@@ -383,18 +391,22 @@ export function equip(lord: Lord, g: General, e: Equipment) {
   const item = lord.gear.find(x => x.uid === e.uid);
   if (!item || !canWearArmor(lord, g, item).ok) return;
   const old = g.armor;
+  syncBagSlots(lord);
   g.armor = item;
   lord.gear = lord.gear.filter((x) => x.uid !== item.uid);
   if (old) lord.gear.push(old);
+  syncBagSlots(lord);
   g.hp = Math.min(g.hp, maxHp(g));
 }
 
 /** 卸下仙衣，專屬武器不可卸下。 */
 export function unequip(lord: Lord, g: General, kind: 'weapon' | 'armor') {
   const e = g[kind];
-  if (!e || e.fixedGeneralId) return;
+  if (!e || e.fixedGeneralId || !bagHasRoom(lord)) return;
+  syncBagSlots(lord);
   g[kind] = null;
   lord.gear.push(e);
+  syncBagSlots(lord);
   g.hp = Math.min(g.hp, maxHp(g));
 }
 
@@ -411,8 +423,10 @@ export function canLearn(g: General, t: Technique): { ok: boolean; reason: strin
 /** 學習功法，學會後不可更換 */
 export function learn(lord: Lord, g: General, t: Technique): boolean {
   if (!canLearn(g, t).ok || !lord.scrolls.some(x => x.uid === t.uid)) return false;
+  syncBagSlots(lord);
   g.technique = t;
   lord.scrolls = lord.scrolls.filter((x) => x.uid !== t.uid);
+  syncBagSlots(lord);
   return true;
 }
 

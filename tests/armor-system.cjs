@@ -126,50 +126,41 @@ console.log('PASS atomic exchanges, unequip, UID conservation, purchase records,
 }
 console.log('PASS forge stock, auction, tournament rewards and gift sell values use current fixed definitions');
 
-// Minimal DOM adapter exercises real delegated listeners without a browser or renderer.
+// Isolated DOM/event adapter: no browser, network, layout engine or user session.
 class Element {
-  constructor(dataset = {}) { this.dataset = { equipmentKind: 'armor', ...dataset }; this.attributes = {}; this.classes = new Set(); this.classList = { toggle: (k, on) => on ? this.classes.add(k) : this.classes.delete(k), remove: (...keys) => keys.forEach(k => this.classes.delete(k)) }; }
-  hasAttribute(k) { return k.startsWith('data-') && Object.hasOwn(this.dataset, k.slice(5).replace(/-([a-z])/g, (_, c) => c.toUpperCase())); }
-  closest(selector) { return selector.split(',').some(s => this.hasAttribute(s.trim().slice(1, -1))) ? this : null; }
-  setAttribute(k, v) { this.attributes[k] = v; }
+  constructor(dataset = {}) { this.dataset = dataset; this.attributes = {}; this.children=[]; this.style={}; this.classes=new Set(); this.classList={toggle:(k,on)=>on?this.classes.add(k):this.classes.delete(k),contains:k=>this.classes.has(k),remove:(...ks)=>ks.forEach(k=>this.classes.delete(k))}; }
+  hasAttribute(k) { return k.startsWith('data-') && Object.hasOwn(this.dataset,k.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase())); }
+  closest(selector) { return selector.split(',').some(s=>this.hasAttribute(s.trim().slice(1,-1))) ? this : this.parent?.closest(selector)??null; }
+  setAttribute(k,v) { this.attributes[k]=v; }
+  appendChild(el) { this.children.push(el);el.parent=this;return el; }
+  remove() { if(this.parent)this.parent.children=this.parent.children.filter(x=>x!==this); }
+  querySelector(selector) { if(selector==='button')return this.button??=new Element(); return this.children.find(x=>x.closest(selector)===x)??null; }
 }
-class Root {
-  constructor(elements) { this.elements = elements; this.events = {}; this.status = { textContent: '' }; }
-  addEventListener(type, fn) { this.events[type] = fn; }
-  querySelectorAll() { return this.elements; }
-  querySelector() { return this.status; }
-  contains(el) { return this.elements.includes(el); }
-  fire(type, target, more = {}) { const e = { target, preventDefault() { this.prevented = true; }, stopPropagation() {}, ...more }; this.events[type](e); return e; }
+class Root extends Element {
+  constructor(elements) { super();this.elements=elements;this.events={};this.status=new Element();this.ownerDocument={defaultView:{innerWidth:800,innerHeight:600},body:new Element(),createElement:()=>new Element()}; }
+  addEventListener(type,fn){this.events[type]=fn;}
+  querySelectorAll(){return this.elements;}
+  querySelector(s){if(s==='.equipment-feedback')return this.status;return this.children.find(x=>'.'+x.className===s)??null;}
+  contains(el){return this.elements.includes(el);}
+  fire(type,target,more={}){const e={target,preventDefault(){this.prevented=true},stopPropagation(){},...more};this.events[type]?.(e);return e;}
 }
 {
-  const { state, lord, a, b, low, high } = fixture();
-  const bagLow = new Element({ equipmentItem: low.uid }), bagHigh = new Element({ equipmentItem: high.uid });
-  const target = new Element({ equipmentTarget: a.id }), other = new Element({ equipmentTarget: b.id }), bag = new Element({ equipmentBag: '' });
-  const root = new Root([bagLow, bagHigh, target, other, bag]), actions = [];
-  const controls = new RosterEquipment(root, a => actions.push(a)); controls.update(state, lord, true);
-  root.fire('click', bagLow); assert.ok(bagLow.classes.has('armor-selected'));
-  root.fire('keydown', bagLow, { key: 'Escape' }); assert.ok(!bagLow.classes.has('armor-selected')); assert.equal(actions.length, 0);
-  root.fire('click', target); root.fire('click', bagLow);
-  assert.deepEqual(actions.pop(), { type: 'transfer-armor', itemUid: low.uid, fromGeneralId: undefined, toGeneralId: a.id });
-  assert.equal(a.armor, null, 'UI delegates mutation to host');
-  transferArmor(state, lord, low.uid, undefined, a.id); target.dataset.equipmentItem = low.uid;
-  controls.update(state, lord, true); root.fire('click', target); root.fire('click', bag);
-  assert.equal(actions.pop().toGeneralId, undefined, 'two clicks unequip');
-  controls.update(state, lord, false); root.fire('click', bagHigh); root.fire('click', target); assert.equal(actions.length, 0);
-  controls.update(state, lord, true); a.realm = 0;
-  root.fire('click', bagHigh); root.fire('click', target); assert.equal(actions.length, 0); assert.match(root.status.textContent, /需要煉虛/);
-  controls.clear(); a.realm = 6;
-  const dt = { setData(k, v) { this[k] = v; } };
-  root.fire('drop', target, { dataTransfer: dt }); assert.equal(actions.length, 0, 'external drops cannot forge a transfer');
-  root.fire('dragstart', bagHigh, { dataTransfer: dt }); assert.equal(dt.effectAllowed, 'move');
-  b.realm = 0; root.fire('dragover', other, { dataTransfer: dt }); assert.equal(dt.dropEffect, 'none');
-  root.fire('dragover', target, { dataTransfer: dt }); assert.equal(dt.dropEffect, 'move');
-  root.fire('drop', target, { dataTransfer: dt }); assert.equal(actions.pop().itemUid, high.uid);
-  root.fire('dragend', target); assert.ok(!target.classes.has('armor-drop-ready'));
-  a.status = 'realm'; root.fire('click', target); assert.equal(actions.length, 0); assert.match(root.status.textContent, /外出/);
-  const html = armorPicture(high, a.id); assert.match(html, /<button type="button"/); assert.match(html, /aria-label=/); assert.match(html, /grade-3/); assert.ok(!/onerror=/.test(html));
+  const {state,lord,a,b,low,high}=fixture();
+  const bagLow=new Element({equipmentKind:'armor',equipmentItem:low.uid}),bagHigh=new Element({equipmentKind:'armor',equipmentItem:high.uid});
+  const target=new Element({equipmentKind:'armor',equipmentTarget:a.id}),other=new Element({equipmentKind:'armor',equipmentTarget:b.id}),empty=new Element({inventorySlot:'19'});
+  const root=new Root([bagLow,bagHigh,target,other,empty]),actions=[],controls=new RosterEquipment(root,a=>actions.push(a));
+  controls.update(state,lord,true);assert(target.classes.has('equipment-compatible'));
+  root.fire('click',bagLow);assert(bagLow.classes.has('armor-selected'));assert(root.classes.has('equipment-carrying'));
+  root.fire('keydown',bagLow,{key:'Escape'});assert(!root.classes.has('equipment-carrying'));assert.equal(actions.length,0);
+  root.fire('click',bagLow);root.fire('click',target);assert.equal(actions.pop().toGeneralId,a.id);assert.equal(a.armor,null,'only host mutates items');
+  transferArmor(state,lord,low.uid,undefined,a.id);target.dataset.equipmentItem=low.uid;controls.update(state,lord,true);
+  root.fire('click',target);root.fire('click',empty);assert.equal(actions.pop().bagSlot,19,'explicit destination cell');
+  a.realm=0;controls.update(state,lord,true);root.fire('click',bagHigh);root.fire('click',target);assert.equal(actions.length,0);assert.match(root.status.textContent,/需要煉虛/);assert(root.querySelector('.equipment-notice'));
+  controls.clear();a.realm=6;const drag=root.fire('dragstart',bagHigh);assert.equal(drag.prevented,true);assert.equal(bagHigh.draggable,false);assert.equal(actions.length,0);
+  controls.update(state,lord,false);root.fire('click',bagHigh);assert.equal(actions.length,0);assert.match(root.status.textContent,/整備/);
+  const html=armorPicture(high,a.id);assert.match(html,/data-tip-html=/);assert(!/價值|價格|＋/.test(html));assert(!/＋/.test(armorPicture(null,a.id)));
 }
-console.log('PASS real delegated click, reverse click, drag/drop, invalid drop, Escape, touch/keyboard button markup and read-only roster controls');
+console.log('PASS click carry/place, empty destination, no native drag, Escape, realm failure notice, read-only and price-free rich armor tooltip');
 
 {
   const { state, lord, a, b } = fixture(); a.aptitude = 'heaven'; b.aptitude = 'water';
@@ -186,32 +177,20 @@ console.log('PASS real delegated click, reverse click, drag/drop, invalid drop, 
   reject(a.id); assert.equal(a.technique,scroll);
 }
 {
-  const { state, lord, a, b, low } = fixture(); a.aptitude='heaven'; b.aptitude='water';
-  const scroll=makeTechnique('pointer-fire',0,'fire'); lord.scrolls=[scroll];
-  const source=new Element({equipmentKind:'technique',equipmentItem:scroll.uid});
-  const target=new Element({equipmentKind:'technique',equipmentTarget:a.id});
-  const wrongRoot=new Element({equipmentKind:'technique',equipmentTarget:b.id});
-  const armor=new Element({equipmentItem:low.uid}),armorTarget=new Element({equipmentTarget:a.id});
-  const root=new Root([source,target,wrongRoot,armor,armorTarget]),actions=[],children=[];
-  root.ownerDocument={defaultView:{innerWidth:800,innerHeight:600},body:{appendChild(el){children.push(el);}},createElement(){return {dataset:{},style:{},setAttribute(){},remove(){const i=children.indexOf(this);if(i>=0)children.splice(i,1);}};}};
-  const controls=new RosterEquipment(root,a=>actions.push(a));controls.update(state,lord,true);
-  root.fire('pointermove',source,{clientX:100,clientY:140});root.fire('click',source);
-  assert.equal(children.length,1);assert.match(children[0].innerHTML,/pointer-fire|離火訣/);assert.equal(children[0].style.transform,'translate3d(116px,156px,0)');
-  root.fire('pointermove',source,{clientX:260,clientY:280});assert.equal(children[0].style.transform,'translate3d(276px,296px,0)');
-  assert.ok(target.classes.has('equipment-compatible')); assert.ok(wrongRoot.classes.has('armor-unavailable'));
-  root.fire('click',armorTarget);assert.equal(actions.length,0);assert.equal(children.length,1,'wrong slot retains selection and item');
-  root.fire('click',target);assert.deepEqual(actions.pop(),{type:'learn-technique',itemUid:scroll.uid,generalId:a.id});assert.equal(children.length,0);
-  root.fire('click',source);root.fire('keydown',source,{key:'Escape'});assert.equal(children.length,0);
-  controls.update(state,lord,false,true);assert.equal(armor.draggable,false);assert.equal(source.draggable,true,'solo free mode still supports direct learning');
-  const dt={setData(){}};root.fire('dragstart',source,{dataTransfer:dt});assert.equal(children.length,0,'native drag uses one ghost, not a second cursor');
-  root.fire('dragover',armorTarget,{dataTransfer:dt});assert.equal(dt.dropEffect,'none');
-  root.fire('drop',armorTarget,{dataTransfer:dt});assert.equal(actions.length,0);assert.equal(lord.scrolls.length,1);
-  root.fire('dragstart',source,{dataTransfer:dt});root.fire('drop',target,{dataTransfer:dt});assert.equal(actions.pop().type,'learn-technique');
-  controls.clear();root.fire('click',target);root.fire('click',source);assert.equal(actions.pop().generalId,a.id,'target-first learning works');
-  controls.update(state,lord,false,false);assert.equal(children.length,0);assert.equal(source.draggable,false);
-  assert.ok(!/data-equipment-item=/.test(techniquePicture(scroll,a.id)),'learned scrolls are bound');
+ const {state,lord,a,b,low}=fixture();a.aptitude='heaven';b.aptitude='water';
+ const scroll=makeTechnique('pointer-fire',0,'fire');lord.scrolls=[scroll];
+ const source=new Element({equipmentKind:'technique',equipmentItem:scroll.uid}),target=new Element({equipmentKind:'technique',equipmentTarget:a.id}),wrong=new Element({equipmentKind:'technique',equipmentTarget:b.id}),armor=new Element({equipmentKind:'armor',equipmentTarget:a.id});
+ const root=new Root([source,target,wrong,armor]),actions=[],controls=new RosterEquipment(root,a=>actions.push(a));controls.update(state,lord,true);
+ root.fire('pointermove',source,{clientX:100,clientY:140});root.fire('click',source);const cursor=root.ownerDocument.body.children[0];assert.equal(cursor.style.transform,'translate3d(73px,113px,0)');
+ root.fire('pointermove',source,{clientX:260,clientY:280});assert.equal(cursor.style.transform,'translate3d(233px,253px,0)');assert(target.classes.has('equipment-compatible'));assert(wrong.classes.has('armor-unavailable'));
+ root.fire('click',armor);assert.equal(actions.length,0);assert.equal(root.ownerDocument.body.children.length,1);assert.match(root.status.textContent,/功法只能放入功法格/);
+ root.fire('click',wrong);assert.match(root.status.textContent,/五行不符/);assert.equal(actions.length,0);
+ root.fire('click',target);assert.deepEqual(actions.pop(),{type:'learn-technique',itemUid:scroll.uid,generalId:a.id});assert.equal(root.ownerDocument.body.children.length,0);
+ controls.update(state,lord,false,true);root.fire('click',source);root.fire('click',target);assert.equal(actions.pop().type,'learn-technique');assert.equal(source.draggable,false);
+ root.fire('click',source);controls.update(state,lord,false,false);assert.equal(root.ownerDocument.body.children.length,0);
+ assert(!/data-equipment-item=/.test(techniquePicture(scroll,a.id)));assert(!/＋/.test(techniquePicture(null,a.id)));
 }
-console.log('PASS direct technique ownership/root/away/duplicate validation, typed slots, follow-cursor, cancellation, reverse click and free-mode learning');
+console.log('PASS typed click slots, cursor replaces pointer, invalid root preserves source, mode changes cancel selection and learned techniques remain bound');
 
 {
   const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../art-src/manifests/armor-icons.json')));

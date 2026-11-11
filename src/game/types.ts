@@ -189,6 +189,8 @@ export interface Lord {
   items: Item[];
   gear: Equipment[];
   scrolls: Technique[];
+  equipmentSlots: (string | null)[];
+  pendingEquipment: (Equipment | Technique)[];
   beast: Beast | null;
   expeditions: Expedition[];
   rank: number;

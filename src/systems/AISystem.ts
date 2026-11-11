@@ -1,3 +1,4 @@
+import { transferArmor } from './GeneralSystem';
 import { recruitmentMaximum } from './RecruitmentSystem';
 import { aiUpgradeWeapons } from './MaterialSystem';
 import { fx } from '../data/passives';
@@ -93,11 +94,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
         .sort((a, b) => b.base.defense - a.base.defense);
       const g = candidates[0];
       if (!g) continue;
-      const old = g[kind];
-      g[kind] = e;
-      lord.gear = lord.gear.filter((x) => x.uid !== e.uid);
-      if (old) lord.gear.push(old);
-      if (kind === 'armor') g.hp = Math.min(g.hp, maxHp(g));
+      if (!transferArmor(state, lord, e.uid, undefined, g.id)) continue;
       logs.push(`${g.name}換上「${e.name}」`);
     }
   }

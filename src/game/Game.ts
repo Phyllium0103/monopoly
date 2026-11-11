@@ -1,3 +1,4 @@
+import { receiveEquipment, bagHasRoom, moveBagItem } from '../systems/EquipmentInventory';
 import { RelicMap } from '../ui/RelicMap';
 import { MATERIAL_GROUPS } from '../data/weaponCatalog';
 import { materialLabel } from '../ui/MaterialArt';
@@ -33,7 +34,7 @@ import { showEndScreen, showStartScreen } from '../ui/Screens';
 import { ARMOR_DEFS, ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { TILE_INFO, hasCurrentBoard } from '../data/board';
 import { RANK_METRICS, cityIncomeOf, cityRanks, cityToll, garrisonPower, toll } from '../systems/CitySystem';
-import { inBottleneck, maxHp, maxStamina, power } from '../systems/GeneralSystem';
+import { inBottleneck, maxHp, maxStamina, power, expCap } from '../systems/GeneralSystem';
 import { flameLayersFor } from '../data/realmFrames';
 import { generalHoverInfo, generalHoverTable, itemTargetFocus, itemUserFocus, realmTag, type HoverFocus } from '../ui/GeneralInfo';
 import { bindPassiveState } from '../data/passives';
@@ -632,15 +633,15 @@ export class Game {
     for (const k of MATERIAL_GROUPS) lord.materials[k] = lord.materials[k].map(n => n + 1000) as [number, number, number];
     for (const [defId, d] of Object.entries(ITEM_DEFS)) for (let t = 0; t < d.price.length; t++) lord.items.push(makeItem(nextUid(this.state, 'i'), defId, t));
     for (let tier = 0; tier < 12; tier++) {
-      lord.scrolls.push(makeTechnique(nextUid(this.state, 't'), tier));
+      if (bagHasRoom(lord)) receiveEquipment(lord, makeTechnique(nextUid(this.state, 't'), tier));
     }
-    for (const d of ARMOR_DEFS) lord.gear.push(makeEquipment(nextUid(this.state, 'e'), 'armor', d.tier, d.id));
+    for (const d of ARMOR_DEFS) if (bagHasRoom(lord)) receiveEquipment(lord, makeEquipment(nextUid(this.state, 'e'), 'armor', d.tier, d.id));
     lord.beast = makeBeast(nextUid(this.state, 'b'), 11);
     for (const g of generalsOf(this.state, lord.id)) {
       g.hp = maxHp(g);
       g.stamina = maxStamina(g);
     }
-    this.ui.log('🧪 測試：獲得 100 極品靈石、10 萬士兵，以及所有丹藥、陣法、符籙、法器（各階）、各階仙衣與功法、天階靈獸，以及十八種升階材料與五種本源各 1000 顆。', 'good');
+    this.ui.log('🧪 測試：獲得 100 極品靈石、10 萬士兵，以及所有丹藥、陣法、符籙、法器（各階）、依行囊空格補入的仙衣與功法、天階靈獸，以及十八種升階材料與五種本源各 1000 顆。', 'good');
     this.ui.toast('🧪 測試：已獲得大量靈石與所有物品');
     this.refresh();
   }
@@ -682,6 +683,11 @@ export class Game {
     if (this.active?.prompt.kind === 'preroll') return this.answer({ type: 'roster' } satisfies PrerollAction);
     const engine = this.online ? null : this.engine;
     void this.generalsView.open(this.state, lord, { manage: false, free: !!engine }, engine ? (a: RosterAction) => {
+      if (a.type === 'move-bag-item') {
+        moveBagItem(lord, a.itemUid, a.slot);
+        this.generalsView.refresh(this.state, lord);
+        return;
+      }
       if (a.type === 'learn-technique') {
         engine.learnTechniqueFromRoster(lord, a.itemUid, a.generalId);
         this.generalsView.refresh(this.state, lord);
@@ -1022,6 +1028,7 @@ export class Game {
         return {
           id: g.id, img: portraitUrl(g), name: g.name, color: LORDS[player.id].css,
           hpPct: (g.hp / Math.max(1, maxHp(g))) * 100, staPct: (g.stamina / Math.max(1, maxStamina(g))) * 100,
+          expPct: Number.isFinite(expCap(g)) ? Math.min(100, g.exp / Math.max(1, expCap(g)) * 100) : 100,
           tip:tip+(breakNote?'｜'+breakNote:''), tipHtml:generalHoverTable(g,fighter||undefined,this.itemHoverFocus(g),breakNote), ready:ready&&!this.selectedItem, hasSkill, breakthrough,
           flame:breakthrough?flameLayersFor(g.realm):0,
           itemState:this.selectedItem ? (this.selectedItem.userId===g.id?'selected':this.canPickItemGeneral(g.id)?'eligible':'disabled') : undefined,

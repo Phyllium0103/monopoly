@@ -78,7 +78,8 @@ export type ShopAction =
 export type RosterAction =
   | { type: 'close' }
   | { type: 'break' | 'upgrade' | 'learn' | 'abolish'; generalId: string }
-  | { type: 'transfer-armor'; itemUid: string; fromGeneralId?: string; toGeneralId?: string }
+  | { type: 'transfer-armor'; itemUid: string; fromGeneralId?: string; toGeneralId?: string; bagSlot?: number }
+  | { type: 'move-bag-item'; itemUid: string; slot: number }
   | { type: 'learn-technique'; itemUid: string; generalId: string };
 
 export type DuelAction = 'attack' | 'skill' | 'item' | { type: 'use-item'; itemUid: string; userId: string; targetSide: 'a' | 'b' };

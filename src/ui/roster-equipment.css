@@ -17,7 +17,7 @@
 .roster-screen .roster-list .roster-row:hover { background:#afa16f0c; }
 .roster-screen .roster-list .roster-before,.roster-screen .roster-list .roster-after { display:grid; gap:8px; align-items:center; min-width:0; padding:0; }
 .roster-screen .roster-list .roster-before { grid-template-columns:42px minmax(60px,.9fr) 34px 52px 40px minmax(48px,.7fr) minmax(100px,1.7fr); }
-.roster-screen .roster-list .roster-after { grid-template-columns:repeat(7,minmax(30px,1fr)) minmax(60px,1.4fr) 18px; }
+.roster-screen .roster-list .roster-after { grid-template-columns:repeat(7,minmax(30px,1fr)) minmax(60px,1.4fr); }
 .roster-screen .roster-list .roster-equipment { display:grid; grid-template-columns:repeat(3,54px); gap:8px; align-items:center; padding:0; overflow:visible; }
 .roster-screen .roster-list .roster-equipment > span { display:grid; place-items:center; min-width:0; overflow:visible; }
 .roster-screen .roster-list .roster-equipment .technique-picture { width:54px; height:54px; }
@@ -120,7 +120,7 @@
   .inventory-grid { grid-template-columns:repeat(10,54px); }
   .roster-screen .roster-list .c-origin,.roster-screen .roster-list .c-apt { display:none; }
   .roster-screen .roster-list .roster-before { grid-template-columns:38px minmax(55px,1fr) 50px minmax(48px,.8fr) minmax(90px,1.6fr); }
-  .roster-screen .roster-list .roster-after { grid-template-columns:repeat(3,minmax(34px,1fr)) 18px; }
+  .roster-screen .roster-list .roster-after { grid-template-columns:repeat(3,minmax(34px,1fr)); }
   .roster-screen .roster-list .c-craft,.roster-screen .roster-list .c-passive { display:none; }
 }
 @container game-ui (max-width:900px) {
@@ -141,7 +141,7 @@
   .roster-screen .roster-list .c-st { display:none; }
   .roster-screen .roster-list .c-hp { display:grid; }
   .roster-screen .roster-head .c-hp { display:none; }
-  .roster-screen .roster-list .roster-after { grid-template-columns:1fr 18px; }
+  .roster-screen .roster-list .roster-after { grid-template-columns:1fr; }
   .roster-screen .roster-list .c-attack,.roster-screen .roster-list .c-defense { display:none; }
   .roster-screen .roster-row .c-name { flex-direction:row; justify-content:center; align-items:center; }
   .roster-screen .roster-row .c-name b { font-size:13px; }
@@ -197,3 +197,24 @@
 .general-modal .dossier-location { display:flex; align-items:center; justify-content:center; gap:10px; }
 .general-modal .dossier-breakthrough { display:inline-block; margin:0; padding:4px 9px; border:1px solid #bca66e88; border-radius:4px; background:#303823; color:#efd7a1; font-size:12px; line-height:1.4; letter-spacing:.04em; box-shadow:none; }
 .general-modal .dossier-breakthrough:disabled { opacity:.4; }
+.general-modal .dossier-break-row { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.general-modal .dossier-break-row .break-info { flex:1; margin:8px 0; }
+.general-modal .dossier-breakthrough { margin-left:auto; flex:none; }
+.general-modal .dossier-location { position:relative; }
+.general-modal .dossier-transfer { position:absolute; left:calc(50% + 24px); white-space:nowrap; padding:4px 6px; font-size:11px; }
+.abolish-dialog .dialog-buttons .btn.primary { color:#ef8884; border-color:#ef888488; background:#572c2b55; }
+.dialog .material-label,.general-modal .material-label { display:inline; line-height:inherit; vertical-align:baseline; }
+.dialog .material-icon,.general-modal .weapon-material-cost .material-icon { width:1em; height:1em; max-width:1em; max-height:1em; vertical-align:-.12em; margin-right:.25em; }
+.weapon-upgrade-summary small { color:#bda980; letter-spacing:.16em; }
+.weapon-upgrade-summary h3 { color:#efd7a1; margin:14px 0; font-size:21px; }
+.weapon-upgrade-summary p { line-height:1.8; }
+.equipment-notice strong { font-size:22px; }
+.replacement-panel { border-bottom:1px solid #ef888455; padding:0 0 12px; margin-bottom:12px; }
+.replacement-panel h3 { color:#ef8884; margin:0 0 6px; }
+.replacement-panel p { color:#ccbfaa; font-size:12px; margin:6px 0; }
+.replacement-rewards { display:flex; gap:12px; overflow:auto; max-height:160px; padding:4px; }
+.replacement-reward { flex:0 0 90px; display:flex; align-items:center; flex-direction:column; gap:5px; font-size:11px; text-align:center; }
+.roster-screen .replacement-selected { opacity:1; outline:2px solid #efd7a1; outline-offset:2px; box-shadow:0 0 12px #efd7a166; }
+.replacement-confirm[hidden] { display:none; }
+.replacement-mode > .drawer-body { pointer-events:none; }
+.replacement-mode .roster-inventory { max-height:75%; overflow-y:auto; }

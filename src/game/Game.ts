@@ -1,4 +1,4 @@
-import { receiveEquipment, bagHasRoom, moveBagItem } from '../systems/EquipmentInventory';
+import { receiveEquipment, bagHasRoom, moveBagItem, sortBagItems } from '../systems/EquipmentInventory';
 import { RelicMap } from '../ui/RelicMap';
 import { MATERIAL_GROUPS } from '../data/weaponCatalog';
 import { materialLabel } from '../ui/MaterialArt';
@@ -552,6 +552,8 @@ export class Game {
         const answer=this.battleView.duelAsk(p.duel,p.side);this.refresh();
         return answer.finally(()=>{this.itemDuel=null;this.cancelItem(false);this.refresh();});
       }
+      case 'equipment-overflow':
+        return this.generalsView.pickReplacements(this.state, this.state.lords[lord]);
       case 'roster':
         return this.generalsView.ask(this.state, this.state.lords[lord]);
       case 'preroll':
@@ -688,6 +690,7 @@ export class Game {
     if (this.active?.prompt.kind === 'preroll') return this.answer({ type: 'roster' } satisfies PrerollAction);
     const engine = this.online ? null : this.engine;
     void this.generalsView.open(this.state, lord, { manage: false, free: !!engine }, engine ? (a: RosterAction) => {
+      if (a.type === 'sort-bag') { sortBagItems(lord); this.generalsView.refresh(this.state, lord); return; }
       if (a.type === 'move-bag-item') {
         moveBagItem(lord, a.itemUid, a.slot);
         this.generalsView.refresh(this.state, lord);
@@ -698,7 +701,7 @@ export class Game {
         this.generalsView.refresh(this.state, lord);
         return;
       }
-      if (a.type !== 'learn' && a.type !== 'abolish') return;
+      if (a.type !== 'abolish' && a.type !== 'sect-transfer') return;
       const g = this.state.generals[a.generalId];
       if (g) void engine.rosterAction(lord, a.type, g).then(() => this.generalsView.refresh(this.state, lord));
     } : null).then(() => this.refresh());

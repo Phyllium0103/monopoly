@@ -83,7 +83,7 @@ export class Dialog {
       card.style.setProperty('--breakthrough', '1');
       card.classList.add('breakthrough-dialog');
     }
-    if (title.includes('自廢修為') || title.includes('本命武器突破')) { card.classList.add('breakthrough-dialog'); icon = ''; if (title.includes('自廢修為')) card.classList.add('abolish-dialog'); }
+    if (/自廢修為|本命武器突破|本命武器升階|行囊已滿/.test(title)) { card.classList.add('breakthrough-dialog'); icon = ''; if (/自廢修為|行囊已滿/.test(title)) card.classList.add('abolish-dialog'); }
     card.innerHTML = `${icon ? `<div class="dialog-icon">${icon}</div>` : ''}<h2>${title}</h2>${text ? `<div class="dialog-text">${text.replace(/\n/g, '<br>')}</div>` : ''}`;
     this.el.appendChild(card);
     return card;
@@ -309,6 +309,7 @@ export class Dialog {
       };
       this.onEsc = () => n.click();
       this.onOutside = this.onEsc;
+      if (title === '行囊已滿') { this.onEsc = null; this.onOutside = null; }
       this.onEnter = () => y.click();
       row.append(y, n);
       card.appendChild(row);

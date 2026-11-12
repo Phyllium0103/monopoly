@@ -4,8 +4,8 @@ const {pathToFileURL,fileURLToPath}=require('node:url');
 registerHooks({resolve(s,c,n){if(s.startsWith('.')&&!path.extname(s)&&c.parentURL){const p=path.resolve(path.dirname(fileURLToPath(c.parentURL)),s+'.ts');if(fs.existsSync(p))return n(pathToFileURL(p).href,c);}return n(s,c);},load(u,c,n){if(u.endsWith('.css'))return {format:'module',shortCircuit:true,source:''};return u.endsWith('.ts')?{format:'module',shortCircuit:true,source:stripTypeScriptTypes(fs.readFileSync(fileURLToPath(u),'utf8'),{mode:'transform'})}:n(u,c);}});
 const {createGameState}=require('../src/game/GameState.ts');
 const {makeEquipment,makeTechnique,techniqueDesc}=require('../src/data/items.ts');
-const {EQUIPMENT_CAPACITY,bagItems,bagSlots,receiveEquipment,moveBagItem,resolveEquipmentReward}=require('../src/systems/EquipmentInventory.ts');
-const {transferArmor,equipTechnique,completeBreak,expCap}=require('../src/systems/GeneralSystem.ts');
+const {EQUIPMENT_CAPACITY,bagItems,bagSlots,receiveEquipment,moveBagItem,resolveEquipmentReward,replaceEquipmentBatch,sortBagItems,compareBagItems}=require('../src/systems/EquipmentInventory.ts');
+const {transferArmor,equipTechnique,completeBreak,expCap,abolish}=require('../src/systems/GeneralSystem.ts');
 const {buy,sell,makeSellStock}=require('../src/systems/ShopSystem.ts');
 const {resolveAuction,applyWorldEvent,eventDef}=require('../src/systems/EventSystem.ts');
 const {unloadTechnique}=require('../src/systems/ItemSystem.ts');
@@ -61,15 +61,28 @@ function allIds(state){return Object.values(state.lords).flatMap(l=>[...bagItems
  const sorted=sortRosterGenerals(examples,state,'location');assert.deepEqual(sorted.map(g=>g.id),[examples[1],examples[3],examples[2],examples[4],examples[0]].map(g=>g.id));assert.equal(examples[0].isLord,true,'lord is deliberately last');
  examples[1].exp=expCap(examples[1]);examples[0].realm=0;examples[1].realm=9;assert.equal(sortRosterGenerals(examples,state,'realm')[0].id,examples[1].id,'sorting never pins lord or separates ready generals');
  assert.deepEqual(sortRosterGenerals(examples,state,'location',true).map(g=>g.id), [...sorted].reverse().map(g=>g.id));
- const html=GeneralsView.prototype.rowHtml.call(GeneralsView.prototype,state,lord,examples[1],true);assert.equal((html.match(/role="meter"/g)||[]).length,2);assert.match(html,/aria-haspopup="dialog"/);assert(!html.includes('＋'));assert(!html.includes('has-realm-frame'));
+ const html=GeneralsView.prototype.rowHtml.call(GeneralsView.prototype,state,lord,examples[1],true);assert.equal((html.match(/role="meter"/g)||[]).length,2);assert(!html.includes('c-caret'));assert(!html.includes('＋'));assert(!html.includes('has-realm-frame'));
  const max={...examples[1],realm:10};assert(!GeneralsView.prototype.vitals(max).includes('NaN'));assert(!GeneralsView.prototype.vitals(max).includes('Infinity'));
  console.log('PASS one roster: party, descending-prosperity cities, expeditions, sect; no pinned lord; two accessible vital bars and dialog trigger');
 }
 (async()=>{
  const {state,lord}=setup();const reward=makeEquipment('chosen','armor',9,'chiyou-tian');receiveEquipment(lord,reward);let calls=0;
- const engine=new Engine(state,{view:new RecordingView(),isAuto:()=>false,multiplayer:true,send:async(id,p)=>{assert.equal(id,lord.id);assert.equal(p.kind,'choose');assert.match(p.text,/20 格/);assert.equal(p.choices.length,20);calls++;return 3;}});
- const replaced=bagItems(lord)[3].uid;await engine.resolvePendingEquipment(lord);assert.equal(calls,1);assert.equal(lord.pendingEquipment.length,0);assert(bagItems(lord).some(x=>x.uid===reward.uid));assert(!bagItems(lord).some(x=>x.uid===replaced));
+ const replaced=bagItems(lord)[3].uid;
+ const engine=new Engine(state,{view:new RecordingView(),isAuto:()=>false,multiplayer:true,send:async(id,p)=>{assert.equal(id,lord.id);calls++;if(p.kind==='confirm'){assert.match(p.text,/20 格/);return true;}assert.equal(p.kind,'equipment-overflow');return calls===2?null:{rewards:[reward.uid],replaced:[replaced]};}});
+ await engine.resolvePendingEquipment(lord);assert.equal(calls,4,'leaving selection reopens warning');assert.equal(lord.pendingEquipment.length,0);assert(bagItems(lord).some(x=>x.uid===reward.uid));assert(!bagItems(lord).some(x=>x.uid===replaced));
  const snapshot=JSON.parse(JSON.stringify(state));receiveEquipment(lord,makeTechnique('rejected',9,'fire'));engine.ports.send=async()=>null;await engine.resolvePendingEquipment(lord);assert.equal(JSON.stringify(bagItems(lord)),JSON.stringify(bagItems(snapshot.lords.liu)));
  const auto=setup();receiveEquipment(auto.lord,makeEquipment('ai-best','armor',9,'chiyou-tian'));const ai=new Engine(auto.state,{view:new RecordingView(),isAuto:()=>true,multiplayer:true,send:async()=>{throw Error('AI should not prompt');}});await ai.resolvePendingEquipment(auto.lord);assert.equal(bagItems(auto.lord).length,20);assert(auto.lord.gear.some(x=>x.uid==='ai-best'));
  console.log('PASS real engine reward prompts apply player replacement/discard and AI selection without exceeding capacity');
 })().catch(e=>{console.error(e);process.exitCode=1;});
+{
+ const {lord,g}=setup(false);g.technique=makeTechnique('abolished',3,'fire');g.realm=3;g.exp=100;
+ abolish(lord,g);assert.equal(g.realm,0);assert.equal(g.exp,0);assert.equal(g.technique,null);assert(lord.scrolls.some(x=>x.uid==='abolished'));
+ const full=setup();full.g.technique=makeTechnique('abolished-full',3,'fire');abolish(full.lord,full.g);assert.equal(bagItems(full.lord).length,20);assert.equal(full.lord.pendingEquipment[0].uid,'abolished-full');
+ receiveEquipment(full.lord,makeTechnique('second-reward',6,'wood'));receiveEquipment(full.lord,makeTechnique('discard-me',0,'wood'));
+ const before=JSON.stringify(full.lord),replaced=bagItems(full.lord).slice(0,2).map(x=>x.uid);
+ assert(!replaceEquipmentBatch(full.lord,['abolished-full','second-reward'],[replaced[0],replaced[0]]));assert.equal(JSON.stringify(full.lord),before);
+ assert(!replaceEquipmentBatch(full.lord,['abolished-full','foreign'],replaced));assert.equal(JSON.stringify(full.lord),before);
+ assert(replaceEquipmentBatch(full.lord,['abolished-full','second-reward'],replaced));assert.equal(bagItems(full.lord).length,20);assert.equal(full.lord.pendingEquipment.length,0);assert(!bagItems(full.lord).some(x=>x.uid==='discard-me'));
+ sortBagItems(full.lord);assert.deepEqual(bagSlots(full.lord).filter(Boolean).map(x=>x.uid),bagItems(full.lord).sort(compareBagItems).map(x=>x.uid));
+ console.log('PASS abolish returns techniques safely, batch replacement validates atomically, discards unselected rewards and sorts armor before techniques');
+}

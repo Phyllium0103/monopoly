@@ -36,6 +36,7 @@ export class RosterEquipment {
   private cursor: HTMLDivElement | null = null;
   private pointer = { x: 0, y: 0 };
   constructor(private root: HTMLElement, private emit: (a: RosterAction) => void) {
+    root.ownerDocument.addEventListener('pointerdown', () => root.querySelector('.equipment-notice')?.remove(), true);
     root.addEventListener('click', e => {
       if (this.selected && !(e.target as HTMLElement).closest('[data-equipment-kind], [data-inventory-slot]')) { e.preventDefault(); e.stopPropagation(); }
     }, true);
@@ -67,6 +68,7 @@ export class RosterEquipment {
         return;
       }
       if (!kind) { this.message('先點選一件仙衣或功法，再點目的格'); return; }
+      if (!this.selected && to && kind === 'technique' && this.context?.state.generals[to]?.technique) { this.message('請開啟武將詳情點擊「自廢修為」或使用散功丹', true, '無法取下'); return; }
       if (!this.allowed(kind)) { this.message(kind === 'armor' ? '只能在自己的整備階段換裝' : '目前無法修習功法', true, kind === 'technique' ? '無法修習' : '無法裝備'); return; }
       if (this.selected) {
         if (this.selected.uid === uid || (to && to === this.selected.from)) { this.clear(); return; }
@@ -74,7 +76,6 @@ export class RosterEquipment {
         if (to) this.move(this.selected, to);
         return;
       }
-      if (to && kind === 'technique' && this.context?.state.generals[to]?.technique) { this.message('已修習功法不能直接取下，請開啟武將詳情使用「自廢修為」', true, '無法修習'); return; }
       if (!uid) { this.message('先點選行囊中的' + labelOf(kind) + '，再點這個格子'); return; }
       const s: Source = { kind, uid, from: to };
       if (to) { const check = this.targetCheck(kind, to); if (!check.ok) { this.message(check.reason, true); return; } }
@@ -135,7 +136,8 @@ export class RosterEquipment {
       el.classList.toggle('armor-selected', selected); el.setAttribute('aria-pressed', String(selected)); el.draggable = false;
       const check = id && this.selected ? kind !== this.selected.kind ? { ok: false } : this.check(this.selected, id) : id ? this.targetCheck(kind, id) : { ok: true };
       const blocked = kind ? !this.allowed(kind) || !check.ok : !this.context?.manage && !this.context?.free;
-      el.classList.toggle('armor-unavailable', blocked); el.setAttribute('aria-disabled', String(blocked));
+      const learned = kind === 'technique' && !!id && !!this.context?.state.generals[id]?.technique;
+      el.classList.toggle('armor-unavailable', blocked && !learned); el.setAttribute('aria-disabled', String(blocked && !(learned && !this.selected)));
       const bag = el.hasAttribute('data-inventory-slot');
       const canBag = bag && !!this.selected && (!this.selected.from || !el.querySelector('[data-equipment-item]') && this.check(this.selected).ok || !!el.querySelector('[data-equipment-kind="armor"]'));
       const canPlace = !!this.selected && !selected && (!!id && !blocked && kind === this.selected.kind || !!canBag);

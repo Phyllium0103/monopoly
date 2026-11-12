@@ -30,6 +30,28 @@ export function bagSlots(lord: Lord): (BagItem | null)[] {
   return slots;
 }
 export function syncBagSlots(lord: Lord): void { lord.equipmentSlots = bagSlots(lord).map(item => item?.uid ?? null); }
+export function sortBagItems(lord: Lord): void {
+  lord.equipmentSlots = bagItems(lord).sort(compareBagItems).map(item => item.uid);
+  syncBagSlots(lord);
+}
+
+/** Validate the whole batch before removing anything. Unselected rewards are discarded. */
+export function replaceEquipmentBatch(lord: Lord, rewards: string[], replaced: string[]): boolean {
+  if (!rewards.length || rewards.length !== replaced.length || new Set(rewards).size !== rewards.length || new Set(replaced).size !== replaced.length) return false;
+  const pending = lord.pendingEquipment;
+  if (rewards.some(uid => !pending.some(item => item.uid === uid)) || replaced.some(uid => !bagItems(lord).some(item => item.uid === uid))) return false;
+  const slots = bagSlots(lord).map(item => item?.uid ?? null);
+  const incoming = rewards.map(uid => pending.find(item => item.uid === uid)!);
+  lord.gear = lord.gear.filter(item => !replaced.includes(item.uid));
+  lord.scrolls = lord.scrolls.filter(item => !replaced.includes(item.uid));
+  incoming.forEach((item, i) => {
+    slots[slots.indexOf(replaced[i])] = item.uid;
+    if (isArmor(item)) lord.gear.push(item); else lord.scrolls.push(item);
+  });
+  lord.equipmentSlots = slots;
+  lord.pendingEquipment = [];
+  return true;
+}
 export function moveBagItem(lord: Lord, uid: string, index: number): boolean {
   if (!Number.isInteger(index) || index < 0 || index >= EQUIPMENT_CAPACITY) return false;
   const slots = bagSlots(lord).map(item => item?.uid ?? null), from = slots.indexOf(uid);

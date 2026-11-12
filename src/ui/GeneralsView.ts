@@ -1,4 +1,5 @@
 import { upgradeRequirement } from '../systems/MaterialSystem';
+import { sectTransferRequirement } from '../systems/SectSystem';
 import './technique-roster.css';
 import { materialLabel } from './MaterialArt';
 import { RosterEquipment, armorPicture, techniquePicture } from './RosterEquipment';
@@ -84,7 +85,6 @@ const COLUMNS: { cls: string; label: string; sort?: string }[] = [
   { cls: 'c-craft', label: '畫符', sort: 'talisman' },
   { cls: 'c-craft', label: '佈陣', sort: 'formation' },
   { cls: 'c-passive', label: '被動' },
-  { cls: 'c-caret', label: '' },
 ];
 
 export interface RosterMode {
@@ -128,6 +128,7 @@ export class GeneralsView {
   /** 下次重繪時開啟詳情並捲到這名武將（點右下大頭貼進來時） */
   private focusId: string | null = null;
   private equipmentControls: RosterEquipment;
+  private replacement: { rewards: Set<string>; replaced: Set<string>; done: (value: { rewards: string[]; replaced: string[] } | null) => void } | null = null;
 
   constructor(root: HTMLElement) {
     this.el = document.createElement('div');
@@ -154,6 +155,15 @@ export class GeneralsView {
 
   get isOpen() {
     return !this.el.classList.contains('hidden');
+  }
+
+  pickReplacements(state: GameState, lord: Lord): Promise<{ rewards: string[]; replaced: string[] } | null> {
+    this.closeDetail();
+    this.equipmentControls.clear();
+    return new Promise(done => {
+      this.replacement = { rewards: new Set(lord.pendingEquipment.slice(0, EQUIPMENT_CAPACITY).map(item => item.uid)), replaced: new Set(), done };
+      void this.open(state, lord, { manage: false, free: false });
+    });
   }
 
   /** 指定下次開啟名冊時要開啟詳情並捲到的武將 */
@@ -211,6 +221,9 @@ export class GeneralsView {
     this.el.classList.add('hidden');
     this.closeDetail();
     this.equipmentControls.clear();
+    const replacement = this.replacement;
+    this.replacement = null;
+    replacement?.done(null);
     const action = this.onAction;
     this.onAction = null;
     action?.({ type: 'close' });
@@ -233,7 +246,7 @@ export class GeneralsView {
     this.detailId = null;
     this.el.querySelector('.general-modal-backdrop')?.remove();
     for (const el of this.el.querySelectorAll<HTMLElement>('[data-roster-inert]')) { el.inert = false; el.removeAttribute('data-roster-inert'); }
-    if (id) this.el.querySelector<HTMLButtonElement>(`[data-general-id="${id}"] .roster-toggle`)?.focus({ preventScroll: true });
+    if (id) this.el.querySelector<HTMLElement>(`[data-general-id="${id}"] .roster-row`)?.focus({ preventScroll: true });
   }
 
   private openDetail(state: GameState, lord: Lord, g: General, manage: boolean) {
@@ -266,6 +279,7 @@ export class GeneralsView {
 
   private render(state: GameState, lord: Lord) {
     this.el.classList.toggle('roster-readonly', !!this.mode.inspect);
+    this.el.classList.toggle('replacement-mode', !!this.replacement);
     const gens = generalsOf(state, lord.id);
     const manage = this.mode.manage;
 
@@ -284,16 +298,70 @@ export class GeneralsView {
       <div class="sections"></div>
       </div>
       ${this.mode.inspect ? '' : `<footer class="roster-inventory">
-        <div class="inventory-heading"><div><b>隨身行囊</b><span>仙衣 · 功法</span></div><span class="inventory-count">${bagItems(lord).length} / ${EQUIPMENT_CAPACITY}</span></div>
+        <div class="inventory-heading"><div><b>隨身行囊</b><span>仙衣 · 功法</span></div><button type="button" class="btn inventory-sort">物品排序</button><span class="inventory-count">${bagItems(lord).length} / ${EQUIPMENT_CAPACITY}</span></div>
         <div class="inventory-grid">${cells}</div>
         <div class="equipment-feedback" role="status" aria-live="polite">點選圖片拿起，再點裝備格放入；已修習功法的取下操作在武將詳情中。</div>
       </footer>`}`;
 
     (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
+    const sort = this.el.querySelector<HTMLButtonElement>('.inventory-sort');
+    if (sort) { sort.disabled = !!this.replacement || !(manage || this.mode.free); sort.onclick = () => this.emit({ type: 'sort-bag' }); }
     this.el.querySelector('.sections')!.appendChild(this.list(state, lord, sortRosterGenerals(gens, state, this.sortId, this.reverse), manage));
     this.el.querySelector('.drawer-body')!.scrollTop = scrollTop;
     if (this.detailId && state.generals[this.detailId]?.owner === lord.id) this.openDetail(state, lord, state.generals[this.detailId], manage);
     this.equipmentControls.update(state, lord, manage, this.mode.free);
+    if (this.replacement) this.renderReplacement(lord);
+  }
+
+  private renderReplacement(lord: Lord) {
+    const selection = this.replacement!;
+    const panel = document.createElement('section'); panel.className = 'replacement-panel';
+    panel.innerHTML = `<h3>選擇保留的新物品</h3><p>點選新物品決定保留數量，再點選下方行囊中要替換的物品。其餘新物品將捨棄。</p><div class="replacement-rewards"></div><p class="replacement-progress"></p><button type="button" class="btn primary replacement-confirm" hidden>確認替換，其餘捨棄</button>`;
+    const update = () => {
+      panel.querySelector('.replacement-progress')!.textContent = `保留 ${selection.rewards.size} 件 · 已選擇替換 ${selection.replaced.size} / ${selection.rewards.size} 件`;
+      panel.querySelector<HTMLButtonElement>('.replacement-confirm')!.hidden = !selection.rewards.size || selection.replaced.size !== selection.rewards.size;
+    };
+    for (const item of lord.pendingEquipment) {
+      const cell = document.createElement('div'); cell.className = 'replacement-reward';
+      cell.innerHTML = `${isArmor(item) ? armorPicture(item) : techniquePicture(item)}<span>${escapeHtml(item.name)}</span>`;
+      const button = cell.querySelector('button')!;
+      button.removeAttribute('data-equipment-kind'); button.removeAttribute('data-equipment-item');
+      button.classList.toggle('replacement-selected', selection.rewards.has(item.uid));
+      button.setAttribute('aria-pressed', String(selection.rewards.has(item.uid)));
+      button.onclick = e => {
+        e.stopPropagation();
+        if (selection.rewards.has(item.uid)) selection.rewards.delete(item.uid);
+        else if (selection.rewards.size < EQUIPMENT_CAPACITY) selection.rewards.add(item.uid);
+        button.classList.toggle('replacement-selected', selection.rewards.has(item.uid));
+        button.setAttribute('aria-pressed', String(selection.rewards.has(item.uid))); update();
+      };
+      panel.querySelector('.replacement-rewards')!.append(cell);
+    }
+    this.el.querySelector('.roster-inventory')!.prepend(panel);
+    for (const cell of this.el.querySelectorAll<HTMLElement>('.inventory-cell')) {
+      cell.removeAttribute('aria-disabled'); cell.classList.remove('armor-unavailable');
+      const button = cell.querySelector<HTMLButtonElement>('[data-equipment-item]');
+      if (!button) continue;
+      const uid = button.dataset.equipmentItem!;
+      button.removeAttribute('data-equipment-kind'); button.removeAttribute('data-equipment-item');
+      button.removeAttribute('aria-disabled'); button.classList.remove('armor-unavailable');
+      button.classList.toggle('replacement-selected', selection.replaced.has(uid));
+      button.setAttribute('aria-pressed', String(selection.replaced.has(uid)));
+      button.onclick = e => {
+        e.stopPropagation();
+        if (selection.replaced.has(uid)) selection.replaced.delete(uid);
+        else if (selection.replaced.size < selection.rewards.size) selection.replaced.add(uid);
+        button.classList.toggle('replacement-selected', selection.replaced.has(uid));
+        button.setAttribute('aria-pressed', String(selection.replaced.has(uid))); update();
+      };
+    }
+    panel.querySelector<HTMLButtonElement>('.replacement-confirm')!.onclick = () => {
+      if (!selection.rewards.size || selection.replaced.size !== selection.rewards.size) return;
+      this.replacement = null;
+      this.close();
+      selection.done({ rewards: [...selection.rewards], replaced: [...selection.replaced] });
+    };
+    update();
   }
 
   /** 條列式名冊：每位武將一列，點選開啟獨立詳情彈窗 */
@@ -339,10 +407,14 @@ export class GeneralsView {
       row.className = 'roster-row';
       row.setAttribute('role', 'group');
       row.setAttribute('aria-label', g.name);
+      row.tabIndex = 0;
+      row.setAttribute('aria-haspopup', 'dialog');
+      row.onkeydown = e => { if (e.target === row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); row.click(); } };
       row.innerHTML = this.rowHtml(state, lord, g, ready);
       if (this.mode.inspect) this.displayOnly(row);
       item.appendChild(row);
       row.onclick = e => {
+        if (this.replacement) return;
         if (this.el.classList.contains('equipment-carrying')) return;
         if ((e.target as HTMLElement).closest('[data-equipment-kind], [data-inventory-slot], [data-weapon-general]')) return;
         this.openDetail(state, lord, g, manage);
@@ -383,7 +455,7 @@ export class GeneralsView {
       <span class="c-craft">${craft(g, 'talisman')}</span>
       <span class="c-craft">${craft(g, 'formation')}</span>
       <span class="c-passive" title="${tip(`【${p.name}】${fxText(p.fx)}`)}">【${p.name}】</span>
-      <button type="button" class="c-caret roster-toggle" aria-label="查看${g.name}詳細資訊" aria-haspopup="dialog">›</button></span>`;
+      </span>`;
   }
 
   private displayOnly(root: HTMLElement) {
@@ -419,7 +491,7 @@ export class GeneralsView {
     const breakInfo = g.demon ? '心魔纏身，需先服用清心丹' : !bottleneck
       ? ''
       : needsTribulation(g)
-        ? fx(g).tribulationSuccess ? '⚡ 專屬被動：渡劫必定成功' : `⚡ 渡劫：${boltCount(g)} 道天雷・每道約 ${Math.round(boltDamage(g))}`
+        ? fx(g).tribulationSuccess ? '專屬被動：渡劫必定成功' : `渡劫：${boltCount(g)} 道天雷・每道約 ${Math.round(boltDamage(g))}`
         : `突破成功率 ${Math.round(breakChance(g) * 100)}%`;
     const buffs = [g.foundation ? '已服築基丹' : '', g.sevenLife ? '七星續命護法' : '', g.ward ? `護法減傷 ${Math.round(g.ward * 100)}%` : '', g.demon ? '心魔：修為減半・無法突破' : ''].filter(Boolean).join('・');
 
@@ -436,7 +508,7 @@ export class GeneralsView {
         <div class="dossier-main">
           <section class="dossier-section"><div class="dossier-section-head"><h3>身心狀態</h3><span>每回合修為 +${Math.round(passiveExp(g, city) * expMultiplier(g))}</span></div><div class="dossier-vitals">${this.vitals(g)}</div>
             ${buffs ? '<p class="dossier-condition">'+buffs+'</p>' : ''}
-            ${breakInfo.trim() && breakInfo.replace(/<[^>]*>/g, '').trim() ? '<p class="break-info">'+breakInfo+'</p>' : ''}
+            <div class="dossier-break-row">${breakInfo.trim() ? '<p class="break-info">'+breakInfo+'</p>' : ''}</div>
             ${ready ? '<p class="dossier-ready">修為圓滿，可以'+(needsTribulation(g) ? '渡劫' : '突破')+'</p>' : ''}
           </section>
           <section class="dossier-section"><div class="dossier-section-head"><h3>戰鬥與四藝</h3></div><div class="detail-combat">${stat('戰力',power(g))}${stat('武力',attack(g))}${stat('防禦',defense(g))}</div><div class="detail-crafts">${stat('煉丹',craft(g,'alchemy'))}${stat('煉器',craft(g,'forging'))}${stat('畫符',craft(g,'talisman'))}${stat('佈陣',craft(g,'formation'))}</div>
@@ -484,13 +556,20 @@ export class GeneralsView {
       cost.innerHTML = `升階：${materialLabel(req.group, req.stage)} × ${req.cost}`;
       card.querySelector('.eq-row[data-slot="weapon"]')!.appendChild(cost);
     }
-    // 已經修習功法就不再顯示學習按鈕
-    if (!t) rowBtn('technique', g.aptitude === 'waste' ? '廢靈根' : '學習功法', !free || away || !lord.scrolls.length || g.aptitude === 'waste', () => this.emit({ type: 'learn', generalId: g.id }));
     rowBtn('armor', '取下仙衣', !manage || away || !g.armor, () => this.equipmentControls.unequip(g.id));
     if (t) rowBtn('technique', '自廢修為', !free || away, () => this.emit({ type: 'abolish', generalId: g.id }));
-    const note = document.createElement('p'); note.className = 'dossier-warning'; note.textContent = '自廢會散去功法、境界回到凡人、修為歸零。功法不會回到行囊。'; if (t) card.querySelector('.eq-row[data-slot="technique"]')!.appendChild(note);
+    const abolishButton = card.querySelector<HTMLButtonElement>('.eq-row[data-slot="technique"] .btn');
+    if (abolishButton) { abolishButton.title = '境界回到凡人、修為歸零，功法退回行囊。'; abolishButton.dataset.tip = abolishButton.title; }
     const breakthrough = actions.querySelector('button.danger');
-    if (breakthrough) { breakthrough.classList.add('dossier-breakthrough'); card.querySelector('.dossier-location')!.appendChild(breakthrough); }
+    if (breakthrough) { breakthrough.classList.add('dossier-breakthrough'); card.querySelector('.dossier-break-row')!.appendChild(breakthrough); }
+    if (g.status === 'free' || g.status === 'sect') {
+      const transfer = document.createElement('button'); transfer.className = 'btn mini dossier-transfer';
+      transfer.textContent = g.status === 'free' ? '坐鎮宗門' : '跟隨主公';
+      const requirement = sectTransferRequirement(state, lord, g);
+      transfer.disabled = !free || !requirement.ok; transfer.title = requirement.reason;
+      transfer.onclick = () => this.emit({ type: 'sect-transfer', generalId: g.id });
+      card.querySelector('.dossier-location')!.append(transfer);
+    }
     // Detail equipment is informational; actions live on the explicit buttons.
     this.displayOnly(card);
     if (this.mode.inspect) {

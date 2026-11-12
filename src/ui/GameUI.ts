@@ -106,6 +106,7 @@ export class GameUI {
     this.info = q('.info-panel');
     this.logEl = q('.log-list');
     this.toastEl = q('.toast');
+    document.addEventListener('pointerdown', () => { this.toastEl.classList.remove('show'); this.tooltip.classList.add('hidden'); }, true);
     this.tooltip = q('.tooltip');
     this.itemDock = new ItemDock(this.hud);
     this.dice = new DiceRoller(this.hud,{centerFinal:true});

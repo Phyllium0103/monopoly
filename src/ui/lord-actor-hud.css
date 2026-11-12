@@ -2,7 +2,7 @@
 .lord-actors-dock{display:flex;align-items:flex-end;gap:7px;padding:3px 3px 0;pointer-events:none}
 .lord-actor{position:relative;flex:0 0 auto;width:var(--lord-actor-width,200px);height:calc(var(--lord-actor-width,200px)*1.8504);container-type:inline-size;pointer-events:none}
 .lord-actor-hit{position:absolute;left:0;bottom:0;width:100%;height:105.04cqw;padding:0;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0;pointer-events:auto;cursor:pointer}
-.lord-actor-hit:focus-visible{outline:1px dashed var(--fc);outline-offset:-5px}
+.lord-actor-hit:focus-visible{outline:none}
 .lord-actor-seat{position:absolute;bottom:105.04cqw;left:50%;width:0;height:0}
 .lord-actor-fallback{display:none;position:absolute;left:24.24%;bottom:105.04cqw;width:51.52%;pointer-events:none}
 .lord-actor.actor-unavailable .lord-actor-fallback{display:block}
@@ -43,7 +43,7 @@
 /* Separate physical stone information from the current player's character action. */
 .lord-actor-roll{position:absolute;left:16.4%;bottom:105.04cqw;width:67.2%;height:80cqw;padding:0;border:0;background:transparent!important;box-shadow:none!important;pointer-events:auto;cursor:pointer;clip-path:polygon(12% 0,88% 0,100% 48%,100% 100%,0 100%,0 48%)}
 .lord-actor-roll[hidden]{display:none}
-.lord-actor-roll:focus-visible{outline:3px dashed var(--fc);outline-offset:-4px}
+.lord-actor-roll:focus-visible{outline:none}
 
 /* Reserve one row for accompanying generals beside the smaller lord bases. */
 .hud.lord-actors-enabled .party-shell{

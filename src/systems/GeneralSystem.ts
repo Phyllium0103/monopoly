@@ -302,12 +302,15 @@ export function battleExp(winner: General, loser: General | null): number {
 }
 
 
-/** 自廢修為：境界歸零、功法散去，才能改學其他功法 */
-export function abolish(g: General) {
+/** 自廢修為：境界歸零，功法退回行囊；滿袋時等待保留選擇。 */
+export function abolish(lord: Lord, g: General) {
+  if (g.owner !== lord.id) return;
+  const technique = g.technique;
   if (g.mortalTrial) { g.weapon = g.mortalTrial.weapon; delete g.mortalTrial; }
   g.realm = 0;
   g.exp = 0;
   g.technique = null;
+  if (technique) receiveEquipment(lord, technique);
   g.foundation = false;
   const state = passiveState();
   if (state) reconcileProgression(state);

@@ -152,6 +152,7 @@ export class PortraitFlames {
   private averageGap = NORMAL_INTERVAL / 2;
   private clipLeft = 0;
   private clipRight = 0;
+  private layoutFrame = 0;
 
   constructor(private readonly shell: HTMLElement, private readonly dock: HTMLElement) {
     this.canvas.className = 'pd-flames';
@@ -160,6 +161,12 @@ export class PortraitFlames {
     const resize = new ResizeObserver(() => this.relayout());
     resize.observe(shell);
     resize.observe(dock);
+    // Dock width/centering can change without either observed box resizing.
+    new MutationObserver(() => {
+      cancelAnimationFrame(this.layoutFrame);
+      this.layoutFrame = requestAnimationFrame(() => this.relayout());
+    }).observe(dock, { attributes: true, attributeFilter: ['style', 'class'], childList: true });
+    dock.addEventListener('load', () => this.relayout(), true);
     dock.addEventListener('scroll', () => this.relayout(), { passive: true });
     addEventListener('resize', () => this.relayout(), { passive: true });
   }
@@ -176,6 +183,8 @@ export class PortraitFlames {
     if (!this.ensureGl()) return;
     this.shell.classList.add('flames-on');
     this.relayout();
+    cancelAnimationFrame(this.layoutFrame);
+    this.layoutFrame = requestAnimationFrame(() => this.relayout());
     if (!this.reducedMotion && !this.handle) {
       this.lastTick = performance.now();
       this.handle = requestAnimationFrame(this.tick);

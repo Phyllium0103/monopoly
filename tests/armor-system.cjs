@@ -137,7 +137,7 @@ class Element {
   querySelector(selector) { if(selector==='button')return this.button??=new Element(); return this.children.find(x=>x.closest(selector)===x)??null; }
 }
 class Root extends Element {
-  constructor(elements) { super();this.elements=elements;this.events={};this.status=new Element();this.ownerDocument={defaultView:{innerWidth:800,innerHeight:600},body:new Element(),createElement:()=>new Element()}; }
+  constructor(elements) { super();this.elements=elements;this.events={};this.status=new Element();this.ownerDocument={addEventListener(){},defaultView:{innerWidth:800,innerHeight:600},body:new Element(),createElement:()=>new Element()}; }
   addEventListener(type,fn){this.events[type]=fn;}
   querySelectorAll(){return this.elements;}
   querySelector(s){if(s==='.equipment-feedback')return this.status;return this.children.find(x=>'.'+x.className===s)??null;}

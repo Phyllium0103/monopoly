@@ -1,6 +1,5 @@
 import { enterRelic, advanceRelic, leaveRelic } from '../systems/RelicSystem';
-import { bagItems, bagHasRoom, moveBagItem, receiveEquipment, resolveEquipmentReward, isArmor, EQUIPMENT_CAPACITY } from '../systems/EquipmentInventory';
-import { equipDesc } from '../data/items';
+import { bagItems, bagHasRoom, sortBagItems, replaceEquipmentBatch, moveBagItem, receiveEquipment, resolveEquipmentReward, EQUIPMENT_CAPACITY } from '../systems/EquipmentInventory';
 import { generalHoverTable } from '../ui/GeneralInfo';
 import { GOLDEN_CORES, BREAKTHROUGH_TITLES, mortalTrialTurns, type GoldenCore, breakthroughSuccess, breakthroughSuccessTitle } from '../data/breakthroughRules';
 import { completeBreak, ascensionCities, ESSENCE_ELEMENTS, ESSENCE_NAMES, reconcileProgression } from '../systems/GeneralSystem';
@@ -27,9 +26,9 @@ import { CASINO_MIN_BET, CASINO_NAME, aiCasinoBet, diceTotal, maxBet, playCasino
 import { REALMS } from '../data/generals';
 import { bindPassiveState, passiveOf, fx, lordHas } from '../data/passives';
 import { talentNode, canLearnTalent, canRefundTalent, canResetTalents, ensureTalentState, learnTalent, lordTalentFx, refundTalent, resetTalents } from '../data/talents';
-import { CRAFT_CSS, ELEMENT_CSS, ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, techniqueDesc } from '../data/items';
+import { ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES } from '../data/items';
 import { GARRISON_STRENGTH, MIN_GARRISON, canOccupy, cityIncome, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll, visitingToll } from '../systems/CitySystem';
-import { generalSaleValue, boltRange, attack, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, transferArmor, equipTechnique, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, tribulation } from '../systems/GeneralSystem';
+import { generalSaleValue, boltRange, attack, battleExp, breakChance, canAttemptBreak, craft, defense, transferArmor, equipTechnique, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
 import { aptTag, generalBlock, generalBrief, realmTag, statCells, vitalBars, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
@@ -46,7 +45,7 @@ import type { EngineView } from './view';
 import { duelSnapshot } from './snapshots';
 
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
-export type RosterActionType = Exclude<RosterAction, { type: 'close' | 'transfer-armor' | 'learn-technique' | 'move-bag-item' }>['type'];
+export type RosterActionType = Exclude<RosterAction, { type: 'close' | 'transfer-armor' | 'learn-technique' | 'move-bag-item' | 'sort-bag' }>['type'];
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
 
@@ -102,18 +101,22 @@ export class Engine {
       const reward = lord.pendingEquipment[0];
       if (bagHasRoom(lord)) { lord.pendingEquipment.shift(); receiveEquipment(lord, reward); continue; }
       const items = bagItems(lord);
-      let replace: string | null = null;
       if (this.human(lord)) {
         const dialog = new Ask(lord.id, this.ports.send);
-        replace = await dialog.choose('行囊已滿・選擇保留',
-          `仙衣與功法共用 ${EQUIPMENT_CAPACITY} 格。新獲得「${reward.name}」：<br>${isArmor(reward) ? equipDesc(reward, false) : techniqueDesc(reward)}<br>選擇一件未裝備物品替換，或放棄這份獎勵。被替換的物品將消失。`,
-          items.map(item => ({ label: `替換 ${item.name}`, sub: isArmor(item) ? equipDesc(item, false) : techniqueDesc(item), value: item.uid })), '放棄新獎勵', '行囊');
+        const choose = await dialog.confirm('行囊已滿',
+          `仙衣與功法共用 ${EQUIPMENT_CAPACITY} 格，尚有 ${lord.pendingEquipment.length} 件物品等待收納。\n在武將名冊選擇保留的新物品與要替換的行囊物品，未保留的新物品將捨棄。`,
+          '選擇替換', '全部捨棄', '');
+        if (!choose) lord.pendingEquipment = [];
+        else {
+          const answer = await this.ports.send(lord.id, { kind: 'equipment-overflow' }) as { rewards?: unknown; replaced?: unknown } | null;
+          if (!answer || !Array.isArray(answer.rewards) || !Array.isArray(answer.replaced)
+            || !answer.rewards.every(x => typeof x === 'string') || !answer.replaced.every(x => typeof x === 'string')
+            || !replaceEquipmentBatch(lord, answer.rewards, answer.replaced)) continue;
+        }
       } else {
         const least = [...items].sort((a, b) => a.price - b.price)[0];
-        if (least && reward.price > least.price) replace = least.uid;
+        resolveEquipmentReward(lord, reward.uid, least && reward.price > least.price ? least.uid : null);
       }
-      if (!resolveEquipmentReward(lord, reward.uid, replace)) continue;
-      this.view.log(replace ? `保留「${reward.name}」，替換行囊中的物品。` : `放棄「${reward.name}」。`, this.human(lord) ? 'info' : 'ai');
       this.view.refresh();
     }
   }
@@ -1878,6 +1881,7 @@ export class Engine {
       if (this.state.over || !lord.alive) return;
       const a = (await this.ask(lord, { kind: 'roster' })) as RosterAction | null;
       if (!a || a.type === 'close') return;
+      if (a.type === 'sort-bag') { sortBagItems(lord); this.view.refresh(); continue; }
       if (a.type === 'transfer-armor') {
         transferArmor(this.state, lord, a.itemUid, a.fromGeneralId, a.toGeneralId, a.bagSlot);
         this.view.refresh();
@@ -1917,33 +1921,23 @@ export class Engine {
         if (away || !r.ok || r.stage === undefined || !r.group || !r.cost) return;
         const name = WEAPON_CATALOG[g.id].names[r.stage + 1];
         const ok = await ask.confirm(`${g.name}・本命武器突破`,
-          `${g.weapon!.name} → ${WEAPON_GRADES[r.stage + 1]}・${name}。\n消耗 ${r.cost} 顆${materialLabel(r.group, r.stage)}；無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage] * 100)}% → ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%。`,
+          `<div class="weapon-upgrade-summary"><small>淬鍊本命 · 更上一階</small><h3>${g.weapon!.name} → ${name}</h3><p>升至${WEAPON_GRADES[r.stage + 1]}，無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage] * 100)}% → ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%</p><p>所需材料：${materialLabel(r.group, r.stage)} × ${r.cost}</p></div>`,
           '消耗材料・升階', '返回名冊', '');
-        if (ok && upgradeRequirement(lord, g).ok) await ask.message('武器升階完成', upgradeWeapon(lord, g), '⚔️');
+        if (ok && upgradeRequirement(lord, g).ok) {
+          upgradeWeapon(lord, g);
+          await ask.message('本命武器升階成功', `<div class="weapon-upgrade-summary"><small>百鍊成器 · 鋒芒新生</small><h3>${g.weapon!.name}</h3><p>${g.name}的本命武器已達${WEAPON_GRADES[r.stage + 1]}。</p><p>無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%</p></div>`, '');
+        }
         break;
       }
 
-      case 'learn': {
-        if (away || g.technique || !lord.scrolls.length || g.aptitude === 'waste') return;
-        const s = await ask.choose(
-          `${g.name}・學習功法`,
-          '每位武將只能修習一種功法；五行靈根須與功法屬性相符，天靈根不限屬性，煉丹、煉器、畫符、佈陣功法不限靈根，廢靈根無法修習。學會後不可更換，除非自廢修為。',
-          lord.scrolls.map((x) => ({
-            label: x.name,
-            sub: techniqueDesc(x),
-            value: x,
-            color: x.element ? ELEMENT_CSS[x.element] : CRAFT_CSS,
-            disabled: !canLearn(g, x).ok,
-            reason: canLearn(g, x).reason,
-          })),
-        );
-        if (s) learn(lord, g, s);
+      case 'sect-transfer': {
+        if (sectTransferRequirement(this.state, lord, g).ok) transferSectGeneral(this.state, lord, g);
         break;
       }
       case 'abolish': {
         if (away || !g.technique) return;
-        const ok = await ask.confirm('自廢修為', `${g.name}將散去「${g.technique.name}」，境界跌回凡人，修為歸零。\n此後可改修其他功法。確定嗎？`, '自廢', '取消', '');
-        if (ok) abolish(g);
+        const ok = await ask.confirm('自廢修為', `${g.name}的境界將回到凡人，修為歸零。\n「${g.technique.name}」將退回行囊，此後可改修其他功法。${bagHasRoom(lord) ? '' : '\n行囊已滿，確認後將選擇保留或替換物品。'}`, '自廢', '取消', '');
+        if (ok) { abolish(lord, g); await this.resolvePendingEquipment(lord); }
         break;
       }
     }

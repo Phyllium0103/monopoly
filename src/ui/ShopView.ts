@@ -1,13 +1,13 @@
 import { bagHasRoom } from '../systems/EquipmentInventory';
 import { techniqueIconUrl } from './RosterEquipment';
 import './shop.css';
-import { itemName } from '../data/items';
+import { itemName, equipStats } from '../data/items';
 import type { Lord } from '../game/types';
 import { fmtStones } from '../game/Currency';
 import { SHOP_NAMES, SHOP_REFRESH_COSTS, type Offer, type ShopKind } from '../systems/ShopSystem';
 import type { Dialog } from './Dialog';
 import { itemInfoHtml } from './ItemUI';
-import { detailCard, itemDetail, enableItemDetails } from './ItemDetail';
+import { detailCard, itemDetail, enableItemDetails, emphasizeTechnique } from './ItemDetail';
 import { generalBlock, generalBrief } from './GeneralInfo';
 import { beastIconUrl, equipIconUrl, itemIconUrl, portraitUrl } from './Icons';
 import type { ShopAction, ShopPromptData } from '../engine/prompts';
@@ -248,15 +248,18 @@ export class ShopPanel {
     const inventory = document.createElement('section');
     inventory.className = 'shop-inventory';
     inventory.innerHTML = '<header><h3>可出售物品</h3><span>選取後點貨架出售 · 或右鍵出售</span></header><p class="shop-sale-status" role="status">僅顯示本店收購的物品。</p><div class="shop-items-grid"></div>';
-    let selected = -1;
+    const selected = new Set<number>();
+    const sellButton=document.createElement('button');sellButton.className='btn primary shop-batch-sell';sellButton.textContent='出售已選物品';sellButton.disabled=true;
+    inventory.appendChild(sellButton);
     const status = inventory.querySelector('.shop-sale-status')!;
     const sellSelected = () => {
-      if (selected < 0 || !this.session?.resolve) return;
-      const index = selected; selected = -1;
+      if (!selected.size || !this.session?.resolve) return;
+      const indices = [...selected]; selected.clear();
       counter.classList.remove('shop-sale-target');
-      this.act({type:'sell', index});
+      this.act(indices.length===1?{type:'sell',index:indices[0]}:{type:'sellBatch',indices});
     };
-    counter.addEventListener('click', e => { if (selected >= 0) { e.preventDefault(); e.stopImmediatePropagation(); sellSelected(); } }, true);
+    sellButton.onclick=sellSelected;
+    counter.addEventListener('click', e => { if (selected.size) { e.preventDefault(); e.stopImmediatePropagation(); sellSelected(); } }, true);
     const append = (parent: Element, uid: string, name: string, icon: string) => {
       const index = data.sellStock.findIndex(o => offerUid(o) === uid);
       const cell = document.createElement('button'); cell.type = 'button'; cell.className = 'shop-bag-cell';
@@ -267,19 +270,21 @@ export class ShopPanel {
       if(index>=0) { cell.dataset.itemDetail=offerDetail(data.sellStock[index],`出售可得 · ${fmtStones(data.sellStock[index].price)}`);cell.removeAttribute('title'); }
       cell.classList.toggle('not-accepted',index < 0);
       cell.onclick = () => {
-        inventory.querySelectorAll('.selected').forEach(el=>el.classList.remove('selected'));
-        selected = selected === index ? -1 : index;
-        cell.classList.toggle('selected',selected >= 0);
-        counter.classList.toggle('shop-sale-target',selected >= 0);
-        status.textContent = index < 0 ? `本店不收購「${name}」。` : selected < 0 ? '已取消選取。' : `出售「${name}」可得 ${fmtStones(data.sellStock[index].price)}，點貨架確認。`;
+        if(index<0)return;
+        if(selected.has(index))selected.delete(index);else selected.add(index);
+        cell.classList.toggle('selected',selected.has(index));cell.setAttribute('aria-pressed',String(selected.has(index)));
+        counter.classList.toggle('shop-sale-target',!!selected.size);
+        sellButton.disabled=!selected.size;
+        const total=[...selected].reduce((sum,i)=>sum+data.sellStock[i].price,0);
+        status.textContent=selected.size?`已選 ${selected.size} 件 · 可得 ${fmtStones(total)}，點貨架或下方按鈕一次出售。`:'已取消選取。';
       };
-      cell.oncontextmenu = e => {e.preventDefault(); if(index >= 0) {selected=index;sellSelected();} else status.textContent=`本店不收購「${name}」。`;};
+      cell.oncontextmenu = e => {e.preventDefault(); if(index >= 0) {if(!selected.has(index)){selected.clear();selected.add(index);}sellSelected();}};
       parent.appendChild(cell);
     };
     const items = inventory.querySelector('.shop-items-grid')!;
     for(const offer of data.sellStock) append(items,offerUid(offer),offer.label,offerIcon(offer));
     if(!items.childElementCount) { items.textContent='暫無可出售物品'; (items as HTMLElement).style.display='block'; }
-    inventory.addEventListener('keydown',e=>{if(e.key==='Escape'&&selected>=0){e.stopPropagation();selected=-1;counter.classList.remove('shop-sale-target');inventory.querySelectorAll('.selected').forEach(el=>el.classList.remove('selected'));status.textContent='已取消選取。';}});
+    inventory.addEventListener('keydown',e=>{if(e.key==='Escape'&&selected.size){e.stopPropagation();selected.clear();sellButton.disabled=true;counter.classList.remove('shop-sale-target');inventory.querySelectorAll('.selected').forEach(el=>{el.classList.remove('selected');el.setAttribute('aria-pressed','false');});status.textContent='已取消選取。';}});
     body.appendChild(inventory);
   }
 }
@@ -289,7 +294,10 @@ function offerUid(o: Offer): string {
 }
 function offerDetail(o:Offer,footer:string):string {
   if(o.kind==='item')return itemDetail(o.item.defId,o.item.tier,footer);
-  return detailCard(o.label,o.kind==='equipment'?'仙衣':o.kind==='technique'?'功法':'靈獸',offerIcon(o),`<h4>能力與效果</h4><p>${o.sub.replace(/｜/g,'<br>').replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,'')}</p>`,footer);
+  let description=o.sub;
+  if(o.kind==='technique')description=emphasizeTechnique(description);
+  if(o.kind==='equipment'){const stats=equipStats(o.equipment);description=description.replace(stats,`<span class="equipment-main-bonus">${stats}</span>`);}
+  return detailCard(o.label,o.kind==='equipment'?'仙衣':o.kind==='technique'?'功法':'靈獸',offerIcon(o),`<h4>能力與效果</h4><p>${description.replace(/｜/g,'<br>').replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,'')}</p>`,footer);
 }
 function offerIcon(o: Offer): string {
   return o.kind==='item'?itemIconUrl(o.item.defId):o.kind==='equipment'?equipIconUrl(o.equipment):o.kind==='technique'?techniqueIconUrl(o.technique):o.kind==='beast'?beastIconUrl(o.beast):o.kind==='general'||o.kind==='revive'?portraitUrl(o.general):'';

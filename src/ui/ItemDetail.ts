@@ -1,16 +1,21 @@
-import { ITEM_DEFS, PILL_GRADES, STAT_NAMES } from '../data/items';
+import { ITEM_DEFS, PILL_GRADES } from '../data/items';
+import { requirementText } from '../systems/ItemSystem';
 import { itemIconUrl } from './Icons';
 import './item-detail.css';
 
 export const detailEscape = (s:string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+export function emphasizeTechnique(html:string):string {
+  const lines=html.split(/<br\s*\/?>/i);
+  if(lines.length>1)lines[1]=`<span class="equipment-main-bonus">${lines[1]}</span>`;
+  return lines.join('<br>');
+}
 export function detailCard(name:string, category:string, icon:string, content:string, footer=''):string {
   return `<article class="item-detail-card"><header><img src="${detailEscape(icon)}" alt=""><div><small>${detailEscape(category)}</small><h3>${detailEscape(name)}</h3></div></header><section>${content}</section>${footer?`<footer>${detailEscape(footer)}</footer>`:''}</article>`;
 }
-export function itemDetail(defId:string,tier:number,footer=''):string {
-  const d=ITEM_DEFS[defId],t=Math.min(tier,d.min.length-1);
-  const timing={preroll:'擲骰前',battle:'戰鬥中',both:'平時與戰鬥',event:'事件觸發'};
-  const effect=detailEscape(d.desc(tier)).replace(/(\d+(?:\.\d+)?%?)/g,'<b>$1</b>');
-  return detailCard(d.name,`${d.category}${d.price.length>1?' · '+PILL_GRADES[tier]:''}`,itemIconUrl(defId),`<h4>道具效果</h4><p>${effect}</p><dl>${d.noUser?'<div><dt>使用方式</dt><dd>事件直接使用</dd></div>':`<div><dt>${STAT_NAMES[d.stat]}門檻</dt><dd>≥ ${d.min[t]}</dd></div><div><dt>消耗體力</dt><dd>${d.stamina[t]}</dd></div>`}<div><dt>使用時機</dt><dd>${timing[d.timing]}</dd></div></dl>`,footer);
+export function itemDetail(defId:string,tier:number,footer='',count=1):string {
+  const d=ITEM_DEFS[defId];
+  const requirement=requirementText({defId,tier} as import('../game/types').Item);
+  return detailCard(d.name+(count>1?' ×'+count:''),`${d.category}${d.price.length>1?' · '+PILL_GRADES[tier]:''}`,itemIconUrl(defId),`<p>${detailEscape(d.desc(tier))}</p><div class="item-detail-requirement">${detailEscape(requirement)}</div>`,footer);
 }
 
 let installed=false;

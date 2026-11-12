@@ -13,6 +13,17 @@ const {grantTournamentPrize}=require('../src/systems/TournamentSystem.ts');
 const {Engine}=require('../src/engine/Engine.ts'),{RecordingView}=require('../src/engine/view.ts');
 function setup(full=true){const state=createGameState('liu'),lord=state.lords.liu,g=state.generals.liubei;g.realm=6;g.aptitude='heaven';lord.stones=1e8;if(full)for(let i=0;i<20;i++)assert(receiveEquipment(lord,i%2?makeTechnique('bag-'+i,0,'fire'):makeEquipment('bag-'+i,'armor',0,'chiyou-huang')));return {state,lord,g};}
 function allIds(state){return Object.values(state.lords).flatMap(l=>[...bagItems(l),...l.pendingEquipment]).concat(Object.values(state.generals).flatMap(g=>[g.armor,g.technique].filter(Boolean))).map(i=>i.uid).sort();}
+(async()=>{
+ const {state,lord}=setup(false);
+ for(let i=0;i<3;i++)receiveEquipment(lord,makeEquipment('batch-'+i,'armor',0,'chiyou-huang'));
+ const stock=makeSellStock(lord,'forge'),start=lord.stones;
+ const actions=[{type:'sellBatch',indices:[0,0]},{type:'sellBatch',indices:[0,99]},{type:'sellBatch',indices:[0,2]},{type:'leave'}];let step=0;
+ const engine=new Engine(state,{view:new RecordingView(),send:async()=>{if(step===1||step===2){assert.equal(lord.gear.length,3);assert.equal(lord.stones,start);}return actions[step++];},isAuto:()=>false,multiplayer:false});
+ await engine.shopFlow(lord,'forge',[]);
+ assert.deepEqual(lord.gear.map(e=>e.uid),[stock[1].equipment.uid]);
+ assert.equal(lord.stones,start+stock[0].price+stock[2].price);
+ console.log('PASS batch sale rejects duplicate/invalid selections without mutations and sells exact captured items at correct total');
+})().catch(e=>{console.error(e);process.exitCode=1;});
 {
  const {state,lord,g}=setup();assert.equal(EQUIPMENT_CAPACITY,20);assert.equal(bagSlots(lord).length,20);
  const initial=allIds(state),uid=lord.gear[0].uid,index=bagSlots(lord).findIndex(x=>x?.uid===uid);

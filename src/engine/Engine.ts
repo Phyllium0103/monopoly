@@ -1294,6 +1294,14 @@ export class Engine {
         if (!o) continue;
         const r = sell(lord, kind, o);
         if (r.ok) this.view.log(r.message, 'good');
+      } else if (a.type === 'sellBatch') {
+        const stock = makeSellStock(lord, kind);
+        if (!Array.isArray(a.indices) || !a.indices.length || new Set(a.indices).size !== a.indices.length || a.indices.some(i => !Number.isInteger(i) || !stock[i])) continue;
+        // Capture the full validated selection before any sale changes stock indices.
+        for (const offer of a.indices.map(i => stock[i])) {
+          const r = sell(lord, kind, offer);
+          if (r.ok) this.view.log(r.message, 'good');
+        }
       } else if (a.type === 'refresh') {
         const r = refreshShop(this.state, lord, visit);
         if (r.ok) {

@@ -73,6 +73,7 @@ export type ShopAction =
   | { type: 'leave' }
   | { type: 'buy'; index: number }
   | { type: 'sell'; index: number }
+  | { type: 'sellBatch'; indices: number[] }
   | { type: 'refresh' }
   | { type: 'lock'; index: number };
 

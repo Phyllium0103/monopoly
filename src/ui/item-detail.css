@@ -13,3 +13,11 @@
 .item-detail-card dt { color:#c4c9b8; font-size:12px; }
 .item-detail-card dd { margin:0; color:#fff1c9; font-weight:600; }
 .item-detail-card footer { border-top:1px solid #b9a36a40; padding:11px 18px; color:#e6c98c; font-size:13px; }
+.item-detail-popover { width:min(330px,calc(100vw - 16px)); background:rgba(20,14,10,.94); border:1px solid var(--panel-border,#877343); border-radius:5px; font-family:inherit; }
+.item-detail-card header { background:none; border-bottom:1px solid #87734366; }
+.item-detail-card small { font-size:15px; letter-spacing:.08em; color:#dfc58b; }
+.item-detail-card h3 { font-size:20px; line-height:1.65; margin-top:2px; color:#fff0ca; }
+.item-detail-card section { font-size:16px; line-height:1.8; color:#e7e5dc; }
+.item-detail-card p { color:inherit; }
+.item-detail-requirement { border-top:1px solid #87734388; padding-top:12px; color:#dfc58b; }
+.equipment-main-bonus { font-size:18px; font-weight:700; color:#ffe1a0; line-height:1.85; }

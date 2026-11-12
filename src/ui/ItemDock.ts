@@ -9,7 +9,6 @@ import { sortItemStacks, type ItemStack } from './itemDockOrder';
 import { uiViewportSize } from './UiViewport';
 import './item-dock.css';
 import './technique-roster.css';
-import { itemDetail, enableItemDetails } from './ItemDetail';
 
 export interface ItemDockChoice { id: string; name: string; img?: string; tip?: string; tipHtml?: string; disabled?: boolean; selected?: boolean }
 export interface ItemDockState {
@@ -27,7 +26,6 @@ export class ItemDock {
   private list: HTMLElement | null = null;
   private suppressClick = false;
   constructor(private hud: HTMLElement) {
-    enableItemDetails();
     this.el.className = 'item-dock hidden'; this.el.setAttribute('aria-label', '物品快捷列');
     hud.append(this.el);
     new ResizeObserver(() => {
@@ -120,8 +118,9 @@ export class ItemDock {
       b.setAttribute('aria-pressed',String(s.selected === item.uid)); b.title = `${itemName(item.defId,item.tier)} ×${count}\n${d.desc(item.tier)}\n${requirementText(item)}${reason ? '\n' + reason : ''}`;
       const borderColors = ['#4d9463', '#367bb9', '#8854ad', '#b98826'];
       b.style.setProperty('--item-tier', d.price.length > 1 ? borderColors[item.tier] : 'transparent');
-      b.dataset.itemDetail = itemDetail(item.defId,item.tier,`持有 ${count} 件${reason?' · '+reason:''}`);
-      b.removeAttribute('title');
+      const esc = (text: string) => text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+      b.dataset.tip = b.title;
+      b.dataset.tipHtml = `<div class="tech-tip"><div class="tech-tip-rank">${esc(d.category)}${d.price.length > 1 ? ` · ${esc(PILL_GRADES[item.tier])}` : ''}</div><strong>${esc(d.name)} ×${count}</strong><div class="tech-tip-rule"></div><div class="tech-tip-detail">${esc(d.desc(item.tier))}<br>${esc(requirementText(item))}${reason ? `<br>${esc(reason)}` : ''}</div></div>`;
       const img = document.createElement('img'); img.src = itemIconUrl(item.defId); img.alt = d.name; img.draggable = false; b.append(img);
       if (d.price.length > 1) { const badge = document.createElement('small'); badge.className = 'item-grade'; badge.textContent = PILL_GRADES[item.tier]; b.append(badge); }
       const qty = document.createElement('span'); qty.className = 'item-quantity'; qty.textContent = String(count); b.append(qty); row.append(b);

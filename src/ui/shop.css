@@ -1,0 +1,47 @@
+.dialog.shop-window { --shop-ink:#344b57; --shop-accent:#8399a5; --shop-paper:#e9e8df; width:min(1240px,96vw); padding:24px; border:1px solid var(--shop-accent); border-radius:4px; background:var(--shop-paper); color:#272c29; }
+.shop-window[data-shop=herb] { --shop-ink:#2f5543; --shop-accent:#779478; --shop-paper:#e7ebdc; }
+.shop-window[data-shop=forge] { --shop-ink:#513a30; --shop-accent:#b78154; --shop-paper:#e5ddd0; }
+.shop-window[data-shop=library] { --shop-ink:#343e58; --shop-accent:#8b94ac; --shop-paper:#e7e6df; }
+.shop-window[data-shop=beast] { --shop-ink:#475633; --shop-accent:#a0a77b; --shop-paper:#e6e7d5; }
+.shop-window[data-shop=tavern] { --shop-ink:#643b39; --shop-accent:#b58575; --shop-paper:#eee1d2; }
+.shop-window[data-shop=merchant] { --shop-ink:#604268; --shop-accent:#af945b; --shop-paper:#ece1d8; }
+.shop-window[data-shop=herb] .shop-row { border-radius:36px 36px 3px 3px; background:radial-gradient(ellipse at 50% 0,#b8c7a955,transparent 65%),#ffffff55; }
+.shop-window[data-shop=forge] .shop-row { border-top:3px double #b78154; background:linear-gradient(135deg,#ffffff60,#b7815412); box-shadow:inset 0 0 0 3px #ffffff22; }
+.shop-window[data-shop=library] .shop-row { border-inline:4px double #8b94ac66; background:repeating-linear-gradient(0deg,transparent 0 23px,#343e5806 24px),#ffffff55; }
+.shop-window[data-shop=beast] .shop-row { border-radius:50% 50% 6px 6px / 25% 25% 6px 6px; background:radial-gradient(ellipse at center,#fff9e7,#a0a77b33); }
+.shop-window[data-shop=tavern] .shop-row { border-top:4px solid #643b39; background:linear-gradient(#fff6e6aa,#b5857522); }
+.shop-window[data-shop=merchant] .shop-row { border:3px double #af945b88; background:radial-gradient(ellipse at 50% 0,#af945b33,transparent 70%),#60426808; }
+.shop-window[data-shop=treasure] .shop-row { background:radial-gradient(circle at 50% 25%,#cad8df88,transparent 60%),#ffffff55; border-bottom:3px double #8399a5; }
+.dialog.shop-window > h2 { color:var(--shop-paper); background:var(--shop-ink); font-family:'DFKai-SB',serif; letter-spacing:.25em; padding:20px!important; min-height:74px; border-bottom:3px double var(--shop-accent); }
+.shop-window .dialog-body { display:grid!important; grid-template-columns:minmax(0,1fr) 320px; gap:12px 24px; overflow:auto!important; max-height:72vh; }
+.shop-window .dialog-body > .dialog-text { grid-column:1; font-size:13px; line-height:1.7; text-align:left; margin:12px 0 0; }
+.shop-window .wallet { grid-column:1; text-align:left; color:var(--shop-ink); font-size:14px; margin:0; }
+.shop-window .wallet b { font-size:24px; }
+.shop-window .shop-tabs { grid-column:1; justify-content:flex-start; flex-wrap:wrap; margin:0; }
+.shop-window .shop-tab { border:0; border-bottom:2px solid transparent; border-radius:0; background:transparent; color:var(--shop-ink); }
+.shop-window .shop-tab.on { border-color:var(--shop-ink); background:#ffffff66; color:var(--shop-ink); }
+.shop-window .shop-list { grid-column:1; display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; align-content:start; overflow:auto; max-height:45vh; padding:6px; min-height:160px; }
+.shop-window .shop-row { position:relative; display:flex; flex-direction:column; gap:8px; border:1px solid #35453922; border-radius:2px; padding:16px 12px; background:#ffffff55; text-align:center; margin:0; }
+.shop-window .sr-icon { width:100%; height:112px; max-width:140px; object-fit:contain; margin:0 auto; filter:drop-shadow(0 7px 5px #0002); }
+.shop-window .sr-main { width:100%; min-width:0; flex:none; font-size:14px; }
+.shop-window .sr-main small.shop-product-info { display:none; position:absolute; inset:8px 8px auto; z-index:5; background:#18251ff5; color:#f4e8ca; padding:14px; box-shadow:0 8px 22px #0004; font-size:13px; text-align:left; max-height:190px; overflow:auto; }
+.shop-window .shop-row:hover .shop-product-info,.shop-window .shop-row:focus-within .shop-product-info { display:block; }
+.shop-window .sr-price { color:var(--shop-ink); width:auto; font-size:17px; margin-top:auto; }
+.shop-window .sr-actions { width:100%; display:flex; flex-direction:row; justify-content:center; flex-wrap:wrap; }
+.shop-window .btn.primary { background:var(--shop-ink); border-color:var(--shop-accent); color:#fff5df; }
+.shop-window .dialog-buttons { grid-column:1/-1; position:sticky; bottom:0; margin:0; padding:12px 0 0; background:var(--shop-paper); border-top:1px solid var(--shop-accent); }
+.shop-inventory { grid-column:2; grid-row:1/span 5; padding:16px; background:#ffffff38; border-left:1px solid var(--shop-accent); text-align:left; overflow:auto; }
+.shop-inventory h3 { font-size:21px; color:var(--shop-ink); margin:0 0 8px; letter-spacing:.12em; }
+.shop-inventory header span,.shop-sale-status { font-size:12px; line-height:1.7; }
+.shop-sale-status { min-height:42px; color:var(--shop-ink); padding-bottom:12px; border-bottom:1px solid #35453922; }
+.shop-inventory h4 { font-size:12px; font-weight:500; letter-spacing:.12em; margin:18px 0 8px; }
+.shop-equipment-grid,.shop-items-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:5px; }
+.shop-bag-cell { min-width:0; aspect-ratio:1; border:1px solid #35453933; background:#ffffff40; padding:4px; cursor:pointer; position:relative; border-radius:3px; }
+.shop-bag-cell img { width:100%; height:100%; object-fit:contain; }
+.shop-bag-cell span { display:none; }
+.shop-bag-cell.empty { cursor:default; background:#35453908; }
+.shop-bag-cell.selected { border:2px solid var(--shop-ink); background:#fff9e6; }
+.shop-bag-cell.not-accepted { opacity:.5; }
+.shop-window .shop-sale-target { outline:2px dashed var(--shop-accent); outline-offset:-2px; background:#ffffff55; cursor:copy; }
+.shop-window[data-shop=tavern] .shop-list { grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); }
+@media(max-width:760px) { .shop-window .dialog-body { grid-template-columns:minmax(0,1fr); } .shop-inventory { grid-column:1; grid-row:auto; border-left:0; border-top:1px solid var(--shop-accent); } .shop-window .shop-list { max-height:35vh; grid-template-columns:repeat(2,minmax(0,1fr)); } .shop-equipment-grid,.shop-items-grid { grid-template-columns:repeat(10,minmax(0,1fr)); } .shop-window .dialog-buttons { grid-column:1; } }

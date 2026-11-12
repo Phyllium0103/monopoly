@@ -1,8 +1,10 @@
-import { bagHasRoom } from '../systems/EquipmentInventory';
+import { bagHasRoom, bagSlots, isArmor } from '../systems/EquipmentInventory';
+import { techniqueIconUrl } from './RosterEquipment';
+import './shop.css';
+import { itemName } from '../data/items';
 import type { Lord } from '../game/types';
 import { fmtStones } from '../game/Currency';
 import { SHOP_NAMES, SHOP_REFRESH_COSTS, type Offer, type ShopKind } from '../systems/ShopSystem';
-import { TILE_INFO } from '../data/board';
 import type { Dialog } from './Dialog';
 import { itemInfoHtml, itemLabel } from './ItemUI';
 import { generalBlock, generalBrief } from './GeneralInfo';
@@ -61,7 +63,7 @@ export class ShopPanel {
       this.close();
       const kind = data.shopKind;
       void this.dialog.custom<void>(
-        `${kind === 'merchant' ? '🐫' : TILE_INFO[kind].icon} ${SHOP_NAMES[kind]}`,
+        SHOP_NAMES[kind],
         (body, done) => {
           this.session = { body, close: () => done(), data, lord, resolve, mode: 'buy', tab: groupsOf(data.offers)[0] ?? '', confirmBeast: -1, keepScroll: 0, lastView: '' };
           this.render();
@@ -94,6 +96,8 @@ export class ShopPanel {
     if (!s) return;
     const { body, data, lord } = s;
     const kind = data.shopKind;
+    body.closest('.dialog')!.classList.add('shop-window');
+    (body.closest('.dialog') as HTMLElement).dataset.shop = kind;
     // 買賣之後只更新內容；停留在同一個分頁時保留清單的捲動位置
     const view = `${s.mode}|${s.tab}`;
     const old = body.querySelector('.shop-list') as HTMLElement | null;
@@ -103,18 +107,6 @@ export class ShopPanel {
     const busy = !s.resolve;
     const groups = groupsOf(data.offers);
     body.innerHTML = `<p class="dialog-text">${kind === 'tavern' ? `每次最多招募 ${data.recruitLimit} 位。本國將領價格較低。每位武將都可以各自鎖定：鎖定後，刷新或下次進入時會保留，保留時招募價 ×1.2。` : SHOP_DESC[kind]}</p><div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;
-    if (kind !== 'tavern') {
-      const modes = document.createElement('div');
-      modes.className = 'shop-tabs';
-      for (const value of ['buy', 'sell'] as const) {
-        const button = document.createElement('button');
-        button.className = `shop-tab ${s.mode === value ? 'on' : ''}`;
-        button.textContent = value === 'buy' ? '購買' : '出售（成交價五成）';
-        button.onclick = () => { s.mode = value; s.confirmBeast = -1; this.render(); };
-        modes.appendChild(button);
-      }
-      body.appendChild(modes);
-    }
     if (s.mode === 'sell') {
       const note = document.createElement('p');
       note.className = 'muted';
@@ -148,9 +140,14 @@ export class ShopPanel {
         : o.kind === 'general' ? `<div class="sr-main"><b>${o.label}</b>${generalBlock(o.general, { note: o.general.origin === lord.id ? '<span class="tavern-perk">本國將領優惠</span>' : '' })}</div>`
           : o.kind === 'revive' ? `<div class="sr-main"><b>${o.label}</b>${generalBrief(o.general, '', { note: o.sub.split('｜').slice(1).join('｜') })}</div>`
             : `<div class="sr-main"><b>${o.label}</b><small>${o.sub}</small></div>`;
-      const iconSrc = o.kind === 'item' ? itemIconUrl(o.item.defId) : o.kind === 'equipment' ? equipIconUrl(o.equipment) : o.kind === 'beast' ? beastIconUrl(o.beast) : o.kind === 'general' || o.kind === 'revive' ? portraitUrl(o.general) : '';
+      const iconSrc = offerIcon(o);
       const iconHtml = iconSrc ? `<img class="sr-icon${o.kind === 'general' || o.kind === 'revive' ? ' general-portrait' : ''}" src="${iconSrc}" alt="" onerror="this.style.visibility='hidden'">` : '';
       row.innerHTML = `${iconHtml}${main}<div class="sr-price">${s.mode === 'sell' ? '+' : ''}${fmtStones(o.price)}</div>`;
+      row.tabIndex = 0;
+      if (o.kind !== 'general' && o.kind !== 'revive') {
+        const info = row.querySelector('small');
+        if (info) { info.classList.add('shop-product-info'); row.setAttribute('aria-label', `${o.label}，${o.price}靈石`); }
+      }
       // 按鈕固定放在右側一欄（招募在上、鎖定在下），文字變化不會擠壓左邊資訊
       const actions = document.createElement('div');
       actions.className = 'sr-actions';
@@ -196,6 +193,7 @@ export class ShopPanel {
     });
     if (!visibleOffers.length) list.innerHTML = `<p class="muted">${s.mode === 'sell' ? '行囊中沒有本店可收購的物品。' : '目前沒有可購買的項目。'}</p>`;
     body.appendChild(list);
+    this.renderInventory(body, list, data, lord);
     const row = document.createElement('div');
     row.className = 'dialog-buttons';
     const cost = SHOP_REFRESH_COSTS[data.refreshes];
@@ -217,4 +215,55 @@ export class ShopPanel {
     list.scrollTop = restore;
     requestAnimationFrame(() => { list.scrollTop = restore; });
   }
+
+  private renderInventory(body: HTMLElement, counter: HTMLElement, data: ShopPromptData, lord: Lord) {
+    const inventory = document.createElement('section');
+    inventory.className = 'shop-inventory';
+    inventory.innerHTML = '<header><h3>隨身行囊</h3><span>選取後點貨架出售 · 或右鍵出售</span></header><p class="shop-sale-status" role="status">本店僅收購對應物品；已裝備的仙衣請先卸下。</p><h4>仙衣與功法 · 20 格</h4><div class="shop-equipment-grid"></div><h4>道具與靈獸</h4><div class="shop-items-grid"></div>';
+    let selected = -1;
+    const status = inventory.querySelector('.shop-sale-status')!;
+    const sellSelected = () => {
+      if (selected < 0 || !this.session?.resolve) return;
+      const index = selected; selected = -1;
+      counter.classList.remove('shop-sale-target');
+      this.act({type:'sell', index});
+    };
+    counter.addEventListener('click', e => { if (selected >= 0) { e.preventDefault(); e.stopImmediatePropagation(); sellSelected(); } }, true);
+    const append = (parent: Element, uid: string, name: string, icon: string) => {
+      const index = data.sellStock.findIndex(o => offerUid(o) === uid);
+      const cell = document.createElement('button'); cell.type = 'button'; cell.className = 'shop-bag-cell';
+      cell.innerHTML = `<img src="${icon}" alt="" draggable="false"><span></span>`;
+      cell.querySelector('span')!.textContent = name;
+      cell.title = index < 0 ? `${name}：本店不收購` : `${name}：售價 ${fmtStones(data.sellStock[index].price)}`;
+      cell.setAttribute('aria-label',cell.title);
+      cell.classList.toggle('not-accepted',index < 0);
+      cell.onclick = () => {
+        inventory.querySelectorAll('.selected').forEach(el=>el.classList.remove('selected'));
+        selected = selected === index ? -1 : index;
+        cell.classList.toggle('selected',selected >= 0);
+        counter.classList.toggle('shop-sale-target',selected >= 0);
+        status.textContent = index < 0 ? `本店不收購「${name}」。` : selected < 0 ? '已取消選取。' : `出售「${name}」可得 ${fmtStones(data.sellStock[index].price)}，點貨架確認。`;
+      };
+      cell.oncontextmenu = e => {e.preventDefault(); if(index >= 0) {selected=index;sellSelected();} else status.textContent=`本店不收購「${name}」。`;};
+      parent.appendChild(cell);
+    };
+    const equipment = inventory.querySelector('.shop-equipment-grid')!;
+    for (const item of bagSlots(lord)) {
+      if(item) append(equipment,item.uid,item.name,isArmor(item)?equipIconUrl(item):techniqueIconUrl(item));
+      else { const empty=document.createElement('div');empty.className='shop-bag-cell empty';equipment.appendChild(empty); }
+    }
+    const items = inventory.querySelector('.shop-items-grid')!;
+    for(const item of lord.items) append(items,item.uid,itemName(item.defId,item.tier),itemIconUrl(item.defId));
+    if(lord.beast) append(items,lord.beast.uid,lord.beast.name,beastIconUrl(lord.beast));
+    if(!items.childElementCount) items.textContent='暫無道具';
+    inventory.addEventListener('keydown',e=>{if(e.key==='Escape'&&selected>=0){e.stopPropagation();selected=-1;counter.classList.remove('shop-sale-target');inventory.querySelectorAll('.selected').forEach(el=>el.classList.remove('selected'));status.textContent='已取消選取。';}});
+    body.appendChild(inventory);
+  }
+}
+
+function offerUid(o: Offer): string {
+  return o.kind==='item'?o.item.uid:o.kind==='equipment'?o.equipment.uid:o.kind==='technique'?o.technique.uid:o.kind==='beast'?o.beast.uid:'';
+}
+function offerIcon(o: Offer): string {
+  return o.kind==='item'?itemIconUrl(o.item.defId):o.kind==='equipment'?equipIconUrl(o.equipment):o.kind==='technique'?techniqueIconUrl(o.technique):o.kind==='beast'?beastIconUrl(o.beast):o.kind==='general'||o.kind==='revive'?portraitUrl(o.general):'';
 }

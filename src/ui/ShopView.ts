@@ -1,4 +1,4 @@
-import { bagHasRoom, bagSlots, isArmor } from '../systems/EquipmentInventory';
+import { bagHasRoom } from '../systems/EquipmentInventory';
 import { techniqueIconUrl } from './RosterEquipment';
 import './shop.css';
 import { itemName } from '../data/items';
@@ -6,7 +6,7 @@ import type { Lord } from '../game/types';
 import { fmtStones } from '../game/Currency';
 import { SHOP_NAMES, SHOP_REFRESH_COSTS, type Offer, type ShopKind } from '../systems/ShopSystem';
 import type { Dialog } from './Dialog';
-import { itemInfoHtml, itemLabel } from './ItemUI';
+import { itemInfoHtml } from './ItemUI';
 import { generalBlock, generalBrief } from './GeneralInfo';
 import { beastIconUrl, equipIconUrl, itemIconUrl, portraitUrl } from './Icons';
 import type { ShopAction, ShopPromptData } from '../engine/prompts';
@@ -39,6 +39,7 @@ export class ShopPanel {
     confirmBeast: number;
     keepScroll: number;
     lastView: string;
+    page: number;
   } | null = null;
 
   constructor(private dialog: Dialog) {}
@@ -65,7 +66,7 @@ export class ShopPanel {
       void this.dialog.custom<void>(
         SHOP_NAMES[kind],
         (body, done) => {
-          this.session = { body, close: () => done(), data, lord, resolve, mode: 'buy', tab: groupsOf(data.offers)[0] ?? '', confirmBeast: -1, keepScroll: 0, lastView: '' };
+          this.session = { body, close: () => done(), data, lord, resolve, mode: 'buy', tab: groupsOf(data.offers)[0] ?? '', confirmBeast: -1, keepScroll: 0, lastView: '', page: 0 };
           this.render();
         },
         true,
@@ -106,7 +107,7 @@ export class ShopPanel {
     s.lastView = view;
     const busy = !s.resolve;
     const groups = groupsOf(data.offers);
-    body.innerHTML = `<p class="dialog-text">${kind === 'tavern' ? `每次最多招募 ${data.recruitLimit} 位。本國將領價格較低。每位武將都可以各自鎖定：鎖定後，刷新或下次進入時會保留，保留時招募價 ×1.2。` : SHOP_DESC[kind]}</p><div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;
+    body.innerHTML = `${kind === 'treasure' ? '' : `<p class="dialog-text">${kind === 'tavern' ? `每次最多招募 ${data.recruitLimit} 位。本國將領價格較低。鎖定後刷新或下次進入會保留，保留時招募價 ×1.2。` : SHOP_DESC[kind]}</p>`}<div class="wallet">持有靈石：<b>${fmtStones(lord.stones)}</b></div>`;
     if (s.mode === 'sell') {
       const note = document.createElement('p');
       note.className = 'muted';
@@ -122,6 +123,7 @@ export class ShopPanel {
         t.textContent = `${g}（${data.offers.filter((o) => o.group === g).length}）`;
         t.onclick = () => {
           s.tab = g;
+          s.page = 0;
           this.render();
         };
         tabs.appendChild(t);
@@ -132,11 +134,16 @@ export class ShopPanel {
     const list = document.createElement('div');
     list.className = 'shop-list';
     const visibleOffers: Offer[] = s.mode === 'sell' ? data.sellStock : data.offers;
+    const matches = visibleOffers.map((o,i)=>({o,i})).filter(({o})=>groups.length <= 1 || o.group === s.tab);
+    const pages = Math.max(1, Math.ceil(matches.length / 10));
+    s.page = Math.min(s.page,pages-1);
+    const shown = new Set(matches.slice(s.page*10,s.page*10+10).map(({i})=>i));
     visibleOffers.forEach((o, i) => {
+      if (!shown.has(i)) return;
       if (s.mode === 'buy' && groups.length > 1 && o.group !== s.tab) return;
       const row = document.createElement('div');
       row.className = `shop-row ${s.mode === 'buy' && sold.has(i) ? 'sold' : ''}`;
-      const main = o.kind === 'item' ? `<div class="sr-main item-row"><div class="item-title">${itemLabel(o.item.defId, o.item.tier)}</div><small>${itemInfoHtml(o.item.defId, o.item.tier)}</small></div>`
+      const main = o.kind === 'item' ? `<div class="sr-main item-row"><div class="item-title">${itemName(o.item.defId, o.item.tier)}</div><small>${itemInfoHtml(o.item.defId, o.item.tier)}</small></div>`
         : o.kind === 'general' ? `<div class="sr-main"><b>${o.label}</b>${generalBlock(o.general, { note: o.general.origin === lord.id ? '<span class="tavern-perk">本國將領優惠</span>' : '' })}</div>`
           : o.kind === 'revive' ? `<div class="sr-main"><b>${o.label}</b>${generalBrief(o.general, '', { note: o.sub.split('｜').slice(1).join('｜') })}</div>`
             : `<div class="sr-main"><b>${o.label}</b><small>${o.sub}</small></div>`;
@@ -182,7 +189,7 @@ export class ShopPanel {
         const locked = !!lord.tavernLocked?.includes(o.general.id);
         const lock = document.createElement('button'); lock.className = 'btn mini';
         // 切換：已鎖定時再按一次就是取消（價格不會再漲），不能連按累加
-        lock.textContent = locked ? '🔒 已鎖定' : '鎖定';
+        lock.textContent = locked ? '已鎖定' : '鎖定';
         lock.classList.toggle('on', locked);
         lock.title = locked ? '點擊取消鎖定' : '鎖定後，刷新或下次進入聽風樓時這位仍會出現，招募價屆時 ×1.2';
         lock.disabled = busy || sold.has(i) || unavailable;
@@ -193,7 +200,17 @@ export class ShopPanel {
     });
     if (!visibleOffers.length) list.innerHTML = `<p class="muted">${s.mode === 'sell' ? '行囊中沒有本店可收購的物品。' : '目前沒有可購買的項目。'}</p>`;
     body.appendChild(list);
-    this.renderInventory(body, list, data, lord);
+    const pagination = document.createElement('nav'); pagination.className='shop-pagination';
+    if (pages > 1) {
+      for (const direction of [-1,1]) {
+        const button=document.createElement('button');button.className='btn mini';button.textContent=direction<0?'上一頁':'下一頁';
+        button.disabled=s.page+direction<0||s.page+direction>=pages;
+        button.onclick=()=>{s.page+=direction;this.render();};pagination.appendChild(button);
+      }
+      const label=document.createElement('span');label.textContent=`${s.page+1} / ${pages}`;pagination.insertBefore(label,pagination.lastChild);
+    }
+    body.appendChild(pagination);
+    this.renderInventory(body, list, data);
     const row = document.createElement('div');
     row.className = 'dialog-buttons';
     const cost = SHOP_REFRESH_COSTS[data.refreshes];
@@ -210,16 +227,25 @@ export class ShopPanel {
     leave.onclick = () => this.act({ type: 'leave' });
     row.appendChild(leave);
     body.appendChild(row);
+    const workspace=document.createElement('div');workspace.className='shop-workspace';
+    const market=document.createElement('section');market.className='shop-market';
+    const inventory=body.querySelector('.shop-inventory')!;
+    for(const child of [...body.children]) if(child!==inventory&&child!==row) market.appendChild(child);
+    workspace.append(market,inventory);body.prepend(workspace);
+    for(const node of body.querySelectorAll<HTMLElement>('.sr-main,.shop-product-info')) {
+      const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);
+      while(walker.nextNode()) walker.currentNode.textContent=walker.currentNode.textContent!.replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,'');
+    }
     // 按鈕列都加進去、版面確定後才還原捲動位置（太早設定會被截成 0 或中間）
     const restore = s.keepScroll;
     list.scrollTop = restore;
     requestAnimationFrame(() => { list.scrollTop = restore; });
   }
 
-  private renderInventory(body: HTMLElement, counter: HTMLElement, data: ShopPromptData, lord: Lord) {
+  private renderInventory(body: HTMLElement, counter: HTMLElement, data: ShopPromptData) {
     const inventory = document.createElement('section');
     inventory.className = 'shop-inventory';
-    inventory.innerHTML = '<header><h3>隨身行囊</h3><span>選取後點貨架出售 · 或右鍵出售</span></header><p class="shop-sale-status" role="status">本店僅收購對應物品；已裝備的仙衣請先卸下。</p><h4>仙衣與功法 · 20 格</h4><div class="shop-equipment-grid"></div><h4>道具與靈獸</h4><div class="shop-items-grid"></div>';
+    inventory.innerHTML = '<header><h3>可出售物品</h3><span>選取後點貨架出售 · 或右鍵出售</span></header><p class="shop-sale-status" role="status">僅顯示本店收購的物品。</p><div class="shop-items-grid"></div>';
     let selected = -1;
     const status = inventory.querySelector('.shop-sale-status')!;
     const sellSelected = () => {
@@ -247,15 +273,9 @@ export class ShopPanel {
       cell.oncontextmenu = e => {e.preventDefault(); if(index >= 0) {selected=index;sellSelected();} else status.textContent=`本店不收購「${name}」。`;};
       parent.appendChild(cell);
     };
-    const equipment = inventory.querySelector('.shop-equipment-grid')!;
-    for (const item of bagSlots(lord)) {
-      if(item) append(equipment,item.uid,item.name,isArmor(item)?equipIconUrl(item):techniqueIconUrl(item));
-      else { const empty=document.createElement('div');empty.className='shop-bag-cell empty';equipment.appendChild(empty); }
-    }
     const items = inventory.querySelector('.shop-items-grid')!;
-    for(const item of lord.items) append(items,item.uid,itemName(item.defId,item.tier),itemIconUrl(item.defId));
-    if(lord.beast) append(items,lord.beast.uid,lord.beast.name,beastIconUrl(lord.beast));
-    if(!items.childElementCount) items.textContent='暫無道具';
+    for(const offer of data.sellStock) append(items,offerUid(offer),offer.label,offerIcon(offer));
+    if(!items.childElementCount) { items.textContent='暫無可出售物品'; (items as HTMLElement).style.display='block'; }
     inventory.addEventListener('keydown',e=>{if(e.key==='Escape'&&selected>=0){e.stopPropagation();selected=-1;counter.classList.remove('shop-sale-target');inventory.querySelectorAll('.selected').forEach(el=>el.classList.remove('selected'));status.textContent='已取消選取。';}});
     body.appendChild(inventory);
   }

@@ -40,6 +40,10 @@ After big code changes, refresh the graph with `trail build` (deterministic,
 no API key, $0).
 <!-- trail:end -->
 
+## 介面設計
+
+之後新增或修改的遊戲介面不使用 emoji，採用文字或遊戲圖片圖示。
+
 ## 遊戲規則改動
 
 之後的改動不需要相容舊存檔。刪除的道具與狀態直接移除，不保留舊版定義、轉換或相容分支；規則變更時更新規則版本，舊對局重新建立。

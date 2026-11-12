@@ -87,12 +87,12 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
     case 'treasure': {
       const discount=Math.max(0,1-lordAura(lord.id,'partyTreasure'));
       // 每個貨架先按種類權重抽物品，再抽品階；不依品階數重抽或去重。
-      return Array.from({ length: 30 }).flatMap(() => {
-        const defId = rollItemId(ARTIFACT_IDS);
+      return ['法器', '陣法', '符籙'].flatMap(category => Array.from({ length: 10 }).flatMap(() => {
+        const defId = rollItemId(ARTIFACT_IDS.filter(id => ITEM_DEFS[id].category === category));
         if (!defId) return [];
         const item = makeItem(uid('i'), defId, rollItemTier(defId, bias));
         return [{ kind: 'item', item, label: itemName(defId, item.tier), sub: ITEM_DEFS[defId].desc(item.tier) + '｜' + requirementOf(defId, item.tier), price: Math.round(item.price*discount), group: ITEM_DEFS[defId].category } as Offer];
-      });
+      }));
     }
     case 'forge': {
       // 仙衣 10 件；武器固定由武將持有。

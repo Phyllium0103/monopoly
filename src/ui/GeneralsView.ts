@@ -471,7 +471,7 @@ export class GeneralsView {
   private weaponPicture(g: General): string {
     const w = g.weapon;
     if (!w) return '<span class="technique-picture armor-empty"></span>';
-    const html = `<div class="tech-tip"><div class="tech-tip-rank">本命武器</div><strong>${escapeHtml(w.name)}</strong><div class="tech-tip-rule"></div><div class="tech-tip-detail">無視防禦 ${Math.round((w.penetration ?? 0)*100)}%<br>點擊突破本命武器</div></div>`;
+    const html = `<div class="tech-tip"><div class="tech-tip-rank">本命武器</div><strong>${escapeHtml(w.name)}</strong><div class="tech-tip-rule"></div><div class="tech-tip-detail"><span class="equipment-main-bonus">無視防禦 ${Math.round((w.penetration ?? 0)*100)}%</span><br>點擊突破本命武器</div></div>`;
     return `<button type="button" class="technique-picture armor-picture grade-${Math.floor(w.tier/3)}" data-weapon-general="${g.id}" data-tip="${escapeHtml(w.name)}" data-tip-html="${escapeHtml(html)}" aria-label="${escapeHtml(w.name)}・突破本命武器"><img src="${equipIconUrl(w)}" alt="" draggable="false"></button>`;
   }
 

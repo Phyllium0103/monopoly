@@ -19,5 +19,5 @@
 .item-detail-card h3 { font-size:20px; line-height:1.65; margin-top:2px; color:#fff0ca; }
 .item-detail-card section { font-size:16px; line-height:1.8; color:#e7e5dc; }
 .item-detail-card p { color:inherit; }
-.item-detail-requirement { border-top:1px solid #87734388; padding-top:12px; color:#dfc58b; }
+.item-detail-requirement { border-top:1px solid #87734388; padding-top:12px; color:#dfc58b; font-size:13px; line-height:1.65; }
 .equipment-main-bonus { font-size:18px; font-weight:700; color:#ffe1a0; line-height:1.85; }

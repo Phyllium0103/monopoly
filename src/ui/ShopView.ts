@@ -167,7 +167,7 @@ export class ShopPanel {
       const otherRevive = o.kind === 'revive' && !o.own;
       const unavailable = o.kind === 'general' && (!!o.general.owner || o.general.status === 'dead');
       const blocked = unavailable || sold.has(i) || (kind === 'tavern' && data.recruited >= data.recruitLimit) || (otherRevive && data.revivedOther);
-      b.textContent = sold.has(i) ? (o.kind === 'revive' ? '已復活' : '已購') : kind === 'tavern' ? '招募' : o.kind === 'revive' ? '復活' : '購買';
+      b.textContent = sold.has(i) ? (o.kind === 'revive' ? '已復活' : '售罄') : kind === 'tavern' ? '招募' : o.kind === 'revive' ? '復活' : '購買';
       b.disabled = busy || blocked || lord.stones < o.price;
       if ((o.kind === 'equipment' || o.kind === 'technique') && !bagHasRoom(lord)) { b.disabled = true; b.textContent = '行囊已滿'; b.title = '請先裝備或出售物品，空出一格'; }
       if (s.confirmBeast === i) b.textContent = '放生舊靈獸並購買？';
@@ -249,8 +249,6 @@ export class ShopPanel {
     inventory.className = 'shop-inventory';
     inventory.innerHTML = '<header><h3>可出售物品</h3><span>選取後點貨架出售 · 或右鍵出售</span></header><p class="shop-sale-status" role="status">僅顯示本店收購的物品。</p><div class="shop-items-grid"></div>';
     const selected = new Set<number>();
-    const sellButton=document.createElement('button');sellButton.className='btn primary shop-batch-sell';sellButton.textContent='出售已選物品';sellButton.disabled=true;
-    inventory.appendChild(sellButton);
     const status = inventory.querySelector('.shop-sale-status')!;
     const sellSelected = () => {
       if (!selected.size || !this.session?.resolve) return;
@@ -258,7 +256,6 @@ export class ShopPanel {
       counter.classList.remove('shop-sale-target');
       this.act(indices.length===1?{type:'sell',index:indices[0]}:{type:'sellBatch',indices});
     };
-    sellButton.onclick=sellSelected;
     counter.addEventListener('click', e => { if (selected.size) { e.preventDefault(); e.stopImmediatePropagation(); sellSelected(); } }, true);
     const append = (parent: Element, uid: string, name: string, icon: string) => {
       const index = data.sellStock.findIndex(o => offerUid(o) === uid);
@@ -274,9 +271,8 @@ export class ShopPanel {
         if(selected.has(index))selected.delete(index);else selected.add(index);
         cell.classList.toggle('selected',selected.has(index));cell.setAttribute('aria-pressed',String(selected.has(index)));
         counter.classList.toggle('shop-sale-target',!!selected.size);
-        sellButton.disabled=!selected.size;
         const total=[...selected].reduce((sum,i)=>sum+data.sellStock[i].price,0);
-        status.textContent=selected.size?`已選 ${selected.size} 件 · 可得 ${fmtStones(total)}，點貨架或下方按鈕一次出售。`:'已取消選取。';
+        status.textContent=selected.size?`已選 ${selected.size} 件 · 可得 ${fmtStones(total)}，點貨架一次出售。`:'已取消選取。';
       };
       cell.oncontextmenu = e => {e.preventDefault(); if(index >= 0) {if(!selected.has(index)){selected.clear();selected.add(index);}sellSelected();}};
       parent.appendChild(cell);
@@ -284,7 +280,7 @@ export class ShopPanel {
     const items = inventory.querySelector('.shop-items-grid')!;
     for(const offer of data.sellStock) append(items,offerUid(offer),offer.label,offerIcon(offer));
     if(!items.childElementCount) { items.textContent='暫無可出售物品'; (items as HTMLElement).style.display='block'; }
-    inventory.addEventListener('keydown',e=>{if(e.key==='Escape'&&selected.size){e.stopPropagation();selected.clear();sellButton.disabled=true;counter.classList.remove('shop-sale-target');inventory.querySelectorAll('.selected').forEach(el=>{el.classList.remove('selected');el.setAttribute('aria-pressed','false');});status.textContent='已取消選取。';}});
+    inventory.addEventListener('keydown',e=>{if(e.key==='Escape'&&selected.size){e.stopPropagation();selected.clear();counter.classList.remove('shop-sale-target');inventory.querySelectorAll('.selected').forEach(el=>{el.classList.remove('selected');el.setAttribute('aria-pressed','false');});status.textContent='已取消選取。';}});
     body.appendChild(inventory);
   }
 }

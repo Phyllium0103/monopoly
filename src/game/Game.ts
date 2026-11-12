@@ -39,6 +39,7 @@ import { flameLayersFor } from '../data/realmFrames';
 import { generalHoverInfo, generalHoverTable, itemTargetFocus, itemUserFocus, realmTag, type HoverFocus } from '../ui/GeneralInfo';
 import { bindPassiveState } from '../data/passives';
 import { Engine } from '../engine/Engine';
+import { clearSoloSave, loadSoloSave, writeSoloSave } from './SoloSave';
 import { previewAt, type PrerollAction, type Prompt, type RosterAction } from '../engine/prompts';
 import type { EngineView, LogKind, ViewEvent } from '../engine/view';
 import type { DuelSnapshot } from '../engine/snapshots';
@@ -213,7 +214,9 @@ export class Game {
   showStart() {
     this.sm.setRendering(false);
     this.ui.hide();
-    showStartScreen(this.uiRoot, (id, rounds) => this.start(id, rounds), () => this.help.open(), this.onMultiplayer ?? undefined);
+    const save = loadSoloSave();
+    showStartScreen(this.uiRoot, (id, rounds) => this.start(id, rounds), () => this.help.open(), this.onMultiplayer ?? undefined,
+      save ? { state: save.state, savedAt: save.savedAt, onContinue: () => this.resume(save.state) } : undefined);
   }
 
   // ───────────────────────── 開局 ─────────────────────────
@@ -225,7 +228,22 @@ export class Game {
     this.setupBoard(createGameState(player, maxRounds));
     this.ui.log(`天地靈氣復甦，${LORDS[player].name}起兵逐鹿天下！${maxRounds === null ? '（無盡模式：主公真仙或最後存活者獲勝）' : `（${maxRounds} 輪後比總資產）`}`, 'turn');
     this.ui.log('擲骰沿道路前進，岔路依箭頭走並換方向；逆向停在岔路，下回合返回，途經岔路則隨機轉向：停在無主城池才能派將佔領，踏入他人城池須繳過路費或開戰。', 'info');
-    const engine = new Engine(this.state, {
+    this.runSolo();
+  }
+
+  /** 單機續玩：從存檔的那位主公回合開始接著進行 */
+  resume(state: GameState) {
+    this.reset();
+    this.me = state.player;
+    this.setupBoard(state);
+    this.ui.log(`讀取存檔，從第 ${state.round} 輪・${LORDS[currentLord(state).id].name}的回合繼續。`, 'turn');
+    this.runSolo();
+  }
+
+  /** 單機：在本機執行引擎；每位主公回合開始時自動存檔 */
+  private runSolo() {
+    const state = this.state;
+    const engine = new Engine(state, {
       view: this.view,
       send: (lord, p) => this.promptUI(lord, p),
       isAuto: (id) => this.autoPlay && id === this.me,
@@ -236,7 +254,16 @@ export class Game {
       },
     });
     this.engine = engine;
-    void engine.run();
+    let warned = false;
+    void (async () => {
+      while (!engine.stopped && !state.over) {
+        if (!writeSoloSave(state) && !warned) {
+          warned = true;
+          this.ui.log('⚠️ 瀏覽器無法寫入存檔，本局關閉分頁後不能續玩。', 'bad');
+        }
+        if (!(await engine.step())) break;
+      }
+    })();
   }
 
   /** 清掉上一局的引擎、視窗與棋子 */
@@ -500,6 +527,7 @@ export class Game {
       gameOver: async (reason: string) => {
         if (this.endShown) return;
         this.endShown = true;
+        if (!this.online) clearSoloSave();
         this.selectedItem = null;
         this.itemDuel = null;
         this.cancelPrompt();

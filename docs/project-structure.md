@@ -25,7 +25,7 @@
 |---|---|---|
 | `data/` | 遊戲資料與設定表 | `generals.ts`、`itemCatalog.ts`、`talents.ts`、`board.ts` |
 | `systems/` | 各系統的規則與公式 | `BattleSystem`、`CitySystem`、`ShopSystem`、`AISystem` |
-| `game/` | 遊戲狀態與回合基礎 | `GameState.ts`、`types.ts`、`TurnManager.ts`、`Game.ts` |
+| `game/` | 遊戲狀態與回合基礎 | `GameState.ts`、`types.ts`、`TurnManager.ts`、`Game.ts`、`SoloSave.ts`（單機存檔） |
 | `engine/` | 整局流程，單機和多人共用 | `Engine.ts`、`server.ts`、`prompts.ts`、`view.ts` |
 | `net/` | 多人連線：建房、配對、房主邏輯 | `HostRoom.ts`、`RoomService.ts`、`OnlineSession.ts`、`p2p/` |
 | `world/` | 3D 地圖：地形、建築、骰子物理 | `World.ts`、`MapModelPool.ts`、`DicePhysics.ts` |

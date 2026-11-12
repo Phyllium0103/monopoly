@@ -12,7 +12,13 @@ import { fmtStones } from '../game/Currency';
 import { DEFAULT_ROUNDS, ROUND_OPTIONS } from '../game/GameState';
 
 /** 開始畫面：先選單人或多人；單人再選回合數與主公 */
-export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRounds: number | null) => void, onHelp: () => void, onMultiplayer?: () => void) {
+export function showStartScreen(
+  root: HTMLElement,
+  onStart: (id: LordId, maxRounds: number | null) => void,
+  onHelp: () => void,
+  onMultiplayer?: () => void,
+  saved?: { state: GameState; savedAt: number; onContinue: () => void },
+) {
   let rounds: number | null = DEFAULT_ROUNDS;
   const el = document.createElement('div');
   el.className = 'screen start-screen';
@@ -23,6 +29,7 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
       <p class="subtitle">靈氣復甦，群雄修仙・擲骰爭天下</p>
     </div>
     <div class="play-modes">
+      ${saved ? `<button class="play-mode resume"><b>📜 繼續遊戲</b><small>${savedLabel(saved.state, saved.savedAt)}</small></button>` : ''}
       <button class="play-mode solo"><b>🧘 單人遊戲</b><small>與三位電腦主公逐鹿天下</small></button>
       <button class="play-mode multi"><b>⚔️ 多人遊戲</b><small>建立或加入房間，與好友連線對戰</small></button>
     </div>
@@ -38,6 +45,10 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
   setStage('modes');
   (el.querySelector('.play-mode.solo') as HTMLButtonElement).onclick = () => setStage('solo');
   (el.querySelector('.back-modes') as HTMLButtonElement).onclick = () => setStage('modes');
+  if (saved) (el.querySelector('.play-mode.resume') as HTMLButtonElement).onclick = () => {
+    el.remove();
+    saved.onContinue();
+  };
   const multi = el.querySelector('.play-mode.multi') as HTMLButtonElement;
   if (onMultiplayer) multi.onclick = () => {
     el.remove();
@@ -63,7 +74,7 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
     };
     for (const r of ROUND_OPTIONS) add(`${r} 輪`, r);
     add('♾️ 無盡模式', null);
-    hint.textContent = rounds === null ? '無盡模式：沒有回合上限，主公到達真仙或最後存活者獲勝 · 擲骰環遊天下，佔城收過路費' : `擲骰環遊天下，佔城收過路費 · 主公到達真仙立即獲勝 · 對手破產出局 · ${rounds} 輪後比總資產`;
+    hint.textContent = (saved ? '開始新局會覆蓋目前的單機存檔。 ' : '') + (rounds === null ? '無盡模式：沒有回合上限，主公到達真仙或最後存活者獲勝 · 擲骰環遊天下，佔城收過路費' : `擲骰環遊天下，佔城收過路費 · 主公到達真仙立即獲勝 · 對手破產出局 · ${rounds} 輪後比總資產`);
   };
   renderMode();
   const cards = el.querySelector('.faction-cards')!;
@@ -92,6 +103,15 @@ export function showStartScreen(root: HTMLElement, onStart: (id: LordId, maxRoun
     cards.appendChild(card);
   }
   root.appendChild(el);
+}
+
+/** 續玩按鈕上的存檔摘要：主公、進度與存檔時間 */
+function savedLabel(state: GameState, savedAt: number): string {
+  const progress = state.maxRounds === null ? `第 ${state.round} 輪・無盡模式` : `第 ${state.round}／${state.maxRounds} 輪`;
+  const d = new Date(savedAt);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const time = savedAt ? `・${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}` : '';
+  return `${LORDS[state.player].name}・${progress}${time}`;
 }
 
 /** 結算：真仙主公優先，其餘依存活、出局順序與總資產排名。 */

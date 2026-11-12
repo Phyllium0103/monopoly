@@ -28,6 +28,7 @@ export interface PartyIcon {
   color: string;
   hpPct: number;
   staPct: number;
+  expPct: number;
   /** 滑鼠移上去顯示的說明（「｜」分行） */
   tip: string;
   /** 表格版的滑鼠提示；有這個就不用 tip */
@@ -40,6 +41,7 @@ export interface PartyIcon {
   /** 可突破時的火焰層數，0 表示沒有火焰 */
   flame: number;
   itemState?: 'eligible' | 'selected' | 'disabled';
+  onRightClick?: () => void;
   onClick: () => void;
 }
 
@@ -53,6 +55,7 @@ export class GameUI {
   private toastEl: HTMLDivElement;
   private tooltip: HTMLDivElement;
   private dice: DiceRoller;
+  private rollVersion = 0;
   private actors: LordActorHud;
   private itemDock: ItemDock;
   private currentLord: LordId | null = null;
@@ -74,6 +77,7 @@ export class GameUI {
   onRank: (() => void) | null = null;
   onAuto: (() => void) | null = null;
   onCheat: (() => void) | null = null;
+  onLordDetails: (() => void) | null = null;
   onLord: ((id: LordId) => void) | null = null;
   /** 電腦託管中 */
   auto = false;
@@ -102,6 +106,7 @@ export class GameUI {
     this.info = q('.info-panel');
     this.logEl = q('.log-list');
     this.toastEl = q('.toast');
+    document.addEventListener('pointerdown', () => { this.toastEl.classList.remove('show'); this.tooltip.classList.add('hidden'); }, true);
     this.tooltip = q('.tooltip');
     this.itemDock = new ItemDock(this.hud);
     this.dice = new DiceRoller(this.hud,{centerFinal:true});
@@ -152,12 +157,14 @@ export class GameUI {
   }
 
   hide() {
+    this.rollVersion++;
     this.dice.cancel();
     this.hud.classList.add('hidden');
     this.actors.show(false);
   }
 
   reset() {
+    this.rollVersion++;
     this.dice.cancel();
     this.actors.reset();
     this.logEl.innerHTML = '';
@@ -196,7 +203,7 @@ export class GameUI {
       <div class="round"></div>
       <div class="lords"></div>
       <div class="top-actions"></div>
-      <div class="speed">
+      <div class="speed"><button class="btn mini lord-details-btn" data-tip="主公詳細資料">主公</button>
         <button class="btn mini tool log-btn" data-tip="天下紀事（開／關）">📜</button>
         <button class="btn mini tool auto-btn" data-tip="電腦代打你的回合">🤖</button>
         <button class="btn mini tool rank-btn" data-tip="城池榜">🏆</button>
@@ -207,6 +214,7 @@ export class GameUI {
       </div>`;
     this.top.querySelector('.top-actions')!.appendChild(this.actions.parentElement!);
     const q = <T extends HTMLElement>(sel: string) => this.top.querySelector(sel) as T;
+    q('.lord-details-btn').onclick = () => this.onLordDetails?.();
     q('.help-btn').onclick = () => this.onHelp?.();
     q('.rank-btn').onclick = () => this.onRank?.();
     q('.auto-btn').onclick = () => this.onAuto?.();
@@ -262,10 +270,10 @@ export class GameUI {
   /** 右下角排列隨行武將；可施展神通的會發光，點擊施展，滑鼠移上去才顯示資訊 */
   renderParty(icons: PartyIcon[]) {
     this.partyShell.classList.toggle('hidden', !icons.length);
-    const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), i.tip, i.tipHtml, i.ready, i.hasSkill, i.breakthrough, i.flame, i.itemState]));
+    const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), Math.round(i.expPct), i.tip, i.tipHtml, i.ready, i.hasSkill, i.breakthrough, i.flame, i.itemState]));
     // 內容沒變就不重畫，避免滑鼠停在圖示上時提示閃爍
     if (this.party.dataset.key === key) {
-      this.party.querySelectorAll<HTMLButtonElement>('.pd-gen').forEach((b, i) => (b.onclick = () => icons[i]?.onClick()));
+      this.party.querySelectorAll<HTMLButtonElement>('.pd-gen').forEach((b, i) => { b.onclick = () => icons[i]?.onClick(); b.oncontextmenu = e => { e.preventDefault(); icons[i]?.onRightClick?.(); }; });
       return;
     }
     this.party.dataset.key = key;
@@ -281,9 +289,10 @@ export class GameUI {
       if (i.tipHtml) b.dataset.tipHtml = i.tipHtml;
       b.innerHTML = `<img src="${i.img}" alt="" onerror="this.style.visibility='hidden'">` +
         (i.hasSkill ? '<span class="pd-skill">✨</span>' : '') +
-        `<span class="pd-bars"><i class="hp" style="width:${Math.max(0, Math.min(100, i.hpPct))}%"></i><i class="sta" style="width:${Math.max(0, Math.min(100, i.staPct))}%"></i></span>` +
+        `<span class="pd-bars"><i class="hp" style="width:${Math.max(0, Math.min(100, i.hpPct))}%"></i><i class="sta" style="width:${Math.max(0, Math.min(100, i.staPct))}%"></i><i class="exp" aria-label="修為 ${Math.round(i.expPct)}%" style="width:${Math.max(0, Math.min(100, i.expPct))}%"></i></span>` +
         `<span class="pd-name">${i.name}</span>`;
       b.onclick = () => i.onClick();
+      b.oncontextmenu = e => { e.preventDefault(); i.onRightClick?.(); };
       this.party.appendChild(b);
       if (i.flame && i.itemState !== 'disabled') burning.push({ id: i.id, layers: i.flame, img: b.querySelector('img')!, badge: i.hasSkill });
     }
@@ -413,14 +422,18 @@ export class GameUI {
   /** 等待房主的權威結果；結果收到後才掉落真正 3D 骰子。 */
   startRolling(_count = 1) { this.dice.startWaiting(); }
 
-  stopRolling() { this.actors.cancel(); this.dice.cancel(); }
+  stopRolling() { this.rollVersion++; this.actors.cancel(); this.dice.cancel(); }
 
   movementDone(lord:LordId) { return this.actors.movementDone(lord); }
 
   focusLord(lord:LordId) { this.actors.focus(lord); }
 
   async rollDice(values: number[], bonus = 0, multiplier = 1, lord:LordId|null=this.currentLord): Promise<void> {
-    const drop=(origin?:DiceHandOrigin)=>this.dice.roll(values,bonus,multiplier,this.speed,false,origin);
+    const version=++this.rollVersion;
+    const prepared=this.dice.prepareRoll(values);
+    await prepared;
+    if(version!==this.rollVersion)return;
+    const drop=(origin?:DiceHandOrigin)=>this.dice.roll(values,bonus,multiplier,this.speed,false,origin,prepared);
     if(lord)await this.actors.playRoll(lord,drop);else await drop();
   }
 }

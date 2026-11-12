@@ -2,10 +2,15 @@ import type { LordId, Tile, TileKind } from '../game/types';
 import { SELECTED_LAYOUT } from './selectedLayout';
 
 export const CELL_SIZE = 4;
+/** Geometry size and grid pitch are separate: spacing never shrinks a road tile. */
+export const ROAD_WIDTH = CELL_SIZE * .94;
+export const ROAD_GAP = CELL_SIZE * .3;
+export const GRID_SPACING = ROAD_WIDTH + ROAD_GAP;
+export const BUILDING_SIZE = GRID_SPACING * 2 - ROAD_GAP;
 export const MAP_REVISION = 'selected-20261031-33c-50f-300r';
 export const BOARD_SIDE = 280;
 const origin = { x: 32.5, y: 25.5 };
-export const gridPosition = (x: number, y: number) => ({ x: (x-origin.x)*CELL_SIZE, z: (y-origin.y)*CELL_SIZE });
+export const gridPosition = (x: number, y: number) => ({ x: (x-origin.x)*GRID_SPACING, z: (y-origin.y)*GRID_SPACING });
 const key = (x: number, y: number) => `${x},${y}`;
 const owners: Record<string,LordId> = { xuchang:'cao', jianye:'sun', chengdu:'liu', changan:'dong' };
 const kinds: Record<string,TileKind> = { secret:'realm', relic:'portal' };

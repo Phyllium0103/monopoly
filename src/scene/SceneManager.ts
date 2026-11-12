@@ -126,7 +126,7 @@ export class SceneManager {
       const active=this.animator.active||cameraChanged||timestamp<this.interactionUntil;
       // Simulation remains independent of drawing, including while dialogs cover the map.
       if(!this.rendering||document.hidden)return;
-      const covered=!!document.querySelector('.battle-backdrop:not(.hidden),.dialog-backdrop:not(.hidden) .casino-stage');
+      const covered=!!document.querySelector('.battle-backdrop:not(.hidden),.dialog-backdrop:not(.hidden) .casino-stage,.dice-roll-stage:not([hidden]),.lord-actor[data-pose="throw"]');
       const interval=covered?100:active?0:1000/30;
       if(this.lastDraw&&timestamp-this.lastDraw<interval-1)return;
       this.lastDraw=timestamp;

@@ -21,16 +21,16 @@ let passed=0;async function test(name,run){await run();console.log('PASS '+name)
  await test('Start empty; first spawn only after five completed full rounds; never double-spawn a batch',()=>{
   const s=createGameState('liu',null);assert.deepEqual(s.elementalSpirits,[]);
   for(let r=0;r<5;r++)assert.equal(spawnElementalSpirits(s,r),0);
-  assert.equal(spawnElementalSpirits(s,5,rng(1)),3);const snapshot=JSON.stringify(s.elementalSpirits);
+  assert.equal(spawnElementalSpirits(s,5,rng(1)),5);const snapshot=JSON.stringify(s.elementalSpirits);
   assert.equal(spawnElementalSpirits(s,5),0);assert.equal(JSON.stringify(s.elementalSpirits),snapshot);
-  assert.equal(spawnElementalSpirits(s,6),0);assert.equal(spawnElementalSpirits(s,10),3);
-  assert.equal(new Set(s.elementalSpirits.map(x=>x.tile)).size,6);
+  assert.equal(spawnElementalSpirits(s,6),0);assert.equal(spawnElementalSpirits(s,10),5);
+  assert.equal(new Set(s.elementalSpirits.map(x=>x.tile)).size,10);
  });
- await test('0..15 existing spirits: add min(3, remaining capacity), especially 14 -> 15',()=>{
+ await test('0..15 existing spirits: add min(5, remaining capacity), especially 14 -> 15',()=>{
   for(let n=0;n<=SPIRIT_CAP;n++){
    const s=createGameState('liu',null);populate(s,n);
-   assert.equal(spawnElementalSpirits(s,5,rng(n+1)),Math.min(3,15-n));
-   assert.equal(s.elementalSpirits.length,Math.min(n+3,15));
+   assert.equal(spawnElementalSpirits(s,5,rng(n+1)),Math.min(5,15-n));
+   assert.equal(s.elementalSpirits.length,Math.min(n+5,15));
    assert.equal(new Set(s.elementalSpirits.map(x=>x.tile)).size,s.elementalSpirits.length);
   }
  });
@@ -48,7 +48,7 @@ let passed=0;async function test(name,run){await run();console.log('PASS '+name)
  await test('No free cells: graceful empty batch and no infinite retry; later batches can resume',()=>{
   const s=createGameState('liu',null);s.mapOccupants=[{id:'all-blocked',tiles:s.tiles.map(t=>t.index)}];
   assert.equal(spawnElementalSpirits(s,5),0);assert.equal(s.elementalSpiritSpawnRound,5);
-  s.mapOccupants=[];assert.equal(spawnElementalSpirits(s,5),0);assert.equal(spawnElementalSpirits(s,10),3);
+  s.mapOccupants=[];assert.equal(spawnElementalSpirits(s,5),0);assert.equal(spawnElementalSpirits(s,10),5);
  });
  await test('Touch removes a spirit once and changes no rewards, stats, inventory, money or other state',()=>{
   const s=createGameState('liu',null);populate(s,2);const target=s.elementalSpirits[0].tile;
@@ -96,12 +96,12 @@ let passed=0;async function test(name,run){await run();console.log('PASS '+name)
   const stones=l.stones;await e.teleport(l,t);assert.equal(s.elementalSpirits.length,0);assert.equal(l.stones,stones);
   assert.ok(v.events.some(e=>e.t==='syncSpirits'));
  });
- await test('Engine finishes round five, starts round six and synchronizes exactly three spawns',async()=>{
+ await test('Engine finishes round five, starts round six and synchronizes exactly five spawns',async()=>{
   const s=createGameState('liu',null);s.round=5;s.turn=s.order.length-1;
   const v=new RecordingView(),e=engine(s,v);e.takeTurn=async()=>{};
-  await e.step();assert.equal(s.round,6);assert.equal(s.elementalSpirits.length,3);
+  await e.step();assert.equal(s.round,6);assert.equal(s.elementalSpirits.length,5);
   assert.equal(s.elementalSpiritSpawnRound,5);
-  assert.equal(v.events.filter(e=>e.t==='syncSpirits').at(-1).a[0].length,3);
+  assert.equal(v.events.filter(e=>e.t==='syncSpirits').at(-1).a[0].length,5);
  });
  await test('P2P snapshot replay is deterministic and includes generated spirits, without mutating input',async()=>{
   const s=server.createMultiplayerState([{lord:'cao',human:true,name:'甲'},{lord:'liu',human:true,name:'乙'}],null,1234);
@@ -110,8 +110,8 @@ let passed=0;async function test(name,run){await run();console.log('PASS '+name)
   const record=server.newRecord(s,233),input=JSON.stringify(record);
   const a=await server.advance(record),b=await server.advance(record);
   assert.deepEqual(a.state,b.state);assert.deepEqual(a.events,b.events);assert.equal(JSON.stringify(record),input);
-  assert.equal(a.state.elementalSpiritSpawnRound,5);assert.equal(a.state.elementalSpirits.length,3);
-  const sync=a.events.find(e=>e.t==='syncSpirits'&&e.a[0].length===3);assert.ok(sync);
+  assert.equal(a.state.elementalSpiritSpawnRound,5);assert.equal(a.state.elementalSpirits.length,5);
+  const sync=a.events.find(e=>e.t==='syncSpirits'&&e.a[0].length===5);assert.ok(sync);
   const original=structuredClone(sync.a[0]);a.state.elementalSpirits.splice(0);assert.deepEqual(sync.a[0],original);
  });
  await test('Idle indefinitely, click to play once; repeated clicks neither restart nor queue an action',()=>{

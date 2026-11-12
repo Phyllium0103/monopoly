@@ -1,7 +1,7 @@
 import { generalArtUrl, generalHeadUrl } from '../data/generalArt';
 import { WEAPON_CATALOG } from '../data/weaponCatalog';
 import { WEAPON_ICON_BY_GENERAL, WEAPON_ICON_IDS } from '../data/weaponIcons';
-import { BEASTS, EQUIP_DESIGNS, ITEM_DEFS } from '../data/items';
+import { ARMOR_DEFS, BEASTS, ITEM_DEFS } from '../data/items';
 import type { Beast, Equipment } from '../game/types';
 
 // 在 Node 測試或伺服器上沒有 Vite 的環境變數，改用相對路徑
@@ -10,7 +10,7 @@ const BASE = import.meta.env?.BASE_URL ?? './';
 const baseName = (name: string) => name.split('・').pop() ?? name;
 
 // ───────────────────────── 圖片包 ─────────────────────────
-// 物品、寶衣、靈獸圖示從 pack.bin 載入；武將圖逐張載入。
+// 物品、仙衣、靈獸圖示從 pack.bin 載入；武將圖逐張載入。
 // 載入後轉成瀏覽器內部的 blob 網址，之後顯示圖片完全不用再連網。
 // 圖片包還沒載好（或載入失敗）時，退回逐張下載，所以不會出現空白。
 
@@ -45,13 +45,13 @@ const url = (dir: string, name: string) => packUrls.get(`${dir}/${name}`) ?? `${
 
 /** 丹藥、陣法、符籙、法器 */
 export const itemIconUrl = (defId: string) => url(`icons/${ITEM_DEFS[defId].category}`, ITEM_DEFS[defId].name);
-/** 專屬武器與寶衣 */
+/** 專屬武器與仙衣 */
 /** 專屬武器依第一階外型使用已選插畫，升階後仍保留相同種類。 */
 const weaponIconUrl = (generalId: string) => {
   const iconId = WEAPON_ICON_BY_GENERAL[generalId];
   return iconId ? url('icons/weapon-illustrated', iconId) : `${BASE}art/icons/weapons/${WEAPON_CATALOG[generalId]?.material ?? '魄'}.svg`;
 };
-export const equipIconUrl = (e: Equipment) => e.fixedGeneralId ? weaponIconUrl(e.fixedGeneralId) : url('icons/寶衣', baseName(e.name));
+export const equipIconUrl = (e: Equipment) => e.fixedGeneralId ? weaponIconUrl(e.fixedGeneralId) : url('icons/armor', e.designId);
 /** 靈獸 */
 export const beastIconUrl = (b: Beast) => url('icons/靈獸', baseName(b.name));
 /** 選將清單、商店使用頭像；名冊使用依武器品階切換的全身圖。 */
@@ -94,7 +94,7 @@ export function preloadArt(firstGeneralIds: string[]) {
       const files: string[] = [];
       const dirs = (d: string, n: string) => `${BASE}art/icons/${d}/${encodeURIComponent(n)}.webp`;
       for (const d of Object.values(ITEM_DEFS)) files.push(dirs(d.category, d.name));
-      for (const e of EQUIP_DESIGNS) files.push(dirs('寶衣', e.name));
+      for (const e of ARMOR_DEFS) files.push(dirs('armor', e.id));
       for (const b of BEASTS) files.push(dirs('靈獸', b.name));
       preload(files);
     }

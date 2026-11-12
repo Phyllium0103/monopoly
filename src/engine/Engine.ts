@@ -1,4 +1,8 @@
 import { enterRelic, advanceRelic, leaveRelic } from '../systems/RelicSystem';
+import { bagItems, bagHasRoom, sortBagItems, replaceEquipmentBatch, moveBagItem, receiveEquipment, resolveEquipmentReward, EQUIPMENT_CAPACITY } from '../systems/EquipmentInventory';
+import { generalHoverTable } from '../ui/GeneralInfo';
+import { GOLDEN_CORES, BREAKTHROUGH_TITLES, mortalTrialTurns, type GoldenCore, breakthroughSuccess, breakthroughSuccessTitle } from '../data/breakthroughRules';
+import { completeBreak, ascensionCities, ESSENCE_ELEMENTS, ESSENCE_NAMES, reconcileProgression } from '../systems/GeneralSystem';
 import { collectElementalSpirits, reconcileElementalSpirits, spawnElementalSpirits } from '../systems/ElementalSpiritSystem';
 import { MATERIAL_GROUPS, MATERIAL_NAMES, WEAPON_CATALOG, WEAPON_GRADES, WEAPON_PENETRATION, type MaterialGroup } from '../data/weaponCatalog';
 import { materialIncome, synthesize, upgradeRequirement, upgradeWeapon } from '../systems/MaterialSystem';
@@ -7,23 +11,24 @@ import { tournamentBracket, tournamentWinner, grantTournamentPrize } from '../sy
 import { abilityUsers, abilityReady, abilityTargets, useGeneralAbility, seclusionUser, startSeclusion, itemBlockUser, triggerItemBlock } from '../systems/GeneralAbilities';
 import { sectDispatchFee, sectTransferRequirement, transferSectGeneral } from '../systems/SectSystem';
 import { garrisonDispatch } from '../systems/GarrisonSystem';
+import { resultStandings } from '../game/Results';
 import { immortalWinner } from '../systems/VictorySystem';
-import type { City, CraftStat, Equipment, General, GameState, Item, Lord, LordId } from '../game/types';
+import type { City, CraftStat, General, GameState, Item, Lord, LordId } from '../game/types';
 import type { ContestKind } from '../game/types';
 import { GARRISON_LIMIT, abandonIfEmpty, deployable, PARTY_LIMIT, citiesOf, garrisonOf, currentLord, freeGenerals, generalsOf, joinLord, killGeneral, sectGenerals } from '../game/GameState';
 import { advance, aliveLords, startTurn } from '../game/TurnManager';
 import { fmtProsperity, fmtStones } from '../game/Currency';
 import { LORDS, LORD_IDS, originCss, ownerCss, ownerName } from '../faction/Faction';
 import { facts, type Choice } from '../ui/Dialog';
-import { portraitUrl, equipIconUrl, itemIconUrl } from '../ui/Icons';
+import { portraitUrl, itemIconUrl } from '../ui/Icons';
 import { itemDisabledReason, itemUsers, resolveItemTarget } from '../systems/DirectItems';
 import { CASINO_MIN_BET, CASINO_NAME, aiCasinoBet, diceTotal, maxBet, playCasino, type CasinoResult } from '../systems/CasinoSystem';
 import { REALMS } from '../data/generals';
 import { bindPassiveState, passiveOf, fx, lordHas } from '../data/passives';
 import { talentNode, canLearnTalent, canRefundTalent, canResetTalents, ensureTalentState, learnTalent, lordTalentFx, refundTalent, resetTalents } from '../data/talents';
-import { CRAFT_CSS, ELEMENT_CSS, ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES, equipDesc, equipRealm, techniqueDesc } from '../data/items';
+import { ELEMENT_NAMES, ITEM_DEFS, STAT_NAMES } from '../data/items';
 import { GARRISON_STRENGTH, MIN_GARRISON, canOccupy, cityIncome, citySaleValue, eliminate, recruitCost, veinStones, garrisonPower, occupy, occupyCost, pay, sellCity, sellGeneral, toll, visitingToll } from '../systems/CitySystem';
-import { generalSaleValue, BREAK_FAIL_HP, boltRange, attack, attemptBreak, battleExp, breakChance, canAttemptBreak, canLearn, craft, defense, equip, unequip, learn, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, qiDeviation, tribulation } from '../systems/GeneralSystem';
+import { generalSaleValue, boltRange, attack, battleExp, breakChance, canAttemptBreak, craft, defense, transferArmor, equipTechnique, abolish, inBottleneck, maxHp, maxStamina, needsTribulation, power, tribulation } from '../systems/GeneralSystem';
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
 import { aptTag, generalBlock, generalBrief, realmTag, statCells, vitalBars, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
@@ -40,7 +45,7 @@ import type { EngineView } from './view';
 import { duelSnapshot } from './snapshots';
 
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
-export type RosterActionType = Exclude<RosterAction, { type: 'close' }>['type'];
+export type RosterActionType = Exclude<RosterAction, { type: 'close' | 'transfer-armor' | 'learn-technique' | 'move-bag-item' | 'sort-bag' }>['type'];
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
 
@@ -73,6 +78,7 @@ export class Engine {
   }
 
   private get view() {
+    reconcileProgression(this.state);
     return this.ports.view;
   }
 
@@ -82,11 +88,37 @@ export class Engine {
   }
 
   private dlg(lord: Lord | LordId) {
-    return new Ask(typeof lord === 'string' ? lord : lord.id, this.ports.send);
+    return new Ask(typeof lord === 'string' ? lord : lord.id, (id, prompt) => this.ask(this.state.lords[id], prompt));
   }
 
-  private ask(lord: Lord, prompt: Prompt) {
+  private async ask(lord: Lord, prompt: Prompt) {
+    await this.resolvePendingEquipment(lord);
     return this.ports.send(lord.id, prompt);
+  }
+
+  private async resolvePendingEquipment(lord: Lord) {
+    while (lord.alive && !this.state.over && lord.pendingEquipment.length) {
+      const reward = lord.pendingEquipment[0];
+      if (bagHasRoom(lord)) { lord.pendingEquipment.shift(); receiveEquipment(lord, reward); continue; }
+      const items = bagItems(lord);
+      if (this.human(lord)) {
+        const dialog = new Ask(lord.id, this.ports.send);
+        const choose = await dialog.confirm('行囊已滿',
+          `仙衣與功法共用 ${EQUIPMENT_CAPACITY} 格，尚有 ${lord.pendingEquipment.length} 件物品等待收納。\n在武將名冊選擇保留的新物品與要替換的行囊物品，未保留的新物品將捨棄。`,
+          '選擇替換', '全部捨棄', '');
+        if (!choose) lord.pendingEquipment = [];
+        else {
+          const answer = await this.ports.send(lord.id, { kind: 'equipment-overflow' }) as { rewards?: unknown; replaced?: unknown } | null;
+          if (!answer || !Array.isArray(answer.rewards) || !Array.isArray(answer.replaced)
+            || !answer.rewards.every(x => typeof x === 'string') || !answer.replaced.every(x => typeof x === 'string')
+            || !replaceEquipmentBatch(lord, answer.rewards, answer.replaced)) continue;
+        }
+      } else {
+        const least = [...items].sort((a, b) => a.price - b.price)[0];
+        resolveEquipmentReward(lord, reward.uid, least && reward.price > least.price ? least.uid : null);
+      }
+      this.view.refresh();
+    }
   }
 
   private wait(ms: number) {
@@ -113,6 +145,7 @@ export class Engine {
     if (lord.alive) {
       if (!this.human(lord)) this.view.beginReport(lord.id);
       await this.takeTurn(lord);
+      for (const owner of aliveLords(this.state)) await this.resolvePendingEquipment(owner);
       if (lord.tollFreeTurns > 0) lord.tollFreeTurns--;
       if (lord.clearCultivationTurns) lord.clearCultivationTurns--;
       lord.tollFree = lord.tollFreeTurns > 0;
@@ -135,6 +168,7 @@ export class Engine {
       }
       this.view.log(`── 第 ${this.state.round} 輪 ──`, 'turn');
       await this.newRoundEvents();
+      for (const owner of aliveLords(this.state)) await this.resolvePendingEquipment(owner);
       if (this.stopped || this.state.over) return false;
       reconcileElementalSpirits(this.state);
       spawnElementalSpirits(this.state);
@@ -162,6 +196,8 @@ export class Engine {
   private async endGame(reason: string) {
     await this.wait(0);
     if (this.state.over) return;
+    this.state.winner = resultStandings(this.state).find(r => r.l.alive)?.id ?? null;
+    this.state.endReason = reason;
     this.state.over = true;
     this.view.refresh();
     await this.view.gameOver(reason);
@@ -185,12 +221,17 @@ export class Engine {
       clearThisTurn = this.human(lord) ? await this.dlg(lord).confirm('管寧：全隊清修？', '啟動當回合放棄全部主動行動，隨行隊伍（含主公）修為獲得 +100%，持續五個自身回合；使用後冷卻十個自身回合。', '開始清修', '正常行動') : Math.random() < 0.15;
       if (clearThisTurn) startSeclusion(lord, seclusion);
     }
+    const trialIds = generalsOf(this.state, lord.id).filter(g => !!g.mortalTrial).map(g => g.id);
     const report = await startTurn(this.state, lord, (g) => this.protectDeath(g), async (owner, ex, team, endangered) => {
       if (!this.human(owner)) return true;
       return this.dlg(owner).confirm('破界遁空符：全隊撤離？',
         `${ex.realmName}中，${endangered.map(g => g.name).join('、')}觸發隕落風險。\n消耗一張符可讓本次 ${team.length} 名武將全部平安撤離；境界與修為不變，整趟無獎勵。若不使用，按原規則結算死亡與獎勵（不死圖騰仍可另行選擇）。`,
         '消耗一張・全隊撤離', '不使用・繼續結算', '🌀');
     });
+    if (this.human(lord)) for (const id of trialIds) {
+      const g = this.state.generals[id];
+      if (g.realm === 5 && !g.mortalTrial) await this.dlg(lord).message(breakthroughSuccessTitle(g), breakthroughSuccess(g));
+    }
     this.view.log(`<b style="color:${LORDS[lord.id].css}">【${name}】</b>的回合`, 'turn');
     for (const l of report.lines) this.view.log(`${name}：${l.text}`, this.human(lord) ? l.kind : 'ai');
     if (this.human(lord)) this.pendingBreak = report.bottlenecks;
@@ -263,8 +304,9 @@ export class Engine {
         case 'ability': await this.useAbilityOf(lord, a.generalId); break;
         case 'break-general': {
           const g=this.state.generals[a.generalId];
-          if(!g||g.owner!==lord.id||lord.relicJourney||!canAttemptBreak(g,this.state.round).ok){this.view.toast('武將目前無法突破',lord.id);break;}
-          await this.rosterAction(lord,'break',g);break;
+          if(!g||g.owner!==lord.id||lord.relicJourney||!inBottleneck(g)){this.view.toast('武將目前無法突破',lord.id);break;}
+          if (a.direct) { if (canAttemptBreak(g,this.state.round).ok) await this.breakthroughFlow(lord,g,true); }
+          else await this.rosterAction(lord,'break',g);break;
         }
         case 'materials': await this.materialsFlow(lord); break;
         case 'garrison': await this.manageGarrison(lord); break;
@@ -357,7 +399,7 @@ export class Engine {
   }
 
   private async rollDice(lord: Lord): Promise<number> {
-    const draw = () => Array.from({ length: lord.doubleDice ? 2 : 1 }, () => 1 + Math.floor(Math.random() * 6));
+    const draw = () => Array.from({ length: lord.diceCount }, () => 1 + Math.floor(Math.random() * 6));
     let values = lord.fixedDice ? [lord.fixedDice] : draw();
     if (!lord.fixedDice && lordHas(lord.id, 'divination')) {
       const candidates = Array.from({ length: 3 }, draw);
@@ -444,13 +486,14 @@ export class Engine {
       '進入試煉', '暫不進入', '▧')) return;
     if(!enterRelic(lord))return;
     this.view.log(`${LORDS[lord.id].name}進入山河社稷圖：外圈16格，中央留空，禁用道具，完成一圈才能離開。`,'info');
-    await this.view.relic(lord.id,0,true,lord.relicJourney!.lastResult);this.view.refresh();
+    await this.view.relic(lord.id,0,true,lord.relicJourney!.lastResult);this.view.refresh(); await this.moveRelic(lord);
   }
 
   private async moveRelic(lord:Lord){
     if(!lord.relicJourney)return;
-    const dice=1+Math.floor(Math.random()*6);
-    await this.view.rollDice(lord.id,[dice],0,1);
+    const values=[1+Math.floor(Math.random()*6)];
+    const dice=values.reduce((sum,value)=>sum+value,0);
+    await this.view.rollDice(lord.id,values,0,1);
     this.view.log(`${LORDS[lord.id].name}在山河圖擲出 ${dice} 點。`,'info');
     const count=Math.min(dice,16-lord.relicJourney.steps);
     for(let i=0;i<count;i++){
@@ -471,7 +514,13 @@ export class Engine {
     await this.view.movementDone?.(lord.id);
     await this.wait(0);
     if (this.state.over) return;
-    if (collectElementalSpirits(this.state, tile)) this.view.syncSpirits(this.state.elementalSpirits ?? []);
+    const collected = (this.state.elementalSpirits ?? []).filter(s => s.tile === tile);
+    if (collectElementalSpirits(this.state, tile, lord.id)) {
+      this.view.syncSpirits(this.state.elementalSpirits ?? []);
+      const result = collected.map(s => `${ESSENCE_NAMES[ESSENCE_ELEMENTS.indexOf(s.element)]} x3`).join('、');
+      this.view.log(`${LORDS[lord.id].name}獲得${result}`, 'good');
+      if (this.human(lord)) await this.dlg(lord).message('五行精靈', `獲得${result}`);
+    }
     const t = this.state.tiles[tile];
     this.view.refresh();
     if (tile === this.state.merchantTile) {
@@ -795,10 +844,10 @@ export class Engine {
     if (this.human(defender)) for (;;) {
       const decision = await this.dlg(defender).choose(
         `${LORDS[attacker.id].name}挑戰${city.name}【${BATTLE_NAMES[kind]}】`,
-        `<b>敵將 ${atkGen.name}</b>${generalBlock(atkGen)}<br>臨陣脫逃會直接判負，保留城池、駐將與其餘守軍。守軍四分之一（${Math.floor(city.garrisonSoldiers / 4)} 人）加入敵方，對方免繳過路費。`,
+        `<b>敵將 ${atkGen.name}</b>${generalBlock(atkGen)}<br>臨陣脫逃會直接判負，保留城池、駐將與其餘守軍。守軍四分之一（${Math.floor(city.garrisonSoldiers / 4)} 人）加入敵方，對方免繳過路費。每名駐將各有獨立 50% 機率染上心魔（修為減半、無法突破）。`,
         [
           { label: '迎戰・選擇應戰武將', value: 'fight', sub: defensePool.map(g => `<b class="gb-name">${g.name}</b>${generalBrief(g, statCells([['戰力', power(g)], ['武力', attack(g)], ['防禦', defense(g)]]) + vitalBars(g), { passive: false })}`).join('') || '沒有可應戰武將，將不戰而敗' },
-          { label: '臨陣脫逃', value: 'flee', sub: `保留${city.name}，${Math.floor(city.garrisonSoldiers / 4)} 名守軍倒戈` },
+          { label: '臨陣脫逃', value: 'flee', sub: `保留${city.name}，${Math.floor(city.garrisonSoldiers / 4)} 名守軍倒戈；每名駐將各有 50% 心魔風險` },
         ], null, '⚔️',
       );
       flee = decision === 'flee';
@@ -814,6 +863,9 @@ export class Engine {
       const joined = Math.floor(city.garrisonSoldiers / 4);
       city.garrisonSoldiers -= joined;
       attacker.soldiers += joined;
+      const afflicted = garrisonOf(this.state, city).filter(() => Math.random() < 0.5);
+      for (const g of afflicted) g.demon = 1;
+      if (afflicted.length) this.view.log(afflicted.map(g => g.name).join('、') + '染上心魔：獲得修為減半，且無法突破。', 'bad');
       this.view.log(`${LORDS[defender.id].name}在${city.name}【${BATTLE_NAMES[kind]}】臨陣脫逃，${joined} 名守軍加入${LORDS[attacker.id].name}；城池與駐將保留，攻方免繳過路費。`, this.human(defender) ? 'bad' : involved ? 'good' : 'ai');
       this.view.syncCities();
       this.view.refresh();
@@ -992,12 +1044,8 @@ export class Engine {
     }
     for (const g of team) battleExp(g, oldGenerals[0] ?? null);
 
-    // 奪城：原駐將退回主公身邊（閉關中則走火入魔），攻方派將駐守
+    // 奪城：原駐將退回主公身邊，攻方派將駐守
     for (const og of oldGenerals) {
-      if (og.secluded) {
-        qiDeviation(og);
-        this.view.log(`${og.name}閉關被打斷，走火入魔！重傷並損失一半修為。`, this.human(defender) ? 'bad' : involved ? 'good' : 'ai');
-      }
       joinLord(this.state, defender.id, og);
     }
     city.garrisonGenerals = [];
@@ -1328,7 +1376,7 @@ export class Engine {
       if (!selected) return false;
       target = selected;
     }
-    this.view.log(useGeneralAbility(this.state, lord, user, target), 'good');
+    const result = useGeneralAbility(this.state, lord, user, target); this.view.log(result, 'good'); await this.dlg(lord).message('神通施展', result);
     this.view.refresh();
     return true;
   }
@@ -1383,7 +1431,6 @@ export class Engine {
           if (['heal', 'mend'].includes(defId)) return g.hp < maxHp(g);
           if (['qi', 'essence'].includes(defId)) return !inBottleneck(g);
           if (defId === 'clearmind') return g.demon > 0;
-          if (['demon', 'illusion'].includes(defId)) return inBottleneck(g) && !g.demon;
           if (defId === 'foundation') return !g.foundation;
           if (defId === 'vigor') return g.stamina < maxStamina(g);
           if (['rootup1', 'rootup2'].includes(defId)) return g.aptitude !== 'heaven';
@@ -1429,6 +1476,7 @@ export class Engine {
         }
         return { city };
       }
+      if (d.target === 'diceCount') { const diceCount = await this.dlg(lord).choose('縮地符：選擇骰子數量', '本回合改用指定數量，下回合恢復兩顆。', ([1,2,3] as const).map(value => ({ label: value + ' 顆骰子', value }))); return diceCount ? { diceCount } : null; }
       if (d.target === 'dice') { const dice = await this.dlg(lord).choose('控骰符：選擇點數', '', [1, 2, 3, 4, 5, 6].map(value => ({ label: value + ' 點', value }))); return dice ? { dice } : null; }
       if (d.target === 'tile') {
         const allowCasino = this.pickCasinoOk;
@@ -1725,7 +1773,8 @@ export class Engine {
     }
     if (!champion) { this.view.log('九州比武大會無人完成參賽，本屆沒有冠軍。', 'info'); return; }
     const prize = grantTournamentPrize(this.state, champion);
-    const result = `${LORDS[champion.id].name}奪得冠軍，獲得天階上品獎勵「${prize.label}」！`;
+    await this.resolvePendingEquipment(champion);
+    const result = `${LORDS[champion.id].name}奪得冠軍，獲得天階獎勵「${prize.label}」！`;
     this.view.log('🏆 ' + result, champion.isPlayer ? 'good' : 'info'); this.view.refresh();
     await this.notifyAll('九州比武大會・冠軍', result + '\n\n' + prize.sub, '🏆', '確定');
   }
@@ -1766,6 +1815,10 @@ export class Engine {
 
   /** 玩家密封出價；回傳 0 表示放棄 */
   private async playerBid(lord: Lord, lot: Offer): Promise<number> {
+    if ((lot.kind === 'equipment' || lot.kind === 'technique') && !bagHasRoom(lord)) {
+      this.view.toast('行囊已滿，無法競標仙衣或功法', lord.id);
+      return 0;
+    }
     const a = await this.ask(lord, { kind: 'bid', lot: { label: lot.label, sub: lot.sub, price: lot.price } });
     if (typeof a !== 'number' || !Number.isFinite(a)) return 0;
     return Math.max(0, Math.min(lord.stones, Math.round(a / 100) * 100));
@@ -1828,72 +1881,63 @@ export class Engine {
       if (this.state.over || !lord.alive) return;
       const a = (await this.ask(lord, { kind: 'roster' })) as RosterAction | null;
       if (!a || a.type === 'close') return;
+      if (a.type === 'sort-bag') { sortBagItems(lord); this.view.refresh(); continue; }
+      if (a.type === 'transfer-armor') {
+        transferArmor(this.state, lord, a.itemUid, a.fromGeneralId, a.toGeneralId, a.bagSlot);
+        this.view.refresh();
+        continue;
+      }
+      if (a.type === 'learn-technique') {
+        this.learnTechniqueFromRoster(lord, a.itemUid, a.generalId);
+        continue;
+      }
+      if (a.type === 'move-bag-item') {
+        moveBagItem(lord, a.itemUid, a.slot);
+        this.view.refresh();
+        continue;
+      }
       const g = this.state.generals[a.generalId];
       if (!g || g.owner !== lord.id) continue;
       await this.rosterAction(lord, a.type, g);
     }
   }
 
-  /** 名冊上的單一操作；突破、閉關、升階、換裝只在自己的整備階段，學功法與自廢修為單機時隨時可用 */
+  learnTechniqueFromRoster(lord: Lord, uid: string, generalId: string): boolean {
+    const ok = equipTechnique(this.state, lord, uid, generalId);
+    if (ok) this.view.refresh();
+    return ok;
+  }
+
+  /** 名冊上的單一操作；突破、升階、換裝只在自己的整備階段，學功法與自廢修為單機時隨時可用 */
   async rosterAction(lord: Lord, type: RosterActionType, g: General) {
-    const away = g.status === 'realm' || !!g.ghostSourceId;
+    const away = g.status === 'realm' || !!g.ghostSourceId || !!g.mortalTrial;
     const ask = this.dlg(lord);
     switch (type) {
       case 'break':
         await this.breakthroughFlow(lord, g);
         break;
-      case 'seclude':
-        if (g.status === 'garrison') g.secluded = !g.secluded;
-        break;
       case 'upgrade': {
         const r = upgradeRequirement(lord, g);
         if (away || !r.ok || r.stage === undefined || !r.group || !r.cost) return;
         const name = WEAPON_CATALOG[g.id].names[r.stage + 1];
-        const ok = await ask.confirm(`${g.name}・武器升階`,
-          `${g.weapon!.name} → ${WEAPON_GRADES[r.stage + 1]}・${name}。\n消耗 ${r.cost} 顆${materialLabel(r.group, r.stage)}；無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage] * 100)}% → ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%。`,
-          '消耗材料・升階', '返回名冊', '⚔️');
-        if (ok && upgradeRequirement(lord, g).ok) await ask.message('武器升階完成', upgradeWeapon(lord, g), '⚔️');
+        const ok = await ask.confirm(`${g.name}・本命武器突破`,
+          `<div class="weapon-upgrade-summary"><small>淬鍊本命 · 更上一階</small><h3>${g.weapon!.name} → ${name}</h3><p>升至${WEAPON_GRADES[r.stage + 1]}，無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage] * 100)}% → ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%</p><p>所需材料：${materialLabel(r.group, r.stage)} × ${r.cost}</p></div>`,
+          '消耗材料・升階', '返回名冊', '');
+        if (ok && upgradeRequirement(lord, g).ok) {
+          upgradeWeapon(lord, g);
+          await ask.message('本命武器升階成功', `<div class="weapon-upgrade-summary"><small>百鍊成器 · 鋒芒新生</small><h3>${g.weapon!.name}</h3><p>${g.name}的本命武器已達${WEAPON_GRADES[r.stage + 1]}。</p><p>無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%</p></div>`, '');
+        }
         break;
       }
-      case 'equip': {
-        const kind = 'armor' as const;
-        const pool = lord.gear.filter((e) => e.kind === kind);
-        if (away || (!pool.length && !g[kind])) return;
-        const choices: Choice<Equipment | 'off'>[] = pool.map((x) => ({
-          label: x.name,
-          icon: equipIconUrl(x),
-          sub: equipDesc(x),
-          value: x,
-          disabled: g.realm < equipRealm(x.tier),
-          reason: `需達${REALMS[equipRealm(x.tier)]}`,
-        }));
-        if (g[kind]) choices.unshift({ label: `卸下${g[kind]!.name}`, sub: '取下寶衣放回行囊', value: 'off' });
-        const e = await ask.choose(`${g.name}・寶衣`, '', choices);
-        if (e === 'off') unequip(lord, g, kind);
-        else if (e) equip(lord, g, e);
-        break;
-      }
-      case 'learn': {
-        if (away || g.technique || !lord.scrolls.length || g.aptitude === 'waste') return;
-        const s = await ask.choose(
-          `${g.name}・學習功法`,
-          '每位武將只能修習一種功法；五行靈根須與功法屬性相符，天靈根不限屬性，煉丹、煉器、畫符、佈陣功法不限靈根，廢靈根無法修習。學會後不可更換，除非自廢修為。',
-          lord.scrolls.map((x) => ({
-            label: x.name,
-            sub: techniqueDesc(x),
-            value: x,
-            color: x.element ? ELEMENT_CSS[x.element] : CRAFT_CSS,
-            disabled: !canLearn(g, x).ok,
-            reason: canLearn(g, x).reason,
-          })),
-        );
-        if (s) learn(lord, g, s);
+
+      case 'sect-transfer': {
+        if (sectTransferRequirement(this.state, lord, g).ok) transferSectGeneral(this.state, lord, g);
         break;
       }
       case 'abolish': {
         if (away || !g.technique) return;
-        const ok = await ask.confirm('自廢修為', `${g.name}將散去「${g.technique.name}」，境界跌回凡人，修為歸零。\n此後可改修其他功法。確定嗎？`, '自廢', '取消', '⚠️');
-        if (ok) abolish(g);
+        const ok = await ask.confirm('自廢修為', `${g.name}的境界將回到凡人，修為歸零。\n「${g.technique.name}」將退回行囊，此後可改修其他功法。${bagHasRoom(lord) ? '' : '\n行囊已滿，確認後將選擇保留或替換物品。'}`, '自廢', '取消', '');
+        if (ok) { abolish(lord, g); await this.resolvePendingEquipment(lord); }
         break;
       }
     }
@@ -1901,60 +1945,60 @@ export class Engine {
   }
 
   /** 從武將名冊發起突破：低階機率突破，金丹以上渡雷劫 */
-  private async breakthroughFlow(lord: Lord, g: General) {
-    const can = canAttemptBreak(g, this.state.round);
-    if (!can.ok) {
-      this.view.toast(can.reason, lord.id);
-      return;
-    }
+  private async chooseCore(lord: Lord, g: General) {
+    const core = await this.dlg(lord).choose(BREAKTHROUGH_TITLES[3], `<div class="core-person">選擇<strong>${g.name}</strong>金丹凝煉路線<div class="core-person-tip">${generalHoverTable(g)}</div></div>${g.goldenCore ? `<p>已選擇：${GOLDEN_CORES[g.goldenCore].name}</p>` : ''}`, Object.entries(GOLDEN_CORES)
+      .filter(([id]) => id !== 'heavenly' || g.aptitude === 'heaven')
+      .map(([id, c]) => ({ label: `<span title="所需修為：${c.exp * (g.isLord ? 2 : 1)}&#10;${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}">${c.name}</span>`, value: id as GoldenCore, sub: `所需修為：${c.exp * (g.isLord ? 2 : 1)}｜${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}` })));
+    if (core) g.goldenCore = core;
+    this.view.refresh();
+    return core !== null;
+  }
+
+  private async breakthroughFlow(lord: Lord, g: General, direct = false) {
     const ask = this.dlg(lord);
+    if (g.realm === 2 && (!direct || !g.goldenCore) && !await this.chooseCore(lord, g)) return;
+    const can = canAttemptBreak(g, this.state.round);
+    if (!can.ok) { await ask.choose(BREAKTHROUGH_TITLES[g.realm + 1], can.reason, [{label:'突破',value:true,disabled:true,reason:can.reason}]); return; }
+    const target = g.realm + 1;
+    const title = BREAKTHROUGH_TITLES[target];
+    let boundCity: string | undefined;
+    if (g.realm === 8) {
+      const city = await ask.choose(title, '一榮俱榮，一損俱損\n城池過路費x2\n城池被攻佔則境界跌落\n一座城池只能綁定一位大乘境強者',
+        ascensionCities(this.state, g).map(c => ({ label: c.name, sub: `繁榮度 ${c.prosperity}`, value: c.id })));
+      if (!city) return;
+      boundCity = city;
+    }
+    let text = '';
+    if (g.realm < 2) text = `成功率 ${Math.round(breakChance(g) * 100)}%${g.realm === 1 ? '\n失敗會損失25%修為，並氣血翻湧，扣除血量25%' : '\n失敗會損失50%修為'}`;
+    if (g.realm === 4) { const [min,max] = mortalTrialTurns(g.aptitude); text = `自封修為入世化凡，感悟天地法則，持續${min}～${max}回合`; }
+    if (g.realm === 5) text = '消耗五行本源進行突破\n' + ESSENCE_ELEMENTS.map((e,i) => `${ESSENCE_NAMES[i]}x${lord.essences?.[e] ?? 0}`).join('、');
+    if (g.realm === 6) text = `融合天階神物進入自身方可突破\n已裝備：${g.weapon?.name ?? '無武器'}/${g.armor?.name ?? '無仙衣'}`;
+    if (g.realm === 9) text = '暫定，直接升級';
     if (!needsTribulation(g)) {
-      const chance = Math.round(breakChance(g) * 100);
-      const ok = await ask.confirm(
-        `${g.name}・突破${REALMS[g.realm + 1]}`,
-        `成功率 <b>${chance}%</b>${g.foundation ? '（已服築基丹）' : ''}${g.demon ? '\n⚠️ 心魔纏身，成功率大降' : ''}\n失敗會損失 <b>20%</b> 修為，並氣血翻湧：扣 <b>${Math.round(BREAK_FAIL_HP[g.realm] * 100)}%</b> 血量（境界越高扣得越多）。`,
-        '突破',
-        '再等等',
-        '🧘',
-      );
-      if (!ok) return;
-      const failHp = BREAK_FAIL_HP[g.realm];
-      const success = attemptBreak(g, this.state.round);
-      if (success) this.view.beam(lord.id);
-      const msg = success ? `✦ ${g.name}突破成功，晉入【${REALMS[g.realm]}】！` : `${g.name}突破失敗，修為 −20%，血量 −${Math.round(failHp * 100)}%……`;
-      this.view.log(msg, success ? 'good' : 'bad');
-      await ask.message(success ? '突破成功' : '突破失敗', msg, success ? '✨' : '💢');
+      if (!direct && g.realm !== 2 && g.realm !== 8 && !await ask.confirm(title, text, '突破', '再等等', '')) return;
+      const success = completeBreak(g, this.state.round, boundCity);
       this.view.refresh();
+      if (!success) { await ask.message('突破失敗', g.realm === 1 ? '損失25%修為與最大血量的25%。' : '損失50%修為。'); return; }
+      if (g.mortalTrial) { await ask.message(title, text); return; }
+      this.view.beam(lord.id);
+      await ask.message(breakthroughSuccessTitle(g), breakthroughSuccess(g));
+      if (g.realm === 2) await this.chooseCore(lord, g);
+      this.view.refresh();
+      if (g.isLord) await this.checkEnd();
       return;
     }
     const rg = boltRange(g);
-    const ok = await ask.confirm(
-      `${g.name}・渡劫晉入${REALMS[g.realm + 1]}`,
-      `天降 <b>${rg.count}</b> 道天雷：\n每道傷害範圍 <b>${rg.min} ～ ${rg.max}</b>（平均 ${rg.avg}）\n全部共 <b>${rg.totalMin} ～ ${rg.totalMax}</b>，平均 <b>${rg.totalAvg}</b>\n目前血量 ${g.hp} / ${maxHp(g)}${g.ward ? `・護法陣減傷 ${Math.round(g.ward * 100)}%` : ''}${g.demon ? '\n⚠️ 心魔纏身，雷劫威力倍增' : ''}\n\n血量歸零則一半機率身死道消、一半機率兵解重修（跌回凡人）。\n可先用大還丹補滿，或用避雷陣、五行防禦陣護法。`,
-      '渡劫',
-      '再準備',
-      '⚡',
-    );
-    if (!ok) return;
-    const cityId = g.cityId;
-    const startHp = g.hp;
-    const startMax = maxHp(g);
-    const r = await tribulation(g, () => this.protectDeath(g));
-    if (r.fate === 'death' && cityId) {
-      this.state.cities[cityId].garrisonGenerals = this.state.cities[cityId].garrisonGenerals.filter((id) => id !== g.id);
-      if (abandonIfEmpty(this.state, cityId)) this.view.log(`🏚️ ${this.state.cities[cityId].name}失去所有駐將，成為空城，守軍離去。`, 'bad');
+    if (!direct && !await ask.confirm(title, `${g.realm === 3 ? '抵抗四九天雷' : '祭出底蘊，抵抗九九天雷'}\n每道雷劫${rg.min}～${rg.max}(平均${rg.avg})\n全部${rg.totalMin}～${rg.totalMax}(平均${rg.totalAvg})\n目前血量 ${g.hp}/${maxHp(g)}\n血量歸零則身死道消`, '渡劫', '再準備', '')) return;
+    const cityId = g.cityId, hp = g.hp, maximum = maxHp(g);
+    const result = await tribulation(g, () => this.protectDeath(g));
+    if (result.fate === 'death' && cityId) {
+      this.state.cities[cityId].garrisonGenerals = this.state.cities[cityId].garrisonGenerals.filter(id => id !== g.id);
+      abandonIfEmpty(this.state, cityId);
     }
-    await this.view.tribulation(g.id, lord.id, r, startHp, startMax);
-    if (r.success) this.view.beam(lord.id, 0xbfe0ff);
-    const msg = r.success
-      ? `⚡ ${g.name}渡過 ${r.bolts.length} 道天雷，晉入【${REALMS[g.realm]}】！`
-      : r.fate === 'death'
-        ? `⚡ ${g.name}渡劫失敗，身死道消……`
-        : r.fate === 'saved' ? `⚡ ${g.name}渡劫失敗，保命效果令其滿血復生，境界保留。` : `⚡ ${g.name}渡劫失敗，兵解重修，跌回凡人。`;
-    this.view.log(msg, r.success ? 'good' : 'bad');
-    this.view.syncCities();
-    this.view.refresh();
-    if (r.success && g.isLord && await this.checkEnd()) return;
-    if (r.fate === 'death' && g.isLord) await this.onBankrupt(lord, `${g.name}渡劫失敗身死道消，主公陣亡`);
+    reconcileProgression(this.state);
+    await this.view.tribulation(g.id, lord.id, result, hp, maximum);
+    await ask.message(result.success ? breakthroughSuccessTitle(g) : title, result.success ? breakthroughSuccess(g) : result.fate === 'saved' ? '保命效果生效，境界保留。' : '血量歸零，身死道消。');
+    this.view.syncCities(); this.view.refresh();
+    if (result.fate === 'death' && g.isLord) await this.onBankrupt(lord, '渡劫失敗，主公陣亡');
   }
 }

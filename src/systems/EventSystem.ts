@@ -1,9 +1,10 @@
+import { receiveEquipment, bagHasRoom } from './EquipmentInventory';
 import type { Element, GameState, General, Lord, LordId } from '../game/types';
 import { citiesOf, freeGenerals, generalsOf, newGeneral, nextUid } from '../game/GameState';
 import { HIDDEN_SEEDS } from '../data/generals';
 import { aliveLords } from '../game/TurnManager';
 import { cityIncomeOf, totalAssets } from './CitySystem';
-import { addExp, expCap, inBottleneck, maxHp } from './GeneralSystem';
+import { addExp, expCap, maxHp } from './GeneralSystem';
 import { ELEMENT_NAMES, ITEM_DEFS, equipDesc, PILL_IDS, itemName, makeBeast, makeEquipment, makeItem, makeTechnique, rollItemId, techniqueDesc } from '../data/items';
 import { LORDS } from '../faction/Faction';
 import { fmtStones } from '../game/Currency';
@@ -47,10 +48,9 @@ export const WORLD_EVENTS: WorldEventDef[] = [
   { id: 'quake', name: '天災地動', icon: '🌋', category: 'disaster', desc: '天崩地裂，隨機 3 座有主城池繁榮 -20。' },
   { id: 'bandits', name: '黃巾餘黨', icon: '🏴', category: 'disaster', duration: 5, desc: '黃巾餘黨盤踞 4 處驛道 5 輪，停在賊窩要繳買路錢，否則損兵。' },
   { id: 'shuffle', name: '乾坤大挪移', icon: '☯', category: 'disaster', desc: '天機錯亂，所有主公的位置隨機互換。' },
-  { id: 'demonTrial', name: '心魔劫', icon: '😈', category: 'disaster', desc: '心魔劫降臨，所有處於瓶頸的武將都染上一層心魔。' },
   { id: 'tradeBoom', name: '商路暢通', icon: '🛒', category: 'economy', duration: 5, desc: '接下來 5 輪，所有商店商品購買價格七折（不含招募、復活與拍賣），可與旅行商人五折疊加。' },
-  { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件玄階至地階的寶衣。' },
-  { id: 'spiritTide', name: '靈潮湧動', icon: '🌊', category: 'cultivation', duration: 5, desc: '地底靈脈潮汐翻湧，接下來 5 輪駐守城池閉關修煉的武將，修為再 ×1.5。' },
+  { id: 'armory', name: '兵器庫開啟', icon: '🗡️', category: 'economy', desc: '舊朝兵器庫被打開，每位主公分得一件玄階至地階的仙衣。' },
+  { id: 'spiritTide', name: '靈潮湧動', icon: '🌊', category: 'cultivation', duration: 5, desc: '地底靈脈潮汐翻湧，接下來 5 輪駐守城池修煉的武將，修為再 ×1.5。' },
   { id: 'meteor', name: '隕星墜落', icon: '☄️', category: 'cultivation', desc: '流星墜入人間，星髓入藥：每位主公得到兩顆玄品至地品的丹藥。' },
   { id: 'rebirth', name: '天道輪轉', icon: '🌀', category: 'cultivation', desc: '天道輪轉，萬法歸元：每位主公得到一顆輪迴丹，可將天賦樹全部重置。' },
   { id: 'debate', name: '論道大會', icon: '☯️', category: 'cultivation', desc: '各路修士雲集論道，每位主公所有隨行武將獲得目前境界修為上限的 10% 修為（再套用人物修為加成，不超過瓶頸）。' },
@@ -65,7 +65,7 @@ export const WORLD_EVENTS: WorldEventDef[] = [
 
 export const FIXED_WORLD_EVENTS: WorldEventDef[] = [
   {id:'immortals',name:'仙人出世',icon:'🧙',category:'cultivation',desc:'第 15 輪起每 15 輪固定有兩位尚未出世的方外人物現身，不占九州風雲抽選。'},
-  {id:'tournament',name:'九州比武大會',icon:'🏆',category:'politics',desc:'每完成 20 輪固定舉辦隨行武將 1v1 晉級賽，隨機分組，冠軍獲得一件天階上品功法或寶衣。'},
+  {id:'tournament',name:'九州比武大會',icon:'🏆',category:'politics',desc:'每完成 20 輪固定舉辦隨行武將 1v1 晉級賽，隨機分組，冠軍獲得一件天階上品功法或天階仙衣。'},
 ];
 
 export function eventDef(id: string): WorldEventDef {
@@ -85,7 +85,7 @@ export function syncWorldMods(state: GameState) {
   WORLD.realmBlessed = isActive(state, 'ancientRealm');
   WORLD.incomeMult = isActive(state, 'locust') ? 0.6 : 1;
   WORLD.purchaseMult = isActive(state, 'tradeBoom') ? 0.7 : 1;
-  WORLD.seclusionMult = isActive(state, 'spiritTide') ? 1.5 : 1;
+  WORLD.garrisonExpMult = isActive(state, 'spiritTide') ? 1.5 : 1;
   WORLD.recruitMult = isActive(state, 'summon') ? 0.5 : 1;
 }
 
@@ -219,22 +219,11 @@ export function applyWorldEvent(state: GameState, def: WorldEventDef): string[] 
       lines.push(alive.map((l) => `${LORDS[l.id].name} → ${state.tiles[l.position].name}`).join('、'));
       break;
     }
-    case 'demonTrial': {
-      let n = 0;
-      for (const g of Object.values(state.generals)) {
-        if (g.owner && g.status !== 'dead' && inBottleneck(g)) {
-          g.demon = Math.max(g.demon, 1);
-          n++;
-        }
-      }
-      lines.push(n ? `共 ${n} 名瓶頸中的武將心魔滋生。` : '所幸無人正處瓶頸。');
-      break;
-    }
     case 'armory':
       for (const l of alive) {
         const e = makeEquipment(nextUid(state, 'e'), 'armor', 3 + Math.floor(Math.random() * 6));
-        l.gear.push(e);
-        lines.push(`${LORDS[l.id].name} 得 寶衣「${e.name}」`);
+        receiveEquipment(l, e);
+        lines.push(`${LORDS[l.id].name} 得 仙衣「${e.name}」`);
       }
       break;
     case 'rebirth':
@@ -395,15 +384,15 @@ export interface AuctionResult {
 
 /** 價高者得、付自己的出價；同價隨機 */
 export function resolveAuction(state: GameState, lot: Offer, bids: { id: LordId; bid: number }[]): AuctionResult {
-  const valid = bids.filter((b) => b.bid > 0 && state.lords[b.id].stones >= b.bid);
+  const valid = bids.filter((b) => b.bid > 0 && state.lords[b.id].stones >= b.bid && (lot.kind !== 'equipment' && lot.kind !== 'technique' || bagHasRoom(state.lords[b.id])));
   if (!valid.length) return { winner: null, price: 0, bids };
   const top = Math.max(...valid.map((b) => b.bid));
   const tied = valid.filter((b) => b.bid === top);
   const w = tied[Math.floor(Math.random() * tied.length)];
   const lord = state.lords[w.id];
   lord.stones -= w.bid;
-  if (lot.kind === 'equipment') {lot.equipment.purchasePrice=w.bid;lord.gear.push(lot.equipment);}
-  else if (lot.kind === 'technique') {lot.technique.purchasePrice=w.bid;lord.scrolls.push(lot.technique);}
+  if (lot.kind === 'equipment') {lot.equipment.purchasePrice=w.bid;receiveEquipment(lord, lot.equipment);}
+  else if (lot.kind === 'technique') {lot.technique.purchasePrice=w.bid;receiveEquipment(lord, lot.technique);}
   else if (lot.kind === 'beast') {lot.beast.purchasePrice=w.bid;lord.beast=lot.beast;}
   return { winner: w.id, price: w.bid, bids };
 }

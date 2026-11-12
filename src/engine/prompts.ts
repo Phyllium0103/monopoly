@@ -50,7 +50,8 @@ export type Prompt =
   /** 在地圖上點一格；allowCasino 為 false 時不能選乾坤骰閣 */
   | { kind: 'tile'; allowCasino: boolean }
   /** 武將名冊（可整備） */
-  | { kind: 'roster' };
+  | { kind: 'roster' }
+  | { kind: 'equipment-overflow' };
 
 export type PrerollAction =
   | { type: 'roll' }
@@ -60,7 +61,7 @@ export type PrerollAction =
   | { type: 'abilities' }
   /** 直接由某位隨行武將施展神通（右下角武將圖示） */
   | { type: 'ability'; generalId: string }
-  | { type: 'break-general'; generalId: string }
+  | { type: 'break-general'; generalId: string; direct?: boolean }
   | { type: 'materials' }
   | { type: 'garrison' }
   | { type: 'roster' }
@@ -77,7 +78,11 @@ export type ShopAction =
 
 export type RosterAction =
   | { type: 'close' }
-  | { type: 'break' | 'seclude' | 'upgrade' | 'equip' | 'learn' | 'abolish'; generalId: string };
+  | { type: 'break' | 'upgrade' | 'abolish' | 'sect-transfer'; generalId: string }
+  | { type: 'sort-bag' }
+  | { type: 'transfer-armor'; itemUid: string; fromGeneralId?: string; toGeneralId?: string; bagSlot?: number }
+  | { type: 'move-bag-item'; itemUid: string; slot: number }
+  | { type: 'learn-technique'; itemUid: string; generalId: string };
 
 export type DuelAction = 'attack' | 'skill' | 'item' | { type: 'use-item'; itemUid: string; userId: string; targetSide: 'a' | 'b' };
 
@@ -103,6 +108,7 @@ export function defaultAnswer(p: Prompt): unknown {
     case 'duel': return 'attack' satisfies DuelAction;
     case 'tile': return null;
     case 'roster': return { type: 'close' } satisfies RosterAction;
+    case 'equipment-overflow': return null;
   }
 }
 

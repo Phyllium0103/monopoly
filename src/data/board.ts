@@ -202,7 +202,7 @@ function buildBoard() {
 
 export const LEGACY_BOARD = buildBoard();
 export const BOARD = buildSelectedBoard();
-export const MAP_RULES_VERSION = 'map-recruitment-20261031';
+export const MAP_RULES_VERSION = 'roster-replacement-20261112';
 /** A P2P room must use the current map and both recruitment frontage triggers. */
 export function hasCurrentBoard(state: { rulesVersion?: string; tiles: Tile[] }): boolean {
   return state.rulesVersion === MAP_RULES_VERSION && state.tiles.length === BOARD.tiles.length
@@ -216,7 +216,7 @@ export const TILE_INFO: Record<TileKind, { icon: string; desc: string }> = {
   realm: { icon: '🌀', desc: '秘境：位於道路旁的試煉據點。每次入場需消耗一把秘境遺鑰；破界遁空符可在隕落風險發生時保全隊撤離，整趟無獎勵。可選擇難度（煉氣到渡劫共九級）與派遣人數探索，難度越高越危險，獎勵也越好' },
   treasure: { icon: '💰', desc: '天寶商行：販售法器、陣法、符籙' },
   herb: { icon: '🌿', desc: '百草堂：販售各種丹藥' },
-  forge: { icon: '🔨', desc: '天工坊：販售寶衣' },
+  forge: { icon: '🔨', desc: '天工坊：販售仙衣' },
   library: { icon: '📜', desc: '藏經閣：販售功法' },
   beast: { icon: '🐉', desc: '萬獸園：販售靈獸，每位主公限一隻' },
   tavern: { icon: '🏮', desc: '聽風樓：招募各國尚未出仕的將領' },

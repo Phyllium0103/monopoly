@@ -1,3 +1,4 @@
+import { receiveEquipment, bagHasRoom, moveBagItem, sortBagItems } from '../systems/EquipmentInventory';
 import { RelicMap } from '../ui/RelicMap';
 import { MATERIAL_GROUPS } from '../data/weaponCatalog';
 import { materialLabel } from '../ui/MaterialArt';
@@ -13,6 +14,7 @@ import type { PickMode } from '../scene/picking';
 import { World } from '../world/World';
 import { CharacterSprite } from '../character/CharacterSprite';
 import { LORDS, LORD_IDS, ownerCss, ownerName } from '../faction/Faction';
+import { canAttemptBreak } from '../systems/GeneralSystem';
 import { GameUI, type ActionButton, type PartyIcon } from '../ui/GameUI';
 import { Dialog } from '../ui/Dialog';
 import { portraitUrl, preloadArt,prepareArtPack } from '../ui/Icons';
@@ -29,10 +31,10 @@ import { RankView } from '../ui/RankView';
 import { TalentView } from '../ui/TalentView';
 import { LordView } from '../ui/LordView';
 import { showEndScreen, showStartScreen } from '../ui/Screens';
-import { ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
+import { ARMOR_DEFS, ITEM_DEFS, STAT_NAMES, makeBeast, makeEquipment, makeItem, makeTechnique } from '../data/items';
 import { TILE_INFO, hasCurrentBoard } from '../data/board';
 import { RANK_METRICS, cityIncomeOf, cityRanks, cityToll, garrisonPower, toll } from '../systems/CitySystem';
-import { canAttemptBreak, maxHp, maxStamina, power } from '../systems/GeneralSystem';
+import { inBottleneck, maxHp, maxStamina, power, expCap } from '../systems/GeneralSystem';
 import { flameLayersFor } from '../data/realmFrames';
 import { generalHoverInfo, generalHoverTable, itemTargetFocus, itemUserFocus, realmTag, type HoverFocus } from '../ui/GeneralInfo';
 import { bindPassiveState } from '../data/passives';
@@ -63,6 +65,7 @@ export class Game {
   private ui: GameUI;
   private dialog: Dialog;
   private generalsView: GeneralsView;
+  private inspectRoster: GeneralsView;
   private battleView: BattleView;
   private shop: ShopPanel;
   private casino: CasinoPanel;
@@ -90,6 +93,7 @@ export class Game {
   private turnToast = '';
   /** 電腦託管中（單機） */
   private autoPlay = false;
+  private endShown = false;
   /** 本局的畫面效果實作，交給引擎使用 */
   readonly view: EngineView;
 
@@ -102,6 +106,7 @@ export class Game {
     this.ui = new GameUI(uiRoot);
     this.dialog = new Dialog(uiRoot);
     this.generalsView = new GeneralsView(uiRoot);
+    this.inspectRoster = new GeneralsView(uiRoot);
     this.battleView = new BattleView(uiRoot);
     this.shop = new ShopPanel(this.dialog);
     this.casino = new CasinoPanel(this.dialog);
@@ -113,7 +118,8 @@ export class Game {
     };
     this.lordView = new LordView(uiRoot);
     this.lordView.facingText = (id) => this.facingText(this.state.lords[id]);
-    this.ui.onLord = (id) => {if(this.selectedItem)this.pickItemLord(id);else this.lordView.open(this.state,id);};
+    this.ui.onLordDetails = () => this.lordView.open(this.state,this.me);
+    this.ui.onLord = (id) => {if(this.selectedItem)this.pickItemLord(id);else if(id===this.me){this.inspectRoster.close();if(!this.generalsView.isOpen)this.openRoster();}else void this.inspectRoster.open(this.state,this.state.lords[id],{manage:false,free:false,inspect:true});};
     this.battleView.onItemGeneral = (id) => this.pickItemGeneral(id);
     this.battleView.generalById = id => this.state?.generals[id];
     this.ui.onHelp = () => this.help.open();
@@ -262,6 +268,14 @@ export class Game {
 
   /** 清掉上一局的引擎、視窗與棋子 */
   private reset() {
+    this.endShown = false;
+    this.uiRoot.querySelector('.end-screen')?.remove();
+    this.relicMap.hide();
+    this.help.close();
+    this.rankView.close();
+    this.talentView.close();
+    this.lordView.close();
+    this.ui.hideReport();
     this.occupancyKey='';
     this.world.clearSpirits();
     this.token++;
@@ -277,6 +291,7 @@ export class Game {
     this.casino.close();
     this.battleView.closeAll();
     this.generalsView.close();
+    this.inspectRoster.close();
     this.dialog.close();
     for (const s of this.sprites.values()) s.dispose();
     this.sprites.clear();
@@ -299,7 +314,7 @@ export class Game {
       this.sm.scene.add(s.group);
       this.sprites.set(id, s);
       s.setGroundPosition(this.slotPosition(id, state.lords[id].position));
-      s.group.visible = state.lords[id].alive && !state.lords[id].relicJourney;
+      s.group.visible = state.lords[id].alive;
     }
     this.sm.setPickables([...this.world.pickables, ...[...this.sprites.values()].map((s) => s.group)]);
     this.ui.reset();
@@ -324,7 +339,7 @@ export class Game {
   /** 進入多人對局：me 為本機玩家的主公 */
   startOnline(state: GameState, me: LordId, onExit: () => void) {
     if (!hasCurrentBoard(state)) {
-      throw new Error('此房間仍使用舊版地圖。請所有玩家更新網頁並建立新房間；舊對局資料不會被覆寫。');
+      throw new Error('此房間使用舊版遊戲規則。突破系統已更新，請所有玩家更新網頁並建立新對局；舊存檔不轉換。');
     }
     this.reset();
     this.me = me;
@@ -343,13 +358,14 @@ export class Game {
       const s = this.sprites.get(id);
       if (!s) continue;
       s.setGroundPosition(this.slotPosition(id, state.lords[id].position));
-      s.group.visible = state.lords[id].alive && !state.lords[id].relicJourney;
+      s.group.visible = state.lords[id].alive;
     }
     this.world.syncCities(state);
     this.world.setEventMarkers(state.merchantTile, state.banditTiles);
     // During replay, the syncSpirits event follows the final landing instead.
     if (placeSprites) this.world.syncSpirits(state.elementalSpirits ?? []);
     this.generalsView.refresh(state, state.lords[this.me]);
+    this.inspectRoster.refresh(state, state.lords[this.me]);
     this.refresh();
   }
 
@@ -458,7 +474,7 @@ export class Game {
       },
       movementDone: (lord:LordId)=>this.ui.movementDone(lord),
       relic: async (lord:LordId,step:number,active:boolean,text:string)=>{
-        const s=this.sprites.get(lord);if(s)s.group.visible=!active&&this.state.lords[lord].alive;
+        const s=this.sprites.get(lord);if(s)s.group.visible=this.state.lords[lord].alive;
         if(active)this.relicMap.show(lord,step,text);else this.relicMap.hide();this.relicMap.setReady(this.me,false);
         await sleep(180/this.speed);
       },
@@ -509,11 +525,21 @@ export class Game {
         await this.dialog.message(title, text, icon, button);
       },
       gameOver: async (reason: string) => {
-        this.generalsView.close();
-        this.active = null;
+        if (this.endShown) return;
+        this.endShown = true;
         if (!this.online) clearSoloSave();
-        this.refresh();
-        await this.dialog.message('天下大勢已定', reason, '📜', '查看結算');
+        this.selectedItem = null;
+        this.itemDuel = null;
+        this.cancelPrompt();
+        this.battleView.closeAll();
+        this.relicMap.hide();
+        this.help.close();
+        this.rankView.close();
+        this.talentView.close();
+        this.lordView.close();
+        this.ui.hideReport();
+        this.ui.showTooltip(null);
+        this.ui.hide();
         showEndScreen(this.uiRoot, this.state, reason, () => this.restart(), this.online ? '返回大廳' : '重新開始', this.me);
       },
     };
@@ -554,6 +580,8 @@ export class Game {
         const answer=this.battleView.duelAsk(p.duel,p.side);this.refresh();
         return answer.finally(()=>{this.itemDuel=null;this.cancelItem(false);this.refresh();});
       }
+      case 'equipment-overflow':
+        return this.generalsView.pickReplacements(this.state, this.state.lords[lord]);
       case 'roster':
         return this.generalsView.ask(this.state, this.state.lords[lord]);
       case 'preroll':
@@ -586,7 +614,7 @@ export class Game {
     this.world.clearHighlights();
     // 多人：擲骰要等伺服器回覆，先讓骰子轉起來，結果到了再停下
     if (this.online && act.prompt.kind === 'preroll' && (a as PrerollAction | null)?.type === 'roll') {
-      this.ui.startRolling(this.state.lords[act.lord].doubleDice ? 2 : 1);
+      this.ui.startRolling(this.state.lords[act.lord].relicJourney ? 1 : this.state.lords[act.lord].fixedDice ? 1 : this.state.lords[act.lord].diceCount);
     }
     act.resolve(a);
     this.refresh();
@@ -636,19 +664,19 @@ export class Game {
     const lord = this.state.lords[this.me];
     if (!lord.alive) return;
     lord.stones += 100_000_000;
-    lord.soldiers += 100_000;
+    lord.soldiers += 100_000; lord.essences = {metal:1000,wood:1000,water:1000,fire:1000,earth:1000};
     for (const k of MATERIAL_GROUPS) lord.materials[k] = lord.materials[k].map(n => n + 1000) as [number, number, number];
     for (const [defId, d] of Object.entries(ITEM_DEFS)) for (let t = 0; t < d.price.length; t++) lord.items.push(makeItem(nextUid(this.state, 'i'), defId, t));
     for (let tier = 0; tier < 12; tier++) {
-      lord.gear.push(makeEquipment(nextUid(this.state, 'e'), 'armor', tier));
-      lord.scrolls.push(makeTechnique(nextUid(this.state, 't'), tier));
+      if (bagHasRoom(lord)) receiveEquipment(lord, makeTechnique(nextUid(this.state, 't'), tier));
     }
+    for (const d of ARMOR_DEFS) if (bagHasRoom(lord)) receiveEquipment(lord, makeEquipment(nextUid(this.state, 'e'), 'armor', d.tier, d.id));
     lord.beast = makeBeast(nextUid(this.state, 'b'), 11);
     for (const g of generalsOf(this.state, lord.id)) {
       g.hp = maxHp(g);
       g.stamina = maxStamina(g);
     }
-    this.ui.log('🧪 測試：獲得 100 極品靈石、10 萬士兵，以及所有丹藥、陣法、符籙、法器（各階）、各階寶衣與功法、天階靈獸，以及十八種升階材料各 1000 顆。', 'good');
+    this.ui.log('🧪 測試：獲得 100 極品靈石、10 萬士兵，以及所有丹藥、陣法、符籙、法器（各階）、依行囊空格補入的仙衣與功法、天階靈獸，以及十八種升階材料與五種本源各 1000 顆。', 'good');
     this.ui.toast('🧪 測試：已獲得大量靈石與所有物品');
     this.refresh();
   }
@@ -690,7 +718,18 @@ export class Game {
     if (this.active?.prompt.kind === 'preroll') return this.answer({ type: 'roster' } satisfies PrerollAction);
     const engine = this.online ? null : this.engine;
     void this.generalsView.open(this.state, lord, { manage: false, free: !!engine }, engine ? (a: RosterAction) => {
-      if (a.type !== 'learn' && a.type !== 'abolish') return;
+      if (a.type === 'sort-bag') { sortBagItems(lord); this.generalsView.refresh(this.state, lord); return; }
+      if (a.type === 'move-bag-item') {
+        moveBagItem(lord, a.itemUid, a.slot);
+        this.generalsView.refresh(this.state, lord);
+        return;
+      }
+      if (a.type === 'learn-technique') {
+        engine.learnTechniqueFromRoster(lord, a.itemUid, a.generalId);
+        this.generalsView.refresh(this.state, lord);
+        return;
+      }
+      if (a.type !== 'abolish' && a.type !== 'sect-transfer') return;
       const g = this.state.generals[a.generalId];
       if (g) void engine.rosterAction(lord, a.type, g).then(() => this.generalsView.refresh(this.state, lord));
     } : null).then(() => this.refresh());
@@ -826,6 +865,7 @@ export class Game {
         <tr><td>挖掘</td><td>${c.mining ? `${materialLabel(c.mining, 0)}<small class="ip-sub">每個自身回合 ${materialIncome(c)} 顆</small>` : '佔領時指定基礎材料'}</td></tr>
         <tr><td>駐將</td><td>${gens.length ? gens.map((g) => `${g.name} ${realmTag(g.realm)} 戰力 ${power(g)}`).join('<br>') : '無'}</td></tr>
         <tr><td>比試</td><td>擂台戰（固定）＋${STAT_NAMES[c.contest]}比試</td></tr>
+        <tr><td>供奉仙人</td><td>${Object.values(this.state.generals).find(g=>g.boundCityId===c.id)?.name ?? '無'}</td></tr>
         <tr><td>守軍</td><td>${c.garrisonSoldiers}${c.shieldTurns ? `・護城大陣 ${c.shieldTurns}` : ''}</td></tr>
         ${c.owner !== 'neutral' ? `<tr><td>守城戰力</td><td title="全圖第 ${ranks.defense} 名">${garrisonPower(this.state, c)}<small class="terrain-fx">第 ${ranks.defense} 名</small></td></tr>` : ''}
       </table>${links}${fork}${people}`;
@@ -845,7 +885,7 @@ export class Game {
     if(s.stage==='user')return 'lord';
     if(s.stage==='destination')return 'tile';
     if(s.stage==='ownCity')return 'city';
-    return ({ownGeneral:'lord',enemyGeneral:'lord',deadGeneral:'none',lord:'lord',ownCity:'city',enemyCity:'city',tile:'tile',dice:'none',none:'none'} as const)[ITEM_DEFS[item.defId].target];
+    return ({ownGeneral:'lord',enemyGeneral:'lord',deadGeneral:'none',lord:'lord',ownCity:'city',enemyCity:'city',tile:'tile',dice:'none',diceCount:'none',none:'none'} as const)[ITEM_DEFS[item.defId].target];
   }
   private enemyItemLords(item:Item){
     const owners=new Set(itemGeneralTargets(this.state,this.state.lords[this.me],item).map(g=>g.owner));
@@ -945,6 +985,7 @@ export class Game {
     else if(kind==='lord')this.pickItemLord(id as LordId);
     else if(kind==='city'){const city=this.state.cities[id];if(city)this.pickItemTile(city.tile);}
     else if(kind==='dice'){s.target.dice=Number(id);this.sendItem();}
+    else if(kind==='diceCount'&&[1,2,3].includes(Number(id))){s.target.diceCount=Number(id) as 1|2|3;this.sendItem();}
     else if(kind==='element'&&ITEM_ELEMENTS.includes(id as typeof ITEM_ELEMENTS[number])){s.target.element=id as typeof ITEM_ELEMENTS[number];this.sendItem();}
   }
   private sendItem(){
@@ -972,7 +1013,7 @@ export class Game {
     if(s.stage==='ownCity')return prefix+'再點選交換的己方城池';
     if(this.itemDuel)return prefix+(ITEM_DEFS[item.defId].battleTarget==='ownGeneral'?'點我方出戰武將':'點敵方出戰武將');
     if(ITEM_DEFS[item.defId].target==='enemyGeneral')return prefix+(s.enemyLordId?`點${LORDS[s.enemyLordId].name}麾下的生效武將`:'先點敵方主公，再選其武將');
-    return prefix+({ownGeneral:'點生效武將（可與施放者相同）',deadGeneral:'點要復活的亡將',enemyGeneral:'點敵方武將',lord:'點敵方主公',ownCity:'點己方城池',enemyCity:'點敵方城池',tile:'點地圖上的目的地',dice:'選擇骰子點數',none:'施放'}[ITEM_DEFS[item.defId].target]);
+    return prefix+({ownGeneral:'點生效武將（可與施放者相同）',deadGeneral:'點要復活的亡將',enemyGeneral:'點敵方武將',lord:'點敵方主公',ownCity:'點己方城池',enemyCity:'點敵方城池',tile:'點地圖上的目的地',dice:'選擇骰子點數',diceCount:'選擇一、二或三顆骰子',none:'施放'}[ITEM_DEFS[item.defId].target]);
   }
   private updateItemHighlights(){
     this.world.clearHighlights();this.world.setHover(null);this.world.setTargetHover(null,false,this.sm.camera);this.ui.showTooltip(null);this.sm.pickMode=this.itemPickMode();
@@ -995,6 +1036,7 @@ export class Game {
         }
         else if(d.target==='lord')for(const l of itemLordTargets(this.state,lord,current)){const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===l.id);choices.push({id:'lord:'+l.id,name:LORDS[l.id].name,img:g?portraitUrl(g):undefined,...(g?this.generalTips(g):{})});}
         else if(d.target==='dice')for(let dice=1;dice<=6;dice++)choices.push({id:'dice:'+dice,name:dice+' 點'});
+        else if(d.target==='diceCount')for(const count of [1,2,3])choices.push({id:'diceCount:'+count,name:count+' 顆骰子'});
       }
     }
     this.ui.setItemTargeting(!!selected);
@@ -1008,23 +1050,25 @@ export class Game {
     const users = abilityUsers(this.state, player);
     const canAct = preroll && !this.auto && !this.dispatchTask && !player.relicJourney;
     const party=freeGenerals(this.state, player.id).sort((a, b) => Number(b.isLord) - Number(a.isLord));
-    const extras=generalsOf(this.state,player.id).filter(g=>g.status!=='free'&&canAttemptBreak(g,this.state.round).ok);
+    const extras=generalsOf(this.state,player.id).filter(g=>g.status!=='free'&&inBottleneck(g));
     return [...party,...extras]
       .map((g) => {
         const inParty=g.status==='free';
-        const breakthrough=canAttemptBreak(g,this.state.round).ok;
+        const breakthrough=inBottleneck(g);
         const hasSkill = inParty && users.includes(g);
         const r = hasSkill ? abilityReady(this.state, player, g) : null;
         const ready = !!r?.ok && canAct;
         const fighter=this.itemDuel&&(['a','b'] as const).map(side=>this.itemDuel!.duel[side]).find(f=>f.generalId===g.id);
         const tip = generalHoverInfo(g,fighter||undefined);
-        const breakNote=breakthrough&&!this.selectedItem?(canAct?'可突破：點擊頭像':'可突破：自己的整備階段可點擊'):'';
+        const breakNote=breakthrough&&!this.selectedItem?(canAct?'左鍵確認突破・右鍵直接突破':'可突破：自己的整備階段可點擊'):'';
         return {
           id: g.id, img: portraitUrl(g), name: g.name, color: LORDS[player.id].css,
           hpPct: (g.hp / Math.max(1, maxHp(g))) * 100, staPct: (g.stamina / Math.max(1, maxStamina(g))) * 100,
+          expPct: Number.isFinite(expCap(g)) ? Math.min(100, g.exp / Math.max(1, expCap(g)) * 100) : 100,
           tip:tip+(breakNote?'｜'+breakNote:''), tipHtml:generalHoverTable(g,fighter||undefined,this.itemHoverFocus(g),breakNote), ready:ready&&!this.selectedItem, hasSkill, breakthrough,
           flame:breakthrough?flameLayersFor(g.realm):0,
           itemState:this.selectedItem ? (this.selectedItem.userId===g.id?'selected':this.canPickItemGeneral(g.id)?'eligible':'disabled') : undefined,
+          onRightClick: () => { if (breakthrough && canAct && !this.selectedItem && canAttemptBreak(g, this.state.round).ok) this.answer({type:'break-general',generalId:g.id,direct:true} satisfies PrerollAction); },
           onClick: () => {if(this.selectedItem)this.pickItemGeneral(g.id);else if(breakthrough&&canAct)this.answer({type:'break-general',generalId:g.id} satisfies PrerollAction);else if(ready)this.answer({ type: 'ability', generalId: g.id } satisfies PrerollAction);},
         };
       });
@@ -1033,7 +1077,7 @@ export class Game {
   private refresh() {
     if (!this.state) return;
     this.ui.renderTop(this.state, this.me);
-    for(const [id,sprite] of this.sprites)sprite.group.visible=this.state.lords[id].alive&&!this.state.lords[id].relicJourney;
+    for(const [id,sprite] of this.sprites)sprite.group.visible=this.state.lords[id].alive;
     this.world.syncForkArrows(this.state, this.shownForks ?? this.state.forkDirections);
     this.updateFacing();
     const player = this.state.lords[this.me];
@@ -1043,7 +1087,7 @@ export class Game {
     const buttons: ActionButton[] = [];
     let hint: string;
     let fullHint = '';
-    const ready = generalsOf(this.state, player.id).filter((g) => canAttemptBreak(g, this.state.round).ok).length;
+    const ready = generalsOf(this.state, player.id).filter((g) => inBottleneck(g)).length;
     const roster: ActionButton = {
       label: '👥 武將',
       sub: ready ? `✨ ${ready} 人可突破` : undefined,
@@ -1100,7 +1144,7 @@ export class Game {
     if (!this.state.over && !this.dispatchTask && player.alive && preroll && !this.auto) this.ui.showRoll(() => this.answer({ type: 'roll' } satisfies PrerollAction));
     else this.ui.hideRoll();
 
-    this.relicMap.setReady(this.me,preroll&&!this.auto);
+    this.relicMap.setReady(this.me,!this.state.over&&preroll&&!this.auto);
     this.ui.renderInfo(this.tileInfoHtml(this.hoverTile ?? player.position));
     this.hoverTile = null;
   }

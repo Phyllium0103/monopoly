@@ -1,6 +1,7 @@
 /** Inverse projection: a 320×640 ground rectangle appears square at elevation30/azimuth45. */
-export const FLOOR_SIZE=320;
-export const FLOOR_DEPTH=640;
+import { CELL_SIZE, GRID_SPACING } from './selectedBoard';
+export const FLOOR_SIZE=320*GRID_SPACING/CELL_SIZE;
+export const FLOOR_DEPTH=FLOOR_SIZE*2;
 export const FLOOR_ROTATION=-Math.PI/4;
 const SQRT2=Math.SQRT2;
 export const projectGround=(x:number,z:number)=>({u:(x+z)/SQRT2,v:(x-z)/SQRT2*.5});

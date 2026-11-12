@@ -1,10 +1,11 @@
+import { EQUIPMENT_CAPACITY } from '../systems/EquipmentInventory';
 import { bindPassiveState, fx } from '../data/passives';
 import { ensureTalentState } from '../data/talents';
 import type { City, General, GameState, Lord, LordId } from './types';
 import { BOARD, MAP_RULES_VERSION } from '../data/board';
 import { GENERAL_SEEDS, type GeneralSeed } from '../data/generals';
 import { LORDS, LORD_IDS } from '../faction/Faction';
-import { maxHp, maxStamina } from '../systems/GeneralSystem';
+import { maxHp, maxStamina, reconcileProgression } from '../systems/GeneralSystem';
 import { bestContest } from '../systems/CitySystem';
 import { makePersonalWeapon } from '../data/weaponCatalog';
 import { emptyMaterials } from '../systems/MaterialSystem';
@@ -48,9 +49,7 @@ export function newGeneral(
     foundation: false,
     demon: 0,
     ward: 0,
-    breakBoost: 0,
     sevenLife: false,
-    secluded: false,
     hp: 0,
     stamina: 100,
     bonusForce: 0,
@@ -124,12 +123,14 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
       moveMultiplier: 1,
       forkChoice: false,
       siegeBoost: 1,
-      doubleDice: false,
+      diceCount: 2,
       fixedDice: null,
       bonusSteps: 0,
       materials: emptyMaterials(),
       items: [],
       gear: [],
+      equipmentSlots: Array(EQUIPMENT_CAPACITY).fill(null),
+      pendingEquipment: [],
       scrolls: [],
       beast: null,
       expeditions: [],
@@ -153,6 +154,7 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     tiles: BOARD.tiles,
     forkDirections: createForkDirections(BOARD.tiles),
     over: false,
+    endReason: null,
     winner: null,
     uid: 1,
     events: [],
@@ -170,6 +172,9 @@ export function createGameState(player: LordId, maxRounds: number | null = DEFAU
     lord.forkExit=links.length?links[Math.floor(Math.random()*links.length)]:null;
   }
   bindPassiveState(state);
+  for (const lord of Object.values(lords)) {
+    for (let i = 0; i < 5; i++) lord.items.push({ uid: nextUid(state, 'i'), defId: 'foundation', tier: 0, price: 0 });
+  }
   ensureTalentState(state);
   for (const g of Object.values(generals)) if (g.owner && fx(g).fixedParty) joinLord(state,g.owner,g);
   for (const g of Object.values(generals)) g.hp=maxHp(g);
@@ -204,7 +209,6 @@ export function sectGenerals(state: GameState, lord: LordId): General[] {
 export function joinLord(state: GameState, lord: LordId, g: General) {
   g.owner = lord;
   g.cityId = null;
-  g.secluded = false;
   if (fx(g).fixedParty) {
     const party=freeGenerals(state,lord).filter(p=>p.id!==g.id);
     if (party.length >= PARTY_LIMIT) { const displaced=party.find(p=>!p.isLord && !fx(p).fixedParty && !p.ghostSourceId); if(displaced) displaced.status='sect'; }
@@ -226,9 +230,9 @@ export function reviveGeneral(state: GameState, lord: LordId, g: General, hpRati
   g.exp = 0;
   g.demon = 0;
   g.ward = 0;
-  g.breakBoost = 0;
   g.peakRealm ??= g.realm;
   g.realm = Math.max(0, g.realm - realmLoss);
+  reconcileProgression(state);
   g.hp = Math.max(1, Math.round(maxHp(g) * hpRatio));
   g.stamina = maxStamina(g);
   joinLord(state, lord, g);
@@ -262,8 +266,8 @@ export function killGeneral(state: GameState, g: General): string | null {
   g.lastOwner = g.owner;
   g.owner = null;
   g.cityId = null;
-  g.secluded = false;
   g.hp = 0;
+  reconcileProgression(state);
   return abandoned;
 }
 

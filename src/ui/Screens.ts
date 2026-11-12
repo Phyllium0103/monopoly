@@ -1,4 +1,5 @@
 import type { GameState, LordId } from '../game/types';
+import { resultStandings } from '../game/Results';
 import { materialsHtml } from './MaterialArt';
 import { LORDS, LORD_IDS } from '../faction/Faction';
 import { GENERAL_SEEDS } from '../data/generals';
@@ -115,38 +116,35 @@ function savedLabel(state: GameState, savedAt: number): string {
 
 /** 結算：真仙主公優先，其餘依存活、出局順序與總資產排名。 */
 export function showEndScreen(root: HTMLElement, state: GameState, reason: string, onRestart: () => void, restartLabel = '重新開始', me: LordId = state.player) {
-  const rows = LORD_IDS.filter((id) => !state.lords[id].absent).map((id) => ({ id, a: totalAssets(state, id), l: state.lords[id] }));
-  rows.sort((x, y) => {
-    if (x.id === y.id) return 0;
-    if (x.id === state.winner) return -1;
-    if (y.id === state.winner) return 1;
-    if (x.l.alive !== y.l.alive) return x.l.alive ? -1 : 1;
-    if (!x.l.alive) return x.l.rank - y.l.rank;
-    return y.a.total - x.a.total;
-  });
+  root.querySelector('.end-screen')?.remove();
+  const rows = resultStandings(state);
   const myRank = rows.findIndex((r) => r.id === me) + 1;
   const titles = ['一統天下・仙朝之主', '雄踞一方', '偏安一隅', '道途坎坷'];
-  const mine = rows.find((r) => r.id === me)!;
+  const mine = rows.find((r) => r.id === me);
 
   const el = document.createElement('div');
   el.className = 'screen end-screen';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-modal', 'true');
+  el.setAttribute('aria-label', '天下結算');
   el.innerHTML = `
     <div class="result-card scroll-card">
       <div class="rc-head">
         <div class="divider">════════════════════</div>
         <h1>天下結算</h1>
         <div class="result-reason">${reason}</div>
-        <div class="result-title">第 ${myRank} 名・${titles[myRank - 1]}</div>
+        <div class="result-mode">${state.maxRounds === null ? '無盡模式' : state.maxRounds + ' 輪模式'}・第 ${state.round} 輪</div>
+        <div class="result-title">${myRank ? `第 ${myRank} 名・${rows.some(r => r.l.alive) ? titles[myRank - 1] : '群雄皆敗'}` : '本局未參戰'}</div>
       </div>
       <div class="rc-body">
-      <table class="result-table">
+      ${mine ? `<table class="result-table">
         <tr><td>主公</td><td style="color:${LORDS[me].css}">${LORDS[me].name}</td></tr>
         <tr><td>靈石</td><td>${fmtStones(mine.a.stones)}</td></tr>
         <tr><td>士兵</td><td>${mine.a.soldiers}</td></tr>
         <tr><td>城池</td><td>${mine.a.cities} 座</td></tr>
         <tr><td>將領</td><td>${mine.a.generals} 名</td></tr>
         <tr class="total"><td>總資產</td><td>${fmtStones(mine.a.total, true)}</td></tr>
-      </table>
+      </table>` : ''}
       <div class="divider">════════════════════</div>
       <h3>群雄排名</h3>
       <ol class="ranking">
@@ -158,7 +156,7 @@ export function showEndScreen(root: HTMLElement, state: GameState, reason: strin
           .join('')}
       </ol>
       <h3>全部資產明細</h3>
-      <p class="muted">估值以此表計入總資產：士兵每名 ${SOLDIER_PRICE} 下品、城池繁榮每點 100 下品、物品市價五折；已裝備的寶衣及功法包含在武將估值內；專屬武器與材料無售價。</p>
+      <p class="muted">估值以此表計入總資產：士兵每名 ${SOLDIER_PRICE} 下品、城池繁榮每點 100 下品、物品市價五折；已裝備的仙衣及功法包含在武將估值內；專屬武器與材料無售價。</p>
       ${rows.map(r => assetDetails(state, r.id, me)).join('')}
       </div>
       <div class="rc-foot"><button class="btn primary big">${restartLabel}</button></div>
@@ -168,6 +166,7 @@ export function showEndScreen(root: HTMLElement, state: GameState, reason: strin
     onRestart();
   };
   root.appendChild(el);
+  el.querySelector<HTMLButtonElement>('.rc-foot button')?.focus();
 }
 
 /** 各家現有資產逐項展開，裝備不重複計入行囊。 */
@@ -180,7 +179,7 @@ function assetDetails(state: GameState, id: LordId, me: LordId): string {
   const list = (title: string, entries: string[]) => `<h4>${title}</h4><table class="result-table">${entries.length ? entries.join('') : '<tr><td colspan="2">無</td></tr>'}</table>`;
   const statuses = { free: '隨行', sect: '宗門', garrison: '駐城', realm: '秘境', dead: '陣亡' };
   return `<details class="asset-details" ${id === me ? 'open' : ''}>
-    <summary style="color:${LORDS[id].css}">${LORDS[id].name}・總資產 ${fmtStones(a.total, true)}${id === state.winner ? '・真仙勝利' : ''}</summary>
+    <summary style="color:${LORDS[id].css}">${LORDS[id].name}・總資產 ${fmtStones(a.total, true)}${id === state.winner ? '・勝出' : ''}</summary>
     <table class="result-table">
       ${row('持有靈石', a.stones)}
       ${row(`隨行士兵 ${lord.soldiers} 名`, lord.soldiers * SOLDIER_PRICE)}
@@ -190,9 +189,9 @@ function assetDetails(state: GameState, id: LordId, me: LordId): string {
       ${row('總資產', a.total)}
     </table>
     ${list('城池與守軍', cities.map(c => row(`${c.name}・繁榮 ${c.prosperity}・守軍 ${c.garrisonSoldiers} 名・駐將 ${c.garrisonGenerals.map(g => state.generals[g].name).join('、') || '無'}`, c.prosperity * 100 + c.garrisonSoldiers * SOLDIER_PRICE)))}
-    ${list('武將（含裝備與功法）', gens.map(g => row(`${g.name} ${realmTag(g.realm)} ${statuses[g.status]}${g.cityId ? '／' + state.cities[g.cityId].name : ''}<br><small>武器：${g.weapon?.name ?? '無'}／寶衣：${g.armor?.name ?? '無'}／功法：${g.technique?.name ?? '無'}</small>`, generalValue(g))))}
+    ${list('武將（含裝備與功法）', gens.map(g => row(`${g.name} ${realmTag(g.realm)} ${statuses[g.status]}${g.cityId ? '／' + state.cities[g.cityId].name : ''}<br><small>武器：${g.weapon?.name ?? '無'}／仙衣：${g.armor?.name ?? '無'}／功法：${g.technique?.name ?? '無'}</small>`, generalValue(g))))}
     ${list('丹藥、陣法、符籙與法器', lord.items.map(i => row(`${nameOf(i)}`, i.price * .5)))}
-    ${list('行囊寶衣', lord.gear.map(i => row(i.name, i.price * .5)))}
+    ${list('行囊仙衣', lord.gear.map(i => row(i.name, i.price * .5)))}
     ${list('功法秘笈', lord.scrolls.map(i => row(i.name, i.price * .5)))}
     <h4>升階材料（不計入靈石估值）</h4>${materialsHtml(lord)}
     ${list('靈獸', lord.beast ? [row(lord.beast.name, lord.beast.price * .5)] : [])}

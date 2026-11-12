@@ -35,9 +35,9 @@ export function prosperityGrowth(city: City): number {
   return (0.5 + city.prosperity * 0.005) * (1 + (ownerTalent(city).growth ?? 0));
 }
 
-/** 過路費：繁榮度^1.4 ×7（前期便宜、後期昂貴），首都 ×1.2，同一主公城池越多也越貴 */
+/** 過路費：繁榮度^1.5 ×7（前期便宜、後期昂貴），首都 ×1.2，同一主公城池越多也越貴 */
 export function toll(city: City, ownerCities = 1): number {
-  return Math.round(Math.pow(city.prosperity, 1.4) * 7 * (city.capital ? 1.2 : 1) * (1 + 0.1 * Math.max(0, ownerCities - 1)));
+  return Math.round(Math.pow(city.prosperity, 1.5) * 7 * (city.capital ? 1.2 : 1) * (1 + 0.1 * Math.max(0, ownerCities - 1)));
 }
 
 export function cityToll(state: GameState, city: City): number {
@@ -46,7 +46,8 @@ export function cityToll(state: GameState, city: City): number {
   const ruler=generalsOf(state,city.owner).find(g=>g.isLord);
   const t=ownerTalent(city);
   const bonus=garrisonOf(state,city).reduce((sum,g)=>sum+(fx(g).cityToll??0),0)+(ruler?(fx(ruler).cityCountToll??0)*count:0)+(t.toll??0)+(t.tollPerCity??0)*count;
-  return Math.round(toll(city,count)*(1+bonus));
+  const bound = Object.values(state.generals).some(g => g.boundCityId === city.id && g.owner === city.owner && g.status !== 'dead' && g.realm >= 9);
+  return Math.round(toll(city,count)*(1+bonus)*(bound ? 2 : 1));
 }
 
 /** 路過的主公實付過路費（扣除隊伍光環的減免） */
@@ -139,7 +140,7 @@ export function citySaleValue(city: City): number {
   return Math.round(city.prosperity * 150);
 }
 
-/** 變賣一名隨行武將：寶衣卸回行囊、專屬武器隨身保留，武將離開進入聽風樓，換得靈石 */
+/** 變賣一名隨行武將：仙衣卸回行囊、專屬武器隨身保留，武將離開進入聽風樓，換得靈石 */
 export function sellGeneral(lord: Lord, g: General): number {
   if (g.ghostSourceId || fx(g).fixedParty || g.isLord) return 0;
   const value = generalSaleValue(g);
@@ -147,7 +148,6 @@ export function sellGeneral(lord: Lord, g: General): number {
   g.owner = null;
   g.status = 'free';
   g.cityId = null;
-  g.secluded = false;
   lord.stones += value;
   return value;
 }
@@ -211,7 +211,6 @@ export function eliminate(state: GameState, lord: Lord) {
     g.owner = null;
     g.status = 'free';
     g.cityId = null;
-    g.secluded = false;
   }
   lord.expeditions = [];
   // 越早出局名次越後

@@ -124,10 +124,10 @@ test('Cultivation speed scales per-turn cultivation; force bonus applies, craft 
   assert.equal(attack(g), baseAtk);
 });
 
-test('Toll = prosperity^1.4 ×7 (capital ×1.2, +10% per extra city); growth +0.5 + 0.5% of the city', () => {
+test('Toll = prosperity^1.5 ×7 (capital ×1.2, +10% per extra city); growth +0.5 + 0.5% of the city', () => {
   const city = { prosperity: 100, capital: false };
-  assert.equal(toll(city), Math.round(Math.pow(100, 1.4) * 7));
-  assert.equal(toll({ prosperity: 100, capital: true }, 3), Math.round(Math.pow(100, 1.4) * 7 * 1.2 * 1.2));
+  assert.equal(toll(city), Math.round(Math.pow(100, 1.5) * 7));
+  assert.equal(toll({ prosperity: 100, capital: true }, 3), Math.round(Math.pow(100, 1.5) * 7 * 1.2 * 1.2));
   close(prosperityGrowth({ prosperity: 0 }), 0.5, 'growth at 0');
   close(prosperityGrowth({ prosperity: 200 }), 1.5, 'growth at 200');
 });
@@ -138,5 +138,18 @@ test('Cities no longer depend on terrain: same prosperity, same income everywher
   assert.equal(incomes.size, 1);
   assert.equal(fs.existsSync(path.join(__dirname, '../src/data/terrain.ts')), false);
 });
+
+test('All cities use the same cultivation formula, including Luoyang and Changan', () => {
+  const state = createGameState('cao', 40);
+  const g = { ...state.generals.caocao, status: 'garrison', aptitude: 'metal', technique: null };
+  for (const city of Object.values(state.cities)) {
+    const sameProsperity = { ...city, prosperity: 90 };
+    assert.equal(passiveExp(g, sameProsperity), 60, city.name);
+    assert.equal(passiveExp(g, { ...city, prosperity: 300 }), 60);
+  }
+});
+
+assert.equal(passiveExp({ ...createGameState('cao').generals.caocao, status: 'sect' }, null), 0);
+assert.equal(passiveExp({ ...createGameState('cao').generals.caocao, status: 'realm' }, null), 0);
 
 console.log(`${passed} balance rule groups passed.`);

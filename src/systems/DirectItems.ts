@@ -6,7 +6,7 @@ import { canUse, usableIn, type PrerollTarget } from './ItemSystem';
 /** Client sends identifiers only; the engine resolves and checks every object again. */
 export interface DirectItemTarget {
   generalId?: string; lordId?: LordId; cityId?: string; ownCityId?: string;
-  tile?: number; dice?: number; element?: Element;
+  tile?: number; dice?: number; diceCount?: number; element?: Element;
 }
 export const SPECIAL_ITEM_STORAGE = new Set(['talentrefund', 'talentreset', 'realmkey']);
 const MOVEMENT = new Set(['teleport', 'cloud', 'cushion', 'prison']);
@@ -84,6 +84,7 @@ export function resolveItemTarget(state: GameState, lord: Lord, item: Item, inpu
     const tile = Number.isInteger(input.tile) && state.tiles[input.tile!];
     return tile ? { target: { tile: tile.index } } : { reason: '地圖目標無效' };
   }
+  if (d.target === 'diceCount') return [1, 2, 3].includes(input.diceCount!) ? { target: { diceCount: input.diceCount as 1 | 2 | 3 } } : { reason: '骰子數量須為一、二或三顆' };
   if (d.target === 'dice') return Number.isInteger(input.dice) && input.dice! >= 1 && input.dice! <= 6 ? { target: { dice: input.dice } } : { reason: '骰子點數須為 1～6' };
   return { target: {} };
 }

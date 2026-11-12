@@ -8,8 +8,8 @@ const {simulateDiceRoll,sampleDicePhysics,upperDiceFace,roundedDiceSupport,DICE_
 function rng(seed){return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/0x100000000)}
 (async()=>{
  let contacts=0,maxAttempts=0,minDuration=Infinity,maxDuration=0;
- for(let seed=1;seed<=24;seed++){
-  const values=seed<=6?[seed]:[1+seed%6,1+(seed*5)%6];
+ for(let seed=1;seed<=36;seed++){
+  const values=seed<=6?[seed]:seed<=24?[1+seed%6,1+(seed*5)%6]:[1+seed%6,1+(seed*5)%6,1+(seed*3)%6];
   const roll=await simulateDiceRoll(values,rng(seed));
   assert.ok(roll.firstGroundContact>0);assert.ok(roll.groundContacts>=values.length);
   contacts+=roll.dieContacts;maxAttempts=Math.max(maxAttempts,roll.attempts);
@@ -55,6 +55,11 @@ function rng(seed){return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/0
  assert.ok(drop.firstGroundContact>0);assert.ok(drop.frames.at(-1)[0].sleeping);
  assert.equal(upperDiceFace(sampleDicePhysics(drop,drop.playbackDuration)[0].rotation).value,4);
  console.log('PASS gentle HUD top drop retains real contacts, sleep and authoritative face');
- console.log(`PASS 24 actual Rapier rolls, six authoritative faces, gravity, ground contacts, ${contacts} die contacts, sleep and no steering; duration ${minDuration.toFixed(2)}..${maxDuration.toFixed(2)}s, max attempts ${maxAttempts}`);
+ console.log(`PASS 36 actual Rapier rolls, six authoritative faces, gravity, ground contacts, ${contacts} die contacts, sleep and no steering; duration ${minDuration.toFixed(2)}..${maxDuration.toFixed(2)}s, max attempts ${maxAttempts}`);
+ for(const values of [[1,2,3],[6,5,4]]) {
+  const roll=await simulateDiceRoll(values,rng(values[0]),{size:1,position:[0,7.2,0],velocity:[0,-.4,0],surface:'soft'});
+  assert.deepEqual(sampleDicePhysics(roll,roll.playbackDuration).map(p=>upperDiceFace(p.rotation).value),values);
+ }
+ await assert.rejects(()=>simulateDiceRoll([1,2,3,4],rng(1)),RangeError);
  await assert.rejects(()=>simulateDiceRoll([7],rng(1)),RangeError);
 })().catch(error=>{console.error(error);process.exitCode=1});

@@ -1023,6 +1023,7 @@ img {
   color: var(--muted);
 }
 .end-screen {
+  z-index: 1001;
   background: rgba(10, 6, 4, 0.75);
 }
 .result-card {
@@ -2227,6 +2228,19 @@ img {
 .end-screen .rc-head { flex: none; padding: 16px 30px 8px; border-bottom: 1px solid rgba(138, 106, 58, 0.35); }
 .end-screen .rc-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 10px 30px; }
 .end-screen .rc-foot { flex: none; padding: 12px 30px 16px; border-top: 1px solid rgba(138, 106, 58, 0.35); text-align: center; }
+.end-screen .result-card { min-height: 0; max-width: calc(100% - 32px); height: calc(90 * var(--ui-vh,1vh)); }
+.end-screen .rc-body { overscroll-behavior: contain; overflow-wrap: anywhere; }
+.end-screen .result-mode { margin-top: 6px; font-size: 14px; color: #6a5030; }
+.end-screen .ranking { box-sizing: border-box; width: min(100%, 420px); padding-left: 0; counter-reset: result-rank; }
+.end-screen .ranking li { display: grid; grid-template-columns: auto minmax(0,1fr) auto auto; gap: 8px; counter-increment: result-rank; }
+.end-screen .ranking li::before { content: counter(result-rank) '.'; }
+.end-screen .ranking li span { margin: 0; }
+.end-screen .ranking li b { float: none; text-align: right; }
+@container game-ui (max-width: 600px) {
+  .end-screen .rc-head, .end-screen .rc-body, .end-screen .rc-foot { padding-left: 12px; padding-right: 12px; }
+  .end-screen .result-table { width: 100%; font-size: 15px; }
+  .end-screen .result-table td { padding: 4px 6px; }
+}
 
 /* 標題過長時自動換行，不固定高度 */
 .dialog > h2 { height: auto !important; min-height: 56px; padding-top: 10px !important; padding-bottom: 8px !important; line-height: 1.35; font-size: clamp(19px, calc(2.4 * var(--ui-vw,1vw)), 25px); }
@@ -2680,7 +2694,7 @@ img[src*="/generals/head/"] { cursor: pointer; }
 .pd-gen {
   position: relative;
   width: 58px;
-  height: 78px;
+  height: 88px;
   padding: 0;
   border: none;
   background: none;
@@ -2733,6 +2747,7 @@ img[src*="/generals/head/"] { cursor: pointer; }
 }
 .pd-bars i.hp { background: #d9534f; }
 .pd-bars i.sta { background: #f0c14b; }
+.pd-bars i.exp { background: #67bde5; }
 .pd-name {
   max-width: 58px;
   margin-top: 1px;
@@ -2911,3 +2926,17 @@ body:has(#ui .help-backdrop:not(.hidden), #ui .dialog-backdrop:not(.hidden), #ui
 #ui:has(.relic-map:not([hidden])) .roll-btn {
   visibility: hidden;
 }
+/* 突破八字題字：本機楷書優先，使用金箔明暗而不另載大型字型。 */
+.breakthrough-dialog h2 {
+  font-family: 'DFKai-SB', 'BiauKai', 'KaiTi', serif;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: .12em;
+  background: linear-gradient(135deg, #896027, #fff1b2 35%, #cf9c38 55%, #fff0ad 75%, #a36e28);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 2px #362006);
+}
+.core-person { position: relative; display: inline-block; }
+.core-person strong,.cultivation-name { color: #e8bf65; }
+.core-person-tip { display:none; position:absolute; z-index:10; min-width:300px; background:#151b22; padding:12px; border:1px solid #b69a54; }
+.dialog-person-tooltip { z-index:2147483647; max-width:min(420px, calc(100vw - 16px)); }

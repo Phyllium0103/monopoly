@@ -6,7 +6,6 @@ import { LORDS, LORD_IDS } from '../faction/Faction';
 import { assetUrl } from '../data/assetUrl';
 import { citiesOf, generalsOf } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
-import { generalHoverInfo } from './GeneralInfo';
 import { LORD_PRESENTATION_RATE } from './LordPresentation';
 import { spriteSourceToWorld, type SpritePose } from './LordSpriteRig';
 import './lord-actor-hud.css';
@@ -80,7 +79,7 @@ export class LordActorHud {
       const card=document.createElement('article');card.className='lord-actor';card.dataset.lord=id;
       card.style.setProperty('--fc',LORDS[id].css);
       const button=document.createElement('button');button.type='button';button.className='lord-actor-hit';
-      button.setAttribute('aria-label',`${LORDS[id].name}，查看詳細資料`);
+      button.setAttribute('aria-label',`${LORDS[id].name}，查看武將名冊`);
       button.onclick=()=>onLord(id);
       const island=document.createElement('span');island.className='lord-island-artwork';
       const image=document.createElement('img');image.className='lord-island-image';image.src=assetUrl('art/lord-base-images-r5/03-tall.webp');image.alt='';island.append(image);
@@ -135,8 +134,6 @@ export class LordActorHud {
     if(this.dock.dataset.order!==order){for(const id of displayOrder)this.dock.append(this.actors.get(id)!.card);this.dock.dataset.order=order;}
     for(const [id,a] of this.actors){
       const lord=state.lords[id],present=!lord.absent;
-      const general=Object.values(state.generals).find(g=>g.isLord&&g.owner===id);
-      if(general)a.rollButton.dataset.tip=generalHoverInfo(general);
       a.card.hidden=!present;a.card.classList.toggle('is-out',!lord.alive);
       if(a.sprite){a.sprite.visible=present;a.sprite.material.opacity=lord.alive?1:.45;}
       const values=[fmtStones(lord.stones,true),lord.soldiers.toLocaleString(),String(citiesOf(state,id).length),String(generalsOf(state,id).length)];

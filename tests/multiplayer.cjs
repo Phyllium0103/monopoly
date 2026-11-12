@@ -55,7 +55,7 @@ function bot(rand, state, pending) {
     case 'roster': {
       if (rand() < 0.7) return { type: 'close' };
       const own = Object.values(state.generals).filter((g) => g.owner === pending.lord);
-      return own.length ? { type: pick(['break', 'seclude', 'equip', 'learn', 'upgrade']), generalId: pick(own).id } : { type: 'close' };
+      return own.length ? { type: pick(['break', 'equip', 'learn', 'upgrade']), generalId: pick(own).id } : { type: 'close' };
     }
   }
   throw new Error('unknown prompt ' + p.kind);

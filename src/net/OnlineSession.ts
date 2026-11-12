@@ -320,10 +320,12 @@ export class OnlineSession {
     // 一邊下載最新狀態、一邊播放動畫；只有事件用到本機還沒有的武將（例如剛招募）時才先等下載完成
     const fetching = known && known.version >= row.version ? Promise.resolve(known) : this.svc!.fetchGame(this.roomId!).catch(() => null);
     const ids = JSON.stringify(row.events).match(/"(?:generalId|[ab]General)":"[^"]+"/g) ?? [];
-    const unknown = ids.some((m) => !this.game.hasGeneral(m.split(':')[1].replace(/"/g, ''))) || row.events.some((e) => e.t === 'contest' || e.t === 'siege' || e.t === 'tribulation');
+    const unknown = ids.some((m) => !this.game.hasGeneral(m.split(':')[1].replace(/"/g, ''))) || row.events.some((e) => e.t === 'contest' || e.t === 'siege' || e.t === 'tribulation' || e.t === 'gameOver');
     let pub: GamePublic | null = null;
     if (unknown || known) {
       pub = await fetching;
+      // 結算必須使用最終快照；下載失敗時保留版本，讓下次同步重試。
+      if (row.events.some(e => e.t === 'gameOver') && (!pub?.over || pub.version < row.version)) throw new Error('尚未取得最終結算狀態');
       if (pub) this.game.syncOnlineState(pub.state, false);
       await this.game.playEvents(row.events);
     } else {
@@ -372,7 +374,7 @@ export class OnlineSession {
       this.game.setWaiting('對局已結束');
       if (!this.endShown) {
         this.endShown = true;
-        void this.game.view.gameOver('對局已結束');
+        void this.game.view.gameOver(pub.state.endReason ?? '對局已結束');
       }
     } else if (pub.pending && pub.pending.lord === myLord && !me?.ai_control) {
       this.game.setWaiting(null);

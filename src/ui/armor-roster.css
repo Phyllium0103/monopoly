@@ -1,0 +1,19 @@
+.armor-collection { display:flex; flex-direction:column; align-items:stretch; gap:8px; }
+.armor-collection-head { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+.armor-collection-head b { white-space:nowrap; }
+.armor-bag-items { display:flex; flex-wrap:wrap; align-items:center; gap:8px; min-height:66px; padding:8px; border:1px dashed #bda37270; border-radius:10px; }
+.armor-picture { box-sizing:border-box; padding:0; color:#fff1c9; font:inherit; cursor:pointer; }
+.armor-picture img { pointer-events:none; }
+.armor-picture[draggable="true"] { cursor:grab; }
+.armor-picture[draggable="true"]:active { cursor:grabbing; }
+.armor-picture.armor-empty { background:#17202b; border-style:dashed; font-size:27px; }
+.armor-picture.armor-selected { outline:3px solid #ffe48e; outline-offset:2px; box-shadow:0 0 14px #eebc5270; }
+.armor-picture.armor-unavailable { opacity:.58; cursor:help; }
+.armor-drop-ready { outline:3px solid #81df99; outline-offset:2px; }
+.armor-drop-blocked { outline:2px solid #ed7979; outline-offset:2px; }
+.armor-feedback { min-height:1.5em; color:#e7ce97; font-size:13px; }
+.armor-unequip { min-height:44px; padding:8px 12px; border:1px dashed #bda372; border-radius:8px; background:#171e27; color:#dfccab; cursor:pointer; }
+.armor-slot-hint { font-size:12px; color:var(--muted); text-align:center; }
+.gc-slot[data-slot="armor"] .armor-picture { width:54px; height:54px; flex:none; }
+.gc-slot[data-slot="armor"] .armor-equipped-name { flex:none; justify-content:center; text-align:center; font-size:13px; }
+@media (max-width:600px) { .armor-bag-items { gap:8px; } .armor-feedback { font-size:12px; } }

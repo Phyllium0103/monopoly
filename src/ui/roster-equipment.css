@@ -1,0 +1,220 @@
+/* Quiet ink panels, warm metal dividers, and one continuous roster. */
+.drawer.roster-screen { background:radial-gradient(ellipse at 15% 0,#27302d 0,transparent 50%),#101714; padding:22px 24px 0; color:#e8e5d9; }
+.roster-screen > .drawer-head,.roster-screen > .drawer-body,.roster-screen > .roster-inventory { width:100%; max-width:1400px; margin-left:auto; margin-right:auto; box-sizing:border-box; }
+.roster-screen > .drawer-head { padding:0 0 18px; border-bottom:1px solid #bca57555; gap:16px; }
+.roster-title small { display:block; color:#bba77b; letter-spacing:.22em; font-size:11px; margin-bottom:4px; }
+.roster-title h2 { font-size:28px; font-weight:600; letter-spacing:.15em; color:#f2e4c6; }
+.roster-screen .drawer-head .sort-box { margin-left:auto; font-size:13px; }
+.roster-screen .sort-select { background:#202a24; border:1px solid #a3936c66; border-radius:6px; color:#eee4cc; padding:7px 12px; }
+.roster-screen > .drawer-body { padding:16px 0; margin-top:0; margin-bottom:0; }
+.roster-screen .roster-list { display:flex; flex-direction:column; gap:6px; }
+.roster-screen .roster-item { border:1px solid #63746540; border-left:2px solid #a5a37b66; border-radius:8px; background:#1d272199; box-shadow:none; }
+.roster-screen .roster-item:nth-child(odd) { background:#25302766; }
+.roster-screen .roster-item.ready { border-color:#bda66b77; box-shadow:inset 2px 0 #e2c477; }
+.roster-screen .roster-list .roster-head,.roster-screen .roster-list .roster-row { display:grid; grid-template-columns:minmax(0,1fr) 178px minmax(0,1fr); gap:16px; padding:10px 12px; box-sizing:border-box; }
+.roster-screen .roster-list .roster-head { border:0; border-radius:0; background:#101b16; color:#adbaab; min-height:38px; font-size:11px; padding-top:4px; padding-bottom:4px; z-index:3; }
+.roster-screen .roster-list .roster-row { min-height:92px; font-size:13px; }
+.roster-screen .roster-list .roster-row:hover { background:#afa16f0c; }
+.roster-screen .roster-list .roster-before,.roster-screen .roster-list .roster-after { display:grid; gap:8px; align-items:center; min-width:0; padding:0; }
+.roster-screen .roster-list .roster-before { grid-template-columns:42px minmax(60px,.9fr) 34px 52px 40px minmax(48px,.7fr) minmax(100px,1.7fr); }
+.roster-screen .roster-list .roster-after { grid-template-columns:repeat(7,minmax(30px,1fr)) minmax(60px,1.4fr); }
+.roster-screen .roster-list .roster-equipment { display:grid; grid-template-columns:repeat(3,54px); gap:8px; align-items:center; padding:0; overflow:visible; }
+.roster-screen .roster-list .roster-equipment > span { display:grid; place-items:center; min-width:0; overflow:visible; }
+.roster-screen .roster-list .roster-equipment .technique-picture { width:54px; height:54px; }
+.roster-screen .roster-list .roster-before > *,.roster-screen .roster-list .roster-after > * { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+.roster-screen .roster-list .roster-head button { font:inherit; color:inherit; border:0; padding:4px 0; background:none; cursor:pointer; white-space:nowrap; }
+.roster-screen .roster-list .roster-head button:hover,.roster-screen .roster-list .roster-head .sorted { color:#efd596; }
+.roster-screen .roster-list .roster-head .sorted::after { content:' ↓'; }
+.roster-screen .roster-list .roster-toggle { border:0; background:none; color:#bba77b; padding:12px 0; cursor:pointer; font:inherit; }
+.roster-screen .roster-list .roster-toggle:focus-visible { outline:2px solid #ffe48e; outline-offset:-2px; }
+.roster-screen .roster-row .c-name { display:flex; flex-direction:column; align-items:flex-start; gap:2px; white-space:normal; }
+.roster-screen .roster-row .c-name b { font-size:16px; font-weight:600; }
+.roster-screen .roster-row .c-name .lord-tag { padding:0; border:0; background:none; color:#bba77b; font-size:10px; }
+.roster-screen .roster-row .c-origin,.roster-screen .roster-row .c-st { font-size:11px; color:#a9b3a6; }
+.roster-screen .roster-list .c-face { justify-self:center; width:42px; height:52px; border:0; border-radius:5px; }
+.roster-screen .roster-list .c-passive { font-size:11px; }
+.roster-screen .roster-list .roster-vitals { display:grid; gap:4px; overflow:visible; }
+.roster-screen .roster-list .roster-vitals .bar { display:block; height:18px; margin:0; border:0; border-radius:3px; background:#080f0b; box-shadow:none; }
+.roster-screen .roster-list .roster-vitals .bar span { font-size:10px; color:#e7ebdf; text-shadow:0 1px 2px #000; }
+.roster-screen .bar.exp i { background:linear-gradient(90deg,#39798f,#62b1c6); }
+.roster-screen .bar.sta i { background:linear-gradient(90deg,#8f7645,#baa36a); }
+.roster-screen .bar.hp i { background:linear-gradient(90deg,#774c43,#b97867); }
+.roster-screen .rr-ready { color:#efd596; font-size:10px; }
+.roster-inventory { flex:none; border-top:1px solid #bca57566; padding:12px 0 14px; background:#121c17; position:relative; z-index:4; }
+.inventory-heading { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+.inventory-heading > div { display:flex; align-items:baseline; gap:12px; }
+.inventory-heading b { font-size:16px; font-weight:600; color:#e7d8b3; letter-spacing:.12em; }
+.inventory-heading span { font-size:11px; color:#a0af9d; }
+.inventory-heading .inventory-count { margin-left:auto; font-variant-numeric:tabular-nums; color:#d5c596; }
+.inventory-heading .btn { font-size:11px; padding:4px 10px; background:transparent; border-color:#a7976f55; }
+.inventory-heading kbd { font:inherit; color:#8b9c8e; margin-left:7px; }
+.inventory-grid { display:grid; grid-template-columns:repeat(20,54px); gap:8px; justify-content:space-between; max-height:32vh; overflow-y:auto; padding:3px; margin:-3px; }
+.inventory-cell { width:54px; height:54px; border-radius:7px; }
+.roster-screen .technique-picture { border-radius:7px; width:54px; height:54px; }
+.roster-screen .technique-picture.armor-empty { background:linear-gradient(145deg,#202b24,#131d17); border:1px solid #82927a44; box-shadow:inset 0 1px 5px #0005; }
+.roster-screen .equipment-compatible { box-shadow:0 0 0 1px #a4d5aa77,0 0 12px #80bf8c22; border-color:#a4d5aa88; }
+.roster-screen .armor-selected { opacity:.35; outline:1px solid #e7cb7b; outline-offset:2px; }
+.roster-screen .armor-unavailable { opacity:.65; }
+.equipment-feedback { min-height:18px; color:#95a68f; font-size:11px; padding-top:9px; }
+.equipment-feedback.is-error { color:#e4b4a3; }
+.equipment-carrying,.equipment-carrying * { cursor:none!important; }
+.equipment-cursor { position:fixed; left:0; top:0; width:54px; height:54px; z-index:2147483000; pointer-events:none; user-select:none; filter:drop-shadow(0 3px 5px #000b) drop-shadow(0 0 4px #ffe4a377); will-change:transform; }
+.equipment-cursor[hidden] { display:none; }
+.equipment-cursor img { width:100%; height:100%; object-fit:contain; }
+.equipment-notice { position:absolute; z-index:100; bottom:160px; left:50%; transform:translateX(-50%); display:flex; align-items:flex-start; gap:14px; width:min(440px,calc(100% - 32px)); box-sizing:border-box; padding:20px; border:1px solid #d7b58a88; border-radius:12px; background:linear-gradient(135deg,#302921,#1a211b); box-shadow:0 16px 50px #0008; }
+.equipment-notice strong { color:#efd7ad; font-size:15px; }
+.equipment-notice p { color:#d5d0c1; font-size:13px; line-height:1.7; margin:5px 0 0; }
+.equipment-notice button { border:0; background:transparent; color:#b6b09b; margin-left:auto; cursor:pointer; }
+.notice-mark { display:grid; place-items:center; flex:none; width:28px; height:28px; border-radius:50%; border:1px solid #d6ae71; color:#e5c693; font-family:serif; }
+.general-modal-backdrop { position:absolute; inset:0; display:grid; place-items:center; padding:24px; background:#050b08ba; backdrop-filter:blur(5px); z-index:20; box-sizing:border-box; }
+.general-modal { width:min(1020px,100%); max-height:100%; display:flex; flex-direction:column; border:1px solid #ad9a6c88; border-radius:16px; background:radial-gradient(ellipse at top left,#303a2e,#18221b 60%); box-shadow:0 24px 100px #000b; overflow:hidden; }
+.general-modal-head { display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid #a9976e44; }
+.general-modal-head small { font-size:10px; color:#b7a77f; letter-spacing:.25em; }
+.general-modal-head h2 { margin:3px 0 0; font-size:23px; color:#eee0bc; letter-spacing:.12em; }
+.general-modal-head .btn { background:none; border:1px solid #bba77b44; border-radius:50%; width:36px; height:36px; padding:0; }
+.general-modal-content { overflow-y:auto; min-height:0; }
+.general-modal .general-card { display:block; margin:0; padding:0; border:0; border-radius:0; background:none; box-shadow:none; }
+.dossier-layout { display:grid; grid-template-columns:260px minmax(0,1fr); }
+.dossier-identity { padding:20px 24px; border-right:1px solid #a9976e33; }
+.general-modal .gc-portrait { width:100%; height:240px; aspect-ratio:auto; padding:0; border:0; border-radius:0; background:none; position:relative; }
+.general-modal .gc-art { width:100%; height:100%; }
+.general-modal .gc-art img { width:100%; height:100%; object-fit:contain; display:block; }
+.dossier-name { margin-top:8px; text-align:center; }
+.dossier-name h3 { margin:0; font-size:24px; color:#f3e2bb; letter-spacing:.12em; }
+.dossier-name > span { display:block; color:#a9b2a1; font-size:12px; margin-top:5px; }
+.dossier-tags { display:flex; justify-content:center; flex-wrap:wrap; gap:6px; margin:12px 0; }
+.dossier-location { text-align:center; color:#a8baa8; font-size:12px; }
+.dossier-passive { margin-top:20px; padding-top:18px; border-top:1px solid #a9976e44; }
+.dossier-passive small { color:#9cae98; font-size:11px; }
+.dossier-passive h4 { color:#e2cc94; font-size:17px; margin:5px 0; }
+.dossier-passive p { color:#d4ddcc; font-size:13px; line-height:1.8; margin:8px 0; }
+.dossier-passive em { color:#879782; font-size:11px; line-height:1.8; font-style:normal; }
+.dossier-main { padding:20px 26px; display:flex; flex-direction:column; gap:18px; min-width:0; }
+.dossier-section { border-bottom:1px solid #a9976e33; padding-bottom:18px; }
+.dossier-section-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:12px; }
+.dossier-section-head h3 { font-size:14px; font-weight:500; letter-spacing:.1em; color:#d9c59c; margin:0; }
+.dossier-section-head > span { font-size:11px; color:#91a18c; }
+.dossier-vitals { display:grid; gap:8px; }
+.dossier-vitals .bar { height:23px; margin:0; background:#0d160f; border:1px solid #a9976e22; border-radius:4px; }
+.dossier-vitals .bar span { font-size:12px; }
+.dossier-condition,.dossier-ready { color:#dcb980; font-size:12px; margin:10px 0 0; }
+.detail-combat,.detail-crafts { display:grid; gap:8px; }
+.detail-combat { grid-template-columns:repeat(3,1fr); margin-bottom:12px; }
+.detail-crafts { grid-template-columns:repeat(4,1fr); }
+.detail-stat { background:#0f191255; border:1px solid #8d9a7d22; border-radius:6px; text-align:center; padding:10px 4px; }
+.detail-stat small { display:block; font-size:11px; color:#9dad96; }
+.detail-stat b { display:block; color:#e7e5cb; font-size:22px; margin-top:4px; font-weight:500; }
+.detail-combat .detail-stat:first-child b { color:#ebcf8f; }
+.detail-crafts .detail-stat b { font-size:17px; }
+.detail-equipment { display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:12px; }
+.general-modal .detail-equipment .eq-row { display:flex; flex-direction:column; align-items:center; gap:8px; padding:12px 8px; border:1px solid #8d9a7d33; border-radius:8px; background:#101b1455; min-width:0; }
+.detail-equipment small { color:#97a98e; font-size:11px; }
+.detail-equipment b { font-size:12px; font-weight:500; text-align:center; color:#e6d7ae; min-height:2.7em; }
+.general-modal .detail-equipment .slot-icon { width:70px; height:54px; object-fit:contain; }
+.general-modal .detail-equipment .muted { font-size:11px; }
+.general-modal .detail-equipment .btn { font-size:11px; padding:5px 8px; margin-top:auto; }
+.general-modal .weapon-material-cost { font-size:10px; text-align:center; }
+.general-modal .gc-actions { display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; }
+.dossier-warning { width:100%; margin:2px 0 0; color:#9a9f8d; font-size:11px; line-height:1.6; }
+@container game-ui (max-width:1300px) {
+  .inventory-grid { grid-template-columns:repeat(10,54px); }
+  .roster-screen .roster-list .c-origin,.roster-screen .roster-list .c-apt { display:none; }
+  .roster-screen .roster-list .roster-before { grid-template-columns:38px minmax(55px,1fr) 50px minmax(48px,.8fr) minmax(90px,1.6fr); }
+  .roster-screen .roster-list .roster-after { grid-template-columns:repeat(3,minmax(34px,1fr)); }
+  .roster-screen .roster-list .c-craft,.roster-screen .roster-list .c-passive { display:none; }
+}
+@container game-ui (max-width:900px) {
+  .roster-screen .roster-list .c-face,.roster-screen .roster-list .c-realm { display:none; }
+  .roster-screen .roster-list .roster-before { grid-template-columns:minmax(55px,1fr) minmax(45px,.7fr) minmax(90px,1.5fr); }
+  .roster-screen .roster-list .roster-head,.roster-screen .roster-list .roster-row { gap:8px; padding-left:8px; padding-right:8px; }
+  .dossier-layout { grid-template-columns:210px minmax(0,1fr); }
+  .dossier-identity,.dossier-main { padding:16px; }
+}
+@container game-ui (max-width:720px) {
+  .drawer.roster-screen { padding:14px 12px 0; }
+  .roster-screen > .drawer-head { flex-wrap:wrap; gap:8px; padding-bottom:12px; }
+  .roster-title h2 { font-size:21px; }
+  .roster-screen .drawer-head > .muted { font-size:10px; }
+  .roster-screen .drawer-head .sort-box { margin-left:0; }
+  .roster-screen .drawer-head .close { margin-left:auto; }
+  .roster-screen .roster-list .roster-before { grid-template-columns:minmax(0,1fr); gap:4px; }
+  .roster-screen .roster-list .c-st { display:none; }
+  .roster-screen .roster-list .c-hp { display:grid; }
+  .roster-screen .roster-head .c-hp { display:none; }
+  .roster-screen .roster-list .roster-after { grid-template-columns:1fr; }
+  .roster-screen .roster-list .c-attack,.roster-screen .roster-list .c-defense { display:none; }
+  .roster-screen .roster-row .c-name { flex-direction:row; justify-content:center; align-items:center; }
+  .roster-screen .roster-row .c-name b { font-size:13px; }
+  .roster-screen .roster-row .c-name .lord-tag { display:none; }
+  .roster-screen .roster-list .roster-vitals .bar { height:13px; }
+  .roster-screen .roster-list .roster-vitals .bar span { font-size:8px; }
+  .inventory-grid { grid-template-columns:repeat(5,54px); }
+  .inventory-heading { gap:8px; }
+  .inventory-heading > div { display:block; }
+  .inventory-heading > div span { display:block; margin-top:3px; }
+  .inventory-heading b { font-size:13px; }
+  .equipment-feedback { font-size:10px; }
+  .general-modal-backdrop { padding:12px; }
+  .general-modal-head { padding:12px 16px; }
+  .dossier-layout { grid-template-columns:1fr; }
+  .dossier-identity { display:grid; grid-template-columns:110px minmax(0,1fr); gap:0 14px; border-right:0; border-bottom:1px solid #a9976e33; }
+  .general-modal .gc-portrait { width:110px; height:160px; grid-row:1 / 5; }
+  .dossier-name,.dossier-location { text-align:left; }
+  .dossier-tags { justify-content:flex-start; }
+  .dossier-passive { grid-column:1 / -1; margin-top:12px; padding-top:12px; }
+  .dossier-passive em { display:none; }
+  .dossier-main { padding:16px; }
+  .detail-equipment { gap:6px; }
+}
+@media (prefers-reduced-motion:reduce) { .roster-screen * { transition:none!important; } }
+
+/* Compact roster; the sticky heading starts at the scroll boundary. */
+.roster-screen > .drawer-body { padding-top:0; }
+.roster-screen .roster-list .roster-head { position:sticky; top:0; margin:0; min-height:38px; }
+.roster-screen .roster-list .roster-row { min-height:68px; padding-top:6px; padding-bottom:6px; }
+.roster-screen .roster-list { gap:4px; }
+.roster-screen .roster-list .roster-head .ascending.sorted::after { content:' ↑'; }
+.roster-screen .roster-list .roster-head .c-hp { display:flex; justify-content:center; align-items:center; }
+.roster-screen .drawer-body,.roster-screen .inventory-grid,.general-modal-content { scrollbar-width:none; }
+.roster-screen .drawer-body::-webkit-scrollbar,.roster-screen .inventory-grid::-webkit-scrollbar,.general-modal-content::-webkit-scrollbar { display:none; }
+.roster-screen .general-modal .gc-art { display:flex; align-items:center; justify-content:center; transform:none; position:static; }
+.roster-screen .general-modal .gc-art img { position:static; margin:auto; transform:none; object-position:center; }
+.roster-screen .break-info:empty,.roster-screen .gc-actions:empty { display:none; }
+.roster-screen .roster-item::before,.roster-screen .roster-item::after { display:none; }
+.abolish-dialog h2 { color:#ef8884; background:none; -webkit-text-fill-color:#ef8884; }
+
+.roster-screen .roster-close { margin-left:auto; width:38px; height:38px; padding:0; border-radius:50%; border:1px solid #baa47766; background:#1c281f; color:#e7d8b5; font-size:22px; }
+.roster-screen .equipment-compatible { border:1px solid #b4c887!important; background:radial-gradient(ellipse,#40543888,#253329)!important; box-shadow:0 0 0 1px #b4c88755,inset 0 0 8px #b4c88722!important; }
+.roster-screen .armor-unavailable { filter:saturate(.35); opacity:.5; }
+.roster-screen.equipment-carrying .roster-head,.roster-screen.equipment-carrying .roster-toggle,.roster-screen.equipment-carrying .roster-close { pointer-events:none; opacity:.4; }
+.general-modal .chip,.general-modal .realm-tag { display:inline-flex; align-items:center; justify-content:center; line-height:1; padding-top:5px; padding-bottom:5px; }
+.general-modal .dossier-tags { align-items:center; }
+.general-modal .detail-equipment span.technique-picture,.roster-readonly span.technique-picture { display:inline-flex; align-items:center; justify-content:center; }
+.roster-readonly > .drawer-body { flex:1; }
+
+.general-modal .dossier-tags > .gb-tag,.general-modal .dossier-tags > .chip { min-width:46px; min-height:26px; box-sizing:border-box; padding:3px 9px; margin:0; font-size:13px; line-height:20px; text-align:center; vertical-align:middle; }
+.dossier-identity { position:relative; }
+.general-modal .dossier-location { display:flex; align-items:center; justify-content:center; gap:10px; }
+.general-modal .dossier-breakthrough { display:inline-block; margin:0; padding:4px 9px; border:1px solid #bca66e88; border-radius:4px; background:#303823; color:#efd7a1; font-size:12px; line-height:1.4; letter-spacing:.04em; box-shadow:none; }
+.general-modal .dossier-breakthrough:disabled { opacity:.4; }
+.general-modal .dossier-break-row { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.general-modal .dossier-break-row .break-info { flex:1; margin:8px 0; }
+.general-modal .dossier-breakthrough { margin-left:auto; flex:none; }
+.general-modal .dossier-location { position:relative; }
+.general-modal .dossier-transfer { position:absolute; left:calc(50% + 24px); white-space:nowrap; padding:4px 6px; font-size:11px; }
+.abolish-dialog .dialog-buttons .btn.primary { color:#ef8884; border-color:#ef888488; background:#572c2b55; }
+.dialog .material-label,.general-modal .material-label { display:inline; line-height:inherit; vertical-align:baseline; }
+.dialog .material-icon,.general-modal .weapon-material-cost .material-icon { width:1em; height:1em; max-width:1em; max-height:1em; vertical-align:-.12em; margin-right:.25em; }
+.weapon-upgrade-summary small { color:#bda980; letter-spacing:.16em; }
+.weapon-upgrade-summary h3 { color:#efd7a1; margin:14px 0; font-size:21px; }
+.weapon-upgrade-summary p { line-height:1.8; }
+.equipment-notice strong { font-size:22px; }
+.replacement-panel { border-bottom:1px solid #ef888455; padding:0 0 12px; margin-bottom:12px; }
+.replacement-panel h3 { color:#ef8884; margin:0 0 6px; }
+.replacement-panel p { color:#ccbfaa; font-size:12px; margin:6px 0; }
+.replacement-rewards { display:flex; gap:12px; overflow:auto; max-height:160px; padding:4px; }
+.replacement-reward { flex:0 0 90px; display:flex; align-items:center; flex-direction:column; gap:5px; font-size:11px; text-align:center; }
+.roster-screen .replacement-selected { opacity:1; outline:2px solid #efd7a1; outline-offset:2px; box-shadow:0 0 12px #efd7a166; }
+.replacement-confirm[hidden] { display:none; }
+.replacement-mode > .drawer-body { pointer-events:none; }
+.replacement-mode .roster-inventory { max-height:75%; overflow-y:auto; }

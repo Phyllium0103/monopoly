@@ -1,0 +1,29 @@
+{
+  "tool": "built-in image_gen",
+  "jobs": [
+    {
+      "id": "buddha-huang",
+      "name": "蟲蛀的舊僧衣",
+      "grade": "黃階",
+      "prompt": "Create ONE new transparent PNG square game clothing icon using the attached armor ONLY as a drawing-style reference: thick dark chocolate brown closed outlines, chunky rounded shapes, large flat color areas, restrained cel-shaded bands, clear readable silhouette at 54px. Draw a complete EMPTY Buddhist monastic robe, no human, head, face, Buddha statue, limbs, mannequin or hanger. No scenery, background rectangle, UI frame, text, lettering, floating objects or watermark. Do NOT copy the reference's armor shoulders, jade square clasp, green palette or stone skirt. Garment centered with clear margins and all hems inside canvas. Distinct four-tier progression, lower tier is genuinely simple practical clothing; high tier richer and complete. True alpha transparency around garment. ITEM: LOWEST rank: moth-eaten old MONK TUNIC in faded dusty gray-brown coarse cloth. Loose small cross-collar shirt with broad short sleeves, dull brown rope belt, THREE large irregular moth holes with frayed fabric edges and a crooked cloth patch near lower hem. Clearly humble worn and threadbare, no gold trim, jewel, lotus, halo, fine embroidery, ornate brocade or bright magic. Only 3-4 broad fabric folds and plain narrow silhouette."
+    },
+    {
+      "id": "buddha-xuan",
+      "name": "行腳百衲衣",
+      "grade": "玄階",
+      "prompt": "Create ONE new transparent PNG square game clothing icon using the attached armor ONLY as a drawing-style reference: thick dark chocolate brown closed outlines, chunky rounded shapes, large flat color areas, restrained cel-shaded bands, clear readable silhouette at 54px. Draw a complete EMPTY Buddhist monastic robe, no human, head, face, Buddha statue, limbs, mannequin or hanger. No scenery, background rectangle, UI frame, text, lettering, floating objects or watermark. Do NOT copy the reference's armor shoulders, jade square clasp, green palette or stone skirt. Garment centered with clear margins and all hems inside canvas. Distinct four-tier progression, lower tier is genuinely simple practical clothing; high tier richer and complete. True alpha transparency around garment. ITEM: XUAN rank: a travelling monk's intact PATCHWORK ROBE made of six to eight broad rectangular sewn fabric patches in muted ochre, gray, clay brown and dull saffron. Practical long robe with simple diagonal wrap, a plain brown cloth waist tie, one small patched cloth pocket and visible thick seams. Tidy but modest and functional, one layer, no gold grid, bright red brocade, golden ornaments, lotus medallion, glow or expensive trim. Shape clearly more complete than old moth shirt but far below sacred cassock."
+    },
+    {
+      "id": "buddha-di",
+      "name": "錦斕袈裟",
+      "grade": "地階",
+      "prompt": "Create ONE new transparent PNG square game clothing icon using the attached armor ONLY as a drawing-style reference: thick dark chocolate brown closed outlines, chunky rounded shapes, large flat color areas, restrained cel-shaded bands, clear readable silhouette at 54px. Draw a complete EMPTY Buddhist monastic robe, no human, head, face, Buddha statue, limbs, mannequin or hanger. No scenery, background rectangle, UI frame, text, lettering, floating objects or watermark. Do NOT copy the reference's armor shoulders, jade square clasp, green palette or stone skirt. Garment centered with clear margins and all hems inside canvas. Distinct four-tier progression, lower tier is genuinely simple practical clothing; high tier richer and complete. True alpha transparency around garment. ITEM: DI rank: ornate CHINESE BUDDHIST BROCADE KASAYA. Saffron-yellow inner monastic robe, broad crimson-red diagonal outer wrap across chest, five or six LARGE rectangular brocade panels separated by flat warm-gold woven bands. One pair of small plain gold circular fastening rings at shoulder, soft double-layer wide sleeves, rich but controlled cloth folds, simple gold-edged hem. Red-yellow-gold palette. No deity figures, halo, radiant lotus chest core, huge golden collar, jewels or many extra layers. Distinguished sacred silk robe above patchwork but visibly below supreme Rulai cassock."
+    },
+    {
+      "id": "buddha-tian",
+      "name": "如來萬佛袈裟",
+      "grade": "天階",
+      "prompt": "Create ONE new transparent PNG square game clothing icon using the attached armor ONLY as a drawing-style reference: thick dark chocolate brown closed outlines, chunky rounded shapes, large flat color areas, restrained cel-shaded bands, clear readable silhouette at 54px. Draw a complete EMPTY Buddhist monastic robe, no human, head, face, Buddha statue, limbs, mannequin or hanger. No scenery, background rectangle, UI frame, text, lettering, floating objects or watermark. Do NOT copy the reference's armor shoulders, jade square clasp, green palette or stone skirt. Garment centered with clear margins and all hems inside canvas. Distinct four-tier progression, lower tier is genuinely simple practical clothing; high tier richer and complete. True alpha transparency around garment. ITEM: SUPREME heavenly RULAI MYRIAD-BUDDHAS KASAYA. Complete majestic ivory and warm saffron robe with a broad deep-crimson diagonal brocade wrap, wide rounded layered sleeves and three flowing robe hems. ONE LARGE warm-gold LOTUS fastening medallion high at chest, thick but simple rounded gold edges and a few repeated LARGE abstract lotus-petal emblems on the red panel to suggest myriad Buddha blessings without drawing faces or statues. Gold panel joining bands, delicate small restrained golden light only inside lotus clasp. Substantially fuller and richer than red grid brocade kasaya. Keep readable bold cartoon icon style with no intricate tiny gold filigree, no external halo or background mandala, no weapons, no person."
+    }
+  ]
+}

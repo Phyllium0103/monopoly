@@ -33,7 +33,7 @@ export interface Equipment extends PurchasedAsset {
   kind: 'weapon' | 'armor';
   name: string;
   tier: Tier;
-  /** 款式編號（見 EQUIP_DESIGNS） */
+  /** 仙衣的固定定義編號（見 ARMOR_DEFS）；專屬武器使用自己的圖鑑編號。 */
   designId: string;
   /** 專屬武器不可卸下、更換或出售。 */
   fixedGeneralId?: string;
@@ -88,6 +88,11 @@ export type GeneralStatus = 'free' | 'sect' | 'garrison' | 'realm' | 'dead';
 export type Aptitude = 'waste' | Element | 'heaven';
 
 export interface General {
+  goldenCore?: import('../data/breakthroughRules').GoldenCore;
+  coreBonus?: Partial<Stats>;
+  fusionBonus?: Partial<Stats> & { penetration?: number };
+  mortalTrial?: { turns: number; weapon: Equipment | null };
+  boundCityId?: string;
   ghostSourceId?: string;
   ghostTurns?: number;
   ghostReadyTurn?: number;
@@ -109,20 +114,16 @@ export interface General {
   failedRound: number;
   /** 已服築基丹 */
   foundation: boolean;
-  /** 心魔層數：降低突破率、加重雷劫 */
+  /** 心魔：獲得修為減半且無法突破（0 無、1 有） */
   demon: number;
   /** 避雷陣等護法：雷劫傷害減免比例 */
   ward: number;
-  /** 引雷丹：下次雷劫傷害減免 */
-  breakBoost: number;
   /** 七星續命陣：下一次渡劫死亡時復生 */
   sevenLife: boolean;
   /** 死亡前所屬的主公（百草堂復活時分「自己的亡將」與「其他主公的亡將」） */
   lastOwner: LordId | null;
   /** 主公本人：可出戰，但不能駐守城池、不會戰死、不能被變賣 */
   isLord: boolean;
-  /** 駐守城池時閉關修煉 */
-  secluded: boolean;
   hp: number;
   stamina: number;
   bonusForce: number;
@@ -146,6 +147,7 @@ export interface Expedition {
 }
 
 export interface Lord {
+  essences?: Partial<Record<Element, number>>;
   personalTurn?: number;
   clearCultivationTurns?: number;
   id: LordId;
@@ -179,7 +181,7 @@ export interface Lord {
   forkChoice: boolean;
   /** 破城符：本回合攻城戰力加成 */
   siegeBoost: number;
-  doubleDice: boolean;
+  diceCount: 1 | 2 | 3;
   fixedDice: number | null;
   /** 遁地梭：本回合移動點數加成 */
   bonusSteps: number;
@@ -187,6 +189,8 @@ export interface Lord {
   items: Item[];
   gear: Equipment[];
   scrolls: Technique[];
+  equipmentSlots: (string | null)[];
+  pendingEquipment: (Equipment | Technique)[];
   beast: Beast | null;
   expeditions: Expedition[];
   rank: number;
@@ -258,7 +262,8 @@ export interface GameState {
   /** 每座岔路的箭頭所指的相鄰格 */
   forkDirections: Record<number, number>;
   over: boolean;
-  /** 真仙勝利優先於資產排名。 */
+  endReason: string | null;
+  /** 勝者優先於資產排名；真仙、最後存活者或回合上限結算。 */
   winner: LordId | null;
   uid: number;
   /** 進行中的九州風雲 */

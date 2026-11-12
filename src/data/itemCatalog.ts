@@ -1,5 +1,7 @@
 /** 物品種類按權重抽取，再獨立決定品階；0 表示不隨機出現。 */
 export const ITEM_CATALOG = [
+  { id: "demon", name: "走火入魔符", category: "符籙", stat: "talisman", timing: "preroll", target: "lord", battleTarget: "none", min: [80], stamina: [40], price: [4000], sellPrice: [2000], effects: ["使敵方主公隨機兩名武將染上心魔"], noUser: false, weight: 1 },
+  { id: "clearmind", name: "清心丹", category: "丹藥", stat: "alchemy", timing: "preroll", target: "ownGeneral", battleTarget: "none", min: [50], stamina: [50], price: [2500], sellPrice: [1250], effects: ["化解一名武將身上的心魔，恢復正常修為獲得與突破"], noUser: false, weight: 1 },
   {
     "id": "heal",
     "name": "大還丹",
@@ -314,32 +316,6 @@ export const ITEM_CATALOG = [
     "weight": 0.25
   },
   {
-    "id": "clearmind",
-    "name": "清心丹",
-    "category": "丹藥",
-    "stat": "alchemy",
-    "timing": "preroll",
-    "target": "ownGeneral",
-    "battleTarget": "none",
-    "min": [
-      50
-    ],
-    "stamina": [
-      50
-    ],
-    "price": [
-      2500
-    ],
-    "sellPrice": [
-      1250
-    ],
-    "effects": [
-      "化解一名武將身上的心魔"
-    ],
-    "noUser": false,
-    "weight": 1
-  },
-  {
     "id": "bone",
     "name": "壯骨丹",
     "category": "丹藥",
@@ -376,47 +352,6 @@ export const ITEM_CATALOG = [
       "永久血量 +30（基礎值，隨境界放大）",
       "永久血量 +60（基礎值，隨境界放大）",
       "永久血量 +120（基礎值，隨境界放大）"
-    ],
-    "noUser": false,
-    "weight": 0.25
-  },
-  {
-    "id": "breakpill",
-    "name": "引雷丹",
-    "category": "丹藥",
-    "stat": "alchemy",
-    "timing": "preroll",
-    "target": "ownGeneral",
-    "battleTarget": "none",
-    "min": [
-      50,
-      60,
-      70,
-      80
-    ],
-    "stamina": [
-      50,
-      60,
-      70,
-      80
-    ],
-    "price": [
-      1000,
-      2500,
-      5000,
-      10000
-    ],
-    "sellPrice": [
-      500,
-      1250,
-      2500,
-      5000
-    ],
-    "effects": [
-      "下次渡劫天雷傷害 -10%",
-      "下次渡劫天雷傷害 -15%",
-      "下次渡劫天雷傷害 -20%",
-      "下次渡劫天雷傷害 -30%"
     ],
     "noUser": false,
     "weight": 0.25
@@ -706,7 +641,7 @@ export const ITEM_CATALOG = [
       5000
     ],
     "effects": [
-      "為武將佈陣護法，下次渡劫天雷傷害 -50%"
+      "為武將佈陣護法，下次渡劫天雷傷害 -40%"
     ],
     "noUser": false,
     "weight": 1
@@ -732,33 +667,7 @@ export const ITEM_CATALOG = [
       3000
     ],
     "effects": [
-      "下次渡劫天雷傷害 -30%（可與避雷陣疊加，最多減免 80%）"
-    ],
-    "noUser": false,
-    "weight": 1
-  },
-  {
-    "id": "illusion",
-    "name": "幻境陣",
-    "category": "陣法",
-    "stat": "formation",
-    "timing": "preroll",
-    "target": "enemyGeneral",
-    "battleTarget": "none",
-    "min": [
-      80
-    ],
-    "stamina": [
-      40
-    ],
-    "price": [
-      4000
-    ],
-    "sellPrice": [
-      2000
-    ],
-    "effects": [
-      "以幻境引動心魔：下次突破成功率 -60%，或雷劫威力 ×2"
+      "下次渡劫天雷傷害 -20%（可與避雷陣疊加，最多減免 80%）"
     ],
     "noUser": false,
     "weight": 1
@@ -1063,7 +972,7 @@ export const ITEM_CATALOG = [
     "category": "符籙",
     "stat": "talisman",
     "timing": "preroll",
-    "target": "none",
+    "target": "diceCount",
     "battleTarget": "none",
     "min": [
       40
@@ -1078,7 +987,7 @@ export const ITEM_CATALOG = [
       750
     ],
     "effects": [
-      "本回合擲兩顆骰子"
+      "本回合可選擇擲一顆、兩顆或三顆骰子"
     ],
     "noUser": false,
     "weight": 1
@@ -1131,32 +1040,6 @@ export const ITEM_CATALOG = [
     ],
     "effects": [
       "盜取指定主公 10% 靈石"
-    ],
-    "noUser": false,
-    "weight": 1
-  },
-  {
-    "id": "demon",
-    "name": "走火入魔符",
-    "category": "符籙",
-    "stat": "talisman",
-    "timing": "preroll",
-    "target": "enemyGeneral",
-    "battleTarget": "none",
-    "min": [
-      80
-    ],
-    "stamina": [
-      40
-    ],
-    "price": [
-      4000
-    ],
-    "sellPrice": [
-      2000
-    ],
-    "effects": [
-      "心魔干擾敵將：下次突破成功率 -60%，或雷劫威力 ×2"
     ],
     "noUser": false,
     "weight": 1

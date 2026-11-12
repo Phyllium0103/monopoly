@@ -1,3 +1,4 @@
+import { receiveEquipment } from './EquipmentInventory';
 import type { GameState, Lord } from '../game/types';
 import { freeGenerals, generalsOf, nextUid } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
@@ -245,7 +246,7 @@ const DEFS: Def[] = [
       apply: () => `獲贈「${giveItem(c, rollItemId(ARTIFACTS), rand(0, 1))}」。`,
     }),
   },
-  // ───── 黃、玄階的功法與寶衣 ─────
+  // ───── 黃、玄階的功法與仙衣 ─────
   {
     weight: 3,
     build: (c) => {
@@ -256,7 +257,7 @@ const DEFS: Def[] = [
         tone: 'good',
         story: `暴雨驟至，隊伍在官道旁的一座荒廟裡避雨。借著閃電的光亮，你發現斑駁的壁畫並非佛像，而是一套連貫的吐納行功圖，旁邊還有蠅頭小字註解。`,
         apply: () => {
-          c.lord.scrolls.push(t);
+          receiveEquipment(c.lord, t);
           return `命書吏抄錄成冊，得功法「${t.name}」。`;
         },
       };
@@ -272,8 +273,8 @@ const DEFS: Def[] = [
         tone: 'good',
         story: `${c.place}的茅屋前，一位獨臂老兵倚著門框曬太陽。他看著你軍中的旗號，沉默良久，從屋裡捧出一件保養得鋥亮的舊甲：「跟了老夫半輩子，今日給能用得上它的人。」`,
         apply: () => {
-          c.lord.gear.push(e);
-          return `你鄭重收下，得寶衣「${e.name}」。`;
+          receiveEquipment(c.lord, e);
+          return `你鄭重收下，得仙衣「${e.name}」。`;
         },
       };
     },

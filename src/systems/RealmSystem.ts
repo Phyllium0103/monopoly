@@ -1,3 +1,4 @@
+import { receiveEquipment } from './EquipmentInventory';
 import type { GameState, General, Lord } from '../game/types';
 import { joinLord, killGeneral, nextUid } from '../game/GameState';
 import { addExp, craft, levelUp, power, totalCraft } from './GeneralSystem';
@@ -118,8 +119,8 @@ function grantReward(state: GameState, lord: Lord, team: General[], all: General
   switch (kind) {
     case 'armor': {
       const e = makeEquipment(uid('e'), kind, tier);
-      lord.gear.push(e);
-      return `寶衣「${e.name}」`;
+      receiveEquipment(lord, e);
+      return `仙衣「${e.name}」`;
     }
     case 'pill': {
       const defId = rollItemId(PILL_IDS);
@@ -132,7 +133,7 @@ function grantReward(state: GameState, lord: Lord, team: General[], all: General
     }
     case 'technique': {
       const t = makeTechnique(uid('t'), tier);
-      lord.scrolls.push(t);
+      receiveEquipment(lord, t);
       return `功法「${t.name}」`;
     }
     default: {
@@ -167,7 +168,7 @@ async function resolveExploration(state: GameState, lord: Lord, ex: Expedition, 
     joinLord(state, lord.id, g);
     survivors.push(g);
     const gain = addExp(g, (200 + score / 6 + Math.random() * 300) * REALM_LEVELS[ex.level].exp);
-    if (g.realm < 2 && Math.random() < 0.15) {
+    if (!g.demon && g.realm < 2 && Math.random() < 0.15) {
       levelUp(g);
       insights.push(`${g.name}於秘境頓悟，直接突破至【${REALMS[g.realm]}】！`);
     } else insights.push(`${g.name}修為 +${gain}`);

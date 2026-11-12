@@ -3,7 +3,7 @@ import { ITEM_DEFS, STAT_NAMES } from '../data/items';
 import { canUse, requirement } from '../systems/ItemSystem';
 import { APTITUDE_NAMES, REALMS } from '../data/generals';
 import { attack, defense, craft, expCap, maxHp, maxStamina, power } from '../systems/GeneralSystem';
-import { fxText, passiveOf } from '../data/passives';
+import { fxText, passiveOf, passiveState } from '../data/passives';
 
 type BattleStats = { hp: number; maxHp: number; atk: number; def: number };
 type HoverStat = 'hp' | 'sta' | 'exp' | 'power' | 'atk' | 'def' | CraftStat;
@@ -44,8 +44,8 @@ function hoverExtra(g: General, key: HoverExtra): [string, string] {
   switch (key) {
     case 'aptitude': return ['靈根', APTITUDE_NAMES[g.aptitude]];
     case 'technique': return ['功法', g.technique?.name ?? '未修習'];
-    case 'demon': return ['心魔', `${g.demon} 層`];
-    case 'ward': return ['渡劫減傷', `護法陣 ${Math.round(g.ward * 100)}%・引雷丹 ${Math.round(g.breakBoost * 100)}%`];
+    case 'demon': return ['心魔', g.demon ? '修為減半・無法突破' : '無'];
+    case 'ward': return ['渡劫減傷', `護法陣 ${Math.round(g.ward * 100)}%`];
     case 'foundation': return ['築基丹', g.foundation ? '已服用' : '未服用'];
     case 'seven': return ['七星續命', g.sevenLife ? '已生效' : '未生效'];
   }
@@ -57,10 +57,10 @@ export const ITEM_EFFECT_FOCUS: Record<string, { stats?: HoverStat[]; extras?: H
   vigor: { stats: ['sta'] },
   force: { stats: ['atk'] }, rage: { stats: ['atk'] }, guard: { stats: ['def'] },
   qi: { stats: ['exp'] }, essence: { stats: ['exp'] }, foundation: { extras: ['foundation'] },
-  clearmind: { extras: ['demon'] }, demon: { extras: ['demon'] }, illusion: { extras: ['demon'] },
+  clearmind: { extras: ['demon'] },
   rootup1: { extras: ['aptitude'] }, rootup2: { extras: ['aptitude'] }, five: { extras: ['aptitude'] }, rootdown: { extras: ['aptitude'] },
   reset: { extras: ['technique'] },
-  breakpill: { extras: ['ward'] }, thunderward: { extras: ['ward'] }, fiveward: { extras: ['ward'] },
+  thunderward: { extras: ['ward'] }, fiveward: { extras: ['ward'] },
   seven: { extras: ['seven'] },
 };
 
@@ -96,6 +96,9 @@ const gaugeBar = (key: HoverStat, now: number, max: number, text: string) =>
   `<span class="gh-bar gh-bar-${key}"><i style="width:${Math.min(100, (now / Math.max(1, max)) * 100)}%"></i><span>${text}</span></span>`;
 
 /** 右下頭像的懸停資訊：表格排列，血量、體力、修為用進度條，用道具時著重相關數值。 */
+export function fusionSummary(g: General): string {
+  return Object.entries(g.fusionBonus ?? {}).filter(([, value]) => value !== 0).map(([key,value]) => `${key === 'penetration' ? '破防' : key === 'hp' ? '血量' : key === 'defense' ? '防禦' : key === 'force' ? '武力' : STAT_NAMES[key as CraftStat]} +${key === 'penetration' ? Math.round(value*100)+'%' : value}`).join('、');
+}
 export function generalHoverTable(g: General, battle?: BattleStats, focus?: HoverFocus, note = ''): string {
   const v = hoverValues(g, battle), p = passiveText(g);
   const cap = expCap(g);
@@ -122,6 +125,7 @@ export function generalHoverTable(g: General, battle?: BattleStats, focus?: Hove
       return `<tr><th class="gh-focus">${label}</th><td class="gh-focus" colspan="3">${value}</td></tr>`;
     }).join('') +
     wide('gh-passive', `<b>【${p.name}】</b>${p.text}`) +
+    (g.boundCityId ? wide('gh-note', `供奉城池：${passiveState()?.cities[g.boundCityId]?.name ?? g.boundCityId}`) : '') +
     (note ? wide('gh-note', note) : '') +
     '</table>';
 }
@@ -182,14 +186,14 @@ export function generalBrief(g: General, body = '', opts: BlockOptions & { passi
 export function itemTargetInfo(g: General, defId: string): string {
   let context = '';
   if (['rootup1','rootup2','rootdown','five'].includes(defId)) context = `靈根：${APTITUDE_NAMES[g.aptitude]}・功法：${g.technique?.name ?? '未修習'}`;
-  else if (['clearmind','demon','illusion'].includes(defId)) context = `心魔：${g.demon} 層${g.demon ? '（纏身）' : '（無心魔）'}`;
+  else if (defId === 'clearmind') context = `心魔：${g.demon ? '修為減半、無法突破' : '無'}`;
   else if (['qi','essence'].includes(defId)) context = `修為：${g.exp}/${Number.isFinite(expCap(g)) ? expCap(g) : '已達最高境界'}`;
   else if (defId === 'force') context = `基礎武力：${g.base.force}・目前武力：${attack(g)}`;
   else if (defId === 'guard') context = `基礎防禦：${g.base.defense}・目前防禦：${defense(g)}`;
   else if (defId === 'bone') context = `基礎血量：${g.base.hp}・血量上限：${maxHp(g)}`;
   else if (defId === 'vigor') context = `體力：${g.stamina}/${maxStamina(g)}`;
   else if (defId === 'foundation') context = `築基丹：${g.foundation ? '已服用' : '未服用'}・境界：${REALMS[g.realm]}`;
-  else if (['thunderward','fiveward','breakpill'].includes(defId)) context = `護法陣減傷：${Math.round(g.ward*100)}%・破境丹減傷：${Math.round(g.breakBoost*100)}%・心魔：${g.demon} 層`;
+  else if (['thunderward','fiveward'].includes(defId)) context = `護法陣減傷：${Math.round(g.ward*100)}%・心魔：${g.demon ? '有' : '無'}`;
   else if (defId === 'seven') context = `七星續命：${g.sevenLife ? '已生效' : '未生效'}`;
   else if (defId === 'reset') context = `功法：${g.technique?.name ?? '未修習'}・靈根：${APTITUDE_NAMES[g.aptitude]}`;
   else if (defId === 'revive') context = `狀態：已死亡・修為：${g.exp}`;

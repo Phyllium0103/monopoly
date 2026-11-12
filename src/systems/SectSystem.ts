@@ -27,6 +27,5 @@ export function transferSectGeneral(state: GameState, lord: Lord, g: General): s
   lord.stones -= r.fee;
   g.status = g.status === 'free' ? 'sect' : 'free';
   g.cityId = null;
-  g.secluded = false;
   return `${g.name}${g.status === 'free' ? '加入隨行' : '留守宗門'}，${r.fee ? '耗費 10 下品靈石' : '免費調度'}。`;
 }

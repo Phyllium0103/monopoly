@@ -1,0 +1,19 @@
+.technique-collection { display:flex; align-items:flex-start; gap:12px; }
+.technique-collection > b { white-space:nowrap; flex:none; }
+.technique-list { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.technique-picture { --grade:#4d9463; display:inline-grid; place-items:center; width:54px; height:54px; flex:none; border:1px solid color-mix(in srgb,var(--grade),white 25%); border-radius:11px; background:linear-gradient(145deg,color-mix(in srgb,var(--grade),white 30%),var(--grade)); box-shadow:inset 0 1px 2px #fff6,0 3px 8px #0003; cursor:help; }
+.technique-picture.grade-1 { --grade:#367bb9; }
+.technique-picture.grade-2 { --grade:#8854ad; }
+.technique-picture.grade-3 { --grade:#b98826; }
+.technique-picture img { width:90%; height:90%; object-fit:contain; display:block; }
+.technique-picture:focus-visible { outline:2px solid #fff; outline-offset:3px; }
+.technique-equipped { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.technique-equipped-name { font-weight:700; color:#8cda9d; }
+.technique-equipped-name.grade-text-1 { color:#7dc5ff; }
+.technique-equipped-name.grade-text-2 { color:#d6a6ff; }
+.technique-equipped-name.grade-text-3 { color:#ffd77c; }
+.tech-tip { min-width:210px; max-width:290px; padding:4px; line-height:1.65; }
+.tech-tip-rank { color:#dfc58b; font-size:15px; letter-spacing:.08em; }
+.tech-tip strong { display:block; color:#fff0ca; font-size:20px; margin-top:2px; }
+.tech-tip-rule { height:1px; margin:8px 0; background:linear-gradient(90deg,#b9985c,transparent); }
+.tech-tip-detail { color:#e7e5dc; font-size:16px; line-height:1.8; }

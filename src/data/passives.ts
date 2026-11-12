@@ -62,14 +62,12 @@ export interface PassiveFx {
   itemStamina?: number;
   /** 煉丹煉器畫符佈陣比試得分 */
   contest?: number;
-  /** 駐守閉關的修為 */
-  seclusionExp?: number;
+  /** 駐城修練的修為 */
+  garrisonExp?: number;
   /** 四項技藝比例加成 */
   craftPct?: number;
   /** 低階突破失敗不損修為 */
   keepExpOnFail?: boolean;
-  /** 心魔效果減免 */
-  demonResist?: number;
 }
 
 export interface Passive {
@@ -244,17 +242,17 @@ export const PASSIVES: Record<string, Passive> = {
   wutugu: {"name":"藤甲兵","flavor":"烏戈國主，身長一丈二，所率藤甲兵刀槍不入，怕火攻。","effectText":"防禦 +10%・血量 +10%","fx":{"def":0.1,"hp":0.1}},
   mulu: {"name":"驅獸","flavor":"八納洞洞主，能驅猛獸，騎白象出戰，並施妖法。","effectText":"攻擊額外能量 +20","fx":{"energyGain":20}},
   zuoci: {"name":"擲杯戲曹","flavor":"擲杯化鳩，戲弄曹操，來去無蹤。","effectText":"在隨行隊伍時，當敵人對主公發動非戰鬥物品時，使物品效果失效；觸發後冷卻五個自身回合","fx":{"partyItemBlock":true,"itemBlockCooldown":5}},
-  yuji: {"name":"符水治病","flavor":"以符水為人治病，吳會之人多事之。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一張隨機符籙・體力回復速度 -90%","fx":{"produceCategory":"符籙","staminaRecovery":-0.9}},
-  huatuo: {"name":"神醫","flavor":"麻沸散、五禽戲，起死回生。","effectText":"在隨行隊伍時，可隨時耗費100體力使用\"起死回生\"，復活我方死亡武將，血量 100%，境界跌落 1 級，修為歸零・體力回復速度 -90%","fx":{"reviveAbility":true,"staminaRecovery":-0.9}},
+  yuji: {"name":"符水治病","flavor":"以符水為人治病，吳會之人多事之。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一張隨機符籙・體力回復速度 -67%（每回合5點）","fx":{"produceCategory":"符籙","staminaRecovery":-0.6666666666666666}},
+  huatuo: {"name":"神醫","flavor":"麻沸散、五禽戲，起死回生。","effectText":"在隨行隊伍時，可隨時耗費100體力使用\"起死回生\"，復活我方死亡武將，血量 100%，境界跌落 1 級，修為歸零・體力回復速度 -67%（每回合5點）","fx":{"reviveAbility":true,"staminaRecovery":-0.6666666666666666}},
   guanlu: {"name":"卜筮如神","flavor":"精通周易，占卜無不應驗。","effectText":"擲骰前，可預覽三個候選步數，排除其中一個，再從剩下兩個隨機決定；不能直接指定落點。","fx":{"divination":true}},
   shuijing: {"name":"水鏡先生","flavor":"司馬徽，知人善任，「臥龍鳳雛，得一可安天下」。","effectText":"聽風樓必定出現隱藏人物，包含未出世武將","fx":{"unlockHidden":true}},
   pangdegong: {"name":"鹿門隱士","flavor":"龐統之叔，隱居鹿門山，被稱為「水鏡之師」。","effectText":"在隨行隊伍時，隨行隊伍武將修為獲得 +20%","fx":{"partyExp":0.2}},
-  huangchengyan: {"name":"機關妙手","flavor":"諸葛亮之岳父，精通機巧，傳授黃月英巧技。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一件隨機法器・體力回復速度 -90%","fx":{"produceCategory":"法器","staminaRecovery":-0.9}},
+  huangchengyan: {"name":"機關妙手","flavor":"諸葛亮之岳父，精通機巧，傳授黃月英巧技。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一件隨機法器・體力回復速度 -67%（每回合5點）","fx":{"produceCategory":"法器","staminaRecovery":-0.6666666666666666}},
   xushao: {"name":"月旦評","flavor":"與從兄許靖主持品評人物，稱曹操「治世之能臣，亂世之奸雄」。","effectText":"在隨行隊伍時，聽風樓招募武將價格 -50%","fx":{"partyRecruit":0.5}},
-  zhangzhongjing: {"name":"醫聖","flavor":"著《傷寒雜病論》，辨證施治，開後世醫學之先河。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一件隨機丹藥・體力回復速度 -90%","fx":{"produceCategory":"丹藥","staminaRecovery":-0.9}},
+  zhangzhongjing: {"name":"醫聖","flavor":"著《傷寒雜病論》，辨證施治，開後世醫學之先河。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一件隨機丹藥・體力回復速度 -67%（每回合5點）","fx":{"produceCategory":"丹藥","staminaRecovery":-0.6666666666666666}},
   dongfeng: {"name":"杏林","flavor":"行醫不收錢，重症者種杏五株，輕者一株，積杏成林。","effectText":"在隨行隊伍時，百草堂復活武將不需耗費靈石","fx":{"freeRevive":true}},
   guanning: {"name":"割席","flavor":"與華歆割席斷交，隱居遼東，一生不仕，德行高潔。","effectText":"在隨行隊伍時，主公回合開始時，可選擇全隊清修，只放棄啟動回合的主動行動；隨行人物（含主公）修為獲得 +100%，持續五個自身回合；使用後冷卻十個自身回合","fx":{"seclusionAbility":true,"seclusionCooldown":10}},
-  nanhua: {"name":"南華老仙","flavor":"《三國演義》中授天書於張角的仙人，碧眼童顏，手執藜杖。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一個隨機陣法・體力回復速度 -90%","fx":{"produceCategory":"陣法","staminaRecovery":-0.9}},
+  nanhua: {"name":"南華老仙","flavor":"《三國演義》中授天書於張角的仙人，碧眼童顏，手執藜杖。","effectText":"在隨行隊伍時，可隨時耗費100體力獲得一個隨機陣法・體力回復速度 -67%（每回合5點）","fx":{"produceCategory":"陣法","staminaRecovery":-0.6666666666666666}},
   pujing: {"name":"玉泉點化","flavor":"玉泉山老僧，點化關羽的亡魂，一念可解怨結。","effectText":"在隨行隊伍時，每五回合可召喚已死亡武將冤魂加入隊伍，血量 100%，境界不變，修為不變，持續五回合，冤魂無法獲得修為、穿戴裝備及功法；持續時間不影響該武將復活，復活後該武將從可召喚名單中去除","fx":{"ghostAbility":true}},
 };
 
@@ -330,9 +328,8 @@ export function fxText(f: PassiveFx): string {
   if (f.realmSafety) t.push(`秘境隕落率 ${pct(-f.realmSafety)}`);
   if (f.itemStamina) t.push(`使用物品體力 ${pct(-f.itemStamina)}`);
   if (f.contest) t.push(`比試得分 ${pct(f.contest)}`);
-  if (f.seclusionExp) t.push(`駐守閉關修為 ${pct(f.seclusionExp)}`);
+  if (f.garrisonExp) t.push(`駐城修練修為 ${pct(f.garrisonExp)}`);
   if (f.craftPct) t.push(`四項技藝 ${pct(f.craftPct)}`);
   if (f.keepExpOnFail) t.push('低階突破失敗不損修為');
-  if (f.demonResist) t.push(`心魔效果 ${pct(-f.demonResist)}`);
   return t.join('・');
 }

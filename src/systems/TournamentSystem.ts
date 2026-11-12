@@ -1,3 +1,4 @@
+import { receiveEquipment } from './EquipmentInventory';
 import type { GameState, Lord } from '../game/types';
 import { nextUid } from '../game/GameState';
 import { equipDesc, makeEquipment, makeTechnique, techniqueDesc } from '../data/items';
@@ -27,9 +28,9 @@ export function tournamentWinner(duel: Duel): Side {
 export function grantTournamentPrize(state: GameState,lord: Lord): Offer {
   const kind=Math.floor(Math.random()*2);
   if (kind===0) {
-    const t=makeTechnique(nextUid(state,'t'),11);lord.scrolls.push(t);
+    const t=makeTechnique(nextUid(state,'t'),11);receiveEquipment(lord, t);
     return {kind:'technique',technique:t,label:t.name,sub:techniqueDesc(t),price:0};
   }
-  const e=makeEquipment(nextUid(state,'e'),'armor',11);lord.gear.push(e);
+  const e=makeEquipment(nextUid(state,'e'),'armor',11);receiveEquipment(lord, e);
   return {kind:'equipment',equipment:e,label:e.name,sub: equipDesc(e, false),price:0};
 }

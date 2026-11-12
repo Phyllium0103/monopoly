@@ -6,7 +6,7 @@ import type { City, ElementalSpirit, GameState, Tile, Vec2 } from '../game/types
 import { ElementalSpiritLayer } from './ElementalSpirits';
 import { SelectedTerrain } from './SelectedTerrain';
 import { MapModelPool } from './MapModelPool';
-import { BUILDING_LOTS, CELL_SIZE, cityModelLevel } from '../data/selectedBoard';
+import { BUILDING_LOTS, BUILDING_SIZE, CELL_SIZE, cityModelLevel } from '../data/selectedBoard';
 import { MAP_MODELS } from '../data/mapModels';
 import { DISPLAY_FACILITY_LOTS } from '../data/displayFacilities';
 import { animateCity, type CityVisual } from './CityMesh';
@@ -110,7 +110,7 @@ export class World {
     mesh.position.copy(this.tilePosition(tile.index));mesh.position.y+=.015;mesh.userData={pick:true,pickKind:'tile',tile:tile.index};
     this.root.add(mesh);this.pickables.push(mesh);
     const lot=BUILDING_LOTS.find(o=>o.tile===tile.index);
-    if(lot){const box=new THREE.Mesh(new THREE.BoxGeometry(CELL_SIZE*2,5,CELL_SIZE*2),new THREE.MeshBasicMaterial({visible:false}));
+    if(lot){const box=new THREE.Mesh(new THREE.BoxGeometry(BUILDING_SIZE,5,BUILDING_SIZE),new THREE.MeshBasicMaterial({visible:false}));
       box.position.set(lot.pos.x,2.5,lot.pos.z);box.userData={pick:true,pickKind:tile.kind==='city'?'city':'facility',cityId:tile.cityId,tile:tile.index};this.root.add(box);this.pickables.push(box);}
   }
 
@@ -120,7 +120,7 @@ export class World {
     const el=document.createElement('div');el.className='special-label display-facility-label';
     el.textContent=lot.name;el.dataset.facility=lot.id;el.hidden=true;
     const label=new CSS2DObject(el);label.position.set(0,12,0);g.add(label);
-    const box=new THREE.Mesh(new THREE.BoxGeometry(CELL_SIZE*2,5,CELL_SIZE*2),new THREE.MeshBasicMaterial({visible:false}));
+    const box=new THREE.Mesh(new THREE.BoxGeometry(BUILDING_SIZE,5,BUILDING_SIZE),new THREE.MeshBasicMaterial({visible:false}));
     box.position.set(lot.pos.x,2.5,lot.pos.z);box.userData={pick:true,pickKind:'facility',displayFacility:lot.id};
     this.root.add(box);this.pickables.push(box);
   }
@@ -156,7 +156,7 @@ export class World {
     this.root.add(holder);
 
     const territory = new THREE.Mesh(
-      new THREE.PlaneGeometry(CELL_SIZE*2.08,CELL_SIZE*2.08),
+      new THREE.PlaneGeometry(BUILDING_SIZE,BUILDING_SIZE),
       new THREE.MeshBasicMaterial({ color: ownerColor(city.owner), transparent: true, opacity: 0.28, depthWrite: false }),
     );
     territory.rotation.x = -Math.PI / 2;
@@ -221,7 +221,7 @@ export class World {
     }else if(kind==='tile'||kind==='city'){
       const p=kind==='tile'?this.tilePosition(object.userData.tile):new THREE.Vector3(object.position.x,this.ground(object.position.x,object.position.z),object.position.z);
       this.targetFrame.position.copy(p);this.targetFrame.position.y+=.06;
-      this.targetFrame.rotation.set(-Math.PI/2,0,0);this.targetFrame.scale.setScalar(CELL_SIZE*(kind==='city'?2.05:.99));
+      this.targetFrame.rotation.set(-Math.PI/2,0,0);this.targetFrame.scale.setScalar(kind==='city'?BUILDING_SIZE*1.025:CELL_SIZE*.99);
     }else return;
     (this.targetFrame.material as THREE.LineBasicMaterial).color.setHex(valid?0xe7f5a1:0xe28b76);
     this.targetFrame.visible=true;

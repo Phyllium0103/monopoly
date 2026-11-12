@@ -27,6 +27,7 @@ export class SelectedTerrain {
     ground.rotation.x=-Math.PI/2;ground.rotateOnWorldAxis(new THREE.Vector3(0,1,0),FLOOR_ROTATION);ground.position.y=-.08;ground.receiveShadow=true;this.group.add(ground);
     const edge=new THREE.Mesh(new THREE.BoxGeometry(FLOOR_SIZE,.6,FLOOR_DEPTH),new THREE.MeshPhongMaterial({color:0x536851,shininess:5,fog:false}));
     edge.rotation.y=FLOOR_ROTATION;edge.position.y=-.4;this.group.add(edge);
+    // Original tile dimensions; gridPosition supplies the extra space between tiles.
     const shape=new THREE.Shape().moveTo(-.445,-.445).lineTo(.445,-.445).lineTo(.445,.445).lineTo(-.445,.445).closePath();
     const body=new THREE.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:true,bevelThickness:.02,bevelSize:.025,bevelSegments:3,steps:1});
     body.rotateX(-Math.PI/2);body.translate(0,.025,0);body.scale(CELL_SIZE,CELL_SIZE,CELL_SIZE);

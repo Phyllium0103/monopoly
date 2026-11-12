@@ -3,7 +3,7 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import {MAP_MODELS} from '../data/mapModels';
 import {MAP_RUNTIME_MODELS,runtimeModelUrl} from '../data/mapRuntimeModels';
-import {CELL_SIZE} from '../data/selectedBoard';
+import {BUILDING_SIZE} from '../data/selectedBoard';
 type Key=keyof typeof MAP_MODELS;
 export interface Placement{id:string;key:Key;x:number;z:number;rotation:number;color:number}
 interface Part{geometry:THREE.BufferGeometry;material:THREE.Material;recolor:boolean;transform:THREE.Matrix4}
@@ -78,7 +78,7 @@ export class MapModelPool{
   for(const [key,batch]of this.batches)if(!visible.has(key)&&batch.signature!==''){batch.signature='';for(const mesh of batch.meshes){mesh.visible=false;mesh.count=0;}changed=true;}
   if(changed)this.onChange();
  }
- private matrix(p:Placement){this.dummy.position.set(p.x,0,p.z);this.dummy.rotation.set(0,p.rotation,0);this.dummy.scale.setScalar(CELL_SIZE*2/10);this.dummy.updateMatrix();return this.dummy.matrix;}
+  private matrix(p:Placement){this.dummy.position.set(p.x,0,p.z);this.dummy.rotation.set(0,p.rotation,0);this.dummy.scale.setScalar(BUILDING_SIZE/10);this.dummy.updateMatrix();return this.dummy.matrix;}
  private load(key:Key,lod:number){const id=key+':'+lod;let promise=this.cache.get(id);if(promise)return promise;
   const url=runtimeModelUrl(key,Math.min(lod,MAP_RUNTIME_MODELS[key].length-1));promise=(async()=>{
    const gltf=await this.loader.parseAsync(await fetchCached(url),url.replace(/[^/]*$/,''));gltf.scene.updateMatrixWorld(true);

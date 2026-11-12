@@ -1,12 +1,14 @@
+import { transferArmor } from './GeneralSystem';
 import { recruitmentMaximum } from './RecruitmentSystem';
 import { aiUpgradeWeapons } from './MaterialSystem';
 import { fx } from '../data/passives';
 import { immortalWinner } from './VictorySystem';
+import { completeBreak, ascensionCities } from './GeneralSystem';
 import type { City, CraftStat, GameState, General, Item, Lord } from '../game/types';
 import { sectTransferRequirement, transferSectGeneral } from './SectSystem';
 import { TALENTS, canLearnTalent, learnTalent, type TalentTree } from '../data/talents';
 import { PARTY_LIMIT, abandonIfEmpty, citiesOf, deployable, freeGenerals, generalsOf, sectGenerals } from '../game/GameState';
-import { attack, canLearn, learn, attemptBreak, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
+import { attack, canLearn, learn, boltCount, boltDamage, breakChance, canAttemptBreak, craft, defense, expCap, inBottleneck, maxHp, needsTribulation, power, tribulation } from './GeneralSystem';
 import { MIN_GARRISON, eliminate, visitingToll, garrisonPower, occupyCost, totalAssets } from './CitySystem';
 import { REALMS } from '../data/generals';
 import { equipRealm, equipScore } from '../data/items';
@@ -43,13 +45,13 @@ export interface AiStyle {
 
 export const AI_STYLES: Record<Lord['id'], AiStyle> = {
   // 曹操：重修煉與丹藥，穩健出手
-  cao: { siegeRatio: 1.3, duelRatio: 1.15, craftRatio: 1.2, occupyReserve: 8000, occupyMinProsperity: 50, shopReserve: 6000, shopSkip: 0.2, recruitCap: 15, realmChance: 0.8, realmRisk: 0.15, soldierFloor: 8000, likes: ['qi', 'essence', 'foundation', 'breakpill', 'bone'] },
+  cao: { siegeRatio: 1.3, duelRatio: 1.15, craftRatio: 1.2, occupyReserve: 8000, occupyMinProsperity: 50, shopReserve: 6000, shopSkip: 0.2, recruitCap: 15, realmChance: 0.8, realmRisk: 0.15, soldierFloor: 8000, likes: ['qi', 'essence', 'foundation', 'bone'] },
   // 劉備：廣佔城池、經營為本，不輕易攻城
   liu: { siegeRatio: 1.6, duelRatio: 1.2, craftRatio: 1.25, occupyReserve: 4000, occupyMinProsperity: 35, shopReserve: 5000, shopSkip: 0.3, recruitCap: 16, realmChance: 0.7, realmRisk: 0.15, soldierFloor: 8000, likes: ['soldiers', 'vein', 'mend', 'heal'] },
   // 孫權：守成，保守出擊、秘境挑安全的、留足備用金與守備
   sun: { siegeRatio: 1.9, duelRatio: 1.25, craftRatio: 1.3, occupyReserve: 10000, occupyMinProsperity: 55, shopReserve: 9000, shopSkip: 0.35, recruitCap: 14, realmChance: 0.7, realmRisk: 0.1, soldierFloor: 12000, likes: ['citadel', 'truce', 'thunderward', 'fiveward', 'siegebreak'] },
   // 董卓：好戰，優勢不大也敢打，大量徵兵，常去秘境練兵
-  dong: { siegeRatio: 1.1, duelRatio: 1.05, craftRatio: 1.15, occupyReserve: 6000, occupyMinProsperity: 40, shopReserve: 4000, shopSkip: 0.25, recruitCap: 15, realmChance: 0.55, realmRisk: 0.2, soldierFloor: 15000, likes: ['force', 'guard', 'demon', 'siegebreak', 'stride'] },
+  dong: { siegeRatio: 1.1, duelRatio: 1.05, craftRatio: 1.15, occupyReserve: 6000, occupyMinProsperity: 40, shopReserve: 4000, shopSkip: 0.25, recruitCap: 15, realmChance: 0.55, realmRisk: 0.2, soldierFloor: 15000, likes: ['force', 'guard', 'siegebreak', 'stride'] },
 };
 
 export interface ItemHooks { use?: (lord: Lord, item: Item, user: General, target: PrerollTarget) => Promise<string>; protect?: (g: General) => Promise<boolean>; }
@@ -83,7 +85,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   const gens = generalsOf(state, lord.id).filter((g) => g.status !== 'realm' && !g.ghostSourceId);
   const style = AI_STYLES[lord.id];
 
-  // 自動裝備最好的寶衣
+  // 自動裝備最好的仙衣
   for (const kind of ['armor'] as const) {
     const pool = lord.gear.filter((e) => e.kind === kind).sort((a, b) => equipScore(b) - equipScore(a));
     for (const e of pool) {
@@ -92,11 +94,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
         .sort((a, b) => b.base.defense - a.base.defense);
       const g = candidates[0];
       if (!g) continue;
-      const old = g[kind];
-      g[kind] = e;
-      lord.gear = lord.gear.filter((x) => x.uid !== e.uid);
-      if (old) lord.gear.push(old);
-      if (kind === 'armor') g.hp = Math.min(g.hp, maxHp(g));
+      if (!transferArmor(state, lord, e.uid, undefined, g.id)) continue;
       logs.push(`${g.name}換上「${e.name}」`);
     }
   }
@@ -126,14 +124,10 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
     if (user && target) logs.push(await apply(pill, user, { general: target }));
   }
   // 壯骨丹給最強的將領，清心丹化解心魔
-  for (const pill of lord.items.filter((i) => i.defId === 'bone')) {
+  for (const pill of lord.items.filter((i) => i.defId === 'bone' || i.defId === 'clearmind')) {
     const user = gens.find((u) => u.status === 'free' && canUse(pill, u).ok);
-    if (user && strongest[0]) logs.push(await apply(pill, user, { general: strongest[0] }));
-  }
-  for (const g of gens.filter((x) => x.demon > 0)) {
-    const pill = lord.items.find((i) => i.defId === 'clearmind');
-    const user = pill && gens.find((u) => u.status === 'free' && canUse(pill, u).ok);
-    if (pill && user) logs.push(await apply(pill, user, { general: g }));
+    const target = pill.defId === 'clearmind' ? strongest.find(g => g.demon > 0) : strongest[0];
+    if (user && target) logs.push(await apply(pill, user, { general: target }));
   }
   // 靈根丹：給戰力最強的非天靈根武將
   for (const pill of lord.items.filter((i) => i.defId === 'rootup1' || i.defId === 'rootup2')) {
@@ -160,18 +154,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   for (const id of ['bowl','bag','breath','wheel']) await useGroup(id);
   logs.push(...await aiBreakthroughs(state, lord, hooks));
   if (!lord.alive || immortalWinner(state)) return logs;
-  // 守軍充足的城池讓駐將閉關
-  for (const g of gens.filter((x) => x.status === 'garrison')) g.secluded = state.cities[g.cityId!].garrisonSoldiers >= 2500;
-  // 心魔干擾：對敵方瓶頸中的最強將領出手
-  const curse = lord.items.find((i) => i.defId === 'demon' || i.defId === 'illusion');
-  const curser = curse && gens.find((u) => u.status === 'free' && canUse(curse, u).ok);
-  if (curse && curser) {
-    const victim = Object.values(state.generals)
-      .filter((g) => g.owner && g.owner !== lord.id && g.status !== 'realm' && g.status !== 'dead' && inBottleneck(g) && !g.demon)
-      .sort((a, b) => b.realm - a.realm)[0];
-    if (victim) logs.push(await apply(curse, curser, { general: victim }));
-  }
-  for (const item of [...lord.items].filter(i=>['ghost','move','poison','bow','lock','freeze','confuse','confusing','rootdown','sacrifice','graft','citadel','seven'].includes(i.defId))) {
+  for (const item of [...lord.items].filter(i=>['demon','ghost','move','poison','bow','lock','freeze','confuse','confusing','rootdown','sacrifice','graft','citadel','seven'].includes(i.defId))) {
     if(state.over || !lord.alive)break;
     const user=freeGenerals(state,lord.id).find(g=>canUse(item,g).ok);if (!user) continue;
     // 妨礙類物品對準威脅最大的對手：總資產最高的優先，條件不符再換下一位
@@ -179,6 +162,8 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
     const usable=(v: Lord): boolean => {
       const t=def(item).target;
       if (t==='lord') {
+        if (v.relicJourney) return false;
+        if (item.defId==='demon'&&!generalsOf(state,v.id).some(g=>g.status!=='realm'&&!g.ghostSourceId&&!g.demon)) return false;
         if (['poison','bow'].includes(item.defId)&&!freeGenerals(state,v.id).length) return false;
         if (item.defId==='move'&&!v.items.length) return false;
         return true;
@@ -213,7 +198,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
   // 縮地符
   const stride = lord.items.find((i) => i.defId === 'stride');
   const strideUser = stride && gens.find((u) => u.status === 'free' && canUse(stride, u).ok);
-  if (stride && strideUser && Math.random() < 0.4) logs.push(await apply(stride, strideUser, {}));
+  if (stride && strideUser && Math.random() < 0.4) logs.push(await apply(stride, strideUser, {diceCount:3}));
   // 士兵只在停靠募兵司時補充，擲骰前不再遠端徵兵。
   return logs;
 }
@@ -230,6 +215,7 @@ export async function aiBreakthroughs(state: GameState, lord: Lord, hooks: ItemH
   const logs: string[] = [];
   const gens = generalsOf(state, lord.id).filter((g) => g.status !== 'realm');
   for (const g of gens) {
+    if (g.realm === 2 && !g.goldenCore) g.goldenCore = 'flawless';
     if (!canAttemptBreak(g, state.round).ok) continue;
     const helper = async (defId: string) => {
       const item = lord.items.find((i) => i.defId === defId);
@@ -239,13 +225,12 @@ export async function aiBreakthroughs(state: GameState, lord: Lord, hooks: ItemH
     if (!needsTribulation(g)) {
       if (g.realm === 1 && !g.foundation) await helper('foundation');
       if (breakChance(g) < 0.5 && !g.foundation) continue;
-      const ok = attemptBreak(g, state.round);
+      const ok = completeBreak(g, state.round, ascensionCities(state, g)[0]?.id);
       logs.push(ok ? `✦ ${g.name}突破至【${REALMS[g.realm]}】！` : `${g.name}突破失敗，修為受損。`);
       continue;
     }
     // 雷劫：先回血、佈陣
     if (g.hp < maxHp(g) * 0.9) await helper('heal');
-    if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('breakpill');
     if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('thunderward');
     if (boltDamage(g) * boltCount(g) > g.hp * 0.8) await helper('fiveward');
     if (!fx(g).tribulationSuccess && boltDamage(g) * boltCount(g) * 1.1 > g.hp) continue;
@@ -262,7 +247,7 @@ export async function aiBreakthroughs(state: GameState, lord: Lord, hooks: ItemH
     }
     if (r.success) logs.push(`⚡ ${g.name}渡過 ${r.bolts.length} 道天雷，突破至【${REALMS[g.realm]}】！`);
     if (r.success && g.isLord && immortalWinner(state)) return logs;
-    else if (!r.success) logs.push(r.fate === 'death' ? `⚡ ${g.name}渡劫失敗，身死道消……` : r.fate === 'saved' ? `⚡ ${g.name}渡劫失敗，滿血復生，保留境界。` : `⚡ ${g.name}渡劫失敗，兵解重修，跌回凡人。`);
+    else if (!r.success) logs.push(r.fate === 'death' ? `⚡ ${g.name}渡劫失敗，身死道消……` : r.fate === 'saved' ? `⚡ ${g.name}渡劫失敗，滿血復生，保留境界。` : `⚡ ${g.name}渡劫失敗。`);
   }
   return logs;
 }
@@ -367,7 +352,7 @@ export function aiShop(state: GameState, lord: Lord, offers: Offer[]): Offer | n
       if (['realmkey', 'realmescape'].includes(o.item.defId)) return deployable(state, lord.id).length > 0 && !lord.items.some(i => i.defId === o.item.defId);
       // 有將領快要渡劫時，優先買護法陣
       if (['thunderward', 'fiveward'].includes(o.item.defId)) return generalsOf(state, lord.id).some((g) => g.realm >= 2 && g.exp >= expCap(g) * 0.6);
-      return def(o.item).category === '丹藥' || ['cushion', 'prison', 'stride', 'truce', 'citadel', 'siegebreak', 'demon', 'mend', 'vein', 'soldiers', 'shuttle'].includes(o.item.defId);
+      return def(o.item).category === '丹藥' || ['cushion', 'prison', 'stride', 'truce', 'citadel', 'siegebreak', 'mend', 'vein', 'soldiers', 'shuttle'].includes(o.item.defId);
     }
     return true;
   });

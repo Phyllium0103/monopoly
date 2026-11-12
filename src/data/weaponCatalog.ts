@@ -2,7 +2,7 @@ import type { Equipment } from '../game/types';
 
 export type MaterialGroup = '魄' | '髓' | '銅' | '砂' | '絲' | '玉';
 export const WEAPON_GRADES = ['黃階', '玄階', '地階', '天階'] as const;
-export const WEAPON_PENETRATION = [0.10, 0.25, 0.40, 0.60] as const;
+export const WEAPON_PENETRATION = [0.05, 0.15, 0.25, 0.40] as const;
 export const WEAPON_UPGRADE_COST = [10, 5, 1] as const;
 export const MATERIAL_GROUPS: MaterialGroup[] = ['魄', '髓', '銅', '砂', '絲', '玉'];
 export const MATERIAL_NAMES: Record<MaterialGroup, readonly [string, string, string]> = {

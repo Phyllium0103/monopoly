@@ -7,6 +7,7 @@ import { fmtStones } from '../game/Currency';
 import { SHOP_NAMES, SHOP_REFRESH_COSTS, type Offer, type ShopKind } from '../systems/ShopSystem';
 import type { Dialog } from './Dialog';
 import { itemInfoHtml } from './ItemUI';
+import { detailCard, itemDetail, enableItemDetails } from './ItemDetail';
 import { generalBlock, generalBrief } from './GeneralInfo';
 import { beastIconUrl, equipIconUrl, itemIconUrl, portraitUrl } from './Icons';
 import type { ShopAction, ShopPromptData } from '../engine/prompts';
@@ -42,7 +43,7 @@ export class ShopPanel {
     page: number;
   } | null = null;
 
-  constructor(private dialog: Dialog) {}
+  constructor(private dialog: Dialog) { enableItemDetails(); }
 
   get isOpen() {
     return !!this.session;
@@ -151,6 +152,7 @@ export class ShopPanel {
       const iconHtml = iconSrc ? `<img class="sr-icon${o.kind === 'general' || o.kind === 'revive' ? ' general-portrait' : ''}" src="${iconSrc}" alt="" onerror="this.style.visibility='hidden'">` : '';
       row.innerHTML = `${iconHtml}${main}<div class="sr-price">${s.mode === 'sell' ? '+' : ''}${fmtStones(o.price)}</div>`;
       row.tabIndex = 0;
+      if(o.kind!=='general'&&o.kind!=='revive') row.dataset.itemDetail=offerDetail(o,`購買價格 · ${fmtStones(o.price)}`);
       if (o.kind !== 'general' && o.kind !== 'revive') {
         const info = row.querySelector('small');
         if (info) { info.classList.add('shop-product-info'); row.setAttribute('aria-label', `${o.label}，${o.price}靈石`); }
@@ -262,6 +264,7 @@ export class ShopPanel {
       cell.querySelector('span')!.textContent = name;
       cell.title = index < 0 ? `${name}：本店不收購` : `${name}：售價 ${fmtStones(data.sellStock[index].price)}`;
       cell.setAttribute('aria-label',cell.title);
+      if(index>=0) { cell.dataset.itemDetail=offerDetail(data.sellStock[index],`出售可得 · ${fmtStones(data.sellStock[index].price)}`);cell.removeAttribute('title'); }
       cell.classList.toggle('not-accepted',index < 0);
       cell.onclick = () => {
         inventory.querySelectorAll('.selected').forEach(el=>el.classList.remove('selected'));
@@ -283,6 +286,10 @@ export class ShopPanel {
 
 function offerUid(o: Offer): string {
   return o.kind==='item'?o.item.uid:o.kind==='equipment'?o.equipment.uid:o.kind==='technique'?o.technique.uid:o.kind==='beast'?o.beast.uid:'';
+}
+function offerDetail(o:Offer,footer:string):string {
+  if(o.kind==='item')return itemDetail(o.item.defId,o.item.tier,footer);
+  return detailCard(o.label,o.kind==='equipment'?'仙衣':o.kind==='technique'?'功法':'靈獸',offerIcon(o),`<h4>能力與效果</h4><p>${o.sub.replace(/｜/g,'<br>').replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,'')}</p>`,footer);
 }
 function offerIcon(o: Offer): string {
   return o.kind==='item'?itemIconUrl(o.item.defId):o.kind==='equipment'?equipIconUrl(o.equipment):o.kind==='technique'?techniqueIconUrl(o.technique):o.kind==='beast'?beastIconUrl(o.beast):o.kind==='general'||o.kind==='revive'?portraitUrl(o.general):'';

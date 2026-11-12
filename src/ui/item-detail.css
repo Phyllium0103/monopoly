@@ -1,0 +1,15 @@
+.item-detail-popover { position:fixed; z-index:2147483647; width:min(360px,calc(100vw - 16px)); max-height:calc(100dvh - 16px); overflow:auto; pointer-events:none; color:#f5edd8; background:#182b25; border:1px solid #aa9465; border-radius:8px; box-shadow:0 12px 40px #0008; font-family:Georgia,'Noto Serif TC',serif; text-align:left; font-size:14px; line-height:1.65; }
+.item-detail-popover[hidden] { display:none; }
+.item-detail-card header { display:flex; align-items:center; gap:14px; padding:18px; background:linear-gradient(120deg,#31483b,#1c3028); border-bottom:1px solid #aa946566; }
+.item-detail-card header img { width:64px; height:64px; object-fit:contain; background:#eadfc4; border-radius:6px; padding:4px; box-sizing:border-box; }
+.item-detail-card small { color:#d0bf95; font-size:12px; letter-spacing:.12em; }
+.item-detail-card h3 { color:#fff6dc; font-size:22px; line-height:1.35; margin:5px 0 0; }
+.item-detail-card section { padding:16px 18px; }
+.item-detail-card h4 { color:#bfb28f; font-size:11px; letter-spacing:.18em; font-weight:400; margin:0 0 8px; }
+.item-detail-card p { margin:0 0 16px; color:#f1ead9; }
+.item-detail-card b { color:#ffe2a0; font-variant-numeric:tabular-nums; }
+.item-detail-card dl { margin:0; display:grid; gap:1px; background:#b9a36a25; border:1px solid #b9a36a25; }
+.item-detail-card dl div { display:flex; justify-content:space-between; gap:12px; background:#21372e; padding:7px 10px; }
+.item-detail-card dt { color:#c4c9b8; font-size:12px; }
+.item-detail-card dd { margin:0; color:#fff1c9; font-weight:600; }
+.item-detail-card footer { border-top:1px solid #b9a36a40; padding:11px 18px; color:#e6c98c; font-size:13px; }

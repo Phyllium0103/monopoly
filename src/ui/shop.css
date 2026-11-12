@@ -26,6 +26,7 @@
 .shop-window .sr-main { width:100%; min-width:0; flex:none; font-size:14px; }
 .shop-window .sr-main small.shop-product-info { display:none; position:absolute; inset:8px 8px auto; z-index:5; background:#18251ff5; color:#f4e8ca; padding:14px; box-shadow:0 8px 22px #0004; font-size:13px; text-align:left; max-height:190px; overflow:auto; }
 .shop-window .shop-row:hover .shop-product-info,.shop-window .shop-row:focus-within .shop-product-info { display:block; }
+.shop-window .shop-row .shop-product-info { display:none!important; }
 .shop-window .sr-price { color:var(--shop-ink); width:auto; font-size:17px; margin-top:auto; }
 .shop-window .sr-actions { width:100%; display:flex; flex-direction:row; justify-content:center; flex-wrap:wrap; }
 .shop-window .btn.primary { background:var(--shop-ink); border-color:var(--shop-accent); color:#fff5df; }

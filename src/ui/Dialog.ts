@@ -83,7 +83,14 @@ export class Dialog {
       card.style.setProperty('--breakthrough', '1');
       card.classList.add('breakthrough-dialog');
     }
-    if (/自廢修為|本命武器突破|本命武器升階|行囊已滿/.test(title)) { card.classList.add('breakthrough-dialog'); icon = ''; if (/自廢修為|行囊已滿/.test(title)) card.classList.add('abolish-dialog'); }
+    if (/自廢修為|本命武器突破|本命武器升階|行囊已滿/.test(title)) {
+      card.classList.add('breakthrough-dialog', 'equipment-decision-dialog');
+      icon = '';
+      if (title === '自廢修為') card.classList.add('abolish-dialog');
+      else if (title === '行囊已滿') card.classList.add('capacity-dialog');
+      else card.classList.add('weapon-dialog');
+      if (title === '本命武器升階成功') card.classList.add('weapon-success-dialog');
+    }
     card.innerHTML = `${icon ? `<div class="dialog-icon">${icon}</div>` : ''}<h2>${title}</h2>${text ? `<div class="dialog-text">${text.replace(/\n/g, '<br>')}</div>` : ''}`;
     this.el.appendChild(card);
     return card;

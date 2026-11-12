@@ -2936,6 +2936,70 @@ body:has(#ui .help-backdrop:not(.hidden), #ui .dialog-backdrop:not(.hidden), #ui
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 2px #362006);
 }
+/* Equipment decisions keep ink legible on paper, with restrained seal colours. */
+.dialog.equipment-decision-dialog {
+  --decision-ink: #704a20;
+  --decision-accent: #a27b3d;
+  --decision-button: #705022;
+  --decision-button-end: #523915;
+  border-color: #a78a59;
+  background: radial-gradient(ellipse at 50% 0, #fff8e5, transparent 75%), linear-gradient(var(--paper), var(--paper-2));
+}
+.dialog.equipment-decision-dialog.abolish-dialog {
+  --decision-ink: #843d39;
+  --decision-accent: #aa7770;
+  --decision-button: #864a42;
+  --decision-button-end: #66352f;
+}
+.dialog.equipment-decision-dialog.weapon-success-dialog {
+  --decision-ink: #31584a;
+  --decision-accent: #71866a;
+  --decision-button: #456552;
+  --decision-button-end: #304c3d;
+}
+.dialog.equipment-decision-dialog > h2 {
+  gap: 14px;
+  padding-top: 19px !important;
+  padding-bottom: 15px !important;
+  color: var(--decision-ink);
+  -webkit-text-fill-color: currentColor;
+  background: radial-gradient(ellipse at 50% 0, #fff8e5, transparent 85%), linear-gradient(#f6ecd4, var(--paper));
+  border-bottom: 1px solid #a78a5940;
+  filter: none;
+  font-size: clamp(25px, 3.2vw, 34px);
+  letter-spacing: .08em;
+  text-shadow: 0 1px #fff9e9;
+}
+.dialog.equipment-decision-dialog > h2::before,
+.dialog.equipment-decision-dialog > h2::after {
+  content: '';
+  flex: 1 1 18px;
+  max-width: 48px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--decision-accent));
+}
+.dialog.equipment-decision-dialog > h2::after { transform: rotate(180deg); }
+.dialog.equipment-decision-dialog > .dialog-text { padding-top: 18px; color: #493d2e; }
+.dialog.equipment-decision-dialog .dialog-buttons .btn.primary {
+  background: linear-gradient(var(--decision-button), var(--decision-button-end));
+  border-color: var(--decision-accent);
+  color: #fff6e3;
+  text-shadow: 0 1px 1px #24180d66;
+  box-shadow: inset 0 1px #ffffff20, 0 2px 4px #36200620;
+}
+.dialog.equipment-decision-dialog .btn:focus-visible { outline: 2px solid var(--decision-ink); outline-offset: 3px; }
+.dialog.weapon-dialog .weapon-upgrade-summary small { color: #705a36; font-size: 13px; letter-spacing: .14em; }
+.dialog.weapon-dialog .weapon-upgrade-summary h3 {
+  margin: 16px 0;
+  padding: 14px 12px;
+  border-block: 1px solid #a78a5940;
+  background: #a78a5910;
+  color: var(--decision-ink);
+  font-size: clamp(20px, 2.6vw, 25px);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.dialog.weapon-dialog .weapon-upgrade-summary p { color: #493d2e; line-height: 1.8; }
 .core-person { position: relative; display: inline-block; }
 .core-person strong,.cultivation-name { color: #e8bf65; }
 .core-person-tip { display:none; position:absolute; z-index:10; min-width:300px; background:#151b22; padding:12px; border:1px solid #b69a54; }

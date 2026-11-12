@@ -181,7 +181,6 @@
 .roster-screen .general-modal .gc-art img { position:static; margin:auto; transform:none; object-position:center; }
 .roster-screen .break-info:empty,.roster-screen .gc-actions:empty { display:none; }
 .roster-screen .roster-item::before,.roster-screen .roster-item::after { display:none; }
-.abolish-dialog h2 { color:#ef8884; background:none; -webkit-text-fill-color:#ef8884; }
 
 .roster-screen .roster-close { margin-left:auto; width:38px; height:38px; padding:0; border-radius:50%; border:1px solid #baa47766; background:#1c281f; color:#e7d8b5; font-size:22px; }
 .roster-screen .equipment-compatible { border:1px solid #b4c887!important; background:radial-gradient(ellipse,#40543888,#253329)!important; box-shadow:0 0 0 1px #b4c88755,inset 0 0 8px #b4c88722!important; }
@@ -202,12 +201,8 @@
 .general-modal .dossier-breakthrough { margin-left:auto; flex:none; }
 .general-modal .dossier-location { position:relative; }
 .general-modal .dossier-transfer { position:absolute; left:calc(50% + 24px); white-space:nowrap; padding:4px 6px; font-size:11px; }
-.abolish-dialog .dialog-buttons .btn.primary { color:#ef8884; border-color:#ef888488; background:#572c2b55; }
 .dialog .material-label,.general-modal .material-label { display:inline; line-height:inherit; vertical-align:baseline; }
 .dialog .material-icon,.general-modal .weapon-material-cost .material-icon { width:1em; height:1em; max-width:1em; max-height:1em; vertical-align:-.12em; margin-right:.25em; }
-.weapon-upgrade-summary small { color:#bda980; letter-spacing:.16em; }
-.weapon-upgrade-summary h3 { color:#efd7a1; margin:14px 0; font-size:21px; }
-.weapon-upgrade-summary p { line-height:1.8; }
 .equipment-notice strong { font-size:22px; }
 .replacement-panel { border-bottom:1px solid #ef888455; padding:0 0 12px; margin-bottom:12px; }
 .replacement-panel h3 { color:#ef8884; margin:0 0 6px; }

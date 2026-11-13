@@ -79,6 +79,7 @@ export class Dialog {
     this.el.innerHTML = '';
     const card = document.createElement('div');
     card.className = 'dialog scroll-card';
+    if(title==='修為圓滿') card.classList.add('breakthrough-ready-dialog');
     if (['吐納天地', '氣聚成液', '真元極縮', '破而後立', '歷練紅塵', '五行圓滿', '煉化神物', '逆天而行', '九州歸心', '破界飛升'].some(t => title.startsWith(t)) || /仙凡有別|百川匯海|大道初成|破繭成蝶|大象無形|五行歸一|神物為樞|極道承壓|四海歸心|叩問閶闔/.test(title)) {
       card.style.setProperty('--breakthrough', '1');
       card.classList.add('breakthrough-dialog');

@@ -46,5 +46,26 @@ function fixture(actions){
     await engine.runDuel(duel,lord,state.lords.cao,'Direct item check');
     assert.equal(asks,2);assert.equal(user.stamina,stamina-cost);assert.equal(lord.items.length,0);assert.ok(duel.a.atk>attack);
   });
+  await test('Approved complete item weights and graft price match user table',async()=>{
+    const {ITEM_DEFS}=require('../src/data/items.ts');
+    const expected={"clearmind":1,"heal":1,"force":1,"guard":1,"qi":1,"essence":1,"foundation":1,"vigor":1,"poison":1,"bone":1,"revive":1,"rootup1":0.25,"rootup2":0.25,"reset":0.5,"rage":1,"five":0.5,"talentrefund":0.5,"talentreset":0,"truce":1,"vajra":1,"ring":1,"shuttle":1,"bowl":1,"bag":1,"cloud":1,"bow":1,"blood":1,"wheel":1,"totem":0.25,"cushion":1,"realmkey":0.5,"teleport":1,"confuse":1,"citadel":1,"thunderward":1,"fiveward":1,"mend":1,"vein":1,"mist":1,"sacrifice":1,"seven":0.5,"invert":1,"lock":1,"graft":0.1,"demon":1,"dice":1,"stride":1,"freeze":1,"ghost":1,"siegebreak":1,"shield":1,"charge":1,"drain":1,"soldiers":1,"confusing":1,"transmission":1,"move":1,"breath":1,"substitute":1,"rootdown":0.25,"prison":1,"realmescape":1};
+    assert.deepEqual(Object.keys(ITEM_DEFS).sort(),Object.keys(expected).sort());
+    for(const [id,weight] of Object.entries(expected))assert.equal(ITEM_DEFS[id].weight,weight,id);
+    assert.deepEqual(ITEM_DEFS.graft.price,[150000]);assert.deepEqual(ITEM_DEFS.graft.sellPrice,[75000]);
+  });
+  await test('Graft exchanges both city bindings without realm or cultivation loss',async()=>{
+    const {state,lord,user}=fixture([]),enemy=state.generals.caocao;
+    const a=Object.values(state.cities).find(c=>c.owner===lord.id),b=Object.values(state.cities).find(c=>c.owner==='cao');
+    user.realm=9;user.exp=123;user.boundCityId=a.id;enemy.realm=10;enemy.exp=456;enemy.boundCityId=b.id;
+    const item=makeItem('graft-bindings','graft',0);lord.items=[item];
+    const beforeA=[...a.garrisonGenerals],beforeB=[...b.garrisonGenerals];
+    await require('../src/systems/ItemSystem.ts').usePreroll(state,lord,item,user,{city:b,ownCity:a});
+    const afterUseExp=user.exp;assert(afterUseExp>=123,'normal item-use cultivation is retained');
+    require('../src/systems/GeneralSystem.ts').reconcileProgression(state);
+    assert.equal(user.boundCityId,b.id);assert.equal(enemy.boundCityId,a.id);
+    assert.equal(user.realm,9);assert.equal(user.exp,afterUseExp);assert.equal(enemy.realm,10);assert.equal(enemy.exp,456);
+    assert.equal(a.owner,'cao');assert.equal(b.owner,lord.id);assert.deepEqual(a.garrisonGenerals,beforeB);assert.deepEqual(b.garrisonGenerals,beforeA);
+    assert.equal(lord.items.length,0);
+  });
   console.log(`${passed} focused direct-item checks passed`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

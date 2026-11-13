@@ -60,7 +60,7 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
       return merchantStock(state);
     case 'herb': {
       const G1 = '丹藥';
-      const potions: Offer[] = Array.from({ length: 12 }).flatMap(() => {
+      const potions: Offer[] = Array.from({ length: 20 }).flatMap(() => {
         const pool = Object.keys(ITEM_DEFS).filter(id => ITEM_DEFS[id].category === '丹藥');
         const defId = rollItemId(pool);
         if (!defId) return [];
@@ -209,9 +209,9 @@ export function makeSellStock(lord: Lord, kind: ShopKind): SaleOffer[] {
     if (!all && !(kind === 'herb' && d.category === '丹藥') && !(kind === 'treasure' && ['法器', '陣法', '符籙'].includes(d.category))) continue;
     stock.push({ kind: 'item', item, label: itemName(item.defId, item.tier), sub: d.desc(item.tier), price: price(saleBasis(item)) });
   }
-  if (all || kind === 'forge') for (const equipment of lord.gear.filter(e => e.kind === 'armor' && !e.fixedGeneralId))
+  if (all || kind === 'forge' || kind === 'library') for (const equipment of lord.gear.filter(e => e.kind === 'armor' && !e.fixedGeneralId))
     stock.push({ kind: 'equipment', equipment, label: equipment.name, sub: equipDesc(equipment, false), price: price(saleBasis(equipment)) });
-  if (all || kind === 'library') for (const technique of lord.scrolls)
+  if (all || kind === 'library' || kind === 'forge') for (const technique of lord.scrolls)
     stock.push({ kind: 'technique', technique, label: technique.name, sub: techniqueDesc(technique), price: price(saleBasis(technique)) });
   if ((all || kind === 'beast') && lord.beast) {
     const beast = lord.beast;

@@ -1,0 +1,23 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const {registerHooks,stripTypeScriptTypes}=require('node:module');
+const {pathToFileURL,fileURLToPath}=require('node:url');
+registerHooks({resolve(s,c,n){if(s.startsWith('.')&&!path.extname(s)&&c.parentURL){const p=path.resolve(path.dirname(fileURLToPath(c.parentURL)),s+'.ts');if(fs.existsSync(p))return n(pathToFileURL(p).href,c);}return n(s,c);},load(u,c,n){return u.endsWith('.ts')?{format:'module',shortCircuit:true,source:stripTypeScriptTypes(fs.readFileSync(fileURLToPath(u),'utf8'),{mode:'transform'})}:n(u,c);}});
+const {createGameState,killGeneral}=require('../src/game/GameState.ts');
+const {makeStock,makeSellStock}=require('../src/systems/ShopSystem.ts');
+const {makeEquipment,makeTechnique}=require('../src/data/items.ts');
+const {Engine}=require('../src/engine/Engine.ts');
+const {RecordingView}=require('../src/engine/view.ts');
+(async()=>{
+ const state=createGameState('liu'),lord=state.lords.liu;lord.stones=1e8;
+ assert.equal(makeStock(state,lord,'herb').filter(o=>o.kind==='item').length,20);
+ lord.gear=[makeEquipment('trade-armor','armor',0,'chiyou-huang')];lord.scrolls=[makeTechnique('trade-scroll',0)];
+ for(const kind of ['forge','library'])assert.deepEqual(new Set(makeSellStock(lord,kind).map(o=>o.kind)),new Set(['equipment','technique']));
+ const dead=Object.values(state.generals).filter(g=>g.owner==='liu'&&!g.isLord).slice(0,2);assert.equal(dead.length,2);
+ dead[0].armor=lord.gear[0];dead[0].technique=lord.scrolls[0];const saved=structuredClone({weapon:dead[0].weapon,armor:dead[0].armor,technique:dead[0].technique});
+ for(const g of dead)killGeneral(state,g);
+ const offers=makeStock(state,lord,'herb');const indices=dead.map(g=>offers.findIndex(o=>o.kind==='revive'&&o.general.id===g.id));assert(indices.every(i=>i>=0));
+ let call=0;const engine=new Engine(state,{view:new RecordingView(),send:async(_id,p)=>{assert.equal(p.kind,'shop');if(call++===0)return{type:'buy',index:indices[0]};assert.equal(p.shop.revivedOther,true);if(call===2)return{type:'buy',index:indices[1]};return{type:'leave'};},isAuto:()=>false,multiplayer:false});
+ await engine.shopFlow(lord,'herb',offers);
+ assert.notEqual(dead[0].status,'dead');assert.equal(dead[1].status,'dead');assert.deepEqual({weapon:dead[0].weapon,armor:dead[0].armor,technique:dead[0].technique},saved);
+ console.log('PASS twenty pills, cross-store gear trade, one revival per visit, equipment preserved');
+})().catch(e=>{console.error(e);process.exitCode=1});

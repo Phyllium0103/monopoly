@@ -108,7 +108,7 @@ function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:Pr
  case 'sacrifice':{const c=target.city!,loss=Math.round(c.garrisonSoldiers*SACRIFICE_LOSS[t]);c.garrisonSoldiers-=loss;return head+'，'+c.name+'守軍 -'+loss+'。';}
  case 'seven':g!.sevenLife=true;return head+'，'+g!.name+'下次渡劫若身死，滿血復生，修為減半。';
  case 'lock':case 'freeze':target.lord!.stunned=Math.max(1,target.lord!.stunned);target.lord!.itemsLocked=Math.max(1,target.lord!.itemsLocked);return head+'，'+LORDS[target.lord!.id].name+'下回合擲骰時原地停留並觸發所在格事件，該回合不能使用物品。';
- case 'graft':{const a=target.ownCity!,b=target.city!;[a.owner,b.owner]=[b.owner,a.owner];[a.garrisonGenerals,b.garrisonGenerals]=[b.garrisonGenerals,a.garrisonGenerals];[a.garrisonSoldiers,b.garrisonSoldiers]=[b.garrisonSoldiers,a.garrisonSoldiers];for(const c of [a,b])for(const id of c.garrisonGenerals)state.generals[id].cityId=c.id;return head+'，'+a.name+'與'+b.name+'交換所有權，駐將與士兵隨原主公轉移。';}
+ case 'graft':{const a=target.ownCity!,b=target.city!;[a.owner,b.owner]=[b.owner,a.owner];[a.garrisonGenerals,b.garrisonGenerals]=[b.garrisonGenerals,a.garrisonGenerals];[a.garrisonSoldiers,b.garrisonSoldiers]=[b.garrisonSoldiers,a.garrisonSoldiers];for(const c of [a,b])for(const id of c.garrisonGenerals)state.generals[id].cityId=c.id;for(const bound of Object.values(state.generals)){if(bound.boundCityId===a.id)bound.boundCityId=b.id;else if(bound.boundCityId===b.id)bound.boundCityId=a.id;}return head+'，'+a.name+'與'+b.name+'交換所有權，駐將、士兵與供奉隨原主公轉移，供奉武將境界保留。';}
  case 'cushion':case 'prison':lord.stayThisTurn=true;return head+'，己方主公本回合擲骰時原地停留，並觸發所在格事件。';
  case 'dice':lord.fixedDice=target.dice!;return head+'，本回合骰子 '+target.dice+' 點。';
  case 'stride':lord.diceCount=target.diceCount!;return head+'，本回合擲 '+lord.diceCount+' 顆骰子。';

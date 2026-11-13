@@ -348,11 +348,11 @@ export class Engine {
     if (!ids.length) return;
     const names = ids.map((id) => this.state.generals[id].name).join('、');
     const go = await this.dlg(lord).confirm(
-      '✨ 修為圓滿，可以突破了！',
-      `${names}修為已滿，進入瓶頸。\n到「武將名冊」就能嘗試突破（金丹以上要渡雷劫），現在前往嗎？`,
+      '修為圓滿',
+      `${names}\n已至境界瓶頸，可以嘗試突破。\n前往武將名冊，查看突破條件與風險。`,
       '前往突破',
       '稍後再說',
-      '✨',
+      '',
     );
     if (go) await this.rosterFlow(lord);
     this.view.refresh();
@@ -1281,12 +1281,12 @@ export class Engine {
         if (!o || sold.has(a.index) || lord.stones < o.price) continue;
         if (o.kind === 'general' && (o.general.owner || o.general.status === 'dead')) continue;
         if (kind === 'tavern' && recruited >= recruitLimit) continue;
-        if (o.kind === 'revive' && !o.own && revivedOther) continue;
+        if (o.kind === 'revive' && revivedOther) continue;
         const r = buy(this.state, lord, o);
         if (r.ok) {
           sold.add(a.index);
           if (kind === 'tavern') recruited++;
-          if (o.kind === 'revive' && !o.own) revivedOther = true;
+          if (o.kind === 'revive') revivedOther = true;
           this.view.log(r.message, 'good');
         }
       } else if (a.type === 'sell') {

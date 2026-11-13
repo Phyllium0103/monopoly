@@ -108,7 +108,7 @@ export class Game {
     this.generalsView = new GeneralsView(uiRoot);
     this.inspectRoster = new GeneralsView(uiRoot);
     this.battleView = new BattleView(uiRoot);
-    this.shop = new ShopPanel(this.dialog);
+    this.shop = new ShopPanel(this.dialog, g => this.inspectRoster.inspectionCard(this.state,this.state.lords[this.me],g));
     this.casino = new CasinoPanel(this.dialog);
     this.help = new HelpView(uiRoot);
     this.rankView = new RankView(uiRoot);

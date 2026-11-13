@@ -115,6 +115,11 @@ export function sortRosterGenerals(gens: General[], state: GameState, sortId: st
 }
 
 export class GeneralsView {
+  inspectionCard(state: GameState, lord: Lord, g: General): HTMLElement {
+    const previous=this.mode;
+    this.mode={manage:false,free:false,inspect:true};
+    try { return this.card(state,lord,g,false); } finally { this.mode=previous; }
+  }
   /** 目前的排序項目，預設戰力 */
   private sortId = 'default';
   private reverse = false;

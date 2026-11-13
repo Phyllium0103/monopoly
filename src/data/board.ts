@@ -202,7 +202,7 @@ function buildBoard() {
 
 export const LEGACY_BOARD = buildBoard();
 export const BOARD = buildSelectedBoard();
-export const MAP_RULES_VERSION = 'shop-stock-20261112';
+export const MAP_RULES_VERSION = 'shop-revive-trade-20261113';
 /** A P2P room must use the current map and both recruitment frontage triggers. */
 export function hasCurrentBoard(state: { rulesVersion?: string; tiles: Tile[] }): boolean {
   return state.rulesVersion === MAP_RULES_VERSION && state.tiles.length === BOARD.tiles.length

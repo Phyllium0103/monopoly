@@ -92,7 +92,13 @@ export class Dialog {
       else card.classList.add('weapon-dialog');
       if (title === '本命武器升階成功') card.classList.add('weapon-success-dialog');
     }
-    card.innerHTML = `${icon ? `<div class="dialog-icon">${icon}</div>` : ''}<h2>${title}</h2>${text ? `<div class="dialog-text">${text.replace(/\n/g, '<br>')}</div>` : ''}`;
+    if ((card.classList.contains('breakthrough-dialog') && !card.classList.contains('abolish-dialog') && !card.classList.contains('capacity-dialog')) || title === '突破失敗' || title === '修為圓滿') {
+      card.classList.add('jade-dialog');
+      if (title === '突破失敗') card.classList.add('jade-failure');
+      icon = '';
+    }
+    if (card.classList.contains('abolish-dialog') || card.classList.contains('capacity-dialog')) card.classList.add('folio-note-dialog');
+    card.innerHTML = `${card.classList.contains('jade-dialog') ? '<div class="jade-surface" aria-hidden="true"></div>' : ''}${icon ? `<div class="dialog-icon">${icon}</div>` : ''}<h2>${title}</h2>${text ? `<div class="dialog-text">${text.replace(/\n/g, '<br>')}</div>` : ''}`;
     this.el.appendChild(card);
     return card;
   }

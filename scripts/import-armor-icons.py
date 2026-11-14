@@ -1,6 +1,6 @@
 """Compress approved transparent armor illustrations for the 54px roster and art pack.
 
-Usage: python scripts/import-armor-icons.py [--source output/armor-four-tiers-style02-20261111]
+Usage: python scripts/import-armor-icons.py --source /path/to/approved-armor
 Requires Pillow. Source PNGs remain untouched.
 """
 import argparse
@@ -18,7 +18,7 @@ def digest(data):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--source', type=Path, default=ROOT / 'output/armor-four-tiers-style02-20261111')
+    parser.add_argument('--source', type=Path, required=True)
     args = parser.parse_args()
     target = ROOT / 'public/art/icons/armor'
     target.mkdir(parents=True, exist_ok=True)

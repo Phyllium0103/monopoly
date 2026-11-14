@@ -39,7 +39,7 @@ console.log('PASS distinct three-character captions and only the requested portr
 {
  const g=state.generals.liubei;
  const plain=generalHoverTable(g);
- assert.ok(plain.startsWith('<table class="gh">')&&!/gh-(ok|bad|focus)/.test(plain),'no emphasis without a selected item');
+ assert.ok(/^<table class="gh"(?:\s[^>]*)?>/.test(plain)&&!/gh-(ok|bad|focus)/.test(plain),'no emphasis without a selected item');
  assert.ok(plain.includes('apt-'+g.aptitude),'aptitude is always shown');
  const table=generalHoverTable(g,{hp:123,maxHp:600,atk:91,def:44});
  for(const value of ['123 / 600','>91<','>44<'])assert.ok(table.includes(value),'table uses battle stats '+value);

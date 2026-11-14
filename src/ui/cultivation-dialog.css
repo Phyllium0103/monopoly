@@ -1,0 +1,72 @@
+@import './folio-type.css';
+/* Original jade-scroll direction informed by CSSDA-recognised MILEZ and YURUMARU. */
+.dialog.jade-dialog,.dialog.folio-note-dialog { font-family:'Folio WenKai','Noto Serif TC',serif;color:#2f493c;isolation:isolate; }
+.dialog.jade-dialog { --jade-panel-width:min(760px,calc(94 * var(--ui-vw,1vw)));position:relative;width:var(--jade-panel-width);max-width:none!important;max-height:calc(90 * var(--ui-vh,1vh));min-height:calc(var(--jade-panel-width) * 2 / 3);padding:calc(var(--jade-panel-width) * .12) calc(var(--jade-panel-width) * .17)!important;border:0!important;border-radius:8px;background:none!important;box-shadow:none!important;animation:none;overflow:auto;scrollbar-width:none; }
+.dialog.jade-dialog>h2 { position:static!important;height:auto!important;min-height:0;margin:0 0 20px!important;padding:8px 0 16px!important;background:none!important;border:0;border-bottom:1px solid #839a7166!important;color:#315c47!important;-webkit-text-fill-color:currentColor!important;text-shadow:none!important;font:500 34px/1.4 'Folio WenKai',serif;letter-spacing:.14em; }
+.dialog.jade-dialog>h2::before,.dialog.jade-dialog>h2::after { display:none!important; }
+.dialog.jade-dialog>.dialog-text { position:static!important;margin:0!important;padding:0 0 20px!important;background:none!important;max-height:none!important;color:#3d5141;font-size:19px;line-height:1.85;text-align:center; }
+.dialog.jade-dialog .dialog-buttons { position:static!important;gap:14px;padding:18px 0 0!important;margin:0!important;border-top:1px solid #839a7166;background:none!important;justify-content:center; }
+.dialog.jade-dialog .btn { font:400 18px 'Folio WenKai',serif;min-width:110px;padding:10px 22px;border:1px solid #809275;border-radius:3px;background:#e7ebd6;color:#40583e;box-shadow:none;text-shadow:none; }
+.dialog.jade-dialog .dialog-buttons .btn.primary { border-color:#426c51;background:#355e48;color:#fff9df; }
+.dialog.jade-dialog .btn:hover:not(:disabled) { filter:brightness(1.05); }
+.dialog.jade-dialog .btn:focus-visible { outline:2px solid #8f773e;outline-offset:3px; }
+.dialog.jade-dialog .weapon-upgrade-summary :is(h3,small,p),.dialog.jade-dialog .core-person strong,.dialog.jade-dialog .cultivation-name { color:#34523f!important;background:none!important;-webkit-text-fill-color:currentColor!important;text-shadow:none!important; }
+.dialog.jade-dialog .weapon-upgrade-summary h3 { font:500 29px/1.5 'Folio WenKai',serif!important;margin:8px 0;letter-spacing:.08em; }
+.dialog.jade-dialog .weapon-upgrade-summary small { font-size:16px; }
+.dialog.jade-dialog .weapon-upgrade-summary p { font-size:19px; }
+.dialog.jade-dialog .material-icon { width:1.1em;height:1.1em; }
+.dialog.jade-dialog .choice { background:#eff1de;border:1px solid #9dac8d;border-radius:3px;color:#314d3b; }
+.dialog.jade-dialog .choice :is(b,small) { color:inherit; }
+.dialog.jade-failure>h2 { color:#874b38!important; }
+.dialog.folio-note-dialog { width:min(620px,calc(92 * var(--ui-vw,1vw)));padding:34px 38px;background:linear-gradient(125deg,#fff4da77,transparent 60%),#eddfbf!important;border:1px solid #a88a5c!important;border-radius:2px;box-shadow:0 22px 60px #29180f66!important; }
+.dialog.folio-note-dialog>h2 { position:static;height:auto;margin:0 0 16px;padding:0 0 16px;background:none!important;color:#8a4230!important;-webkit-text-fill-color:currentColor!important;border-bottom:3px double #a98c6155;text-shadow:none!important;font:500 32px/1.4 'Folio WenKai',serif; }
+.dialog.folio-note-dialog>h2::before,.dialog.folio-note-dialog>h2::after { display:none!important; }
+.dialog.folio-note-dialog>.dialog-text { position:static;margin:0;padding:0 0 18px;color:#57412e;background:none;font-size:18px;line-height:1.8; }
+.dialog.folio-note-dialog .dialog-buttons { position:static;margin:0;padding:16px 0 0;background:none;border-top:1px solid #a98c6155; }
+.dialog.folio-note-dialog .btn { font:400 18px 'Folio WenKai',serif;background:#f4e8cd;color:#62472f;border:1px solid #a98b5d;border-radius:2px; }
+.dialog.folio-note-dialog .dialog-buttons .btn.primary { background:#8c4735;color:#fff2d7;border-color:#7a3d2b; }
+@container game-ui (max-width:850px) { .dialog.jade-dialog { padding-block:42px 38px; }.dialog.jade-dialog>h2 { font-size:29px; }.dialog.jade-dialog>.dialog-text { font-size:18px; } }
+
+/* Keep every rule inside the blank writing surface, beyond both painted rollers. */
+.dialog.jade-dialog.weapon-dialog { --jade-panel-width:min(1040px,calc(94 * var(--ui-vw,1vw)));height:calc(var(--jade-panel-width) * 2 / 3);display:grid;grid-template-rows:auto minmax(0,1fr) auto;max-height:none;overflow:visible; }
+.dialog.jade-dialog.weapon-dialog>h2 { font-size:30px;line-height:1.35;letter-spacing:.08em;margin:0!important;padding:0 0 14px!important; }
+.dialog.jade-dialog.weapon-dialog>.dialog-text { display:flex;align-items:center;justify-content:center;padding:12px 0!important;font-size:18px; }
+.dialog.jade-dialog.weapon-dialog .weapon-upgrade-summary { width:100%; }
+.dialog.jade-dialog.weapon-dialog>.dialog-text { overflow:visible; }
+.dialog.jade-dialog.weapon-dialog .weapon-upgrade-summary h3 { margin:14px 0;padding:10px 0;border:0;overflow-wrap:anywhere; }
+.dialog.jade-dialog.weapon-dialog .weapon-upgrade-summary p { margin:14px 0; }
+
+@keyframes jade-writing-in { from { opacity:0;translate:0 3px; } to { opacity:1;translate:0 0; } }
+
+/* Four painted states replace the procedural roller approximation. */
+.dialog.jade-dialog>.jade-surface { position:absolute;inset:0;z-index:-1;pointer-events:none;background:url('/src/ui/jade-frames.webp') 100% 100%/200% 200% no-repeat;animation:jade-painted-open .4s steps(1,end) both; }
+.dialog.jade-dialog::before,.dialog.jade-dialog::after,.dialog.jade-dialog.breakthrough-ready-dialog::before { display:none!important;animation:none; }
+.dialog.jade-dialog>:not(.jade-surface) { animation:jade-writing-in .08s .32s ease-out both; }
+@keyframes jade-painted-open { 0% { background-position:0 0; } 25% { background-position:100% 0; } 50% { background-position:0 100%; } 75%,100% { background-position:100% 100%; } }
+@media(prefers-reduced-motion:reduce) { .dialog.jade-dialog>.jade-surface,.dialog.jade-dialog>:not(.jade-surface) { animation:none; } }
+
+/* Compact the typography and controls inside the artwork, rather than enlarging it. */
+.dialog.jade-dialog { --jade-panel-width:min(720px,calc(94 * var(--ui-vw,1vw)));padding:calc(var(--jade-panel-width) * .125) calc(var(--jade-panel-width) * .17)!important; }
+.dialog.jade-dialog.weapon-dialog { --jade-panel-width:min(820px,calc(94 * var(--ui-vw,1vw))); }
+.dialog.jade-dialog>h2,.dialog.jade-dialog.weapon-dialog>h2 { font:30px/1.25 'Folio Title','Folio WenKai',serif!important;letter-spacing:.08em;margin:0 0 12px!important;padding:0 0 10px!important;color:#183e30!important;-webkit-text-fill-color:#183e30!important; }
+.dialog.jade-dialog>.dialog-text,.dialog.jade-dialog.weapon-dialog>.dialog-text { font-size:17px;line-height:1.6;color:#243e30!important;-webkit-text-fill-color:currentColor!important;padding:4px 0 12px!important; }
+.dialog.jade-dialog .dialog-text :is(p,span,b,strong,small) { color:inherit;-webkit-text-fill-color:currentColor;text-shadow:none; }
+.dialog.jade-dialog .dialog-buttons { gap:10px;padding:10px 0 0!important; }
+.dialog.jade-dialog .dialog-buttons .btn { font:16px/1.4 'Folio WenKai',serif!important;min-width:90px;padding:7px 15px!important;border:1px solid #6a7659!important;background:#d3d4b6!important;color:#263b2a!important;-webkit-text-fill-color:#263b2a!important;opacity:1;text-shadow:none!important;box-shadow:0 2px 3px #1c2b1426; }
+.dialog.jade-dialog .dialog-buttons .btn.primary { background:#294e39!important;border-color:#163e2b!important;color:#fff1cd!important;-webkit-text-fill-color:#fff1cd!important; }
+.dialog.jade-dialog .weapon-upgrade-summary small { font-size:12px;letter-spacing:.12em; }.dialog.jade-dialog .weapon-upgrade-summary h3 { font:25px/1.4 'Folio WenKai',serif!important;letter-spacing:.025em;margin:7px 0!important;padding:3px 0!important;color:#183e30!important; }.dialog.jade-dialog .weapon-upgrade-summary p { font-size:16px;line-height:1.55;margin:7px 0!important; }
+.dialog.jade-dialog.breakthrough-ready-dialog .dialog-text { font-size:19px;line-height:1.65;font-weight:500;color:#1d3e2c!important;-webkit-text-fill-color:#1d3e2c!important; }
+.dialog.jade-dialog.breakthrough-ready-dialog { height:calc(var(--jade-panel-width) * 2 / 3);display:grid;grid-template-rows:auto minmax(0,1fr) auto; }
+.dialog.jade-dialog.breakthrough-ready-dialog>.dialog-text { display:flex;align-items:center;justify-content:center; }
+
+/* Every jade state shares one centred heading, a scrollable middle and a bottom action rail. */
+.dialog.jade-dialog { --jade-panel-width:min(760px,calc(94 * var(--ui-vw,1vw))); }
+.dialog.jade-dialog,.dialog.jade-dialog.weapon-dialog,.dialog.jade-dialog.breakthrough-ready-dialog { display:flex!important;flex-direction:column;align-items:stretch;height:calc(var(--jade-panel-width) * 2 / 3);min-height:0;max-height:none;padding:calc(var(--jade-panel-width) * .125) calc(var(--jade-panel-width) * .17)!important;overflow:visible; }
+.dialog.jade-dialog>h2,.dialog.jade-dialog.weapon-dialog>h2 { display:flex;align-items:center;justify-content:center;text-align:center!important;width:100%;flex:none;font:38px/1.12 'Folio Title','Folio WenKai',serif!important;letter-spacing:.06em;padding:0 0 12px!important;margin:0 0 8px!important; }
+.dialog.jade-dialog>.dialog-text,.dialog.jade-dialog.weapon-dialog>.dialog-text,.dialog.jade-dialog.breakthrough-ready-dialog>.dialog-text { display:block!important;align-content:center;flex:1;min-height:0;overflow:auto!important;scrollbar-width:none;font:500 21px/1.55 'Folio WenKai',serif;padding:6px 0 12px!important;text-align:center; }
+.dialog.jade-dialog .dialog-text>p { margin:5px 0; }.dialog.jade-dialog .weapon-upgrade-summary h3 { font-size:27px!important; }.dialog.jade-dialog .weapon-upgrade-summary p { font-size:19px; }.dialog.jade-dialog .weapon-upgrade-summary small { font-size:13px; }
+.dialog.jade-dialog .dialog-buttons { display:flex;flex:none;position:static!important;justify-content:center;align-items:center;margin:0!important;margin-top:auto!important;padding:10px 0 0!important;width:100%; }
+.dialog.jade-dialog .dialog-buttons .btn { font-size:18px!important;padding:8px 16px!important; }
+.dialog.jade-dialog:has(.choice-list)>.dialog-text { flex:0 1 auto;max-height:32%;font-size:19px; }
+.dialog.jade-dialog>.choice-list { flex:1;min-height:0;overflow:auto;scrollbar-width:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:8px;padding:5px 0 10px;max-height:none;background:none; }
+.dialog.jade-dialog .choice { min-width:0;padding:8px 10px;font-size:17px; }.dialog.jade-dialog .choice b { font-size:18px; }.dialog.jade-dialog .choice small { font-size:14px;line-height:1.5; }

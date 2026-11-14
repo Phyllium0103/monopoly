@@ -12,7 +12,7 @@ import { attack, canLearn, learn, boltCount, boltDamage, breakChance, canAttempt
 import { MIN_GARRISON, eliminate, visitingToll, garrisonPower, occupyCost, totalAssets } from './CitySystem';
 import { REALMS } from '../data/generals';
 import { equipRealm, equipScore } from '../data/items';
-import { canUse, def, usePreroll, type PrerollTarget } from './ItemSystem';
+import { canUse, def, usePreroll, hostileItemTargets, type PrerollTarget } from './ItemSystem';
 import { CONTEST_SOLDIERS, canDuel, siegeAllowed, siegeAttack, type BattleKind } from './BattleSystem';
 import type { Offer } from './ShopSystem';
 import { REALM_LEVELS, deathChance } from './RealmSystem';
@@ -164,7 +164,7 @@ export async function aiPreroll(state: GameState, lord: Lord, hooks: ItemHooks =
       if (t==='lord') {
         if (v.relicJourney) return false;
         if (item.defId==='demon'&&!generalsOf(state,v.id).some(g=>g.status!=='realm'&&!g.ghostSourceId&&!g.demon)) return false;
-        if (['poison','bow'].includes(item.defId)&&!freeGenerals(state,v.id).length) return false;
+        if (['poison','bow'].includes(item.defId)&&!hostileItemTargets(state,v,item.defId).length) return false;
         if (item.defId==='move'&&!v.items.length) return false;
         return true;
       }

@@ -32,7 +32,7 @@ import { generalSaleValue, boltRange, attack, battleExp, breakChance, canAttempt
 import { BATTLE_NAMES, CONTEST_SOLDIERS, Duel, SIEGE_START_ROUND, SURRENDER_HP, WOUNDED_HP, WOUNDED_REDUCE, canDuel, craftContest, siege, siegeAllowed, siegeAttack, type BattleKind, type DuelEvent, type Side } from '../systems/BattleSystem';
 import { chooseCategorizedItem } from '../ui/ItemUI';
 import { aptTag, generalBlock, generalBrief, realmTag, statCells, vitalBars, itemTargetInfo, itemUserInfo, sortUsers } from '../ui/GeneralInfo';
-import { canUse, consumeItem, def, nameOf, useInDuel, usableIn, usePreroll, type PrerollTarget } from '../systems/ItemSystem';
+import { canUse, consumeItem, def, nameOf, useInDuel, usableIn, usePreroll, hostileItemTargets, type PrerollTarget } from '../systems/ItemSystem';
 import { buy, makeStock, makeSellStock, beginShopVisit, refreshShop, sell, lockTavernGeneral, SHOP_REFRESH_COSTS, type Offer, type ShopKind } from '../systems/ShopSystem';
 import { REALM_LEVELS, REALM_MAX_PARTY, REALM_MIN_PARTY, deathChance, dispatch, partyRealm, realmRolls, realmTurns } from '../systems/RealmSystem';
 import { recruitmentMaximum, recruitAtBureau } from '../systems/RecruitmentSystem';
@@ -43,6 +43,7 @@ import { EVENT_INTERVAL, IMMORTAL_INTERVAL, TOURNAMENT_INTERVAL, eventDef, aiBid
 import { Ask, type DuelAction, type PrerollAction, type Prompt, type RosterAction, type Sender, type ShopAction } from './prompts';
 import type { EngineView } from './view';
 import { duelSnapshot } from './snapshots';
+import { academyAt, beginTraining, trainBatch, trainingGenerals, TRAINING_COURSES, type AcademyKind, type TrainingAssignment } from '../systems/TrainingSystem';
 
 type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
 export type RosterActionType = Exclude<RosterAction, { type: 'close' | 'transfer-armor' | 'learn-technique' | 'move-bag-item' | 'sort-bag' }>['type'];
@@ -541,7 +542,7 @@ export class Engine {
       case 'portal':
         return this.landPortal(lord);
       case 'road':
-        return this.roadEvent(lord);
+        return academyAt(tile) ? this.trainingFlow(lord, academyAt(tile)!) : this.roadEvent(lord);
       case 'casino':
         return this.landCasino(lord);
       case 'recruitment':
@@ -946,7 +947,7 @@ export class Engine {
               const item = lord.items.find(i => i.uid === act.itemUid);
               const user = itemUsers(this.state, lord, duel.fighter(side).general.id).find(g => g.id === act.userId);
               const expected = item && def(item).battleTarget === 'ownGeneral' ? side : side === 'a' ? 'b' : 'a';
-              if (!item || !user || itemDisabledReason(this.state, lord, item, 'battle', duel.fighter(side).general.id) || duel.fighter(side).itemsSealed || !canUse(item,user).ok || act.targetSide !== expected) {
+              if (!item || !user || itemDisabledReason(this.state, lord, item, 'battle', duel.fighter(side).general.id,duel.other(side).general.id) || duel.fighter(side).itemsSealed || !canUse(item,user).ok || act.targetSide !== expected) {
                 this.view.toast('物品、施放者或戰鬥目標已不符合條件',lord.id); continue;
               }
               events = events.concat(duel.afterItem(useInDuel(duel,side,lord,item,user))); acts[side]='none'; break;
@@ -1119,7 +1120,7 @@ export class Engine {
   /** 戰鬥中使用物品：選物品 → 選使用的武將 → 生效 */
   private async useItemInDuel(duel: Duel, side: Side, lord: Lord): Promise<DuelEvent[] | null> {
     if (lord.itemsLocked > 0 || duel.fighter(side).itemsSealed) { this.view.toast('目前不能使用物品', lord.id); return null; }
-    const items = lord.items.filter((i) => usableIn(i, 'battle'));
+    const items = lord.items.filter((i) => usableIn(i, 'battle') && !(i.defId==='poison'&&duel.other(side).general.isLord));
     if (!items.length) {
       this.view.toast('沒有可在戰鬥中使用的物品', lord.id);
       return null;
@@ -1240,6 +1241,28 @@ export class Engine {
     } else if (!human) this.view.log(`${LORDS[lord.id].name}在${CASINO_NAME}沒有下注。`, 'ai');
     this.view.refresh();
     // 留在原道路格，保留來路與出口；下回合照常擲骰離開。
+  }
+
+  private async trainingFlow(lord:Lord,kind:AcademyKind) {
+    const visit=beginTraining(kind);
+    for (;;) {
+      if(this.state.over||!lord.alive||this.stopped)return;
+      const generals=trainingGenerals(this.state,lord);
+      let action:{type:string;assignments?:TrainingAssignment[]}|null;
+      if(this.human(lord)) action=await this.ask(lord,{kind:'training',phase:'assign',visit,generals}) as typeof action;
+      else {
+        const pool=[...generals].sort((a,b)=>power(b)-power(a));let budget=lord.stones-5000;
+        const assignments:TrainingAssignment[]=[];
+        for(const c of TRAINING_COURSES[kind])if(pool.length&&budget>=c.price){assignments.push({courseId:c.id,generalId:pool.shift()!.id});budget-=c.price;}
+        action=assignments.length?{type:'train-batch',assignments}:{type:'leave'};
+      }
+      if(!action||action.type==='leave')return;
+      if(action.type!=='train-batch')continue;
+      const r=trainBatch(this.state,lord,visit,action.assignments!,Math.random);
+      if(r.ok)this.view.log(r.message,'good');else this.view.toast(r.message,lord.id);
+      this.view.refresh();
+      if(r.ok){if(this.human(lord))await this.ask(lord,{kind:'training',phase:'result',visit,generals:trainingGenerals(this.state,lord)});return;}
+    }
   }
 
   private async landShop(lord: Lord, kind: ShopKind) {
@@ -1456,7 +1479,7 @@ export class Engine {
         return { general: g };
       }
       if (d.target === 'lord') {
-        const candidates = others.filter(l => !['poison', 'bow'].includes(defId) || freeGenerals(this.state, l.id).length > 0).filter(l => defId !== 'move' || l.items.length > 0);
+        const candidates = others.filter(l => !['poison', 'bow'].includes(defId) || hostileItemTargets(this.state,l,defId).length > 0).filter(l => defId !== 'move' || l.items.length > 0);
         if (!candidates.length) { this.view.toast('沒有符合條件的目標主公', lord.id); return null; }
         const victim = await this.dlg(lord).choose('選擇目標主公', '', candidates.map(value => ({ label: LORDS[value.id].name, sub: '靈石 ' + fmtStones(value.stones, true), value, color: LORDS[value.id].css })));
         if (!victim) return null;
@@ -1507,7 +1530,7 @@ export class Engine {
       i.defId === 'charge' ? !!fighter.general.technique && fighter.energy < 50 :
       i.defId === 'blood' ? !fighter.itemLifesteal :
       i.defId === 'drain' ? !foe.itemsSealed :
-      i.defId === 'poison' ? !foe.poison :
+      i.defId === 'poison' ? !foe.general.isLord&&!foe.poison :
       i.defId === 'ring' ? !foe.frozen :
       ['shield', 'vajra'].includes(i.defId) ? fighter.shield < fighter.maxHp * .2 :
       i.defId === 'invert' ? foe.atk + foe.def > fighter.atk + fighter.def :
@@ -1529,14 +1552,9 @@ export class Engine {
     let blocked = !!guardian;
     if (!blocked && victim && victim.id !== lord.id && !victim.itemsLocked) {
       const card = victim.items.find(i => i.defId === 'substitute');
-      const users = card ? freeGenerals(this.state, victim.id).filter(g => canUse(card, g).ok) : [];
-      if (card && users.length) {
-        if (!this.human(victim)) { consumeItem(victim, card, users[0]); blocked = true; }
-        else for (;;) {
-          if (!await this.dlg(victim).confirm('替身符：抵消敵方物品？', LORDS[lord.id].name + '對你使用' + nameOf(item) + '。', '使用替身符', '承受效果')) break;
-          const defender = await this.dlg(victim).choose('由誰使用替身符？', '取消返回確認。', users.map(value => ({ label: value.name, sub: '體力 ' + value.stamina, value })), '返回');
-          if (!defender) continue;
-          consumeItem(victim, card, defender); blocked = true; break;
+      if (card) {
+        if (!this.human(victim)||await this.dlg(victim).confirm('替身符：抵消敵方物品？', LORDS[lord.id].name + '對你使用' + nameOf(item) + '。', '使用替身符', '承受效果')) {
+          consumeItem(victim,card);blocked=true;
         }
       }
     }

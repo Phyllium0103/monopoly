@@ -48,6 +48,13 @@ function bot(rand, state, pending) {
     case 'confirm': return rand() < 0.5;
     case 'preroll': return rand() < 0.75 ? { type: 'roll' } : pick([{ type: 'items' }, { type: 'roster' }, { type: 'sect' }, { type: 'materials' }, { type: 'garrison' }, { type: 'abilities' }]);
     case 'shop': return rand() < 0.4 && p.shop.offers.length ? { type: 'buy', index: Math.floor(rand() * p.shop.offers.length) } : { type: 'leave' };
+    case 'training': {
+      if(p.phase==='result')return {type:'leave'};
+      const courses=require('../src/systems/TrainingSystem.ts').TRAINING_COURSES[p.visit.kind];
+      const course=courses.find(c=>!p.visit.usedCourses.includes(c.id)&&state.lords[pending.lord].stones>=c.price);
+      const g=p.generals.find(g=>!p.visit.trained.includes(g.id));
+      return course&&g&&rand()<.35?{type:'train-batch',assignments:[{courseId:course.id,generalId:g.id}]}:{type:'leave'};
+    }
     case 'casino': return rand() < 0.5 ? 100 : null;
     case 'bid': return rand() < 0.5 ? 0 : 1000;
     case 'duel': return pick(['attack', 'attack', 'skill', 'item']);

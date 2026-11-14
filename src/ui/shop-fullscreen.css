@@ -6,9 +6,9 @@
 .shop-window .shop-row[data-kind=revive].sold:after{display:none}
 .dialog.shop-window>h2{justify-content:flex-start}
 .shop-detail-copy .item-detail-card>header{display:none}
-.dialog.shop-window{--shop-accent:#c4a46b;--shop-ink:#e8d3aa;--shop-paper:#14251e;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;border:0;border-radius:0;padding:24px 36px;background:linear-gradient(#0b171bc9,#10201966 40%,#0c1915e6),url('/art/shops/treasure.webp') center/cover;color:#eee3cb;box-sizing:border-box}
-.dialog.shop-window[data-shop=herb]{background-image:linear-gradient(#10241ab0,#10201944 40%,#0c1915e6),url('/art/shops/herb.webp');--shop-accent:#a9bf91}
-.dialog.shop-window[data-shop=tavern]{background-image:linear-gradient(#111d36aa,#111d3033 40%,#0d182be6),url('/art/shops/tavern.webp');--shop-accent:#a5b8c9}
+.dialog.shop-window{--shop-accent:#c4a46b;--shop-ink:#e8d3aa;--shop-paper:#14251e;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;border:0;border-radius:0;padding:24px 36px;background:linear-gradient(#0b171bc9,#10201966 40%,#0c1915e6),none center/cover;color:#eee3cb;box-sizing:border-box}
+.dialog.shop-window[data-shop=herb]{background-image:linear-gradient(#10241ab0,#10201944 40%,#0c1915e6),none;--shop-accent:#a9bf91}
+.dialog.shop-window[data-shop=tavern]{background-image:linear-gradient(#111d36aa,#111d3033 40%,#0d182be6),none;--shop-accent:#a5b8c9}
 .dialog.shop-window[data-shop=forge]{background-image:radial-gradient(ellipse at 15% 90%,#9e421a77,transparent 55%),linear-gradient(140deg,#30261e,#12191c);--shop-accent:#c89461}
 .dialog.shop-window[data-shop=library]{background-image:repeating-linear-gradient(90deg,transparent 0 130px,#b9ab8130 131px 133px),linear-gradient(135deg,#343b33,#142226);--shop-accent:#c0bea0}
 .dialog.shop-window[data-shop=beast]{background-image:radial-gradient(ellipse at top,#78956855,transparent 65%),linear-gradient(135deg,#263f2d,#101e18);--shop-accent:#a4b77e}

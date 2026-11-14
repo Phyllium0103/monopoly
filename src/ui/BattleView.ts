@@ -2,7 +2,7 @@ import type { City, General, LordId } from '../game/types';
 import { LORDS } from '../faction/Faction';
 import { fxText, passiveOf } from '../data/passives';
 import { REALMS } from '../data/generals';
-import { generalBrief, generalHoverInfo, realmTag, statCells } from './GeneralInfo';
+import { generalBrief, generalHoverInfo, generalHoverTable, realmTag, statCells } from './GeneralInfo';
 import { portraitBigUrl, portraitUrl } from './Icons';
 import { STAT_NAMES, techniqueBaseName, techniqueTag } from '../data/items';
 import { attack, craft, defense, power, type TribulationResult } from '../systems/GeneralSystem';
@@ -131,6 +131,7 @@ export class BattleView {
     for(const side of ['a','b'] as const){
       const g=this.generalById?.(snap[side].generalId)??gens[side];
       body.querySelector<HTMLElement>(`.fighter[data-side="${side}"] .f-portrait`)!.dataset.tip=generalHoverInfo(g,snap[side]);
+      body.querySelector<HTMLElement>(`.fighter[data-side="${side}"] .f-portrait`)!.dataset.tipHtml=generalHoverTable(g,snap[side]);
     }
     const actions = body.querySelector('.battle-actions')!;
     if (snap.over) return;

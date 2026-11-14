@@ -6,7 +6,7 @@ import { armorTransferCheck, canWearArmor, techniqueTransferCheck } from '../sys
 import { equipIconUrl } from './Icons';
 import './armor-roster.css';
 import { REALMS } from '../data/generals';
-import { emphasizeTechnique } from './ItemDetail';
+import { detailCard, emphasizeTechnique, type DetailFooter } from './ItemDetail';
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 type Kind = 'armor' | 'technique';
@@ -15,8 +15,14 @@ const labelOf = (kind: Kind) => kind === 'armor' ? '仙衣' : '功法';
 const attrs = (kind: Kind, uid?: string, id?: string) => `data-equipment-kind="${kind}" ${uid ? `data-equipment-item="${esc(uid)}"` : ''} ${id ? `data-equipment-target="${esc(id)}"` : ''} draggable="false" aria-pressed="false"`;
 export function armorPicture(e: Equipment | null, id?: string): string {
   const label = e ? `${e.name} ${equipDesc(e, false).replace(/<br\s*\/?>/g, ' ').replace(/｜/g, ' ')}` : '未裝備仙衣';
-  const detail = e ? `<div class="tech-tip"><div class="tech-tip-rank">${armorGradeName(e.tier)} · 仙衣</div><strong>${esc(e.name.split('・').pop()!)}</strong><div class="tech-tip-rule"></div><div class="tech-tip-detail"><span class="equipment-main-bonus">${equipStats(e)}</span><br>需要${REALMS[equipRealm(e.tier)]}以上</div></div>` : '';
+  const detail = e ? armorItemDetail(e) : '';
   return `<button type="button" class="technique-picture armor-picture grade-${e ? armorGrade(e.tier) : 0}${e ? '' : ' armor-empty'}" ${attrs('armor', e?.uid, id)} ${detail ? `data-tip="${esc(label)}"` : ''} ${detail ? `data-tip-html="${esc(detail)}"` : ''} aria-label="${esc(label)}">${e ? `<img src="${equipIconUrl(e)}" alt="" loading="lazy" decoding="async" draggable="false">` : ''}</button>`;
+}
+export function armorItemDetail(e:Equipment,footer:DetailFooter=''):string {
+  return detailCard(e.name.split('・').pop()!,`${armorGradeName(e.tier)} · 仙衣`,equipIconUrl(e),`<p class="equipment-main-bonus">${equipStats(e)}</p><div class="item-detail-requirement">需要${REALMS[equipRealm(e.tier)]}以上</div>`,footer);
+}
+export function techniqueItemDetail(t:Technique,learned=false,footer:DetailFooter=''):string {
+  return detailCard(techniqueBaseName(t),`${tierName(t.tier,'階')} · ${techniqueTag(t).text}`,techniqueIconUrl(t),`<div>${emphasizeTechnique(techniqueDesc(t))}</div>${learned?'<div class="item-detail-requirement">已修習，須先自廢修為才能更換</div>':''}`,footer);
 }
 export function techniqueIconUrl(t: Technique): string {
   return `${import.meta.env?.BASE_URL ?? './'}assets/techniques/${t.art ?? t.element}-${['huang', 'xuan', 'di', 'tian'][armorGrade(t.tier)]}.webp`;
@@ -24,8 +30,7 @@ export function techniqueIconUrl(t: Technique): string {
 export function techniquePicture(t: Technique | null, id?: string): string {
   const name = t ? techniqueBaseName(t) : '未修習功法', rank = t ? tierName(t.tier, '階') : '點選放入';
   const label = t ? `${rank}｜${name}｜${techniqueDesc(t).replace(/<br\s*\/?>/g, '｜').replace(/<[^>]+>/g, '')}` : '未修習功法・選擇此武將';
-  const tag = t ? techniqueTag(t) : null;
-  const detail = t && tag ? `<div class="tech-tip"><div class="tech-tip-rank">${esc(rank)} · <span style="color:${tag.css}">${esc(tag.text)}</span></div><strong>${esc(name)}</strong><div class="tech-tip-rule"></div><div class="tech-tip-detail">${emphasizeTechnique(techniqueDesc(t))}${id ? '<br>已修習，須先自廢修為才能更換' : ''}</div></div>` : '';
+  const detail = t ? techniqueItemDetail(t,!!id) : '';
   // Learned techniques are bound; unused scrolls can be selected.
   return `<button type="button" class="technique-picture armor-picture grade-${t ? armorGrade(t.tier) : 0}${t ? '' : ' armor-empty'}" ${attrs('technique', id ? undefined : t?.uid, id)} ${detail ? `data-tip="${esc(label)}"` : ''} ${detail ? `data-tip-html="${esc(detail)}"` : ''} aria-label="${esc(label)}">${t ? `<img src="${techniqueIconUrl(t)}" alt="" loading="lazy" decoding="async" draggable="false">` : ''}</button>`;
 }
@@ -124,7 +129,7 @@ export class RosterEquipment {
     const old = this.root.querySelector('.equipment-notice'); old?.remove();
     if (error) {
       const notice = this.root.ownerDocument.createElement('div'); notice.className = 'equipment-notice'; notice.setAttribute('role', 'alert');
-      notice.innerHTML = '<span class="notice-mark">!</span><div><strong>' + (heading ?? (this.selected?.kind === 'technique' ? '無法修習' : '無法裝備')) + '</strong><p>' + esc(text) + '</p></div><button type="button" aria-label="關閉提示">✕</button>';
+      notice.innerHTML = '<div class="notice-copy"><strong>' + (heading ?? (this.selected?.kind === 'technique' ? '無法修習' : '無法裝備')) + '</strong><p>' + esc(text) + '</p></div><button type="button" aria-label="關閉提示">知道了</button>';
       notice.querySelector('button')!.onclick = () => notice.remove(); this.root.appendChild(notice);
       setTimeout(() => notice.remove(), 5000);
     }

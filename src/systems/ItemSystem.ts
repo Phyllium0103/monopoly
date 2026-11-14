@@ -15,7 +15,7 @@ export const nameOf = (item: Item): string => itemName(item.defId, item.tier);
 export const ITEM_USE_EXP = 3;
 export function requirement(item: Item, user?: General) {
  const d=def(item),i=Math.min(item.tier,d.min.length-1);
- return {stat:d.stat,min:d.min[i],stamina:d.noUser||item.defId==='substitute'?0:Math.max(0,Math.round(d.stamina[i]*(1-(user?(fx(user).itemStamina??0):0))))};
+ return {stat:d.stat,min:d.min[i],stamina:d.noUser?0:Math.max(0,Math.round(d.stamina[i]*(1-(user?(fx(user).itemStamina??0):0))))};
 }
 export function requirementText(item: Item): string {const r=requirement(item);return def(item).noUser?'事件觸發，直接使用':STAT_NAMES[r.stat]+' ≥ '+r.min+'・體力 '+r.stamina;}
 export function canUse(item: Item,user: General): {ok:boolean;reason:string} {
@@ -55,11 +55,16 @@ export function changeAptitude(state:GameState,g:General,aptitude:Aptitude):void
  if(g.technique?.element&&aptitude!=='heaven'&&aptitude!==g.technique.element)unloadTechnique(state,g);
 }
 export interface PrerollTarget {general?:General;lord?:Lord;city?:City;ownCity?:City;tile?:number;dice?:number;diceCount?:1|2|3;element?:Element;damagedGeneral?:General;}
+/** The poison pill can only hit accompanying generals, never the lord himself. */
+export function hostileItemTargets(state:GameState,lord:Lord,defId:string):General[]{
+ return freeGenerals(state,lord.id).filter(g=>defId!=='poison'||!g.isLord);
+}
 export async function usePreroll(state:GameState,lord:Lord,item:Item,user:General,target:PrerollTarget,blocked=false,onFatal?: (g:General)=>Promise<boolean>):Promise<string> {
  if(lord.relicJourney)throw Error('山河圖內禁止使用道具');
  if(target.general?.owner&&state.lords[target.general.owner].relicJourney&&(target.general.isLord||target.general.status==='free'))return '山河結界內外道具無效，未消耗物品。';
  if(target.lord?.relicJourney)return '山河結界內外道具無效，未消耗物品。';
  if(!usableIn(item,'preroll'))throw Error('此物品不可在擲骰前使用');
+ if(item.defId==='poison'&&(!target.lord||!hostileItemTargets(state,target.lord,item.defId).length))throw Error('對方沒有可使用斷腸毒丹的隨行武將');
  if(item.defId==='five'&&(!target.general||['waste','heaven'].includes(target.general.aptitude)||!target.element))throw Error('五行轉生丹只能對五行靈根使用');
  if(item.defId==='stride'&&![1,2,3].includes(target.diceCount!))throw Error('請選擇一至三顆骰子');
  delete target.damagedGeneral;
@@ -90,7 +95,7 @@ function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:Pr
  case 'qi':case 'essence':{const amount=item.defId==='qi'?QI_EXP[t]:(Number.isFinite(expCap(g!))?expCap(g!)*ESSENCE_EXP[t]:0);return head+'，'+g!.name+'修為 +'+addExp(g!,amount)+'（不超過境界上限）。';}
  case 'foundation':g!.foundation=true;return head+'，'+g!.name+'下次煉氣突破築基成功率 100%。';
  case 'vigor':g!.stamina=Math.min(maxStamina(g!),g!.stamina+STAMINA_UP[t]);return head+'，'+g!.name+'體力回復 '+STAMINA_UP[t]+'。';
- case 'poison':case 'bow':{const party=freeGenerals(state,target.lord!.id);if(!party.length)return head+'，對方沒有隨行武將。';const victim=party[Math.floor(Math.random()*party.length)];if(item.defId==='poison'&&fx(victim).poisonImmune)return head+'，'+victim.name+'百毒不侵。';const dmg=Math.max(0,Math.min(victim.hp,Math.round(maxHp(victim)*(item.defId==='poison'?POISON_PREROLL:BOW_DAMAGE)[t])));victim.hp-=dmg;target.damagedGeneral=victim;return head+'，'+victim.name+'受到 '+dmg+' 傷害。';}
+ case 'poison':case 'bow':{const party=hostileItemTargets(state,target.lord!,item.defId);if(!party.length)return head+'，對方沒有符合條件的隨行武將。';const victim=party[Math.floor(Math.random()*party.length)];if(item.defId==='poison'&&fx(victim).poisonImmune)return head+'，'+victim.name+'百毒不侵。';const dmg=Math.max(0,Math.min(victim.hp,Math.round(maxHp(victim)*(item.defId==='poison'?POISON_PREROLL:BOW_DAMAGE)[t])));victim.hp-=dmg;target.damagedGeneral=victim;return head+'，'+victim.name+'受到 '+dmg+' 傷害。';}
  case 'demon':{const pool=generalsOf(state,target.lord!.id).filter(x=>x.status!=='realm'&&!x.ghostSourceId&&!x.demon);const chosen: General[]=[];while(pool.length&&chosen.length<2)chosen.push(...pool.splice(Math.floor(Math.random()*pool.length),1));for(const x of chosen)x.demon=1;return head+(chosen.length?'，'+chosen.map(x=>x.name).join('、')+'染上心魔。':'，對方沒有可染上心魔的武將。');}
  case 'clearmind':g!.demon=0;return head+'，'+g!.name+'心魔盡消。';
  case 'bone':g!.base.hp+=BONE_HP[t];return head+'，'+g!.name+'基礎血量 +'+BONE_HP[t]+'。';
@@ -127,6 +132,7 @@ function applyPreroll(state:GameState,lord:Lord,item:Item,user:General,target:Pr
 }
 export function useInDuel(duel:Duel,side:Side,lord:Lord,item:Item,user:General):DuelEvent[]{
  if(duel.fighter(side).itemsSealed||!usableIn(item,'battle'))throw Error('此時不可使用物品');
+ if(item.defId==='poison'&&duel.other(side).general.isLord)throw Error('斷腸毒丹不能對主公使用');
  const gain=consumeItem(lord,item,user),effect=enhancedItem(item,user),me=duel.fighter(side),foe=duel.other(side),t=effect.tier,head=user.name+'使用'+nameOf(effect);let msg=head;
  if(lord.items.some(i=>i.uid===item.uid))msg+='（被動：物品保留）';
  if(effect.tier>item.tier)msg+='（被動：品階提升）';

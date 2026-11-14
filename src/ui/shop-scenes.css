@@ -1,0 +1,199 @@
+@import './folio-type.css';
+/* Merchandise is positioned on painted ledges; scene coordinates are per shop. */
+.dialog.shop-window { --market-left:29%;--market-right:10%;--shelf-top:25%;--shelf-bottom:23%;--shop-accent:#9b6b38;background:var(--shop-scene) center/100% 100% no-repeat #dcc5a0!important;color:#4a3425;font-family:'Folio WenKai',serif;padding:0;position:absolute;inset:0;overflow:hidden; }
+.dialog.shop-window>h2 { position:absolute;top:2.5%;left:5%;right:auto;z-index:3;color:#593b24;background:#f2e4c9e8!important;box-shadow:0 2px 10px #2b170e24;padding:5px 20px!important;margin:0!important;border:1px solid #ab88577a;outline:1px solid #b5986844;outline-offset:3px;font:34px/1.4 'Folio WenKai',serif; }
+.dialog.shop-window>.dialog-body { position:static;padding:0;height:100%;gap:0;overflow:hidden; }
+.shop-window .shop-workspace { position:absolute;inset:0;display:block!important;gap:0; }
+.shop-window .shop-market { position:absolute;left:var(--market-left);right:var(--market-right);top:var(--shelf-top);bottom:var(--shelf-bottom);display:block;padding:0;background:none;min-height:0; }
+.shop-window .shop-market>.dialog-text { position:absolute;top:-9%;left:0;right:0;margin:0;padding:0;max-height:34px;color:#654b35;font-size:13px;line-height:1.4;background:#f0dfbecc;z-index:2; }
+.shop-window .wallet { position:fixed;top:4%;right:5%;color:#fff0c8;background:#463321dc;border:1px solid #b69461;padding:8px 16px;font-size:15px;z-index:4; }.shop-window .wallet b { color:#ffe3a0;font-size:21px; }
+.shop-window .shop-tabs { position:absolute;left:0;right:0;top:-18%;height:32px;justify-content:flex-start;gap:12px; }.shop-window .shop-tab { font:16px 'Folio WenKai',serif;padding:5px 10px;color:#63452b;background:#f1e2c5e8;border:1px solid #a4855266; }.shop-window .shop-tab.on { color:#fff0cd;background:#79523a;border-color:#79523a; }
+.shop-window .shop-list { position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:0 12px;max-height:none!important;overflow:visible;flex:none!important; }
+.shop-window .shop-row { position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:0;padding:0 3px 12px!important;gap:4px;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;outline:none; }
+.shop-window .shop-row:hover,.shop-window .shop-row:focus-visible { outline:none; }.shop-window .shop-row .sr-icon { width:clamp(50px,5.5cqw,86px);height:clamp(50px,5.5cqw,86px);object-fit:contain;filter:drop-shadow(0 6px 4px #3b21104d);transition:translate .2s;flex:none; }.shop-window .shop-row:hover .sr-icon { translate:0 -3px; }
+.shop-window .sr-main { padding:2px 7px;background:#f3e5cbdc;color:#4f3725;font-size:16px;line-height:1.3;text-align:center;border:1px solid #a8885544;max-width:100%; }.shop-window .sr-main b { font-weight:500; }.shop-window .sr-main .item-title { font-size:16px; }.shop-window .sr-main small,.shop-window .sr-main>.gb,.shop-window .shop-product-info { display:none; }
+.shop-window .sr-price { color:#67432b;font-size:15px;padding:0 5px;background:#f0dfbfdf;line-height:1.4; }
+.shop-window .sr-actions { display:flex;gap:4px;flex:none;justify-content:center; }.shop-window .sr-actions .btn { background:#eedbb9;color:#67432b;border:1px solid #947140;border-radius:1px;font:14px 'Folio WenKai',serif;padding:3px 16px; }.shop-window .sr-actions .btn.primary { color:#fff0d1;background:#79513a;border-color:#69412a; }
+.shop-window .shop-pagination { position:absolute;bottom:-8%;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:12px;color:#5e412b; }.shop-window .shop-pagination .btn { background:#f0dfbf;color:#65452e;border-color:#a08051;font:14px 'Folio WenKai',serif; }
+.shop-window .shop-keeper { position:absolute;left:2%;width:25%;top:14%;bottom:20%;border:0;background:none;overflow:visible; }.shop-window .shop-keeper-talk { position:absolute;inset:0;opacity:0; }.shop-window .shop-keeper-talk:hover { opacity:1;background:radial-gradient(ellipse at center,#ffedc312,transparent 65%); }.shop-window .shop-keeper>div { position:absolute;bottom:0;padding:6px 14px;width:auto;background:#efe0c2e8;border:1px solid #aa895866; }.shop-window .shop-keeper small,.shop-window .shop-keeper p { display:none; }.shop-window .shop-keeper h3 { margin:0;color:#60412b;font-size:22px; }.shop-window .shop-keeper-speech { background:#efe2c7f5;color:#503a2a!important;border:1px solid #a38659;border-radius:2px;bottom:20%;font-family:'Folio WenKai',serif; }
+.shop-window .shop-sale-strip { position:absolute;left:4%;right:4%;bottom:6.5%;height:13.5%;padding:7px 12px;background:#f0dfbfde;border:1px solid #ad8d5c88;box-shadow:0 4px 14px #38200c33;gap:18px; }.shop-window .shop-sale-strip :is(h3,header,.shop-sale-status,small) { color:#694a30; }.shop-window .shop-sale-strip .shop-bag-cell { background:#e2cea76b;border:1px solid #a3865866; }.shop-window .shop-sale-strip .shop-bag-cell.selected { background:#c9b07899;border-color:#805834; }
+.shop-window>.dialog-body>.dialog-buttons { position:absolute;bottom:0;left:0;right:0;height:5.5%;padding:5px 4%;margin:0;display:flex;justify-content:flex-end;gap:18px;align-items:center;background:#332419e8;border:0; }.shop-window>.dialog-body>.dialog-buttons .btn { font:16px 'Folio WenKai',serif;padding:5px 18px;background:#e7d1a7;color:#523723;border-color:#b18a50;border-radius:1px; }
+.dialog.shop-window[data-shop=treasure] { --market-left:29%;--market-right:11%;--shelf-top:22%;--shelf-bottom:24%; }
+.dialog.shop-window[data-shop=herb] { --market-left:28%;--market-right:9%;--shelf-top:21%;--shelf-bottom:25%; }
+.dialog.shop-window[data-shop=forge] { --market-left:33%;--market-right:9%;--shelf-top:19%;--shelf-bottom:28%; }
+.dialog.shop-window[data-shop=library] { --market-left:7%;--market-right:31%; }
+.dialog.shop-window[data-shop=tavern] { --market-left:6%;--market-right:28%;--shelf-top:22%;--shelf-bottom:23%; }
+.shop-window:is([data-shop=library],[data-shop=tavern]) .shop-keeper { left:auto;right:2%;width:24%; }
+.shop-window .shop-list.shop-people { grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:1fr; }.shop-window .shop-row[data-kind=general] { background:none!important; }.shop-window .shop-row[data-kind=general] .sr-icon { height:0;flex:1;width:100%;filter:drop-shadow(0 8px 8px #38220d44); }.shop-window .shop-row[data-kind=general] .sr-main { font-size:23px;letter-spacing:.08em; }.shop-window .shop-row[data-kind=revive] .sr-icon { width:115px;height:115px;border-color:#a88b5b;border-radius:50%;background:#eddfc155; }
+.shop-window.people-market .shop-market>.dialog-text { top:-10%; }.shop-window.people-market .shop-list { background:#f2e5c536; }
+@container game-ui (max-width:1100px) { .dialog.shop-window>h2 { font-size:27px; }.shop-window .sr-main,.shop-window .sr-main .item-title { font-size:13px; }.shop-window .sr-actions .btn { font-size:12px;padding:3px 11px; }.shop-window .sr-icon { max-width:62px;max-height:62px; }.shop-window .shop-row[data-kind=general] .sr-icon { max-height:none;max-width:none; }.shop-window .shop-market>.dialog-text { font-size:11px; }.shop-window .shop-keeper h3 { font-size:17px; } }
+.shop-window .shop-row .sr-icon { background:none!important;border:0!important;padding:0; }
+.shop-window .sr-main { width:auto; }.shop-window .sr-actions { width:auto;align-self:center; }.shop-window .sr-actions .btn { width:auto;min-width:70px; }
+.shop-window .shop-keeper .shop-keeper-speech:not([hidden]) { display:block; }
+
+/* The icon's feet sit at the measured shelf top; labels above, purchase below. */
+.shop-window .shop-workspace>.shop-list { position:absolute;inset:0;display:block;background:none!important;pointer-events:none;overflow:visible; }
+.shop-window .shop-list .shop-row { position:absolute;left:var(--stall-x);top:var(--stall-y);width:var(--stall-width);height:auto;transform:translate(-50%,-100%);padding:0!important;display:flex;flex-direction:column;gap:3px;pointer-events:auto; }
+.shop-window .shop-list .shop-row .sr-main { order:0;flex:none;max-width:100%;background:#f4e7cced;font-size:15px;padding:2px 8px; }
+.shop-window .shop-list .shop-row .sr-price { order:1;flex:none;font-size:14px;margin:0 0 3px; }
+.shop-window .shop-list .shop-row .sr-icon { order:2;flex:none;width:clamp(58px,5.2cqw,82px);height:clamp(58px,5.2cqw,82px);margin:0;object-fit:contain;object-position:center bottom;background:none!important;outline:0!important;border:0!important;box-shadow:none!important;border-radius:0;translate:none!important; }
+.shop-window .shop-list .shop-row .sr-actions { position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%);display:flex;gap:5px;white-space:nowrap; }
+.shop-window .shop-list .shop-row[data-kind=general] .sr-icon { width:100%;height:calc(39 * var(--ui-vh,1vh));max-height:none;max-width:none;filter:drop-shadow(0 5px 4px #3b21102b); }
+.shop-window .shop-list .shop-row[data-kind=general] .sr-main { font-size:20px;letter-spacing:.04em; }
+.shop-window .shop-list .shop-row[data-kind=revive] .sr-icon { width:100px;height:100px;filter:grayscale(.35); }
+.shop-window .shop-list>.muted { position:absolute;left:35%;right:10%;top:40%;text-align:center;color:#62452c;background:#f2e4c7b8;padding:12px; }
+.shop-window[data-shop=tavern] .shop-list>.muted { left:10%;right:26%; }
+
+/* Painted shop objects replace generic UI rectangles. */
+.dialog.shop-window { --sign-x:0%;--sign-y:0%;--sign-ink:#fff0c8; }
+.dialog.shop-window[data-shop=herb] { --sign-x:100%;--sign-y:0%;--sign-ink:#493925; }
+.dialog.shop-window[data-shop=forge] { --sign-x:0%;--sign-y:100%;--sign-ink:#3f3023; }
+.dialog.shop-window:is([data-shop=library],[data-shop=tavern]) { --sign-x:100%;--sign-y:100%;--sign-ink:#294638; }
+.dialog.shop-window>h2 { width:260px;height:146px!important;top:1%;left:4%;display:flex;align-items:center;justify-content:center;padding:22px 28px 0!important;background:none!important;border:0!important;outline:0;box-shadow:none;font:40px/1.2 'Folio Title','Folio WenKai',serif!important;letter-spacing:.08em;color:var(--sign-ink)!important; }
+.dialog.shop-window>h2::before,.shop-product-sign::before,.shop-keeper>div::before { content:'';position:absolute;inset:0;z-index:-1;background:url('/src/ui/shop-signs-v2.webp') var(--sign-x) var(--sign-y)/200% 200% no-repeat;pointer-events:none; }
+.dialog.shop-window>h2,.shop-window .shop-product-sign,.shop-window .shop-keeper>div { isolation:isolate; }
+.shop-window .shop-list .shop-row .shop-product-sign { order:0;flex:none;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:94px;padding:25px 10px 14px;margin-bottom:0;color:var(--sign-ink); }
+.shop-window .shop-list .shop-row .sr-main { background:none;border:0;box-shadow:none;padding:0;font-size:15px;color:inherit;line-height:1.25; }
+.shop-window .shop-list .shop-row .sr-main .item-title { font-size:15px;color:inherit; }
+.shop-window .shop-list .shop-row .sr-price { background:none;color:inherit;font-size:13px;padding:0;margin:2px 0 0; }
+.shop-window .shop-list .shop-row .shop-product-sign .sr-main { max-width:calc(100% - 12px);white-space:normal;overflow-wrap:anywhere; }
+.shop-window .shop-list .shop-row .shop-product-sign .sr-main :is(b,.item-title) { font-size:14px;line-height:1.25; }
+.shop-window .shop-keeper>div { min-width:170px;min-height:96px;padding:25px 20px 14px;border:0;background:none;display:grid;place-items:center; }
+.shop-window .shop-keeper h3 { color:var(--sign-ink);font:27px/1.25 'Folio Title','Folio WenKai',serif; }
+.shop-window .shop-keeper .shop-keeper-speech { background:none center/100% 100% no-repeat!important;border:0;box-shadow:none;border-radius:0;padding:28px 30px 32px;line-height:1.65;font-size:16px;color:#493323!important; }
+.shop-window .shop-sale-strip { background:none center/100% 100% no-repeat;border:0;box-shadow:none;padding:21px 30px 23px;bottom:6%;height:15.5%;gap:20px; }
+.shop-window .shop-sale-strip :is(.shop-inventory,.shop-equipment-tray) { background:none;border:0;box-shadow:none;padding:0; }
+.shop-window .shop-sale-strip :is(header,.shop-sale-status) { background:none;border:0; }.shop-window .shop-sale-strip header h3,.shop-window .shop-equipment-tray>header { font-family:'Folio Title','Folio WenKai',serif;font-size:22px;color:#65472a; }
+.shop-window .wallet { background:url('/src/ui/item-paper.webp') center/100% 100% no-repeat;border:0;color:#4e3823;padding:12px 20px; }.shop-window .wallet b { color:#6f482b; }
+.shop-window .shop-market>.dialog-text { background:url('/src/ui/item-paper.webp') center/100% 100% no-repeat;padding:7px 14px;max-height:56px; }
+/* Action ribbons project from the existing dossier; there is no second outer frame. */
+.shop-detail.shop-roster-detail:has(.dossier-book)[open] { border:0!important;background:none!important;box-shadow:none!important;width:min(1280px,98vw);overflow:visible;padding:0;max-height:94dvh; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-copy { position:relative;padding:0 106px 0 0;max-height:94dvh;overflow:visible; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-copy>h2,.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-copy>small { display:none; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .general-modal-content { flex:none;max-height:94dvh;overflow:auto; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions { position:absolute;right:8px;top:23%;width:106px;display:flex;flex-direction:column;gap:14px;padding:0;margin:0;background:none;border:0;z-index:1; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn { width:100%;min-height:122px;padding:22px 8px 30px;background:linear-gradient(90deg,#52634d,#778263 18%,#566748 86%,#405338);border:0;border-radius:0;clip-path:polygon(0 0,100% 0,100% 100%,50% 88%,0 100%);color:#fff1d1;font:19px/1.7 'Folio WenKai',serif;text-align:center;box-shadow:inset 5px 0 #1e322633,inset 0 2px #d6c18a66;transition:translate .2s,filter .2s; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn.primary { background:linear-gradient(90deg,#683c2c,#9f6544 18%,#8e4d34 86%,#743c2a);color:#fff0ca; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn:hover:not(:disabled) { translate:5px 0;filter:brightness(1.12); }.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn:focus-visible { filter:brightness(1.2); }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-close { right:130px;top:24px;color:#63462e;font-size:35px; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-reason { position:absolute;right:8px;top:62%;width:100px;color:#f0ddbb;background:#513d2d;padding:8px;font-size:12px; }
+
+/* Shelf-edge tickets replace the oversized hanging merchandise signs. */
+.shop-window .shop-list .shop-row:not([data-kind=general]) .shop-product-sign { position:absolute;top:100%;left:50%;transform:translateX(-50%);width:calc(100% + 12px);height:66px;padding:6px 8px 0;margin:0;gap:0;color:#493626; }
+.shop-window .shop-row:not([data-kind=general]) .shop-product-sign::before { background-image:none; }
+.shop-window .shop-list .shop-row:not([data-kind=general]) .shop-product-sign .sr-main { width:100%;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25; }
+.shop-window .shop-list .shop-row:not([data-kind=general]) .shop-product-sign .sr-main :is(b,.item-title) { font-size:13px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.shop-window .shop-list .shop-row:not([data-kind=general]) .sr-price { font-size:12px;line-height:1.2;margin:1px 0 0; }
+.shop-window .shop-list .shop-row:not([data-kind=general]):not([data-kind=revive]) .sr-icon { width:72px;height:72px; }
+.shop-window .shop-list .shop-row:not([data-kind=general]) .sr-actions { top:calc(100% + 63px); }
+.shop-window .shop-list .shop-row:not([data-kind=general]) .sr-actions .btn { padding:3px 12px;font-size:13px;line-height:1.4;min-width:68px; }
+.shop-window .shop-list .shop-row[data-kind=general] .shop-product-sign { position:absolute;bottom:calc(100% + 2px);height:86px;padding:23px 10px 12px; }
+/* An actual opened cloth-and-leather inventory roll rests on the counter. */
+.shop-window .shop-sale-strip { left:5%;right:5%;bottom:6%;height:18.5%;display:grid;grid-template-columns:16% minmax(0,1fr);align-items:stretch;gap:22px;background:url('/src/ui/merchant-bag-v3.webp') center/100% 100% no-repeat;padding:20px 40px 22px 26px;border:0;box-shadow:none; }
+.shop-window .shop-sale-strip:has(.shop-inventory):has(.shop-equipment-tray) { grid-template-columns:16% minmax(0,1fr) minmax(0,1fr); }
+.shop-sale-heading { display:flex;flex-direction:column;justify-content:center;align-items:center;gap:7px;text-align:center;color:#fff0c9;text-shadow:0 1px 2px #291b0a; }
+.shop-sale-heading strong { font:30px/1.2 'Folio Title','Folio WenKai',serif; }.shop-sale-heading span { font:12px/1.5 'Folio WenKai',serif;color:#f2dfb4; }
+.shop-window .shop-sale-strip :is(.shop-inventory,.shop-equipment-tray) { min-width:0;min-height:0;height:100%;padding:0!important;display:flex;flex-direction:column;overflow:hidden;background:none;border:0; }
+.shop-window .shop-sale-strip :is(header,header h3,.shop-sale-status,small,header span) { color:#fff0cf;text-shadow:0 1px 2px #392b11;font-family:'Folio WenKai',serif; }
+.shop-window .shop-sale-strip header { flex:none;font-size:16px;margin:0 0 4px!important;line-height:1.3; }.shop-window .shop-sale-strip header h3 { font:16px/1.3 'Folio WenKai',serif; }.shop-window .shop-sale-strip header>span { display:none; }.shop-window .shop-sale-strip header small { font-size:11px; }
+.shop-window .shop-sale-strip .shop-sale-status { flex:none;font-size:11px;line-height:1.3;margin:0 0 4px;padding:0;min-height:0; }
+.shop-window .shop-sale-strip :is(.shop-items-grid,.shop-equipment-grid) { flex:1;min-height:0;overflow:auto;scrollbar-width:none;grid-template-columns:repeat(auto-fill,44px);grid-auto-rows:44px;gap:6px;align-content:start; }
+.shop-window .shop-sale-strip .shop-bag-cell { width:44px;height:44px;max-height:44px;border:1px solid #c5a56c88;border-radius:3px;background:#342a1555;box-shadow:inset 0 1px 4px #211a1055; }.shop-window .shop-sale-strip .shop-bag-cell img { width:36px;height:36px; }.shop-window .shop-sale-strip .shop-bag-cell.selected { border:2px solid #f2d18d;background:#b6873b55;box-shadow:inset 0 0 8px #e3b35055; }
+/* Brass-edged page tabs, with cost separated from the action label. */
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-copy { padding-right:128px; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions { right:0;top:23%;width:128px;gap:16px;z-index:5; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn { min-height:116px;clip-path:polygon(0 0,94% 0,100% 8%,100% 92%,94% 100%,0 100%);background:linear-gradient(90deg,#263d33,#526956 16%,#3c5545 90%,#253e31);border-block:1px solid #bc9a5c;border-right:2px solid #a9874b;padding:16px 10px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;box-shadow:inset 7px 0 #0d221c44; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn.primary { background:linear-gradient(90deg,#653724,#a36a3f 16%,#8a512f 90%,#6a3d25); }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions strong { font-size:21px;font-weight:400; }.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions b { font-size:18px;font-weight:400;color:#ffe5ac; }.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions small { font-size:12px;color:#e8d8b7; }.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions em { font-size:11px;color:#d5c4a1;font-style:normal; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-close { right:18px;top:16px;width:54px;height:54px;z-index:20;display:grid;place-items:center;padding:0;background:#ead9b5;border:1px solid #9e7a43;border-radius:50%;box-shadow:0 3px 10px #21150e66;color:#583924;font:38px/1 'Folio WenKai',serif; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-close:hover { background:#faeccc;color:#8d3f27; }
+
+.shop-window .shop-workspace>.shop-list.shop-sale-target { pointer-events:auto;outline:0!important;background:none!important;cursor:copy; }
+
+.shop-detail.shop-roster-detail:has(.dossier-book) .dossier-book .shop-detail-reason { position:static;width:auto;padding:6px 0;margin:0;background:none;color:#7c5532;font-size:14px; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions b { font-size:16px;line-height:1.35; }
+
+/* The four painted ticket interiors have distinct vertical writing centres. */
+.shop-window .shop-list .shop-row:not([data-kind=general]) .shop-product-sign { height:74px;padding:8px 8px 0; }
+.shop-window:is([data-shop=forge],[data-shop=library],[data-shop=tavern]) .shop-list .shop-row:not([data-kind=general]) .shop-product-sign { padding:0 8px 6px; }
+.shop-window .shop-list .shop-row:not([data-kind=general]) .shop-product-sign .sr-main,.shop-window .shop-list .shop-row:not([data-kind=general]) .shop-product-sign .sr-main :is(b,.item-title) { font-size:13px;line-height:1.2;margin:0; }
+
+.shop-window .shop-sale-strip :is(.shop-inventory,.shop-equipment-tray) { align-items:stretch; }.shop-window .shop-sale-strip :is(.shop-items-grid,.shop-equipment-grid) { width:100%; }
+
+.shop-window:has(.shop-sale-strip) .shop-keeper>div { bottom:12%; }.shop-window:has(.shop-sale-strip) .shop-keeper .shop-keeper-speech { bottom:31%; }
+
+/* Only the painted green cloth is storage; leather and rolled hems stay empty. */
+.shop-window .shop-sale-strip { display:block;padding:0; }
+.shop-window .shop-sale-strip .shop-sale-heading { position:absolute;left:4.8%;width:12.8%;top:43%;height:36%;gap:0;justify-content:center; }
+.shop-window .shop-sale-strip .shop-sale-heading strong { font-size:29px;line-height:1.2;letter-spacing:.06em; }
+.shop-window .shop-sale-strip :is(.shop-inventory,.shop-equipment-tray) { position:absolute;left:20%;right:6%;top:15%;bottom:20%;height:auto;display:block;overflow:hidden; }
+.shop-window .shop-sale-strip:has(.shop-inventory):has(.shop-equipment-tray) .shop-equipment-tray { left:20%;right:45%; }
+.shop-window .shop-sale-strip:has(.shop-inventory):has(.shop-equipment-tray) .shop-inventory { left:58%;right:6%; }
+.shop-window .shop-sale-strip :is(.shop-items-grid,.shop-equipment-grid) { display:grid;grid-template-columns:repeat(auto-fill,44px);height:94px;max-height:100%;overflow:auto;align-content:start; }
+.shop-window .shop-sale-strip .shop-bag-cell { box-sizing:border-box;padding:3px; }.shop-window .shop-sale-strip .shop-bag-cell img { width:32px;height:32px; }
+.shop-window .shop-sale-strip .shop-sale-status { position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0;margin:-1px; }
+.shop-detail .dossier-name .dossier-recruit-price { color:#795027;font-size:17px;font-family:'Folio WenKai',serif;white-space:nowrap; }
+
+/* Recessed brass label holders fasten directly onto the shelf face. */
+.shop-window .shop-list .shop-row:not([data-kind=general]) .shop-product-sign { top:calc(100% + 12px);width:calc(100% + 6px);height:44px;padding:4px 9px!important; }
+.shop-window .shop-row:not([data-kind=general]) .shop-product-sign::before { background:url('/src/ui/shelf-label-v4.webp') center calc(50% + 2px)/100% 155% no-repeat; }
+.shop-window .shop-list .shop-row:not([data-kind=general]) .sr-actions { top:calc(100% + 62px); }
+/* One real walnut merchant badge and a separate directional speech balloon. */
+.shop-window .shop-keeper>div { width:198px;min-width:0;height:62px;min-height:0;padding:8px 20px; }
+.shop-window .shop-keeper>div::before { background:none center calc(50% + 3px)/100% 155% no-repeat; }
+.shop-window .shop-keeper h3 { color:#fff0c7;font:28px/1.2 'Folio Title','Folio WenKai',serif;letter-spacing:.04em; }
+.shop-window .shop-keeper .shop-keeper-speech { background:none!important;isolation:isolate;min-height:118px;padding:22px 30px 36px!important;line-height:1.6;font-size:16px!important;color:#443223!important; }
+.shop-window .shop-keeper .shop-keeper-speech::before { content:'';position:absolute;inset:0;z-index:-1;background:none center/100% 100% no-repeat;pointer-events:none; }
+.shop-window:is([data-shop=library],[data-shop=tavern]) .shop-keeper .shop-keeper-speech::before { transform:scaleX(-1); }
+
+/* The lower right cloth is a dedicated trade summary, never an item row. */
+.shop-window .shop-sale-strip :is(.shop-inventory,.shop-equipment-tray) { top:14%;bottom:40%; }
+.shop-window .shop-sale-strip :is(.shop-items-grid,.shop-equipment-grid) { height:94px;max-height:100%; }
+.shop-window .shop-sale-strip>.shop-sale-status { display:flex;flex-direction:column;justify-content:center;gap:3px;position:absolute;left:20%;right:6%;top:62%;bottom:15%;width:auto;height:auto;clip-path:none;overflow:hidden;margin:0;padding:0 4px;color:#fff0ca;text-shadow:0 1px 2px #21190d; }
+.shop-window .shop-sale-strip>.shop-sale-status strong { font-size:15px;font-weight:600;line-height:1.3;color:#fff0ca; }.shop-window .shop-sale-strip>.shop-sale-status span { font-size:12px;line-height:1.3;color:#e5d8b9; }
+.shop-window .shop-list .shop-row .shop-product-sign .sr-main,.shop-window .shop-list .shop-row .shop-product-sign .sr-main :is(b,.item-title) { color:#34281e;font-size:13px;font-weight:600; }
+.shop-window .shop-list .shop-row .sr-price { color:#805126;font-size:12px;font-weight:400;font-variant-numeric:tabular-nums;letter-spacing:.03em;border-top:1px solid #aa8b5d55;padding:1px 5px 0; }
+
+/* Wall plaques are recessed into plaster. Outdoor signs hang from the viewport edge. */
+.dialog.shop-window>h2 { width:290px;height:96px!important;left:49%;top:17%;padding:0 24px!important;color:#f9e6b5!important;font-size:40px!important;letter-spacing:.08em;pointer-events:none; }
+.dialog.shop-window[data-sign-mount=wall]>h2::before { background:none center/100% 100% no-repeat; }
+.dialog.shop-window[data-shop=herb]>h2 { left:51%;top:17%; }
+.shop-window[data-shop=herb] .shop-market>.dialog-text { top:14%;left:0;right:0;max-height:52px; }
+.dialog.shop-window[data-shop=forge]>h2 { left:51%;top:13%; }
+.dialog.shop-window[data-shop=tavern]>h2 { left:36%;top:1%; }
+.dialog.shop-window[data-sign-mount=hanging]>h2 { left:4%;top:0;width:280px;height:164px!important;padding:73px 20px 0!important; }
+.dialog.shop-window[data-sign-mount=hanging]>h2::before { background:none center/100% 100% no-repeat; }
+.dialog.shop-window[data-shop=library]>h2 { left:38%;top:1%; }
+/* A pale jade name tablet separates the keeper's identity from the wooden shop title. */
+.shop-window .shop-keeper>div { width:204px;height:64px;padding:8px 20px; }
+.shop-window .shop-keeper>div::before { background:none center/100% 120% no-repeat; }
+.shop-window .shop-keeper h3 { color:#304b3e;font-size:25px;font-weight:600;letter-spacing:.06em;text-shadow:none; }
+.shop-window .shop-sale-strip :is(.shop-inventory,.shop-equipment-tray) { top:12%;bottom:34%; }
+.shop-window .shop-sale-strip>.shop-sale-status { left:58%;right:6%;top:68%;bottom:13%; }
+.shop-window .shop-sale-strip>.shop-sale-status strong { font-size:14px; }
+.shop-window .shop-sale-strip>.shop-sale-status span { font-size:11px; }
+
+/* Each shop owns a distinct physical sign, with the same unobstructed title area. */
+.dialog.shop-window[data-shop=treasure]>h2::before { background-image:url('/src/ui/shop-sign-treasure-v6.webp'); }
+.dialog.shop-window[data-shop=herb]>h2::before { background-image:url('/src/ui/shop-sign-herb-v6.webp'); }
+.dialog.shop-window[data-shop=forge]>h2::before { background-image:url('/src/ui/shop-sign-forge-v6.webp'); }
+.dialog.shop-window[data-shop=library]>h2::before { background-image:url('/src/ui/shop-sign-library-v6.webp'); }
+.dialog.shop-window[data-shop=tavern]>h2::before { background-image:url('/src/ui/shop-sign-tavern-v6.webp'); }
+.dialog.shop-window[data-shop=beast]>h2::before { background-image:url('/src/ui/shop-sign-beast-v6.webp'); }
+.dialog.shop-window[data-shop=merchant]>h2::before { background-image:url('/src/ui/shop-sign-merchant-v6.webp'); }
+.dialog.shop-window:is([data-shop=herb],[data-shop=library])>h2 { color:#304332!important; }
+.shop-window .shop-keeper>div::before { background:none center/100% 100% no-repeat; }
+.shop-window .shop-keeper h3 { color:#493321;font-size:24px;font-weight:500;letter-spacing:.04em; }
+/* Two centred lines sit inside the label holder; extra width is taken from the shelf gap. */
+.shop-window .shop-list .shop-row:not([data-kind=general]) .shop-product-sign { width:calc(100% + 18px);height:46px;padding:7px 10px 2px!important;justify-content:center;gap:1px; }
+.shop-window .shop-list .shop-row:not([data-kind=general]) .shop-product-sign .sr-main { flex:none;line-height:1.2; }
+.shop-window .shop-list .shop-row:not([data-kind=general]) .sr-price { flex:none;line-height:1.2;margin:0; }
+
+.shop-window .shop-list .shop-row:not([data-kind=general]) .shop-product-sign .sr-main { width:100%;text-align:center; }
+.shop-window .shop-list .shop-row:not([data-kind=general]) .sr-price { width:100%;text-align:right;font-size:12.5px;font-weight:500;color:#734021;padding-right:8px; }
+.shop-window .shop-list .shop-row:is([data-kind=technique],[data-kind=equipment]) .shop-product-sign .sr-main { text-align:center; }
+
+/* A restrained caption identifies the keeper without covering the costume. */
+.shop-window .shop-keeper>div { width:174px;height:40px;padding:6px 14px;background:#eee3cdee;border:0;border-left:2px solid #795540;border-bottom:1px solid #ad946b;box-shadow:0 2px 5px #33271b18; }
+.shop-window .shop-keeper>div::before { content:none;background:none; }
+.shop-window .shop-keeper h3 { color:#493c2b;font-size:21px;font-weight:500;line-height:1.3;letter-spacing:.04em;text-align:center; }

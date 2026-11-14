@@ -48,5 +48,5 @@ for(const type of Object.keys(types)){
  for(const p of b.meshes.flatMap(m=>m.primitives))assert.ok(b.materials[p.material],`${type}: valid material on every primitive`);
 }
 console.log('PASS four types × four regions = 16 display-only buildings; all 2×2 lots and frontages clear of roads, buildings and T gaps');
-console.log('PASS original 300 roads / 33 cities / 83 event buildings / 166 triggers; display-only buildings remain nonfunctional');
+console.log('PASS original 300 roads / 33 cities / 83 event buildings / 166 triggers; academy services use their existing frontages without changing geometry');
 console.log('PASS four models are smaller, retain every source triangle/primitive group and embed Meshopt geometry + WebP textures');

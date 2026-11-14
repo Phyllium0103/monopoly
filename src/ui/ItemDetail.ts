@@ -2,17 +2,20 @@ import { ITEM_DEFS, PILL_GRADES } from '../data/items';
 import { requirementText } from '../systems/ItemSystem';
 import { itemIconUrl } from './Icons';
 import './item-detail.css';
+import './manuscript-details.css';
 
 export const detailEscape = (s:string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+export type DetailFooter = string | { label:string; price:string };
 export function emphasizeTechnique(html:string):string {
   const lines=html.split(/<br\s*\/?>/i);
   if(lines.length>1)lines[1]=`<span class="equipment-main-bonus">${lines[1]}</span>`;
   return lines.join('<br>');
 }
-export function detailCard(name:string, category:string, icon:string, content:string, footer=''):string {
-  return `<article class="item-detail-card"><header><img src="${detailEscape(icon)}" alt=""><div><small>${detailEscape(category)}</small><h3>${detailEscape(name)}</h3></div></header><section>${content}</section>${footer?`<footer>${detailEscape(footer)}</footer>`:''}</article>`;
+export function detailCard(name:string, category:string, icon:string, content:string, footer:DetailFooter=''):string {
+  const foot=typeof footer==='object'?`<footer class="item-detail-trade"><span>${detailEscape(footer.label)}</span><strong>${detailEscape(footer.price)}</strong></footer>`:footer?`<footer>${detailEscape(footer)}</footer>`:'';
+  return `<article class="item-detail-card"><header><img src="${detailEscape(icon)}" alt=""><div><small>${detailEscape(category)}</small><h3>${detailEscape(name)}</h3></div></header><section>${content}</section>${foot}</article>`;
 }
-export function itemDetail(defId:string,tier:number,footer='',count=1):string {
+export function itemDetail(defId:string,tier:number,footer:DetailFooter='',count=1):string {
   const d=ITEM_DEFS[defId];
   const requirement=requirementText({defId,tier} as import('../game/types').Item);
   return detailCard(d.name+(count>1?' ×'+count:''),`${d.category}${d.price.length>1?' · '+PILL_GRADES[tier]:''}`,itemIconUrl(defId),`<p>${detailEscape(d.desc(tier))}</p><div class="item-detail-requirement">${detailEscape(requirement)}</div>`,footer);

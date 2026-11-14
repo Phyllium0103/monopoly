@@ -1,0 +1,95 @@
+@import './folio-type.css';
+/* Original manuscript information panels: paper, ink and restrained marginal rules. */
+.item-detail-popover { width:min(370px,calc(100vw - 20px));background:#f1e5ca;color:#443529;border:1px solid #9a8056;border-radius:2px;box-shadow:0 15px 38px #1c160d66,inset 0 0 0 5px #e8d7b6;font:17px/1.75 'Folio WenKai',serif;padding:5px; }
+.item-detail-card header { padding:18px 18px 16px;background:none;border-bottom:3px double #aa916363;gap:16px; }
+.item-detail-card header img { width:64px;height:64px;background:#dfcda744;border:1px solid #b49a7055;border-radius:1px;padding:3px; }
+.item-detail-card small { color:#8a6c42;font-size:14px;letter-spacing:.12em; }
+.item-detail-card h3 { font-size:25px;line-height:1.45;color:#503827;margin:5px 0 0; }
+.item-detail-card section { padding:18px;color:#46372b;font-size:18px;line-height:1.8; }
+.item-detail-card :is(p,.gb-passive,.gb-note,.gb-stat) { color:#46372b; }
+.item-detail-card :is(b,.equipment-main-bonus) { color:#8c4531; }
+.item-detail-card h4 { color:#866b47;font-size:14px; }
+.item-detail-card footer,.item-detail-requirement { color:#866d50;font-size:14px;border-color:#b19a7466; }
+.item-detail-card dl,.item-detail-card dl div { background:none;color:#493c2c;border-color:#b19a7444; }
+.item-detail-card dt { color:#826d50; }.item-detail-card dd { color:#70432b; }
+.tooltip:has(.gh),.dialog-person-tooltip:has(.gh) { background:#f1e5ca;border:1px solid #9a8056;border-radius:2px;padding:12px;color:#443529;box-shadow:0 15px 38px #1c160d66;font-family:'Folio WenKai',serif; }
+.gh { background:none;color:#443529;border-collapse:collapse;font:16px/1.65 'Folio WenKai',serif; }
+.gh :is(th,td) { background:transparent!important;color:#493a2b!important;border-color:#ab93684d!important;padding:5px 8px; }
+.gh .gh-head { font-size:25px;border-bottom:3px double #a78b5e88!important;padding:4px 8px 12px; }
+.gh .gh-passive { border-top:1px solid #ad936755;padding-top:12px; }.gh .gh-passive b { color:#8c4531; }
+.gh .gh-note { color:#867052!important; }.gh .gh-title { color:#865039!important;font-size:18px; }
+.gh :is(.gh-focus,.gh-ok) { background:#71875a18!important;color:#3d623f!important; }.gh .gh-bad { background:#a3473110!important;color:#933c30!important; }
+.gh .gh-bar { background:#d4c3a3;border:1px solid #9e885e55; }.gh .gh-bar span { color:#fff8df!important;text-shadow:0 1px 2px #342412; }
+.gh .gh-bar-hp i { background:#ad705b; }.gh .gh-bar-sta i { background:#aa9255; }.gh .gh-bar-exp i { background:#6d9290; }
+
+/* Generated paper sheets contain all live DOM text; compact museum-label hierarchy. */
+.item-detail-popover { width:min(310px,calc(100vw - 16px));padding:16px;background:url('/src/ui/item-paper.webp') center/100% 100% no-repeat;color:#453627;border:0;border-radius:0;box-shadow:none;filter:drop-shadow(0 8px 12px #24170e44);font-size:15px; }
+.item-detail-card header { padding:4px 0 11px;gap:11px;border-bottom:1px solid #a48a5c55; }
+.item-detail-card header img { width:44px;height:44px;border:0;background:none;padding:0; }
+.item-detail-card small { font-size:12px;letter-spacing:.06em; }.item-detail-card h3 { font-size:22px;line-height:1.4;margin:3px 0 0; }
+.item-detail-card section { padding:12px 0 3px;font-size:16px;line-height:1.7; }.item-detail-card p { margin:0 0 10px; }
+.item-detail-requirement { font-size:12px;padding-top:8px; }.item-detail-card footer { font-size:12px;padding:8px 0 0; }.item-detail-card .equipment-main-bonus { font-size:17px; }
+.tooltip:has(.gh),.dialog-person-tooltip:has(.gh) { width:min(320px,calc(100vw - 20px));min-width:0;max-width:calc(100vw - 20px);padding:22px;background:none center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;filter:drop-shadow(0 8px 12px #24170e44); }
+.gh { width:100%;font-size:14px;line-height:1.55;table-layout:fixed; }.gh :is(th,td) { padding:4px 5px;overflow-wrap:anywhere; }.gh .gh-head { font-size:23px;padding:0 2px 10px;border-bottom:1px solid #a48a5c55!important; }
+.gh .gh-passive { font-size:14px;padding-top:10px; }.gh .gh-bar { min-width:0; }.gh .gh-bar span { font-size:12px; }
+
+/* One portrait dossier for world pieces, HUD heads, combat and selection previews. */
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover):has(.gh) { width:340px;min-width:0;max-width:calc(100vw - 20px);padding:22px 24px 26px;background:none center/100% 100% no-repeat!important;border:0!important;border-radius:0;box-shadow:none!important;filter:drop-shadow(0 10px 15px #21170c55);color:#403125;white-space:normal;font:15px/1.6 'Folio WenKai',serif; }
+.gh { width:100%;table-layout:fixed;border:0!important; }
+.gh :is(td,th) { border:0!important;border-bottom:1px solid #a78a5540!important;padding:5px 4px; }
+.gh th { width:19%;font-size:13px;font-weight:400;color:#806443!important; }
+.gh .gh-head { padding:0 0 13px;border-bottom:2px solid #99794e66!important; }
+.general-card-identity { display:flex;align-items:center;gap:16px;text-align:left; }
+.general-card-portrait { width:78px;height:94px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 4px 4px #644b2f30); }
+.general-card-identity>div { min-width:0; }.general-card-identity small { display:block;font:12px 'Folio WenKai',serif;color:#91734b;letter-spacing:.2em; }
+.general-card-identity strong { display:block;color:#3b2d21;font:32px/1.35 'Folio Title','Folio WenKai',serif;margin:2px 0 7px; }
+.general-card-tags { display:flex;flex-wrap:wrap;gap:7px; }.general-card-tags .gb-tag { margin:0;font:12px/1.5 'Folio WenKai',serif; }
+.gh .gh-passive { padding-top:12px!important;line-height:1.65;border-bottom:0!important; }.gh .gh-passive b { display:block;color:#8b4d34;margin-bottom:3px; }
+.gh .gh-bar { border:0;border-radius:2px;height:20px;background:#c6b38a66; }.gh .gh-bar-exp i { background:#47716b; }.gh .gh-bar span { line-height:20px; }
+/* Equipment carried in the roster uses the same paper label as consumables. */
+.bubble:has(.item-detail-card) { width:310px;min-width:0;max-width:calc(100vw - 16px);padding:16px;background:url('/src/ui/item-paper.webp') center/100% 100% no-repeat!important;border:0!important;border-radius:0;box-shadow:none!important;filter:drop-shadow(0 8px 12px #24170e44);white-space:normal;font:15px/1.7 'Folio WenKai',serif;color:#453627; }
+.bubble:has(.item-detail-card) .item-detail-card { background:none;border:0;padding:0;box-shadow:none; }
+
+/* A rigid hero card silhouette replaces the loose manuscript sheet. */
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover):has(.gh) { width:350px;padding:30px 28px 32px;background:url('/src/ui/general-card-v3.webp') center/100% 100% no-repeat!important;border:0!important;filter:drop-shadow(0 12px 18px #0d211b66); }
+.general-card-identity { min-height:100px;gap:16px; }.general-card-identity strong { font:34px/1.25 'Folio Title','Folio WenKai',serif;color:#173d2c; }.general-card-identity small { color:#856137; }.general-card-portrait { width:80px;height:96px; }
+.gh .gh-head { border-bottom:2px solid #9a7f4c88!important; }.gh th { color:#806746!important; }.gh .gh-passive b { color:#805334; }.gh td { font-size:15px; }
+
+/* Card frame follows the current lord; unowned recruits use their original faction. */
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover):has(.gh[data-faction=cao]) { --card-x:0%;--card-y:0%; }
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover):has(.gh[data-faction=sun]) { --card-x:100%;--card-y:0%; }
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover):has(.gh[data-faction=liu]) { --card-x:0%;--card-y:100%; }
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover):has(.gh[data-faction=dong]) { --card-x:100%;--card-y:100%; }
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover):has(.gh:is([data-faction=cao],[data-faction=sun],[data-faction=liu],[data-faction=dong])) { background:url('/src/ui/general-card-factions-v4.webp') var(--card-x) var(--card-y)/200% 200% no-repeat!important; }
+.gh .gh-recruitment-price { padding:8px 4px!important;border-bottom:2px solid #a98a4a66!important; }.gh .gh-recruitment-price span { font-size:13px;color:#886333; }.gh .gh-recruitment-price strong { float:right;color:#6b4020;font-size:21px;font-weight:600; }
+
+/* Keep every last line of a talent above the painted lower corner ornaments. */
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover):has(.gh) { padding-bottom:68px; }
+.gh .gh-passive { padding:14px 8px 8px!important;line-height:1.7;background:#f6ebd28c!important; }.gh .gh-passive b { margin-bottom:5px; }
+
+/* Shorter hero cards retain every stat and leave the bottom ornament clear. */
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover):has(.gh) { padding:24px 28px 50px; }
+.general-card-identity { min-height:80px;gap:13px; }.general-card-portrait { width:68px;height:78px; }
+.general-card-identity strong { font-size:30px;margin:1px 0 5px; }
+.gh .gh-head { padding:0 0 8px; }.gh :is(td,th) { padding:3px 4px; }
+.gh .gh-bar { height:18px; }.gh .gh-bar span { line-height:18px; }
+.gh .gh-passive { padding:8px 7px 4px!important;line-height:1.55; }.gh .gh-passive b { margin-bottom:3px; }
+
+/* Identical equipment information in roster and shops; trade alone adds this price rail. */
+.item-detail-card,.item-detail-card :is(header,section,h3,p) { text-align:left; }
+.item-detail-card footer.item-detail-trade { display:flex;align-items:baseline;gap:12px;padding:12px 12px 2px 0;margin-top:8px;border-top:1px solid #aa875e88;text-align:left; }
+.item-detail-card .item-detail-trade>span { flex:none;font-size:13px;line-height:1.5;letter-spacing:.04em;color:#7e6040; }
+.item-detail-card .item-detail-trade>strong { margin-left:auto;min-width:0;text-align:right;font-size:20px;line-height:1.35;font-weight:600;color:#823b21;font-variant-numeric:tabular-nums; }
+
+/* Identical column geometry in all four hover hosts; do not inherit host table rules. */
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover):has(.gh) { box-sizing:border-box;width:350px;min-width:0;padding:24px 28px 40px;font:14px/1.45 'Folio WenKai',serif; }
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover) .gh { width:100%;border-collapse:collapse;table-layout:fixed;line-height:1.45; }
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover) .gh col { width:25%; }
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover) .gh :is(th,td) { box-sizing:border-box;min-width:0;width:auto;padding:3px 4px;font-size:14px;line-height:1.45; }
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover) .gh .gh-bar { min-width:0;height:18px; }
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover) .gh .gh-head { padding:0 0 8px; }
+:is(.tooltip,.bubble,.dialog-person-tooltip,.item-detail-popover) .gh .gh-passive { padding:8px 7px 4px!important; }
+.item-detail-popover:has(.item-detail-notice) { width:310px;max-width:calc(100vw - 16px);padding:20px 24px;background:linear-gradient(110deg,#fff8e333,#c4a36b0b),#f1e5ca;border:1px solid #9b7f50;border-radius:1px;box-shadow:0 12px 35px #23180f55,inset 0 0 0 4px #e3cfaa,inset 0 0 0 5px #b89d6b66;filter:none;text-align:center; }
+.item-detail-notice strong { font:24px/1.4 'Folio WenKai',serif;color:#6c3e2b;letter-spacing:.08em; }
+.item-detail-notice p { margin:10px 0 0;font:15px/1.7 'Folio WenKai',serif;color:#51412d; }
+body>:is(.tooltip,.bubble):has(.gh) { z-index:2147483646;position:fixed;pointer-events:none; }

@@ -1,0 +1,4 @@
+@import './folio-type.css';
+/* One body face throughout the game; calligraphy is reserved for display headings. */
+body,body * { font-family:'Folio WenKai','Noto Serif TC',serif!important; }
+body .dialog.shop-window>h2,body .roster-screen .roster-title h2,body .training-window>h2,body .training-batch-paper h3,body .dialog.jade-dialog>h2,body .shop-sale-heading strong { font-family:'Folio Title','Folio WenKai',serif!important; }

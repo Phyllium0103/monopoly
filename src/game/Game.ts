@@ -25,6 +25,9 @@ import { ELEMENT_NAMES, itemName } from '../data/items';
 import { GeneralsView } from '../ui/GeneralsView';
 import { BattleView } from '../ui/BattleView';
 import { ShopPanel } from '../ui/ShopView';
+import { TrainingPanel } from '../ui/TrainingView';
+import { academyAt, ACADEMY_NAMES } from '../systems/TrainingSystem';
+import { DISPLAY_FACILITY_LOTS } from '../data/displayFacilities';
 import { CasinoPanel } from '../ui/CasinoView';
 import { HelpView } from '../ui/HelpView';
 import { RankView } from '../ui/RankView';
@@ -68,6 +71,7 @@ export class Game {
   private inspectRoster: GeneralsView;
   private battleView: BattleView;
   private shop: ShopPanel;
+  private training: TrainingPanel;
   private casino: CasinoPanel;
   private help: HelpView;
   private rankView: RankView;
@@ -109,6 +113,7 @@ export class Game {
     this.inspectRoster = new GeneralsView(uiRoot);
     this.battleView = new BattleView(uiRoot);
     this.shop = new ShopPanel(this.dialog, g => this.inspectRoster.inspectionCard(this.state,this.state.lords[this.me],g));
+    this.training = new TrainingPanel(this.dialog);
     this.casino = new CasinoPanel(this.dialog);
     this.help = new HelpView(uiRoot);
     this.rankView = new RankView(uiRoot);
@@ -287,7 +292,9 @@ export class Game {
     this.ui.auto = false;
     this.active = null;
     this.dispatchTask = null;
+    this.ui.setMusicVolume(0);
     this.shop.close();
+    this.training.close();
     this.casino.close();
     this.battleView.closeAll();
     this.generalsView.close();
@@ -394,6 +401,7 @@ export class Game {
       this.world.clearHighlights();
     }
     this.shop.close();
+    this.training.close();
     this.casino.close();
     this.dialog.close();
     this.generalsView.close();
@@ -557,7 +565,9 @@ export class Game {
   /** 顯示抉擇並回傳玩家的回答（單機由引擎呼叫；多人由伺服器的待答抉擇呼叫） */
   private promptUI(lord: LordId, p: Prompt): Promise<unknown> {
     if (p.kind !== 'shop') this.shop.close();
+    if (p.kind !== 'training') this.training.close();
     switch (p.kind) {
+      case 'training': return this.training.ask(this.state.lords[lord], p.visit, p.generals, p.phase);
       case 'choose':
         return this.dialog.choose(p.title, p.text, p.choices.map((c, i) => ({ ...c, value: i })), p.cancel, p.icon);
       case 'pickMany':
@@ -811,19 +821,20 @@ export class Game {
       this.sm.renderer.domElement.style.cursor=o?(valid?'pointer':'not-allowed'):'default';
       if(!o){this.ui.showTooltip(null);return;}
       const lordId=o.userData.lordId as LordId|undefined;
-      if(lordId){const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===lordId);this.ui.showTooltip(g?generalHoverInfo(g).replaceAll('｜','<br>'):null,this.mouse.x,this.mouse.y);}
+      if(lordId){this.ui.showTooltip(null);}
       else {const tile=this.state.tiles[o.userData.tile];this.ui.showTooltip(tile?`${tile.name}${valid?'：可選取':'：不符合此物品的目標條件'}`:null,this.mouse.x,this.mouse.y);}
       return;
     }
     this.world.setTargetHover(null,false,this.sm.camera);
     if(o?.userData.lordId){
       this.world.setHover(null);
-      const g=Object.values(this.state.generals).find(g=>g.isLord&&g.owner===o.userData.lordId);
-      this.ui.showTooltip(g?generalHoverInfo(g).replaceAll('｜','<br>'):null,this.mouse.x,this.mouse.y);return;
+      this.ui.showTooltip(null);return;
     }
     const tile = this.tileOf(o);
     const road=tile!==null&&this.state.tiles[tile].kind==='road';
     this.world.setHover(road?null:tile,o?.userData.displayFacility??null);
+    const academy=DISPLAY_FACILITY_LOTS.find(l=>l.id===o?.userData.displayFacility&&(l.type==='martial'||l.type==='arts'));
+    if(academy){this.ui.showTooltip(`<b>${academy.name}</b><br>停在入口道路即可入院修練。<br>五項修練，每位武將本次最多一項。`,this.mouse.x,this.mouse.y);return;}
     if (tile === null || road) {
       this.ui.showTooltip(null);
       return;
@@ -845,7 +856,7 @@ export class Game {
 
   private tileInfoHtml(index: number): string {
     const t = this.state.tiles[index];
-    if(t.kind==='road')return '';
+    if(t.kind==='road'){const academy=academyAt(index);return academy?`<div class="ip-head"><b>${ACADEMY_NAMES[academy]}</b></div><div class="ip-row">停在入口可付費修練；五個項目各限一人，每將最多一項，永久增加基礎值。</div>`:'';}
     const here = LORD_IDS.filter((id) => this.state.lords[id].alive && this.state.lords[id].position === index && !this.state.lords[id].relicJourney);
     const fork = t.links.length >= 3 ? `<div class="ip-row">➜ 岔路箭頭：往${this.state.tiles[this.state.forkDirections[index]].name}</div>` : '';
     const people = here.length ? `<div class="ip-row">此地：${here.map((id) => `<span style="color:${LORDS[id].css}">${LORDS[id].name}</span><small>（${this.facingText(this.state.lords[id])}）</small>`).join('、')}</div>` : '';
@@ -909,7 +920,7 @@ export class Game {
   private itemReason(item:Item){
     const p=this.itemDuel;
     if(p?.duel[p.side].itemsSealed)return '本場物品已被封印';
-    return itemDisabledReason(this.state,this.state.lords[this.me],item,this.itemContext(),p?.duel[p.side].generalId);
+    return itemDisabledReason(this.state,this.state.lords[this.me],item,this.itemContext(),p?.duel[p.side].generalId,p?.duel[p.side==='a'?'b':'a'].generalId);
   }
   private selectItem(item:Item){
     const reason=this.itemReason(item);if(reason){this.ui.toast(reason);return;}

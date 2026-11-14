@@ -46,12 +46,12 @@ function realmAfter(g: General, loss: number): string {
 const shuffle = <T,>(arr: T[]): T[] => arr.map((v) => [Math.random(), v] as const).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
 
 /** 每次造訪商店時隨機產生貨架 */
-export function makeStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
+export function makeStock(state: GameState, lord: Lord, kind: ShopKind, previousTavernIds: readonly string[] = []): Offer[] {
   const discount=Math.max(0,1-(lordTalentFx(lord).shop??0));
-  return sortOffers(buildStock(state,lord,kind).map(o=>o.kind==='general'||o.kind==='revive' ? o : {...o,price:Math.round(o.price*WORLD.purchaseMult*discount)}));
+  return sortOffers(buildStock(state,lord,kind,new Set(previousTavernIds)).map(o=>o.kind==='general'||o.kind==='revive' ? o : {...o,price:Math.round(o.price*WORLD.purchaseMult*discount)}));
 }
 
-function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
+function buildStock(state: GameState, lord: Lord, kind: ShopKind, previousTavernIds: ReadonlySet<string>): Offer[] {
   const uid = (p: string) => nextUid(state, p);
   // 隨回合推進，高階貨品更常見
   const bias = Math.min(0.9, state.round / 40);
@@ -131,8 +131,8 @@ function buildStock(state: GameState, lord: Lord, kind: ShopKind): Offer[] {
         lord.tavernPriceMultipliers[g.id]=(lord.tavernPriceMultipliers[g.id]??1)*1.2;
       }
       const lockedIds=new Set(lockedList.map(g=>g.id));
-      const shuffledHidden=shuffle(hidden.filter(g=>!lockedIds.has(g.id)));
-      const normal = free.filter((g) => g.origin !== 'immortal' && !lockedIds.has(g.id));
+      const shuffledHidden=shuffle(hidden.filter(g=>!lockedIds.has(g.id)&&!previousTavernIds.has(g.id)));
+      const normal = free.filter((g) => g.origin !== 'immortal' && !lockedIds.has(g.id) && !previousTavernIds.has(g.id));
       const showHidden=lordHas(lord.id,'unlockHidden') || Math.random()<0.2;
       const pool = [...lockedList, ...(showHidden?shuffledHidden.slice(0,1):[]), ...normal].slice(0,Math.max(4,lockedList.length+1));
       for (const g of pool) if (!state.generals[g.id]) state.generals[g.id]=g;
@@ -257,7 +257,9 @@ export function refreshShop(state: GameState, lord: Lord, visit: ShopVisit): {ok
   const cost=SHOP_REFRESH_COSTS[visit.refreshes];
   if (cost===undefined) return {ok:false,message:'本次造訪已刷新兩次。'};
   if (lord.stones<cost) return {ok:false,message:'靈石不足，無法刷新。'};
-  const offers=makeStock(state,lord,visit.kind);
+  // Only the immediately preceding shelf is excluded; locked generals remain eligible.
+  const previousIds=visit.kind==='tavern'?visit.offers.flatMap(o=>o.kind==='general'?[o.general.id]:[]):[];
+  const offers=makeStock(state,lord,visit.kind,previousIds);
   lord.stones-=cost;
   visit.offers=offers;
   visit.refreshes++;

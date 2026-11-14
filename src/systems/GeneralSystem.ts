@@ -1,6 +1,6 @@
 import { bagHasRoom, bagItems, syncBagSlots, moveBagItem, receiveEquipment, EQUIPMENT_CAPACITY } from './EquipmentInventory';
 import type { City, CraftStat, Equipment, General, Lord, LordId, Technique, GameState, Stats } from '../game/types';
-import { makePersonalWeapon } from '../data/weaponCatalog';
+import { makePersonalWeapon, weaponGrade } from '../data/weaponCatalog';
 import { mortalTrialTurns, TRIBULATION_RULES } from '../data/breakthroughRules';
 import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
 import { equipRealm, techniqueForce, techniqueSpeed } from '../data/items';
@@ -43,7 +43,7 @@ export function craft(g: General, stat: CraftStat): number {
 
 /** 綜合戰力，用於攻城、秘境與 AI 評估 */
 export function power(g: General): number {
-  return roundStat(attack(g) * 2 + defense(g) + maxHp(g) / 5);
+  return roundStat(attack(g) * 2 + defense(g) + maxHp(g) / 10);
 }
 
 export function totalCraft(g: General): number {
@@ -325,7 +325,8 @@ export function recover(g: General) {
 
 export function generalValue(g: General): number {
   if (g.ghostSourceId) return 0;
-  return Math.round(power(g) * 8 + totalCraft(g) * 10 + (g.armor?.price ?? 0) * 0.5 + (g.technique?.price ?? 0) * 0.5);
+  const weaponValue=g.weapon?[0,1000,5000,10000][weaponGrade(g.weapon)]:0;
+  return Math.round(power(g) * 15 + totalCraft(g) * 10 + (g.armor?.price ?? 0) * 0.5 + (g.technique?.price ?? 0) * 0.5 + weaponValue);
 }
 
 /** 境界越高，武將身價倍數越大 */
@@ -336,10 +337,18 @@ export function generalSaleValue(g: General): number {
   return Math.round(((power(g) * 10 + totalCraft(g) * 14) * REALM_SALE_MULT[g.realm]) / 100) * 100;
 }
 
-/** 聽風樓招募價：本國將領較便宜 */
+const PREMIUM_RECRUIT_IDS = new Set([
+  'guanyu', 'machao', 'zhangfei', 'huangzhong', 'zhaoyun', 'zhugeliang',
+  'zhoutai', 'huanggai', 'taishici', 'ganning', 'zhouyu', 'luxun',
+  'zhangliao', 'xuchu', 'dianwei', 'xiahoudun', 'xiahouyuan', 'simayi',
+  'huaxiong', 'liru', 'lvlingqi', 'jiaxu',
+]);
+
+/** 本國維持優惠；指定名將與呂布使用各自的外國招募倍率。 */
 export function recruitPrice(g: General, lord: string): number {
-  const base = generalValue(g) * 0.6 + 2000;
-  return Math.round((base * (g.origin === lord ? 0.6 : 1.5) * WORLD.recruitMult * Math.max(0,1-lordAura(lord as LordId,'partyRecruit'))) / 100) * 100;
+  const base = generalValue(g);
+  const factionMult = g.origin === lord ? 0.6 : g.id === 'lvbu' ? 3 : PREMIUM_RECRUIT_IDS.has(g.id) ? 2.5 : 1.5;
+  return Math.round((base * factionMult * WORLD.recruitMult * Math.max(0,1-lordAura(lord as LordId,'partyRecruit'))) / 100) * 100;
 }
 
 export function canWearArmor(lord: Lord, g: General, e?: Equipment): { ok: boolean; reason: string } {

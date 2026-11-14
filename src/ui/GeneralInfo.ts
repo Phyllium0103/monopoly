@@ -4,6 +4,8 @@ import { canUse, requirement } from '../systems/ItemSystem';
 import { APTITUDE_NAMES, REALMS } from '../data/generals';
 import { attack, defense, craft, expCap, maxHp, maxStamina, power } from '../systems/GeneralSystem';
 import { fxText, passiveOf, passiveState } from '../data/passives';
+import { generalHeadUrl } from '../data/generalArt';
+import { fmtStones } from '../game/Currency';
 
 type BattleStats = { hp: number; maxHp: number; atk: number; def: number };
 type HoverStat = 'hp' | 'sta' | 'exp' | 'power' | 'atk' | 'def' | CraftStat;
@@ -99,7 +101,7 @@ const gaugeBar = (key: HoverStat, now: number, max: number, text: string) =>
 export function fusionSummary(g: General): string {
   return Object.entries(g.fusionBonus ?? {}).filter(([, value]) => value !== 0).map(([key,value]) => `${key === 'penetration' ? '破防' : key === 'hp' ? '血量' : key === 'defense' ? '防禦' : key === 'force' ? '武力' : STAT_NAMES[key as CraftStat]} +${key === 'penetration' ? Math.round(value*100)+'%' : value}`).join('、');
 }
-export function generalHoverTable(g: General, battle?: BattleStats, focus?: HoverFocus, note = ''): string {
+export function generalHoverTable(g: General, battle?: BattleStats, focus?: HoverFocus, note = '', recruitmentPrice?:number, priceLabel = '招募價格'): string {
   const v = hoverValues(g, battle), p = passiveText(g);
   const cap = expCap(g);
   const gauges: Partial<Record<HoverStat, [number, number]>> = {
@@ -114,8 +116,9 @@ export function generalHoverTable(g: General, battle?: BattleStats, focus?: Hove
     return `<th${cls}>${HOVER_LABELS[key]}</th><td${cls}${span > 1 ? ` colspan="${span}"` : ''}>${body}</td>`;
   };
   const wide = (cls: string, html: string) => `<tr><td class="${cls}" colspan="4">${html}</td></tr>`;
-  return '<table class="gh">' +
-    `<tr><td class="gh-head" colspan="4">${g.name}${realmTag(g.realm)}${aptTag(g)}</td></tr>` +
+  return `<table class="gh" data-faction="${g.owner??(g.origin==='immortal'?'neutral':g.origin)}"><colgroup><col><col><col><col></colgroup>` +
+    `<tr><td class="gh-head" colspan="4"><div class="general-card-identity"><img class="general-card-portrait" src="${generalHeadUrl(g)}" alt=""><div><small>武將</small><strong>${g.name}</strong><div class="general-card-tags">${realmTag(g.realm)}${aptTag(g)}</div></div></div></td></tr>` +
+    (recruitmentPrice!==undefined?wide('gh-recruitment-price',`<span>${priceLabel}</span><strong>${fmtStones(recruitmentPrice)}</strong>`):'') +
     (focus ? wide('gh-title', focus.title) : '') +
     `<tr>${cell('hp', 3)}</tr><tr>${cell('sta', 3)}</tr><tr>${cell('exp', 3)}</tr>` +
     `<tr>${cell('power', 3)}</tr><tr>${cell('atk')}${cell('def')}</tr>` +

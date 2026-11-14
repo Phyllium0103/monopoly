@@ -198,6 +198,14 @@ export class GameUI {
     this.top.querySelectorAll<HTMLButtonElement>('.speed button[data-s]').forEach((b) => b.classList.toggle('on', Number(b.dataset.s) === this.speed));
   }
 
+  setMusicVolume(value:number) {
+    music.setVolume(value);
+    const volume=this.top.querySelector<HTMLInputElement>('.music-vol');
+    const percent=this.top.querySelector('.music-pct');
+    if(volume)volume.value=String(Math.round(music.volume*100));
+    if(percent)percent.textContent=Math.round(music.volume*100)+'%';
+  }
+
   private buildToolbar() {
     this.top.innerHTML = `
       <div class="round"></div>
@@ -226,8 +234,7 @@ export class GameUI {
     };
     const vol = q<HTMLInputElement>('.music-vol');
     vol.oninput = () => {
-      music.setVolume(Number(vol.value) / 100);
-      q('.music-pct').textContent = `${vol.value}%`;
+      this.setMusicVolume(Number(vol.value) / 100);
     };
     // 主公卡每次刷新都會重建，用事件委派
     q('.lords').onclick = (e) => {
@@ -414,7 +421,9 @@ export class GameUI {
     }
     this.tooltip.classList.remove('hidden');
     this.tooltip.innerHTML = text;
-    const {scale,width,height}=uiViewportSize();x/=scale;y/=scale;
+    const portrait=!!this.tooltip.querySelector('.gh');
+    const host=portrait?document.body:this.hud;if(this.tooltip.parentElement!==host)host.appendChild(this.tooltip);
+    const {scale,width,height}=portrait?{scale:1,width:innerWidth,height:innerHeight}:uiViewportSize();x/=scale;y/=scale;
     this.tooltip.style.left = `${Math.max(8,Math.min(x + 14, width - this.tooltip.offsetWidth - 8))}px`;
     this.tooltip.style.top = `${Math.max(8,Math.min(y + 14,height-this.tooltip.offsetHeight-8))}px`;
   }

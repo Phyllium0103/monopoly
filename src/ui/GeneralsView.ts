@@ -2,9 +2,11 @@ import { upgradeRequirement } from '../systems/MaterialSystem';
 import { sectTransferRequirement } from '../systems/SectSystem';
 import './technique-roster.css';
 import { materialLabel } from './MaterialArt';
+import { detailCard } from './ItemDetail';
 import { RosterEquipment, armorPicture, techniquePicture } from './RosterEquipment';
 import { compareBagItems, bagSlots, bagItems, EQUIPMENT_CAPACITY, isArmor } from '../systems/EquipmentInventory';
 import './roster-equipment.css';
+import './roster-folio.css';
 import { generalCooldownText } from '../systems/GeneralAbilities';
 import type { GameState, General, Lord } from '../game/types';
 import { PARTY_LIMIT, generalsOf } from '../game/GameState';
@@ -74,7 +76,7 @@ const COLUMNS: { cls: string; label: string; sort?: string }[] = [
   { cls: 'c-apt', label: '靈根', sort: 'aptitude' },
   { cls: 'c-st', label: '位置', sort: 'location' },
   { cls: 'c-hp', label: '血量／修為' },
-  { cls: 'c-weapon', label: '本命武器', sort: 'weapon' },
+  { cls: 'c-weapon', label: '武器', sort: 'weapon' },
   { cls: 'c-armor', label: '仙衣', sort: 'armor' },
   { cls: 'c-technique', label: '功法', sort: 'technique' },
   { cls: 'c-power', label: '戰力', sort: 'power' },
@@ -259,7 +261,7 @@ export class GeneralsView {
     this.detailId = g.id;
     const backdrop = document.createElement('div');
     backdrop.className = 'general-modal-backdrop';
-    backdrop.innerHTML = `<section class="general-modal" role="dialog" aria-modal="true" aria-labelledby="general-detail-title"><header class="general-modal-head"><div><small>武將檔案</small><h2 id="general-detail-title">${escapeHtml(g.name)}</h2></div><button type="button" class="btn detail-close" aria-label="關閉武將詳情">✕</button></header><div class="general-modal-content"></div></section>`;
+    backdrop.innerHTML = `<section class="general-modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(g.name)}"><button type="button" class="btn detail-close" aria-label="關閉武將詳情"></button><div class="general-modal-content"></div></section>`;
     backdrop.querySelector('.general-modal-content')!.appendChild(this.card(state, lord, g, manage));
     backdrop.querySelector<HTMLButtonElement>('.detail-close')!.onclick = () => this.closeDetail();
     backdrop.onclick = e => { if (e.target === backdrop) this.closeDetail(); };
@@ -292,27 +294,27 @@ export class GeneralsView {
     const party = gens.filter((g) => g.status === 'free').length;
 
     // 重繪前記住捲動位置：只有下方清單捲動，標題列固定
-    const scrollTop = this.el.querySelector('.drawer-body')?.scrollTop ?? 0;
+    const scrollTop = this.el.querySelector('.roster-entries')?.scrollTop ?? 0;
     this.el.innerHTML = `
       <div class="drawer-head">
-        <div class="roster-title"><small>將星錄 · ${LORDS[lord.id].name}</small><h2>武將名冊</h2></div>
-        <span class="muted">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : this.mode.inspect ? '・查看名冊' : '・非你的回合，無法突破'}</span>
-        <button class="btn close roster-close" aria-label="關閉武將名冊">✕</button>
+        <span class="ledger-seal" aria-hidden="true">${lord.id === 'dong' ? '群' : LORDS[lord.id].kingdom}</span><div class="roster-title"><small>將星錄 · ${LORDS[lord.id].name}</small><h2>武將名冊</h2></div>
+        <span class="muted ledger-meta">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : this.mode.inspect ? '・查看名冊' : '・非你的回合，無法突破'}</span>
+        <button class="btn close roster-close" aria-label="關閉武將名冊"></button>
       </div>
       <div class="drawer-body">
       <div class="sections"></div>
       </div>
       ${this.mode.inspect ? '' : `<footer class="roster-inventory">
-        <div class="inventory-heading"><div><b>隨身行囊</b><span>仙衣 · 功法</span></div><button type="button" class="btn inventory-sort">物品排序</button><span class="inventory-count">${bagItems(lord).length} / ${EQUIPMENT_CAPACITY}</span></div>
+        <div class="inventory-heading"><div><b>隨身行囊</b></div><button type="button" class="btn inventory-sort">物品排序</button><span class="inventory-count">${bagItems(lord).length} / ${EQUIPMENT_CAPACITY}</span></div>
         <div class="inventory-grid">${cells}</div>
-        <div class="equipment-feedback" role="status" aria-live="polite">點選圖片拿起，再點裝備格放入；已修習功法的取下操作在武將詳情中。</div>
+        <div class="equipment-feedback" role="status" aria-live="polite"></div>
       </footer>`}`;
 
     (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
     const sort = this.el.querySelector<HTMLButtonElement>('.inventory-sort');
     if (sort) { sort.disabled = !!this.replacement || !(manage || this.mode.free); sort.onclick = () => this.emit({ type: 'sort-bag' }); }
     this.el.querySelector('.sections')!.appendChild(this.list(state, lord, sortRosterGenerals(gens, state, this.sortId, this.reverse), manage));
-    this.el.querySelector('.drawer-body')!.scrollTop = scrollTop;
+    this.el.querySelector('.roster-entries')!.scrollTop = scrollTop;
     if (this.detailId && state.generals[this.detailId]?.owner === lord.id) this.openDetail(state, lord, state.generals[this.detailId], manage);
     this.equipmentControls.update(state, lord, manage, this.mode.free);
     if (this.replacement) this.renderReplacement(lord);
@@ -402,6 +404,9 @@ export class GeneralsView {
       groups[index < center ? 0 : index < center + 3 ? 1 : 2].appendChild(cell);
     }
     list.appendChild(head);
+    const entries = document.createElement('div');
+    entries.className = 'roster-entries';
+    list.appendChild(entries);
 
     for (const g of gens) {
       const ready = canAttemptBreak(g, state.round).ok;
@@ -424,7 +429,7 @@ export class GeneralsView {
         if ((e.target as HTMLElement).closest('[data-equipment-kind], [data-inventory-slot], [data-weapon-general]')) return;
         this.openDetail(state, lord, g, manage);
       };
-      list.appendChild(item);
+      entries.appendChild(item);
       if (this.focusId === g.id) {
         this.focusId = null;
         requestAnimationFrame(() => item.scrollIntoView({ block: 'center' }));
@@ -443,7 +448,7 @@ export class GeneralsView {
     return `
       <span class="roster-before">
       <span class="c-face" style="background-image:url('${generalHeadUrl(g)}')"></span>
-      <span class="c-name"><b>${g.name}</b>${g.isLord ? '<span class="lord-tag">主公</span>' : ''}${ready ? '<span class="rr-ready" title="修為圓滿，可以突破">✨</span>' : ''}</span>
+      <span class="c-name"><b>${g.name}</b>${g.isLord ? '<span class="lord-tag">主公</span>' : ''}${ready ? '<span class="rr-ready" title="修為圓滿，可以突破">突破</span>' : ''}</span>
       <span class="c-origin">${originKingdom(g.origin)}</span>
       <span class="c-realm">${realmTag(g.realm)}</span>
       <span class="c-apt"><span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude].replace('靈根', '')}</span></span>
@@ -476,7 +481,7 @@ export class GeneralsView {
   private weaponPicture(g: General): string {
     const w = g.weapon;
     if (!w) return '<span class="technique-picture armor-empty"></span>';
-    const html = `<div class="tech-tip"><div class="tech-tip-rank">本命武器</div><strong>${escapeHtml(w.name)}</strong><div class="tech-tip-rule"></div><div class="tech-tip-detail"><span class="equipment-main-bonus">無視防禦 ${Math.round((w.penetration ?? 0)*100)}%</span><br>點擊突破本命武器</div></div>`;
+    const html = detailCard(w.name.split('・').pop()!,`${['黃階','玄階','地階','天階'][Math.floor(w.tier/3)]} · 本命武器`,equipIconUrl(w),`<p class="equipment-main-bonus">無視防禦 ${Math.round((w.penetration ?? 0)*100)}%</p><div class="item-detail-requirement">點擊突破本命武器</div>`);
     return `<button type="button" class="technique-picture armor-picture grade-${Math.floor(w.tier/3)}" data-weapon-general="${g.id}" data-tip="${escapeHtml(w.name)}" data-tip-html="${escapeHtml(html)}" aria-label="${escapeHtml(w.name)}・突破本命武器"><img src="${equipIconUrl(w)}" alt="" draggable="false"></button>`;
   }
 
@@ -486,8 +491,8 @@ export class GeneralsView {
     const ready = canAttemptBreak(g, state.round).ok;
     const heavenWeapon = hasHeavenWeapon(g);
     // 預留各品階最長的武器名稱，升階換圖時不讓右側文字撐高圖片框。
-    card.className = `general-card s-${g.status}${ready ? ' ready' : ''}${heavenWeapon ? ' has-fx-art' : ''}`;
-    const art = `<div class="gc-portrait"><div class="gc-art"><img src="${rosterArtUrl(g)}" data-full-art="${rosterArtUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></div></div>`;
+    card.className = `general-card dossier-book s-${g.status}${ready ? ' ready' : ''}${heavenWeapon ? ' has-fx-art' : ''}`;
+    const art = `<div class="gc-portrait"><div class="gc-art"><img src="${rosterArtUrl(g)}" alt="${g.name}" loading="lazy" decoding="async" draggable="false" onerror="this.style.visibility='hidden'"></div></div>`;
     const t = g.technique;
     const city = g.cityId ? state.cities[g.cityId] : null;
     const trip = lord.expeditions.find((e) => e.generalIds.includes(g.id));
@@ -504,22 +509,23 @@ export class GeneralsView {
     const passive = passiveOf(g);
     const stat = (label: string, value: number) => '<div class="detail-stat"><small>' + label + '</small><b>' + value + '</b></div>';
     card.innerHTML = `
-      <div class="dossier-layout">
-        <aside class="dossier-identity">${art}<div class="dossier-name"><h3>${g.name}</h3><span>${originKingdom(g.origin)}${g.isLord ? ' · 主公' : ''}</span></div>
-          <div class="dossier-tags">${realmTag(g.realm)}<span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span></div>
-          <p class="dossier-location">${status}</p>
+      <div class="dossier-layout folio-spread">
+        <aside class="dossier-identity">
+          <header class="folio-person-heading"><div class="dossier-name"><h3>${g.name}</h3><span>${originKingdom(g.origin)}${g.isLord ? ' · 主公' : ''}</span></div><div class="dossier-tags">${realmTag(g.realm)}<span class="chip apt-${g.aptitude}" title="${APTITUDE_DESC[g.aptitude]}">${APTITUDE_NAMES[g.aptitude]}</span></div></header>
+          <div class="folio-portrait-plate">${art}</div>
+          <p class="dossier-location"><span class="dossier-location-label">${status}</span></p>
           <section class="dossier-passive"><small>專屬天賦</small><h4>${passive.name}</h4><p>${fxText(passive.fx)}</p>${generalCooldownText(lord,g) ? '<p>'+generalCooldownText(lord,g)+'</p>' : ''}<em>${passive.flavor}</em></section>
         </aside>
         <div class="dossier-main">
-          <section class="dossier-section"><div class="dossier-section-head"><h3>身心狀態</h3><span>每回合修為 +${Math.round(passiveExp(g, city) * expMultiplier(g))}</span></div><div class="dossier-vitals">${this.vitals(g)}</div>
+          <section class="dossier-section folio-ability-record"><div class="dossier-section-head"><h3>能力</h3></div><div class="folio-ability-columns"><div class="detail-combat">${stat('戰力',power(g))}${stat('武力',attack(g))}${stat('防禦',defense(g))}</div><div class="detail-crafts">${stat('煉丹',craft(g,'alchemy'))}${stat('煉器',craft(g,'forging'))}${stat('畫符',craft(g,'talisman'))}${stat('佈陣',craft(g,'formation'))}</div></div>
+            ${g.fusionBonus ? '<p class="fusion-summary">融合加成：'+fusionSummary(g)+'</p>' : ''}
+          </section>
+          <section class="dossier-section folio-cultivation-record"><div class="dossier-section-head"><h3>狀態</h3><span>每回合修為 +${Math.round(passiveExp(g, city) * expMultiplier(g))}</span></div><div class="dossier-vitals">${this.vitals(g)}</div>
             ${buffs ? '<p class="dossier-condition">'+buffs+'</p>' : ''}
             <div class="dossier-break-row">${breakInfo.trim() ? '<p class="break-info">'+breakInfo+'</p>' : ''}</div>
             ${ready ? '<p class="dossier-ready">修為圓滿，可以'+(needsTribulation(g) ? '渡劫' : '突破')+'</p>' : ''}
           </section>
-          <section class="dossier-section"><div class="dossier-section-head"><h3>戰鬥與四藝</h3></div><div class="detail-combat">${stat('戰力',power(g))}${stat('武力',attack(g))}${stat('防禦',defense(g))}</div><div class="detail-crafts">${stat('煉丹',craft(g,'alchemy'))}${stat('煉器',craft(g,'forging'))}${stat('畫符',craft(g,'talisman'))}${stat('佈陣',craft(g,'formation'))}</div>
-            ${g.fusionBonus ? '<p class="fusion-summary">融合加成：'+fusionSummary(g)+'</p>' : ''}
-          </section>
-          <section class="dossier-section"><div class="dossier-section-head"><h3>隨身裝備</h3><span>滑鼠停留查看能力</span></div><div class="detail-equipment">
+          <section class="dossier-section"><div class="dossier-section-head"><h3>裝備</h3></div><div class="detail-equipment">
             <div class="eq-row detail-weapon" data-slot="weapon"><small>本命武器</small>${g.weapon ? ''+this.weaponPicture(g)+'<b>'+g.weapon.name+'</b><span class="muted">破防 '+Math.round((g.weapon.penetration??0)*100)+'%</span>' : '<b>無本命武器</b>'}</div>
             <div class="eq-row" data-slot="armor"><small>仙衣</small>${armorPicture(g.armor,g.id)}<b>${g.armor?.name ?? '未裝備'}</b></div>
             <div class="eq-row" data-slot="technique"><small>功法</small>${techniquePicture(t,g.id)}<b>${t ? escapeHtml(techniqueBaseName(t)) : '未修習'}</b></div>
@@ -566,7 +572,7 @@ export class GeneralsView {
     const abolishButton = card.querySelector<HTMLButtonElement>('.eq-row[data-slot="technique"] .btn');
     if (abolishButton) { abolishButton.title = '境界回到凡人、修為歸零，功法退回行囊。'; abolishButton.dataset.tip = abolishButton.title; }
     const breakthrough = actions.querySelector('button.danger');
-    if (breakthrough) { breakthrough.classList.add('dossier-breakthrough'); card.querySelector('.dossier-break-row')!.appendChild(breakthrough); }
+    if (breakthrough) { breakthrough.classList.add('dossier-breakthrough'); card.querySelector('.folio-portrait-plate')!.appendChild(breakthrough); }
     if (g.status === 'free' || g.status === 'sect') {
       const transfer = document.createElement('button'); transfer.className = 'btn mini dossier-transfer';
       transfer.textContent = g.status === 'free' ? '坐鎮宗門' : '跟隨主公';

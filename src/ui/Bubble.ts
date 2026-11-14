@@ -17,7 +17,7 @@ const tipOf = (el: HTMLElement): string => {
 };
 
 function place(x: number, y: number) {
-  const {scale,width,height}=uiViewportSize();x/=scale;y/=scale;
+  const {scale,width,height}=bubble.parentElement===document.body?{scale:1,width:innerWidth,height:innerHeight}:uiViewportSize();x/=scale;y/=scale;
   const pad = 14;
   const w = bubble.offsetWidth;
   const h = bubble.offsetHeight;
@@ -43,6 +43,9 @@ document.addEventListener('mouseover', (e) => {
   // 有表格版就用表格；否則「｜」分隔的各項改成換行，一行一項
   if (el.dataset.tipHtml) bubble.innerHTML = el.dataset.tipHtml;
   else bubble.textContent = text.replace(/\s*[｜|]\s*/g, '\n');
+  // Portrait cards share the unscaled body-level host used by shop item details.
+  const host=bubble.querySelector('.gh')?document.body:(document.getElementById('ui')??document.body);
+  if(bubble.parentElement!==host)host.appendChild(bubble);
   bubble.classList.remove('hidden');
   place(e.clientX, e.clientY);
 });
@@ -55,6 +58,8 @@ document.addEventListener('mousemove', (e) => {
 });
 
 document.addEventListener('mouseleave', hide);
+document.addEventListener('pointerdown', hide, true);
+new MutationObserver(() => { if(current && !current.isConnected)hide(); }).observe(document.body,{childList:true,subtree:true});
 document.addEventListener('focusin', (e) => {
   const el = (e.target as HTMLElement).closest?.<HTMLElement>('.technique-picture[data-tip]');
   if (!el) return;
@@ -62,6 +67,8 @@ document.addEventListener('focusin', (e) => {
   const content = el.dataset.tipHtml || tipOf(el);
   if (!content.trim()) return hide();
   if (el.dataset.tipHtml) bubble.innerHTML = content; else bubble.textContent = content;
+  const host=bubble.querySelector('.gh')?document.body:(document.getElementById('ui')??document.body);
+  if(bubble.parentElement!==host)host.appendChild(bubble);
   bubble.classList.remove('hidden');
   const rect = el.getBoundingClientRect();
   place(rect.left, rect.bottom);

@@ -1,4 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&display=swap');
+@import './ui/cultivation-dialog.css';
+@import './ui/confirmation-frame.css';
+@import './ui/type-system.css';
 
 :root {
   --ink: #2a1d14;

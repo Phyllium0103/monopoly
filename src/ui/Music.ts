@@ -1,24 +1,13 @@
-const KEY = 'bgm-volume';
-const DEFAULT_VOLUME = 0.3;
+const DEFAULT_VOLUME = 0;
 /** 原始音量太大，實際播放時先乘 50%，滑桿的 100% 就是原始音量的一半 */
 const BASE_GAIN = 0.5;
 
-/** 背景音樂：循環播放，音量存在瀏覽器；瀏覽器要求先有操作才能出聲，所以第一次點擊或按鍵時才開始 */
+/** 背景音樂：每次進入預設靜音，玩家可在本次遊戲中調整音量。 */
 const audio = new Audio(`${import.meta.env.BASE_URL}audio/bgm.mp3`);
 audio.loop = true;
 audio.preload = 'none';
 
-function load(): number {
-  try {
-    const v = parseFloat(localStorage.getItem(KEY) ?? '');
-    if (v >= 0 && v <= 1) return v;
-  } catch {
-    /* 無法讀取就用預設 */
-  }
-  return DEFAULT_VOLUME;
-}
-
-let level = load();
+let level = DEFAULT_VOLUME;
 audio.volume = level * BASE_GAIN;
 
 export const music = {
@@ -28,11 +17,6 @@ export const music = {
   setVolume(v: number) {
     level = Math.max(0, Math.min(1, v));
     audio.volume = level * BASE_GAIN;
-    try {
-      localStorage.setItem(KEY, String(level));
-    } catch {
-      /* 忽略 */
-    }
   },
 };
 

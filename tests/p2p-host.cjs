@@ -42,6 +42,7 @@ function bot(rand, state, pending) {
     case 'confirm': return rand() < 0.5;
     case 'preroll': return rand() < 0.8 ? { type: 'roll' } : pick([{ type: 'items' }, { type: 'roster' }, { type: 'materials' }]);
     case 'shop': return { type: 'leave' };
+    case 'training': return { type: 'leave' };
     case 'casino': return null;
     case 'bid': return 0;
     case 'duel': return 'attack';

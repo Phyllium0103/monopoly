@@ -1,0 +1,100 @@
+@import './folio-type.css';
+.dialog.training-window { position:absolute;inset:0;width:100%;height:100%;max-height:none;max-width:none;padding:0;border:0;border-radius:0;background:var(--academy-scene) center/100% 100% no-repeat #d9c5a1;color:#423426;font-family:'Folio WenKai',serif;overflow:hidden; }
+.training-window>h2 { position:absolute;top:3%;left:5%;margin:0;color:#503623;font:38px/1.4 'Folio WenKai',serif;text-shadow:0 1px 0 #fff2d5; }
+.training-window>.dialog-body { position:static;height:100%;padding:0;overflow:hidden; }
+.academy-intro { position:absolute;left:5%;right:5%;top:11%;display:flex;justify-content:space-between;gap:24px;color:#58402c;font-size:17px; }.academy-intro p { margin:0; }.academy-intro b { flex:none; }
+.academy-courses { position:absolute;left:27%;width:25%;top:24%;bottom:17%;display:grid;grid-template-rows:repeat(5,minmax(0,1fr));gap:8px; }
+.academy-course { padding:10px 14px;text-align:left;display:grid;grid-template-columns:1fr auto;background:#f1e3c4de;border:1px solid #a58a5a88;border-radius:2px;color:#473725;font:17px/1.5 'Folio WenKai',serif;cursor:pointer; }.academy-course strong { font-size:23px; }.academy-course span { grid-column:1/-1;font-size:15px;color:#765d3e; }.academy-course b { grid-column:2;grid-row:1;color:#81513a;font-size:16px; }.academy-course.selected { outline:2px solid #a1653d;outline-offset:1px; }.academy-course:disabled { opacity:.45;cursor:default; }
+.academy-roster { position:absolute;left:55%;right:5%;top:24%;bottom:17%;display:flex;flex-direction:column;min-height:0;background:#f5e8ccdb;border:1px solid #a68d6366;padding:15px; }.academy-stat-head { display:grid;gap:7px;font-size:16px;padding:0 0 13px;border-bottom:3px double #9f815466;text-align:center; }.academy-generals { overflow:auto;min-height:0;scrollbar-width:none; }.academy-general { display:grid;align-items:center;gap:7px;width:100%;padding:12px 2px;border:0;border-bottom:1px solid #ad936744;background:none;color:#4b3a28;font:19px 'Folio WenKai',serif;cursor:pointer;text-align:center; }.academy-general>span:first-child { display:flex;align-items:center;gap:12px; }.academy-general img { width:45px;height:52px;object-fit:contain; }.academy-general.selected { background:#ab834922; }.academy-general:disabled { opacity:.35;cursor:default; }
+.academy-actions { position:absolute;left:5%;right:5%;bottom:4%;display:flex;gap:20px;align-items:center;justify-content:flex-end; }.academy-actions p { margin-right:auto;color:#63492e;font-size:18px; }.training-window .btn { font:18px 'Folio WenKai',serif;background:#ead9b7;color:#59412d;border:1px solid #977645;border-radius:2px;padding:10px 24px; }.training-window .btn.primary { background:#79513b;color:#fff0cd;border-color:#654029; }
+.training-window[data-academy=arts] .academy-roster { left:5%;right:auto;width:39%; }.training-window[data-academy=arts] .academy-courses { left:47%;width:28%; }
+.training-result { position:absolute;inset:0;background:#291c12b8;display:grid;place-items:center;z-index:20; }.training-result-paper { width:min(880px,90%);min-height:410px;display:grid;grid-template-columns:38% 1fr;padding:35px;gap:25px;background:#efe0bd;border:1px solid #a88a59;box-shadow:0 20px 75px #0008,inset 0 0 0 6px #d8c097; }.training-general-art { width:100%;height:370px;object-fit:contain; }.training-result-paper section { align-self:center; }.training-result-paper small { color:#8a6942;font-size:17px; }.training-result-paper h3 { font:28px 'Folio WenKai',serif;color:#65422d;margin:12px 0 20px; }.training-reels { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:25px; }.training-reels span { color:#765736;font-size:16px; }.training-reel { height:48px;overflow:hidden;border-block:1px solid #ad8f60;background:#e4cfa944; }.reel-track b { display:block;height:48px;line-height:48px;color:#85462d;font-size:31px; }
+@container game-ui (max-width:1100px) { .academy-courses { left:23%;width:29%; }.academy-course { padding:7px;font-size:15px; }.academy-course strong { font-size:20px; }.academy-course span { font-size:13px; }.academy-roster { left:54%;right:3%;padding:9px; }.academy-general { font-size:16px; }.academy-general>span:first-child { gap:4px; }.academy-general img { width:30px;height:40px; }.academy-intro { font-size:14px; }.academy-stat-head { font-size:13px; } }
+.academy-intro { padding:8px 14px;background:#f1e4c9e8;border:1px solid #b4966455; }
+.academy-actions>p { background:#f1e4c9de;padding:6px 12px;border:1px solid #ad8c5655; }
+
+/* The five assignments are ink on the painted notice board, not stacked cards. */
+.training-window .academy-courses { left:28.5%;width:19.5%;top:29.5%;bottom:31.5%;gap:0; }
+.training-window[data-academy=arts] .academy-courses { left:45.8%;width:23.1%;top:27.5%;bottom:32%; }
+.training-window .academy-course { background:none;border:0;border-radius:0;box-shadow:none;padding:5px 3px;gap:1px 6px;grid-template-rows:auto auto auto;align-content:center;border-bottom:1px solid #ab8d5644; }
+.training-window .academy-course:last-child { border-bottom:0; }.training-window .academy-course strong { font-size:20px;line-height:1.25; }.training-window .academy-course span { font-size:13px;line-height:1.35; }.training-window .academy-course b { font-size:13px; }.training-window .academy-course small { grid-column:1/-1;font-size:12px;color:#8a6340; }
+.training-window .academy-course.selected { outline:none;background:#9b764216; }.training-window .academy-course.assigned small { color:#795033;font-weight:700; }
+.training-window .academy-roster { top:27%;bottom:18%;left:54%;right:5%;padding:12px 0;background:none;border:0;box-shadow:none; }
+.training-window[data-academy=arts] .academy-roster { top:27%;bottom:18%;left:6%;right:auto;width:36.5%; }
+.training-window .academy-general { font-size:17px;gap:5px;padding:8px 0; }.training-window .academy-general img { width:34px;height:42px; }.training-window .academy-general small { font-size:13px;color:#825537; }.training-window .academy-general.assigned { background:#af87451a; }.training-window .academy-stat-head { font-size:14px;gap:5px; }
+.training-batch-paper { width:min(1320px,94%);padding:28px 32px;background:#eee0bf;border:0;box-shadow:0 20px 70px #0006;max-height:90%;overflow:auto;text-align:center; }
+.training-batch-paper>header small { color:#8c6d45;font-size:15px; }.training-batch-paper h3 { font:30px 'Folio WenKai',serif;color:#6f4932;margin:8px 0 18px; }
+.training-batch-results { display:flex;justify-content:center;gap:20px; }.training-result-person { flex:1;min-width:0;max-width:240px; }.training-result-person>img { height:210px;width:100%;object-fit:contain; }.training-result-person h4 { margin:8px 0 4px;font:23px 'Folio WenKai',serif;color:#4a3826; }.training-result-person>small { color:#886a46;font-size:14px; }.training-result-person .training-reels { grid-template-columns:1fr;gap:5px;margin:14px 0; }.training-result-person .training-reels>div { display:grid;grid-template-columns:1fr 70px;align-items:center;gap:5px; }.training-result-person .training-reels span { font-size:13px; }.training-result-person .training-reel { height:48px; }.training-result-person .reel-track b { font-size:25px; }.training-batch-paper>.btn { margin-top:15px; }
+
+/* The roster is a tangible writing board; five assignments remain on the scene's notice. */
+.training-window .academy-roster { background:none center/100% 100% no-repeat;top:25%;bottom:17%;left:52.5%;right:4%;padding:25px 30px 28px;border:0; }
+.training-window[data-academy=arts] .academy-roster { left:5%;width:38%;top:25%;bottom:17%;padding:25px 30px 28px; }
+.training-window .academy-course { min-height:0;overflow:hidden;padding:3px 4px;grid-template-rows:auto minmax(0,auto) auto;gap:0 4px; }
+.training-window .academy-course strong { font-size:18px;line-height:1.2; }.training-window .academy-course span { font-size:12px;line-height:1.25; }.training-window .academy-course small { font-size:11px;line-height:1.2; }.training-window .academy-course b { font-size:12px; }
+.training-window .academy-stat-head button { min-width:0;cursor:pointer;border:0;border-radius:0;padding:0 0 8px;background:none;color:#6f5130;font:14px/1.4 'Folio WenKai',serif; }
+.training-window .academy-stat-head button:hover,.training-window .academy-stat-head button[aria-pressed=true] { color:#8c412c;text-decoration:underline;text-underline-offset:5px; }
+.training-window .academy-stat-head { padding:0 0 4px; }.training-window .academy-general { font-size:16px; }.training-window .academy-general small { font-size:12px; }
+.training-window>h2,.training-batch-paper h3 { font-family:'Folio Title','Folio WenKai',serif!important;font-weight:400; }
+
+/* Ink follows the actual plaster wall; no floating clipboard in either academy. */
+.training-window .academy-roster { left:53.3%;right:10.5%;top:29.8%;bottom:39.4%;padding:0;background:none;border:0;box-shadow:none;overflow:hidden; }
+.training-window[data-academy=arts] .academy-roster { left:9%;right:auto;width:31.9%;top:27%;bottom:35.5%;padding:0;background:none; }
+.training-window .academy-generals { overflow:auto;scrollbar-width:none; }.training-window .academy-general { padding:4px 0;font-size:15px;gap:3px; }.training-window .academy-general img { width:29px;height:35px; }.training-window .academy-general>span:first-child { gap:5px; }.training-window .academy-general small { font-size:11px; }.training-window .academy-stat-head { font-size:13px;gap:3px; }.training-window .academy-stat-head button { font-size:13px; }
+
+.training-window .academy-intro { top:6%;left:auto;right:5%;padding:9px 16px;border:0;background:#f0e2c3d9;font-size:17px; }
+.training-window[data-academy=arts] .academy-roster { top:21%;bottom:35.5%; }
+.training-window .academy-general small { font-size:13px;line-height:1.4;color:#48301f;font-weight:600;text-shadow:0 1px #fff3d5; }
+.training-window .academy-general.assigned small { color:#72391f;background:#f4dfb2bd;border-bottom:1px solid #a7784555;padding:3px 2px;border-radius:2px; }
+.training-window .academy-course.assigned small { color:#683418;font-size:12px;font-weight:600; }
+
+/* Academy titles use the same physical mounting rules as the shops. */
+.dialog.training-window>h2 { position:absolute;z-index:3;isolation:isolate;display:flex;align-items:center;justify-content:center;width:310px;height:96px!important;left:42%;top:5%;margin:0!important;padding:0 22px!important;background:none!important;border:0;box-shadow:none;color:#f9e6b5;font-size:38px;text-shadow:none;pointer-events:none; }
+.training-window>h2::before { content:'';position:absolute;inset:0;z-index:-1;background:none center/100% 100% no-repeat; }
+.dialog.training-window[data-academy=martial]>h2 { left:4%;top:0;height:164px!important;padding-top:73px!important; }
+.training-window[data-academy=martial]>h2::before { background-image:none; }
+
+.training-window[data-academy=martial]>h2::before { background-image:url('/src/ui/shop-sign-martial-v6.webp'); }
+.training-window[data-academy=arts]>h2::before { background-image:url('/src/ui/shop-sign-arts-v6.webp'); }
+.dialog.training-window[data-academy=arts]>h2 { color:#354431; }
+/* Course content remains ink on the scene's board, with stronger readable contrast. */
+.training-window .academy-course { color:#302316;text-shadow:0 1px 0 #fff7e699;font-weight:500; }
+.training-window .academy-course strong { color:#2a2118;font-size:19px;font-weight:700;line-height:1.3; }
+.training-window .academy-course span { color:#3f3020;font-size:13px;font-weight:500;line-height:1.35; }
+.training-window .academy-course b { color:#68401e;font-size:13px;font-weight:700; }
+.training-window .academy-course small { color:#4b3925;font-size:12px;font-weight:500; }
+.training-window .academy-course.selected { background:#fff4d959;box-shadow:inset 3px 0 #76502d; }
+.training-window .academy-course.assigned small { color:#6c321e;font-weight:700; }
+
+/* Move the entire five-course block together, retaining its measured height. */
+.training-window[data-academy=arts] .academy-courses { top:26.4%;bottom:33.1%; }
+.academy-keeper { position:absolute;left:2%;top:17%;width:23%;bottom:15%;pointer-events:none; }
+.training-window[data-academy=arts] .academy-keeper { left:auto;right:2%;width:24%; }
+.academy-keeper-talk { position:absolute;inset:0;background:none;border:0;cursor:pointer;pointer-events:auto; }
+.academy-keeper-talk:focus-visible { outline:1px solid #e7c991;outline-offset:-6px; }
+.academy-keeper h3 { position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:210px;height:52px;display:grid;place-items:center;margin:0;background:url('/src/ui/merchant-name.webp') center/100% 100%;font:21px 'Folio WenKai',serif;color:#513a2c; }
+.academy-keeper-speech { position:absolute;left:0;right:0;bottom:16%;margin:0;padding:32px 30px;min-height:140px;background:url('/src/ui/merchant-dialogue.webp') center/100% 100%;font:16px/1.7 'Folio WenKai',serif;color:#51412e; }
+.academy-keeper-speech[hidden]{display:none}
+.training-batch-paper { background:url('/src/ui/training-result.webp') center/100% 100% no-repeat;padding:44px 5% 30px; }
+.training-batch-paper>header { padding-bottom:10px; }.training-batch-results { align-items:end;gap:clamp(8px,2vw,24px); }.training-result-person>img { height:clamp(150px,24vh,245px); }.training-result-person .training-reels { background:#f8edc9e6;padding:8px;border-radius:2px;box-shadow:0 2px 8px #3a2e1c22; }.training-batch-paper>header h3 { margin-top:0;color:#254c3a; }.training-batch-paper .training-result-close { min-width:110px;background:#496346;border:1px solid #b3a06d;color:#fff0ce; }
+.training-batch-results { align-items:stretch; }
+.training-result-person { display:grid;grid-template-rows:clamp(150px,24vh,245px) 34px 24px 1fr;align-content:start; }
+.training-result-person>img { height:100%;object-position:center bottom; }
+.training-result-person .training-reels { align-self:start; }
+/* Align the scene's floor and bottom paper using percentages of the full artwork. */
+.training-result .training-batch-paper { position:relative;width:min(1320px,94%,calc(152.8 * var(--ui-vh,1vh)));aspect-ratio:16/9;height:auto;min-height:0;max-height:none;padding:0;overflow:hidden; }
+.training-batch-paper>header { position:absolute;left:30%;right:30%;top:4%;height:14%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 12px;background:#f5ecd8ed;border-bottom:1px solid #a58d5c66;z-index:2; }
+.training-batch-paper>header small { font-size:13px;line-height:1.3; }.training-batch-paper>header h3 { font-size:29px;line-height:1.4;margin:2px 0 0; }
+.training-batch-paper .training-batch-results { position:absolute;inset:0;display:grid;grid-template-columns:repeat(var(--trainees),minmax(0,1fr));gap:1.5%;padding:0 6%; }
+.training-batch-paper .training-result-person { position:relative;display:block;max-width:none;min-width:0;height:100%; }
+.training-batch-paper .training-person-title { position:absolute;left:0;right:0;top:22%;height:10%;display:flex;flex-direction:column;justify-content:center;gap:3px;text-align:center; }
+.training-batch-paper .training-person-title h4 { margin:0;color:#443526;font:22px/1.3 'Folio WenKai',serif; }.training-batch-paper .training-person-title small { color:#715839;font:14px/1.3 'Folio WenKai',serif; }
+.training-batch-paper .training-figure { position:absolute;left:0;right:0;top:32%;bottom:33.5%;display:flex;align-items:end;justify-content:center; }
+.training-batch-paper .training-figure img { width:100%;height:100%;max-width:280px;object-fit:contain;object-position:center bottom; }
+.training-batch-paper .training-reels { --reel-height:clamp(26px,calc(4 * var(--ui-vh,1vh)),42px);position:absolute;left:50%;top:76%;bottom:10%;transform:translateX(-50%);width:min(100%,410px);margin:0;padding:4px;display:grid;grid-template-columns:repeat(var(--gain-cols),minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:4px;background:none;box-shadow:none;align-self:auto; }
+.training-batch-paper .training-reels>div { display:grid;grid-template-columns:minmax(0,1fr) minmax(44px,.75fr);align-items:center;gap:3px;padding:2px 3px;border-bottom:1px solid #b59b6a44;background:#f7ebcd77; }
+.training-batch-paper .training-reels span { font-size:12px;line-height:1.3;color:#5f4a31; }
+.training-batch-paper .training-reel { height:var(--reel-height);border:0;background:none; }
+.training-batch-paper .reel-track b { height:var(--reel-height);line-height:var(--reel-height);font-size:26px;white-space:nowrap; }
+.training-batch-paper .training-reels[style*="--gain-cols:2"] .reel-track b { font-size:22px; }
+.training-batch-paper>.training-result-close { position:absolute;left:0;right:0;bottom:3.5%;transform:none!important;width:90px;min-width:90px;height:36px;padding:3px 12px;margin:0 auto;z-index:3; }
+@container game-ui (max-width:1100px){.training-batch-paper .training-person-title h4{font-size:18px}.training-batch-paper .training-person-title small{font-size:12px}.training-batch-paper>header h3{font-size:24px}.training-batch-paper .training-reels span{font-size:10px}.training-batch-paper .reel-track b{font-size:22px}}

@@ -1,0 +1,4 @@
+@font-face { font-family:'Folio WenKai';src:url('/src/ui/fonts/FolioWenKai-game.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap; }
+@font-face { font-family:'Folio Title';src:url('/src/ui/fonts/YujiMai-game.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap; }
+img[src*="/generals/full/xurong.webp"],img[src*="/generals/head/xurong.webp"],img[src*="/generals/full-fx/xurong.webp"] { scale:-1 1; }
+[style*="/generals/head/xurong.webp"],[style*="/generals/full/xurong.webp"],[style*="/generals/full-fx/xurong.webp"] { scale:-1 1; }

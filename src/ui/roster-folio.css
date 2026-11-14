@@ -1,0 +1,366 @@
+@import './folio-type.css';
+/* 01 羊皮紙將籍 / 04 古籍對開. Only roster and shared character dossiers. */
+.roster-screen,.dossier-book {
+  --folio-paper:#efe2c4; --folio-page:#f5ead3; --folio-ink:#443225;
+  --folio-muted:#75614a; --folio-rule:#ad93674d; --folio-seal:#963f31;
+  --folio-texture:radial-gradient(ellipse at 6% 8%,#9e744d12,transparent 35%),radial-gradient(ellipse at 98% 88%,#9e744d18,transparent 40%),repeating-linear-gradient(0deg,#76592e03 0 1px,transparent 1px 4px);
+}
+/* Leather binding, inner paper and a continuous ruled register. */
+.drawer.roster-screen { padding:30px 40px 22px 76px;background:url('./folio-ledger-v2.webp') center / 100% 100% no-repeat,var(--folio-paper);color:var(--folio-ink);border:0;box-shadow:none; }
+.drawer.roster-screen::before { display:none; }
+.drawer.roster-screen::after { display:none; }
+.roster-screen>.drawer-head,.roster-screen>.drawer-body,.roster-screen>.roster-inventory { max-width:1600px;width:100%; }
+.roster-screen>.drawer-head { display:flex;align-items:center;gap:18px;padding:0 0 22px;border-bottom:3px double #9c7b4c8c; }
+.roster-screen .ledger-seal { display:grid;place-items:center;width:46px;height:52px;flex:none;border:2px solid #963f3199;outline:1px solid #963f3166;outline-offset:3px;color:var(--folio-seal);font-size:30px;transform:rotate(-4deg);font-family:KaiTi,DFKai-SB,serif; }
+.roster-screen .roster-title h2 { color:var(--folio-ink);font-size:32px;font-weight:700;letter-spacing:.2em; }
+.roster-screen .roster-title small { color:var(--folio-muted);font-size:12px;letter-spacing:.18em;margin-bottom:6px; }
+.roster-screen .ledger-meta { color:var(--folio-muted);margin-left:auto;padding-left:22px;border-left:1px solid var(--folio-rule);font-size:13px; }
+.roster-screen .drawer-head .roster-close { margin-left:12px; }
+.roster-screen>.drawer-body { padding:0;margin:0; }
+.roster-screen .roster-list { gap:0;counter-reset:ledger; }
+.roster-screen .roster-list .roster-head { background:#e2d0aa;color:#6d5133;border-radius:0;border-bottom:1px solid #a08050;min-height:52px;padding:8px 16px;font-size:12px; }
+.roster-screen .roster-item,.roster-screen .roster-item:nth-child(odd) { position:relative;background:#fbf3e23d;border:0;border-bottom:1px solid #b297694d;border-radius:0;box-shadow:none;counter-increment:ledger; }
+.roster-screen .roster-item:nth-child(even) { background:#c2a3750a; }
+.roster-screen .roster-item::before { display:block;content:counter(ledger,decimal-leading-zero);position:absolute;left:2px;top:8px;color:#9e896b;font-size:8px;line-height:1;pointer-events:none; }
+.roster-screen .roster-item.ready { border-bottom-color:#b4945c;box-shadow:inset 2px 0 #a26235; }
+.roster-screen .roster-list .roster-row { min-height:76px;padding:10px 16px;font-size:13px; }
+.roster-screen .roster-row:hover { background:#ba96501c; }
+.roster-screen .roster-list .roster-before { grid-template-columns:42px minmax(60px,.9fr) 34px 52px 40px minmax(48px,.7fr) minmax(100px,1.7fr); }
+.roster-screen .roster-before { border-right:1px solid var(--folio-rule);padding-right:12px!important; }
+.roster-screen .roster-after { border-left:1px solid var(--folio-rule);padding-left:12px!important; }
+.roster-screen .roster-list .c-face { border:1px solid #ae946a;border-radius:2px;background-color:#d7c5a1;box-shadow:inset 0 0 0 2px #efe2c4; }
+.roster-screen .roster-head .c-face { background:none;border:0;box-shadow:none; }
+.roster-screen .roster-row :is(.c-name b,.c-attack,.c-defense,.c-craft) { color:var(--folio-ink); }
+.roster-screen .roster-row :is(.c-origin,.c-st) { color:var(--folio-muted); }
+.roster-screen .roster-row .c-name b { font-size:18px;letter-spacing:.06em; }
+.roster-screen .roster-row .c-name .lord-tag { color:var(--folio-seal);border:1px solid #963f314d;border-radius:1px;padding:0 3px;font-size:9px; }
+.roster-screen .rr-ready { color:var(--folio-seal);font-size:10px; }
+.roster-screen .roster-row .c-power b { color:#8b592a;font-size:19px; }
+.roster-screen .roster-row .c-passive { color:#665e3e; }
+.roster-screen .roster-list .roster-head :is(button:hover,.sorted) { color:var(--folio-seal); }
+.roster-screen :is(.btn,.roster-close,.inventory-sort) { color:var(--folio-ink);border:1px solid #a88a5c88;border-radius:2px;background:#f6ecd8;box-shadow:none;text-shadow:none; }
+.roster-screen .btn.primary { background:var(--folio-seal);border-color:#733526;color:#fff2d5; }
+.roster-screen .btn:hover:not(:disabled) { background:#ddc8a2; }
+.roster-screen .btn.primary:hover:not(:disabled) { background:#7e3227;color:#fff2d5; }
+.roster-screen .btn.danger { color:var(--folio-seal);background:#f0debf;border-color:#a86f4a88; }
+.roster-screen .btn:focus-visible,.roster-screen [tabindex]:focus-visible { outline:2px solid #926633;outline-offset:2px; }
+.roster-screen .roster-list .roster-vitals .bar { height:16px;background:#d2c2a0;border-radius:1px;box-shadow:inset 0 0 0 1px #8e74432b; }
+.roster-screen .bar.hp i,.dossier-book .bar.hp i { background:linear-gradient(90deg,#915345,#b8785e); }
+.roster-screen .bar.exp i,.dossier-book .bar.exp i { background:linear-gradient(90deg,#4e7373,#81a09a); }
+.roster-screen .bar.sta i,.dossier-book .bar.sta i { background:linear-gradient(90deg,#8c7946,#b29d63); }
+/* Page-foot storage: twenty original slots with meaningful empty/eligible states. */
+.roster-screen>.roster-inventory { background:#dccaaba8;padding:14px 16px 14px;border-top:3px double #92704199;box-shadow:0 -5px 18px #94723e0a; }
+.roster-screen .inventory-heading { margin-bottom:10px; }
+.roster-screen .inventory-heading :is(b,span,kbd) { color:var(--folio-muted); }
+.roster-screen .inventory-heading b { color:var(--folio-ink);font-size:17px; }
+.roster-screen .inventory-count { font-size:13px;font-variant-numeric:tabular-nums; }
+.roster-screen .inventory-grid { gap:8px; }
+.roster-screen :is(.inventory-cell,.technique-picture) { border-radius:2px; }
+.roster-screen .technique-picture.armor-empty { background:linear-gradient(145deg,#e6d5b3,#dac7a3);border:1px solid #ad956966;box-shadow:inset 0 1px 5px #63462218; }
+.roster-screen .equipment-compatible { border-color:#9d7438!important;background:#d9c08b!important;box-shadow:inset 0 0 0 1px #a37b3c55!important; }
+.roster-screen .equipment-feedback { color:var(--folio-muted);padding-top:8px; }
+.roster-screen .equipment-feedback.is-error { color:var(--folio-seal); }
+.roster-screen .equipment-notice { background:#f5e7ca;border:1px solid #a67b4e;border-radius:3px;box-shadow:0 10px 35px #49332155;color:var(--folio-ink); }
+.roster-screen .equipment-notice :is(strong,p,button,.notice-mark) { color:var(--folio-ink); }
+.roster-screen .replacement-panel { background:#f1dfbd;border-bottom-color:#ad8656;padding:12px; }
+.roster-screen .replacement-panel :is(h3,p),.roster-screen .replacement-reward { color:var(--folio-ink); }
+.roster-screen .replacement-selected { outline-color:#9c6540;box-shadow:none; }
+/* Physical spread: cover, spine, page frames, vertical name and wide illustration. */
+.roster-screen .general-modal { width:min(1240px,100%);border:9px solid #493328;border-radius:4px;background:#e5d1a9;box-shadow:0 24px 80px #160f09a8,inset 0 0 0 1px #a58154;color:var(--folio-ink); }
+.roster-screen .general-modal-head { padding:12px 20px;background:#decca8;border-bottom:1px solid #b59766;color:var(--folio-ink); }
+.roster-screen .general-modal-head>div { display:flex;gap:18px;align-items:baseline; }
+.roster-screen .general-modal-head :is(h2,small) { color:var(--folio-ink); }
+.roster-screen .general-modal-head h2 { font-size:18px;letter-spacing:.18em; }
+.roster-screen .general-modal-head small { font-size:12px;letter-spacing:.12em; }
+.roster-screen .general-modal-head .detail-close { border-radius:2px;width:30px;height:30px;color:var(--folio-ink);border-color:#a48a6166; }
+.roster-screen .general-modal-backdrop { background:#160f09b8; }
+.general-card.dossier-book { color:var(--folio-ink);background:none; }
+.dossier-book .dossier-layout { display:grid;grid-template-columns:minmax(300px,40%) minmax(0,1fr);gap:0;background:var(--folio-texture),var(--folio-page);position:relative;isolation:isolate; }
+.dossier-book .dossier-layout::after { content:'';position:absolute;left:40%;top:0;bottom:0;width:34px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,#98794b19 25%,#6d492b35 48%,#fdf3dbbb 54%,#b49a6e18 70%,transparent);pointer-events:none;z-index:2; }
+.dossier-book .dossier-identity { display:grid;grid-template-columns:minmax(0,1fr) 70px;align-content:start;gap:0 14px;padding:22px 32px 28px;border:0;position:relative;background:linear-gradient(90deg,#ad885218,transparent 12%,#fffae322 80%,#ab8a5912); }
+.dossier-book .folio-page-heading { grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;border-bottom:3px double #ad936766;padding-bottom:10px;margin-bottom:18px;font-size:11px;letter-spacing:.22em;color:#92724a; }
+.dossier-book .folio-page-heading i { font-style:normal;font-size:13px;letter-spacing:0; }
+.roster-screen .general-modal .dossier-book .gc-portrait,.dossier-book .gc-portrait { grid-column:1;grid-row:2;width:100%;height:310px;aspect-ratio:auto;padding:0;border:0;background:none;position:relative; }
+.roster-screen .general-modal .dossier-book .gc-art,.dossier-book .gc-art { display:flex;align-items:center;justify-content:center;width:100%;height:100%;position:static;transform:none; }
+.roster-screen .general-modal .dossier-book .gc-art img,.dossier-book .gc-art img { position:static;width:100%;height:100%;object-fit:contain;object-position:center;transform:none;margin:0;filter:drop-shadow(0 6px 6px #694b3122); }
+.dossier-book .dossier-name { grid-column:2;grid-row:2;display:flex;align-items:center;justify-content:center;gap:10px;margin:0;padding:0 10px 0 0;border-right:1px solid #ab8d5b55; }
+.dossier-book .dossier-name h3 { writing-mode:vertical-rl;text-orientation:upright;font-size:38px;font-weight:700;line-height:1.3;letter-spacing:.18em;color:var(--folio-ink);margin:0;font-family:KaiTi,DFKai-SB,'Noto Serif TC',serif; }
+.dossier-book .dossier-name>span { writing-mode:vertical-rl;font-size:12px;letter-spacing:.2em;color:var(--folio-seal);margin:0; }
+.dossier-book .dossier-tags { grid-column:1/-1;display:flex;justify-content:flex-start;align-items:center;margin:16px 0 4px;gap:8px; }
+.roster-screen .general-modal .dossier-book .dossier-location,.dossier-book .dossier-location { grid-column:1/-1;display:flex;justify-content:flex-start;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 0;color:var(--folio-muted);font-size:13px;text-align:left; }
+.roster-screen .general-modal .dossier-book .dossier-transfer { position:static;margin:0;padding:4px 8px;color:var(--folio-seal);border-color:#ad805566; }
+.dossier-book .dossier-passive { grid-column:1/-1;margin:20px 0 0;padding:16px 0 0;border-top:3px double #ad936766; }
+.dossier-book .dossier-passive small { color:#8c704e;font-size:11px;letter-spacing:.16em; }
+.dossier-book .dossier-passive h4 { font-size:22px;color:var(--folio-ink);margin:6px 0 10px;letter-spacing:.12em; }
+.dossier-book .dossier-passive p { color:var(--folio-ink);font-size:14px;line-height:1.8;margin:8px 0; }
+.dossier-book .dossier-passive em { display:block;color:var(--folio-muted);font-size:12px;line-height:1.9; }
+.dossier-book .dossier-main { padding:22px 30px 24px 34px;gap:18px;background:linear-gradient(90deg,#aa865012,transparent 12%,#fff6de33 80%,#a98b5b12);min-width:0; }
+.dossier-book .dossier-main>.folio-page-heading { margin-bottom:0; }
+.dossier-book .dossier-section { padding-bottom:16px;border-bottom:1px solid #ae91614d; }
+.dossier-book .dossier-section-head { margin-bottom:10px;align-items:baseline; }
+.dossier-book .dossier-section-head h3 { color:var(--folio-ink);font-size:16px;font-weight:700;letter-spacing:.16em; }
+.dossier-book .dossier-section-head>span { color:var(--folio-muted);font-size:11px; }
+.dossier-book .dossier-vitals { gap:7px; }
+.dossier-book .dossier-vitals .bar { height:23px;border:1px solid #a78d5a44;background:#d9c8a5;border-radius:1px; }
+.dossier-book .dossier-vitals .bar span { color:#fff6e3;font-size:12px;text-shadow:0 1px 2px #403120; }
+.dossier-book :is(.dossier-condition,.dossier-ready,.break-info,.fusion-summary) { color:var(--folio-seal);font-size:12px;line-height:1.6; }
+.dossier-book .detail-combat { display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:0;margin-bottom:12px;border-bottom:1px solid #ab8c5a44; }
+.dossier-book .detail-crafts { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0; }
+.dossier-book .detail-stat { background:none;border:0;border-right:1px solid #ab8c5a44;border-radius:0;padding:8px 4px;text-align:center; }
+.dossier-book .detail-stat:last-child { border:0; }
+.dossier-book .detail-stat small { color:var(--folio-muted);font-size:12px; }
+.dossier-book .detail-stat b { color:var(--folio-ink);font-size:27px;font-weight:400;margin-top:5px;font-variant-numeric:tabular-nums; }
+.dossier-book .detail-combat .detail-stat:first-child b { color:var(--folio-seal);font-size:32px; }
+.dossier-book .detail-crafts .detail-stat b { font-size:23px; }
+.roster-screen .general-modal .dossier-book .detail-equipment,.dossier-book .detail-equipment { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px; }
+.roster-screen .general-modal .dossier-book .detail-equipment .eq-row,.dossier-book .detail-equipment .eq-row { display:flex;flex-direction:column;align-items:center;gap:7px;background:#f6e9cc77;border:1px solid #ae90654d;border-radius:1px;padding:12px 8px;min-width:0; }
+.dossier-book .detail-equipment :is(small,.muted,.weapon-material-cost) { color:var(--folio-muted);font-size:11px; }
+.dossier-book .detail-equipment b { color:var(--folio-ink);font-size:12px;line-height:1.5;min-height:3em; }
+.dossier-book .detail-equipment .technique-picture { border-radius:2px; }
+.dossier-book .detail-equipment .armor-empty { background:#ddcba9;border:1px dashed #a89167;box-shadow:inset 0 1px 4px #8b633516; }
+.dossier-book .btn { background:#f0e1c2;color:var(--folio-ink);border:1px solid #ac8c5d77;border-radius:2px;box-shadow:none;text-shadow:none; }
+.dossier-book .btn.danger,.dossier-book .dossier-breakthrough { background:var(--folio-seal);color:#fff1d0;border:1px solid #733526; }
+.dossier-book .btn:disabled { opacity:.45; }
+.dossier-book .gc-actions:empty { display:none; }
+.dossier-book .dossier-tags :is(.chip,.gb-tag):not(.apt-heaven) { background:#ede0bf;color:#665037;border-color:#b59a6e;border-radius:2px; }
+.roster-screen .c-apt .chip:not(.apt-heaven) { background:#ede0bf;color:#776040;border-color:#b69a6b;border-radius:2px; }
+/* Shared shop inspection is the same character file, not a shop-wide restyle. */
+.shop-roster-detail:has(.dossier-book) { border:8px solid #493328!important;border-radius:3px;background:#e1cca6!important;color:#443225!important; }
+.shop-roster-detail:has(.dossier-book) .shop-detail-copy { padding:16px; }
+.shop-roster-detail:has(.dossier-book) .shop-detail-copy>h2 { color:#443225;font-size:23px; }
+.shop-roster-detail:has(.dossier-book) .shop-detail-copy>small { color:#75614a; }
+.shop-roster-detail:has(.dossier-book) .shop-detail-close { color:#443225; }
+.shop-roster-detail:has(.dossier-book) .general-card { background:none;color:#443225;border:0; }
+.shop-roster-detail:has(.dossier-book)[open] { display:flex;flex-direction:column;overflow:hidden; }
+.shop-roster-detail:has(.dossier-book) .shop-detail-copy { display:flex;flex-direction:column;min-height:0;max-height:calc(94dvh - 16px); }
+.shop-roster-detail:has(.dossier-book) .general-modal-content { flex:1;min-height:0;overflow:auto;scrollbar-width:none; }
+.shop-roster-detail:has(.dossier-book) .shop-detail-reason { color:#75614a;flex:none; }
+.shop-roster-detail:has(.dossier-book) .shop-detail-actions { flex:none;margin-top:10px;padding-top:12px;border-color:#ae906566;background:#e1cca6; }
+.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn { background:#f1dfbd;border-color:#a78555;color:#443225;border-radius:2px; }
+.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn.primary { background:#963f31;border-color:#733526;color:#fff2d5; }
+@container game-ui (max-width:1300px) {
+ .drawer.roster-screen { padding-left:44px;padding-right:20px;border-width:8px; }
+ .drawer.roster-screen::before { left:8px;width:20px;font-size:12px; }.drawer.roster-screen::after { left:30px; }
+ .roster-screen .roster-list .roster-before { grid-template-columns:38px minmax(55px,1fr) 50px minmax(48px,.8fr) minmax(90px,1.6fr); }
+ .roster-screen .roster-list .roster-after { grid-template-columns:repeat(3,minmax(34px,1fr)); }
+ .roster-screen .inventory-grid { grid-template-columns:repeat(10,54px); }
+}
+@container game-ui (max-width:900px) {
+ .roster-screen .roster-list .roster-before { grid-template-columns:minmax(55px,1fr) minmax(45px,.7fr) minmax(90px,1.5fr); }
+ .dossier-book .dossier-layout { grid-template-columns:minmax(230px,38%) minmax(0,1fr); }.dossier-book .dossier-layout::after { left:38%; }
+ .dossier-book .dossier-identity { padding:18px;grid-template-columns:minmax(0,1fr) 50px;gap:0 8px; }.dossier-book .dossier-main { padding:18px 18px 18px 24px; }
+ .dossier-book .dossier-name h3 { font-size:30px; }.roster-screen .general-modal .dossier-book .gc-portrait,.dossier-book .gc-portrait { height:270px; }
+ .roster-screen .ledger-meta { padding-left:10px;font-size:11px; }.roster-screen .roster-title h2 { font-size:26px; }
+}
+@container game-ui (max-width:720px) {
+ .drawer.roster-screen { padding:16px 10px 0 28px;border-width:5px; }.drawer.roster-screen::before { left:4px;width:16px;font-size:10px; }.drawer.roster-screen::after { left:20px; }
+ .roster-screen>.drawer-head { gap:10px;padding-bottom:12px;flex-wrap:wrap; }.roster-screen .ledger-seal { width:26px;height:32px;font-size:21px;outline:0; }
+ .roster-screen .ledger-meta { order:4;flex:1 0 100%;padding:0;border:0;margin:0; }.roster-screen .drawer-head .roster-close { margin-left:auto; }
+ .roster-screen .roster-list .roster-before { grid-template-columns:minmax(0,1fr); }.roster-screen .roster-list .roster-after { grid-template-columns:1fr; }
+ .roster-screen .roster-list .roster-head,.roster-screen .roster-list .roster-row { gap:6px;padding-left:8px;padding-right:8px; }.roster-screen .roster-list .roster-row { min-height:72px; }
+ .roster-screen .roster-row .c-name b { font-size:14px; }.roster-screen .roster-before { padding-right:5px!important; }.roster-screen .roster-after { padding-left:5px!important; }
+ .roster-screen .inventory-grid { grid-template-columns:repeat(5,54px); }.roster-screen>.roster-inventory { padding:10px 8px; }.roster-screen .inventory-heading b { font-size:14px; }
+ .dossier-book .dossier-layout { grid-template-columns:1fr; }.dossier-book .dossier-layout::after { display:none; }
+ .dossier-book .dossier-identity { padding:18px 24px;grid-template-columns:minmax(0,1fr) 65px;border-bottom:8px double #b69a6a77; }.dossier-book .dossier-passive { display:block; }.dossier-book .dossier-passive em { display:block; }
+ .roster-screen .general-modal .dossier-book .gc-portrait,.dossier-book .gc-portrait { height:260px;grid-row:2; }.dossier-book .dossier-main { padding:20px 24px; }
+ .dossier-book .detail-equipment { gap:6px; }.dossier-book .detail-equipment .eq-row { padding:10px 4px; }
+}
+.dossier-book .dossier-layout.folio-spread { grid-template-columns:minmax(0,1fr) minmax(0,1fr);background:url('/src/ui/folio-book.webp') center / 100% 100% no-repeat #f2e5c9;min-width:0; }
+.dossier-book .dossier-layout.folio-spread::after { display:none; }
+.dossier-book .folio-spread .dossier-identity { display:flex;flex-direction:column;padding:38px 50px 44px;gap:0;background:none; }
+.dossier-book .folio-person-heading { display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--folio-rule);padding:0 0 16px; }
+.dossier-book .folio-spread .dossier-name { display:block;writing-mode:horizontal-tb;border:0;padding:0;text-align:left; }
+.dossier-book .folio-spread .dossier-name h3 { writing-mode:horizontal-tb;font-size:36px;letter-spacing:.15em; }
+.dossier-book .folio-spread .dossier-name>span { display:block;writing-mode:horizontal-tb;font-size:12px;margin-top:6px;letter-spacing:.15em; }
+.dossier-book .folio-spread .dossier-tags { display:flex;flex-direction:column;align-items:flex-end;justify-content:center;margin:0;gap:8px; }
+.dossier-book .folio-portrait-plate { height:320px;flex:none;margin:12px 0 0;position:relative; }
+.roster-screen .general-modal .dossier-book .folio-spread .gc-portrait,.dossier-book .folio-spread .gc-portrait { height:100%;width:100%; }
+.dossier-book .folio-spread .dossier-passive { margin-top:14px;padding-top:14px; }
+.roster-screen .general-modal .dossier-book .folio-spread .dossier-location,.dossier-book .folio-spread .dossier-location { padding:10px 0;margin:0;border-top:1px solid var(--folio-rule);border-bottom:1px solid var(--folio-rule);min-height:43px; }
+.dossier-book .folio-spread .dossier-main { padding:38px 50px 44px;gap:14px;background:none; }
+.dossier-book .folio-ability-columns { display:grid;grid-template-columns:1fr 1fr;gap:18px; }
+.dossier-book .folio-spread .detail-combat { display:grid;grid-template-columns:1fr 1fr;gap:0;border:0;margin:0;border-right:1px solid var(--folio-rule);padding-right:14px; }
+.dossier-book .folio-spread .detail-combat .detail-stat:first-child { grid-column:1/-1;text-align:left;border:0;padding:0 0 7px;display:flex;align-items:baseline;justify-content:space-between; }
+.dossier-book .folio-spread .detail-combat .detail-stat:first-child b { font-size:38px;margin:0; }
+.dossier-book .folio-spread .detail-combat .detail-stat:not(:first-child) { display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:7px 10px 0 0;border:0; }
+.dossier-book .folio-spread .detail-combat .detail-stat b { font-size:22px;margin:0; }
+.dossier-book .folio-spread .detail-crafts { grid-template-columns:1fr 1fr;gap:0 15px; }
+.dossier-book .folio-spread .detail-crafts .detail-stat { display:flex;align-items:baseline;justify-content:space-between;border:0;border-bottom:1px solid var(--folio-rule);padding:8px 0;gap:6px; }
+.dossier-book .folio-spread .detail-crafts .detail-stat b { font-size:21px;margin:0; }
+.dossier-book .folio-spread .dossier-vitals { gap:5px; }
+.dossier-book .folio-spread .dossier-vitals .bar { height:20px; }
+.roster-screen .general-modal .dossier-book .folio-spread .detail-equipment,.dossier-book .folio-spread .detail-equipment { display:flex;flex-direction:column;gap:0;border-top:1px solid var(--folio-rule); }
+.roster-screen .general-modal .dossier-book .folio-spread .detail-equipment .eq-row,.dossier-book .folio-spread .detail-equipment .eq-row { display:grid;grid-template-columns:64px 46px minmax(0,1fr) 76px;grid-template-rows:auto auto auto;gap:3px 12px;align-items:center;padding:10px 0;min-height:72px;background:none;border:0;border-bottom:1px solid var(--folio-rule); }
+.dossier-book .folio-spread .detail-equipment .eq-row>small { grid-column:1;grid-row:1/4;font-size:12px; }
+.dossier-book .folio-spread .detail-equipment .eq-row>.technique-picture { grid-column:2;grid-row:1/4;width:46px;height:46px; }
+.dossier-book .folio-spread .detail-equipment .eq-row>b { grid-column:3;grid-row:1;margin:0;text-align:left;min-height:0;font-size:13px; }
+.dossier-book .folio-spread .detail-equipment .eq-row>.muted { grid-column:3;grid-row:2;text-align:left; }
+.dossier-book .folio-spread .detail-equipment .weapon-material-cost { grid-column:3;grid-row:3;text-align:left; }
+.dossier-book .folio-spread .detail-equipment .eq-row>.btn { grid-column:4;grid-row:1/4;justify-self:end;align-self:center;margin:0;width:76px;white-space:normal;font-size:11px;padding:6px 4px; }
+.dossier-book .folio-spread .dossier-section:last-of-type { border:0;padding-bottom:0; }
+@container game-ui (max-width:1100px) {
+ .dossier-book .folio-spread .dossier-identity,.dossier-book .folio-spread .dossier-main { padding:20px 25px; }
+ .dossier-book .folio-portrait-plate { height:300px; }.dossier-book .folio-spread .dossier-name h3 { font-size:30px; }
+ .dossier-book .folio-spread .detail-equipment .eq-row,.roster-screen .general-modal .dossier-book .folio-spread .detail-equipment .eq-row { grid-template-columns:46px 40px minmax(0,1fr) 64px;gap:3px 7px; }
+ .dossier-book .folio-spread .detail-equipment .eq-row>.btn { width:64px; }.dossier-book .folio-spread .detail-equipment .eq-row>.technique-picture { width:40px;height:40px; }
+}
+@container game-ui (max-width:720px) {
+ .dossier-book .dossier-layout.folio-spread { grid-template-columns:1fr;background-size:200% 100%;background-position:left center; }.dossier-book .folio-spread::after { display:none; }
+ .dossier-book .folio-spread .dossier-tags { flex-direction:row;flex-wrap:wrap;max-width:50%; }
+ .dossier-book .folio-portrait-plate { height:280px; }.dossier-book .folio-person-heading { padding-bottom:12px; }
+}
+
+/* One logical sheet: scroll only the registered list, stop at the painted bag area. */
+.roster-screen,.dossier-book { font-family:'Folio WenKai','Noto Serif TC',serif;font-size:17px; }
+.roster-screen :is(button,input,select),.dossier-book button { font-family:inherit; }
+.drawer.roster-screen { position:absolute;inset:0;display:grid;grid-template-rows:11% minmax(0,1fr) 20%;padding:calc(var(--ui-height,100dvh)*.03) calc(var(--ui-width,100vw)*.025) calc(var(--ui-height,100dvh)*.02) calc(var(--ui-width,100vw)*.048);gap:0;overflow:hidden;border:0; }
+.drawer.roster-screen.roster-readonly { grid-template-rows:11% minmax(0,1fr); }
+.roster-screen>.drawer-head,.roster-screen>.drawer-body,.roster-screen>.roster-inventory { width:100%;max-width:none;margin:0;min-height:0; }
+.roster-screen>.drawer-head { padding:0 0 12px;min-height:0; }
+.roster-screen>.drawer-body { overflow:hidden;padding:0; }
+.roster-screen .sections { height:100%;min-height:0; }
+.roster-screen .roster-list { display:grid;grid-template-rows:auto minmax(0,1fr);height:100%;min-height:0;overflow:hidden; }
+.roster-screen .roster-entries { min-height:0;overflow:auto;scrollbar-width:none;overscroll-behavior:contain; }
+.roster-screen .roster-entries::-webkit-scrollbar { display:none; }
+.roster-screen .roster-list .roster-head { position:static;background:none;min-height:54px;font-size:15px; }
+.roster-screen .roster-item,.roster-screen .roster-item:nth-child(odd),.roster-screen .roster-item:nth-child(even),.roster-screen .roster-row:hover { background:none;box-shadow:none; }
+.roster-screen .roster-list .roster-row { font-size:16px;min-height:78px; }
+.roster-screen .roster-list .roster-head,.roster-screen .roster-list .roster-row { grid-template-columns:minmax(0,1fr) 194px minmax(0,1fr);gap:12px; }
+.roster-screen .roster-list .roster-equipment { grid-template-columns:repeat(3,58px);gap:10px; }
+.roster-screen .roster-list .roster-equipment .technique-picture { width:58px;height:58px; }
+.roster-screen .roster-row .c-name b { font-size:22px;font-weight:600; }
+.roster-screen .roster-row :is(.c-origin,.c-st,.c-passive) { font-size:14px; }
+.roster-screen .roster-row .c-power b { font-size:23px; }
+.roster-screen .roster-row .c-name .lord-tag { font-size:12px; }
+.roster-screen .roster-list .roster-vitals .bar { height:21px; }
+.roster-screen .roster-list .roster-vitals .bar span { font-size:14px; }
+.roster-screen .roster-title h2 { font-family:'Folio WenKai',serif;font-size:38px; }
+.roster-screen :is(.roster-title small,.ledger-meta) { font-size:16px; }
+.roster-screen>.roster-inventory { background:none;border:0;box-shadow:none;padding:12px 0 10px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start; }
+.roster-screen .inventory-heading { margin-bottom:10px;flex:none; }
+.roster-screen .inventory-heading b { font-size:22px; }
+.roster-screen .inventory-heading :is(span,.btn),.roster-screen .equipment-feedback { font-size:15px; }
+.roster-screen .inventory-heading .inventory-sort { display:inline-flex;align-items:center;gap:9px;padding:5px 14px;color:#634d37;background:#f7eedc66;border:1px solid #a68b605e;border-radius:20px;box-shadow:none;letter-spacing:.08em; }
+.roster-screen .inventory-heading .inventory-sort::before { content:'';width:14px;height:12px;background:linear-gradient(#8d704c,#8d704c) left top/14px 1px no-repeat,linear-gradient(#8d704c,#8d704c) left center/10px 1px no-repeat,linear-gradient(#8d704c,#8d704c) left bottom/6px 1px no-repeat; }
+.roster-screen .inventory-heading .inventory-sort:hover:not(:disabled) { color:#963f31;background:#a47d3610;border-bottom-color:#963f31; }
+/* Ink crosses live directly on the paper; the whole 40px area remains clickable. */
+.roster-screen .drawer-head .roster-close,.roster-screen .general-modal>.detail-close { width:40px;height:40px;padding:0;border:0!important;border-radius:0;background:none!important;box-shadow:none!important;color:#725337;font-size:0;display:grid;place-items:center; }
+.roster-screen .drawer-head .roster-close::before,.roster-screen .general-modal>.detail-close::before { content:'×';font-family:'Folio WenKai',serif;font-size:32px;line-height:1;transform:rotate(-6deg); }
+.roster-screen .drawer-head .roster-close:hover::before,.roster-screen .general-modal>.detail-close:hover::before { color:#963f31; }
+.roster-screen .general-modal>.detail-close { right:22px;top:18px; }
+.roster-screen .equipment-notice { bottom:18%;padding:24px 26px;width:min(500px,calc(100% - 40px));gap:20px;background:#f7efdf;border:1px solid #bba88a;border-left:3px solid #9c5b48;border-radius:4px;box-shadow:0 15px 45px #2c211b33;animation:folio-notice-in .2s ease-out; }
+.roster-screen .equipment-notice strong { display:block;color:#79503e;font:500 26px 'Folio WenKai',serif;line-height:1.4; }
+.roster-screen .equipment-notice p { color:#4d3b2c;font:400 17px/1.7 'Folio WenKai',serif; }
+.roster-screen .equipment-notice button { background:none;border:0;box-shadow:none;color:#795d3e;font-family:'Folio WenKai',serif;font-size:22px; }
+.roster-screen .inventory-grid { grid-template-columns:repeat(20,minmax(0,1fr));gap:8px;padding:0;margin:0;overflow:auto;min-height:0;max-height:none;flex:1;align-content:start; }
+.roster-screen .inventory-cell { width:100%;height:auto;aspect-ratio:1;max-height:72px; }
+.roster-screen .inventory-cell>.technique-picture { width:100%;height:100%; }
+.roster-screen .inventory-cell,.roster-screen .inventory-cell>.armor-empty { background:none!important;box-shadow:none!important;border:1px solid #98774b55; }
+.roster-screen .equipment-feedback { flex:none;padding-top:5px;min-height:22px;line-height:1.35; }
+.roster-screen .inventory-grid .equipment-compatible { background:#e8cb8b55!important;border-color:#936c36!important; }
+/* Full book only; close floats on the cover instead of a duplicated title strip. */
+.roster-screen .general-modal { position:relative;max-height:100%;border:0;background:none;box-shadow:0 24px 80px #160f0980; }
+.roster-screen .general-modal>.detail-close { position:absolute;right:18px;top:16px;z-index:5;width:34px;height:34px;display:grid;place-items:center;padding:0;background:#f2e3c4d9;border:1px solid #9e7c4b88;font-size:22px; }
+.roster-screen .general-modal-content { min-height:0;overflow:auto; }
+.dossier-book .folio-spread .dossier-name h3 { font-family:'Folio WenKai',serif;font-size:42px; }
+.dossier-book .folio-spread .dossier-name>span { font-size:17px; }
+.dossier-book .folio-spread .dossier-identity,.dossier-book .folio-spread .dossier-main { padding:46px 50px 42px; }
+.dossier-book .folio-spread .dossier-main { gap:14px; }
+.dossier-book .folio-spread .dossier-section-head h3 { font-size:21px; }
+.dossier-book .folio-spread .dossier-section-head>span { font-size:15px; }
+.dossier-book .folio-spread .detail-stat small { font-size:17px; }
+.dossier-book .folio-spread .detail-crafts .detail-stat b,.dossier-book .folio-spread .detail-combat .detail-stat b { font-size:28px; }
+.dossier-book .folio-spread .detail-combat .detail-stat:first-child b { font-size:45px; }
+.dossier-book .folio-spread .dossier-vitals .bar { height:26px; }
+.dossier-book .folio-spread .dossier-vitals .bar span { font-size:16px; }
+.dossier-book .folio-spread .dossier-passive :is(small,em) { font-size:16px; }
+.dossier-book .folio-spread .dossier-passive p { font-size:18px;line-height:1.65; }
+.dossier-book .folio-spread .dossier-passive h4 { font-size:28px; }
+.dossier-book .folio-spread .dossier-location { font-size:18px; }
+.dossier-book .folio-spread :is(.dossier-condition,.dossier-ready,.break-info,.fusion-summary) { font-size:16px; }
+.dossier-book .folio-spread .detail-equipment .eq-row>b { font-size:17px; }
+.dossier-book .folio-spread .detail-equipment .eq-row>small { font-size:16px; }
+.dossier-book .folio-spread .detail-equipment :is(small,.muted,.weapon-material-cost) { font-size:15px; }
+.dossier-book .folio-spread .detail-equipment .eq-row>.btn { font-size:15px;width:80px; }
+.roster-screen .general-modal .dossier-book .dossier-transfer,.roster-screen .general-modal .dossier-book .dossier-breakthrough { font-size:16px; }
+/* Readable five-element inks, keeping heaven and waste distinct. */
+.roster-screen .c-apt .chip.apt-metal,.dossier-book .dossier-tags .chip.apt-metal { color:#946314;background:#f4e4a6;border-color:#b89335; }
+.roster-screen .c-apt .chip.apt-wood,.dossier-book .dossier-tags .chip.apt-wood { color:#316632;background:#dce8b9;border-color:#7e9d51; }
+.roster-screen .c-apt .chip.apt-water,.dossier-book .dossier-tags .chip.apt-water { color:#255c89;background:#d4e5ee;border-color:#719db2; }
+.roster-screen .c-apt .chip.apt-fire,.dossier-book .dossier-tags .chip.apt-fire { color:#a0372b;background:#f1d6bd;border-color:#b57350; }
+.roster-screen .c-apt .chip.apt-earth,.dossier-book .dossier-tags .chip.apt-earth { color:#795125;background:#ead5ac;border-color:#ac8654; }
+.roster-screen .c-apt .chip.apt-waste,.dossier-book .dossier-tags .chip.apt-waste { color:#69665e;background:#dedbd0;border-color:#a5a18e; }
+.roster-screen .c-apt .chip,.dossier-book .dossier-tags .chip { font-size:16px; }
+.roster-screen.replacement-mode { grid-template-rows:11% minmax(0,1fr) 55%; }
+.roster-screen.replacement-mode>.roster-inventory { display:block;overflow:auto; }
+.roster-screen.replacement-mode .inventory-grid { grid-auto-rows:64px;min-height:64px;overflow:visible; }
+.roster-screen.replacement-mode .inventory-cell { height:64px;max-height:64px;aspect-ratio:auto; }
+@container game-ui (max-width:1300px) {
+ .roster-screen .inventory-grid { grid-template-columns:repeat(10,minmax(0,1fr)); }
+ .roster-screen .inventory-cell { max-height:62px;max-width:62px;justify-self:center; }
+ .roster-screen .roster-row .c-name b { font-size:20px; }
+}
+@container game-ui (max-width:900px) {
+ .roster-screen .ledger-meta { font-size:14px; }.roster-screen .roster-title h2 { font-size:30px; }
+ .dossier-book .folio-spread .dossier-identity,.dossier-book .folio-spread .dossier-main { padding:38px 28px; }
+}
+@container game-ui (max-width:720px) {
+ .drawer.roster-screen { grid-template-rows:15% minmax(0,1fr) 24%; }
+ .drawer.roster-screen.roster-readonly { grid-template-rows:15% minmax(0,1fr); }
+ .roster-screen .inventory-grid { grid-template-columns:repeat(10,minmax(0,1fr)); }
+ .roster-screen .roster-list .roster-before { grid-template-columns:minmax(0,1fr); }
+ .roster-screen .roster-list .roster-after { grid-template-columns:1fr; }
+ .roster-screen .roster-list .roster-row { min-height:84px; }
+ .roster-screen .roster-row .c-name b { font-size:17px; }
+ .roster-screen .roster-list .roster-vitals .bar span { font-size:12px; }
+ .roster-screen .ledger-seal { display:none; }
+ .roster-screen .inventory-heading b { font-size:19px; }
+ .roster-screen .equipment-feedback { font-size:13px; }
+}
+
+/* A smaller page-foot and shared physical slot size keep bag and roster in scale. */
+.drawer.roster-screen { --folio-slot:clamp(32px,3.65cqw,58px);--folio-slot-gap:clamp(4px,.55cqw,10px);grid-template-rows:11% minmax(0,1fr) 15%;background-image:url('/src/ui/folio-ledger-v2.webp'); }
+.drawer.roster-screen.roster-readonly { grid-template-rows:11% minmax(0,1fr);background-image:url('/src/ui/folio-ledger-full.webp'); }
+.drawer.roster-screen.replacement-mode { grid-template-rows:11% minmax(0,1fr) 55%; }
+.roster-screen>.roster-inventory { padding:20px 0 0; }
+.roster-screen .inventory-heading { margin-bottom:12px; }
+.roster-screen .inventory-grid { display:grid;grid-template-columns:repeat(20,var(--folio-slot));grid-auto-rows:var(--folio-slot);justify-content:center;align-content:start;gap:var(--folio-slot-gap);flex:none;overflow:auto;scrollbar-width:none; }
+.roster-screen .inventory-grid .inventory-cell { width:var(--folio-slot);height:var(--folio-slot);max-width:none;max-height:none;aspect-ratio:1;justify-self:center;border:0; }
+.roster-screen .inventory-cell>.technique-picture { box-sizing:border-box; }
+.roster-screen .roster-list .roster-equipment { grid-template-columns:repeat(3,var(--folio-slot));gap:var(--folio-slot-gap); }
+.roster-screen .roster-list .roster-equipment .technique-picture { width:var(--folio-slot);height:var(--folio-slot);box-sizing:border-box; }
+.roster-screen .roster-list .roster-head,.roster-screen .roster-list .roster-row { grid-template-columns:minmax(0,1fr) calc(3 * var(--folio-slot) + 2 * var(--folio-slot-gap)) minmax(0,1fr); }
+.roster-screen .roster-row .c-passive { font-size:16px; }
+.roster-screen .equipment-feedback { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap; }
+.roster-screen .drawer-head .roster-close,.roster-screen .general-modal>.detail-close { width:48px;height:48px;font-size:0!important;flex:none; }
+.roster-screen .drawer-head .roster-close::before,.roster-screen .general-modal>.detail-close::before { font-size:42px;transform:none; }
+.roster-screen .general-modal>.detail-close { right:48px;top:30px;z-index:6; }
+.roster-screen:has(.general-modal-backdrop)>.drawer-head .roster-close { visibility:hidden; }
+.dossier-book .folio-spread .dossier-main { padding-top:70px; }
+.roster-screen .general-modal .dossier-book .folio-spread .dossier-location,.dossier-book .folio-spread .dossier-location { position:relative;display:grid;grid-template-columns:1fr auto 1fr;gap:12px;min-height:55px; }
+.dossier-book .dossier-location-label { grid-column:2;text-align:center;font-size:23px; }
+.roster-screen .general-modal .dossier-book .dossier-transfer,.dossier-book .dossier-transfer { grid-column:3;justify-self:end;position:static;margin:0; }
+.roster-screen .general-modal .dossier-book .dossier-breakthrough,.dossier-book .dossier-breakthrough { position:absolute;right:0;bottom:8px;padding:6px 12px;font-size:16px;max-width:110px; }
+.dossier-book .gc-art img { cursor:default; }
+.roster-screen .c-apt .chip.apt-heaven,.dossier-book .dossier-tags .chip.apt-heaven { color:#385349;border:1px solid #a8b7a0;background:linear-gradient(115deg,#d6e9e4 0%,#e4e9d0 48%,#f0ddb0 100%);box-shadow:inset 0 1px 0 #fff8,0 1px 4px #737e4822;text-shadow:none; }
+.chip.apt-heaven,.gb-tag.apt-heaven,.shop-row .chip.apt-heaven { color:#385349;border:1px solid #a8b7a0;background:linear-gradient(115deg,#d6e9e4 0%,#e4e9d0 48%,#f0ddb0 100%);box-shadow:inset 0 1px 0 #fff8,0 1px 4px #737e4822;text-shadow:none; }
+@keyframes folio-notice-in { from { opacity:0;translate:0 7px; } to { opacity:1;translate:0 0; } }
+@media(prefers-reduced-motion:reduce) { .roster-screen .equipment-notice { animation:none; } }
+
+.roster-screen>.roster-inventory { padding-top:27px; }
+.roster-screen .inventory-heading { margin-bottom:8px; }
+.roster-screen .inventory-heading .inventory-sort { display:block;position:relative;padding:4px 0;margin-left:10px;border:0;background:none;border-radius:0;letter-spacing:.08em;transition:color .18s; }
+.roster-screen .inventory-heading .inventory-sort::before { content:none; }
+.roster-screen .inventory-heading .inventory-sort::after { content:'';position:absolute;left:0;right:0;bottom:1px;height:1px;background:#8f6740;transform:scaleX(0);transform-origin:center;transition:transform .22s ease; }
+.roster-screen .inventory-heading .inventory-sort:hover:not(:disabled) { background:none;color:#8d4934; }.roster-screen .inventory-heading .inventory-sort:hover:not(:disabled)::after { transform:scaleX(1); }
+.roster-screen .inventory-heading .inventory-sort:active:not(:disabled) { color:#472e20;translate:0 1px; }
+.roster-screen .equipment-notice { top:50%;bottom:auto;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:18px;padding:30px 36px 24px;width:min(470px,calc(100% - 40px));background:linear-gradient(110deg,#fff8e333,#c4a36b0b),#f1e5ca;border:1px solid #9b7f50;border-radius:1px;box-shadow:0 18px 55px #23180f66,inset 0 0 0 5px #e3cfaa,inset 0 0 0 6px #b89d6b66;text-align:center; }
+.roster-screen .equipment-notice strong { font-size:29px;color:#6c3e2b;letter-spacing:.08em; }
+
+.roster-screen .roster-list .roster-after { grid-template-columns:repeat(7,minmax(22px,1fr)) minmax(5em,1.7fr);gap:4px; }
+.roster-screen .roster-list .roster-row .c-passive { display:block;font-size:12px;white-space:normal;line-height:1.4;overflow:visible;text-overflow:clip;word-break:keep-all; }
+.roster-screen .roster-list .roster-head .c-passive { display:block;font-size:inherit;white-space:nowrap; }
+.roster-screen .roster-title h2 { font-family:'Folio Title','Folio WenKai',serif!important;font-size:38px;font-weight:400; }
+.roster-screen .equipment-notice p { margin:14px 0 0;font-size:18px;line-height:1.85;color:#51412d; }
+.roster-screen .equipment-notice button { margin:0;min-width:92px;padding:5px 16px;border:0;border-bottom:1px solid #9c794a;border-radius:0;font-size:17px;color:#775032;background:none; }
+.roster-screen .equipment-notice button:hover { color:#a04c32;background:#9c794a0c; }

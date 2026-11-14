@@ -1,5 +1,6 @@
 import type { Element, ElementalSpirit, GameState } from '../game/types';
 import { nextUid } from '../game/GameState';
+import { DISPLAY_FACILITY_LOTS } from '../data/displayFacilities';
 
 export const SPIRIT_ELEMENTS: readonly Element[] = ['metal', 'wood', 'water', 'fire', 'earth'];
 export const SPIRIT_CAP = 15;
@@ -9,6 +10,7 @@ export const SPIRIT_ROUND_INTERVAL = 5;
 /** Shared reservations for spirits, existing events, and future map objects. */
 export function occupiedMapTiles(state: GameState, options: { spirits?: boolean; lords?: boolean } = {}): Set<number> {
   const occupied = new Set<number>(state.banditTiles);
+  for (const lot of DISPLAY_FACILITY_LOTS) if (lot.type === 'martial' || lot.type === 'arts') for (const tile of lot.frontageTiles) occupied.add(tile);
   if (state.merchantTile !== null) occupied.add(state.merchantTile);
   for (const object of state.mapOccupants ?? []) for (const tile of object.tiles) occupied.add(tile);
   if (options.lords !== false) for (const lord of Object.values(state.lords)) {

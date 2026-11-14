@@ -1,0 +1,112 @@
+/* Material controls: brass fittings, ink states and compact shelf signage. */
+.shop-window .shop-list .shop-row .sr-actions .btn {
+  min-width:76px;padding:4px 17px;font:14px/1.45 'Folio WenKai',serif;
+  color:#fff1ca;background:linear-gradient(180deg,#866443,#65482f);
+  border:1px solid #c5a16b;border-radius:3px;
+  box-shadow:inset 0 0 0 2px #6e4e32,inset 0 0 0 3px #d2b68166,0 2px 3px #2d1e1455;
+  text-shadow:0 1px 1px #332114;letter-spacing:.12em;
+  transition:background-color .12s,box-shadow .12s;
+}
+.shop-window .shop-list .shop-row .sr-actions .btn:not(:disabled):hover {
+  color:#fff8e3;background:linear-gradient(#a57d50,#785335);box-shadow:inset 0 0 0 2px #765135,inset 0 0 0 3px #e6ce9b,0 2px 4px #2d1e1466;
+}
+.shop-window .shop-list .shop-row .sr-actions .btn:not(:disabled):active { box-shadow:inset 0 2px 5px #291b16; }
+.shop-window .shop-list .shop-row .sr-actions .btn:focus-visible,.shop-window .shop-tab:focus-visible { outline:2px solid #f1d497;outline-offset:3px; }
+.shop-window .shop-list .shop-row .sr-actions .btn:disabled { opacity:1;color:#d3c2a4;background:#655746;border-color:#9b886d;text-shadow:none;box-shadow:inset 0 0 0 2px #645544,inset 0 0 0 3px #b4a07a44;cursor:default; }
+.shop-window .shop-list .shop-row.sold { opacity:1; }
+.shop-window .shop-list .shop-row.sold .shop-product-sign { opacity:1; }
+.shop-window .shop-list .shop-row.sold .sr-actions .btn { color:#685a43;background:#d8c9ac;border-color:#8c795d;box-shadow:inset 0 0 0 2px #e6d7bb,inset 0 0 0 3px #9e896655;letter-spacing:.18em; }
+.shop-window .shop-list .shop-row:is(.sold,.purchase-pending) .sr-icon { visibility:hidden;pointer-events:none; }
+.shop-window .shop-list .shop-row.purchase-pending .sr-actions .btn { color:#ebd9b8;background:#655746; }
+/* Categories live on a fixed horizontal mounting rail above the goods. */
+.shop-window .shop-market .shop-tabs { position:fixed;left:var(--market-left);right:var(--market-right);top:25%;height:auto;min-height:35px;display:flex;align-items:center;justify-content:center;gap:7px;padding:3px 10px;background:linear-gradient(transparent 43%,#5e432d 44%,#ac8c59 48%,#57402c 55%,transparent 56%);z-index:5; }
+.shop-window .shop-tabs .shop-tab { position:relative;min-width:82px;padding:6px 15px;border:1px solid #a58a5f;border-radius:2px;background:linear-gradient(#f1e4ca,#d8c29a);color:#5f4a31;font:15px/1.3 'Folio WenKai',serif;box-shadow:inset 0 0 0 2px #e8d6b3,0 2px 3px #33220e44;transition:color .12s,background-color .12s; }
+.shop-window .shop-tabs .shop-tab.on { background:linear-gradient(#52604d,#354b3b);color:#fff0cc;border-color:#b8a172;box-shadow:inset 0 0 0 2px #3e4b39,0 2px 3px #33220e55; }
+.shop-window .shop-tabs .shop-tab:not(.on):hover { color:#8b472c;background:#f5e9cd; }
+/* Selected silk/oxblood nameplate, using the approved N5 asset. */
+.shop-window .shop-keeper>div { width:224px;height:54px;display:grid;place-items:center;padding:8px 26px;background:url('/src/ui/merchant-name.webp') center/100% 100% no-repeat;border:0;box-shadow:none; }
+.shop-window .shop-keeper>div::before { content:none; }
+.shop-window .shop-keeper h3 { margin:0;color:#503226;font:22px/1.25 'Folio WenKai',serif;letter-spacing:.04em; }
+/* A soul silhouette holds the unchanged portrait; no white portrait frame. */
+.shop-window .shop-list .shop-row[data-kind=revive] { align-items:center; }
+.shop-window .shop-soul { position:relative;display:grid;place-items:start center;width:124px;height:158px;flex:none;isolation:isolate; }
+.shop-window .shop-list .shop-row[data-kind=revive] .shop-soul .sr-icon { margin-top:-4px;width:76px;height:76px;max-width:none;max-height:none;border-radius:50%;object-fit:cover;object-position:center;filter:grayscale(.6) sepia(.12);opacity:.9;mask-image:radial-gradient(ellipse,#000 54%,transparent 72%); }
+.shop-window .shop-row[data-kind=revive] .shop-product-sign { left:50%;transform:translateX(-50%); }
+/* Slightly larger items, exactly two visible rows and one compact hint line. */
+.shop-window .shop-sale-strip { --bag-cell:clamp(32px,calc(5.1 * var(--ui-vh,1vh)),50px); }
+.shop-window .shop-sale-strip :is(.shop-inventory,.shop-equipment-tray) { top:10%;bottom:23%; }
+.shop-window .shop-sale-strip :is(.shop-items-grid,.shop-equipment-grid) { grid-template-columns:repeat(auto-fill,var(--bag-cell));grid-auto-rows:var(--bag-cell);gap:6px;height:calc(2 * var(--bag-cell) + 6px);max-height:none;overflow-y:auto;scrollbar-width:none; }
+.shop-window .shop-sale-strip :is(.shop-items-grid,.shop-equipment-grid)::-webkit-scrollbar { display:none; }
+.shop-window .shop-sale-strip .shop-bag-cell { width:var(--bag-cell);height:var(--bag-cell);max-height:none;padding:3px; }
+.shop-window .shop-sale-strip .shop-bag-cell img { width:100%;height:100%;object-fit:contain; }
+.shop-window .shop-sale-strip>.shop-sale-status { left:20%;right:6%;top:auto;bottom:9%;height:20px;flex-direction:row;align-items:center;justify-content:flex-end;gap:14px;white-space:nowrap;overflow:visible; }
+.shop-window .shop-sale-strip>.shop-sale-status :is(strong,span) { font:13px/1.4 'Folio WenKai',serif;color:#f1e4c6; }
+@container game-ui (max-width:1100px) {
+  .shop-window .shop-keeper>div { width:180px;height:46px;padding:8px 22px; }
+  .shop-window .shop-keeper h3 { font-size:18px; }
+  .shop-window .shop-tabs .shop-tab { font-size:13px;padding:5px 9px;min-width:64px; }
+  .shop-window .shop-list .shop-row .sr-actions .btn { font-size:12px;min-width:62px;padding:3px 12px; }
+  .shop-window .shop-sale-strip>.shop-sale-status { gap:8px; }
+  .shop-window .shop-sale-strip>.shop-sale-status :is(strong,span) { font-size:11px; }
+}
+@media(prefers-reduced-motion:reduce) { .shop-window .sr-actions .btn,.shop-window .shop-tab { transition:none; } }
+
+/* Categories are lettering on the upper-left of the painted display board. */
+.shop-window .shop-market .shop-tabs { top:29%;left:calc(var(--market-left) + 1%);right:auto;min-height:30px;padding:0;gap:20px;justify-content:flex-start;background:none; }
+.shop-window .shop-tabs .shop-tab,.shop-window .shop-tabs .shop-tab.on { min-width:0;padding:2px 3px 5px;background:none;border:0;border-bottom:2px solid transparent;border-radius:0;box-shadow:none;text-shadow:0 1px #f8e6c4;font-size:16px;letter-spacing:.08em;color:#765438; }
+.shop-window .shop-tabs .shop-tab.on { border-bottom-color:#4b6650;color:#304d3b;font-weight:700; }
+.shop-window .shop-tabs .shop-tab:not(.on):hover { background:none;color:#953f28;border-bottom-color:#a77f53; }
+.shop-window .shop-sale-strip :is(.shop-inventory,.shop-equipment-tray) { top:14%;bottom:20%; }
+.shop-window .shop-sale-strip>.shop-sale-status { top:auto;bottom:12%;height:20px;justify-content:space-between;gap:8px; }
+.shop-window .shop-sale-strip>.shop-sale-status strong { margin-left:auto;text-align:right; }
+.shop-window .shop-sale-strip>.shop-sale-status span { text-align:left; }
+/* The sanctum is a separate portrait offering table, never a merchandise ledge. */
+.shop-window.revival-sanctum .shop-list.shop-people { left:28%;right:12%;top:34%;bottom:28%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:1fr;align-items:center;gap:18px; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] { position:relative;left:auto;top:auto;transform:none;width:auto;height:auto;display:flex;align-items:center;gap:12px; }
+.shop-window.revival-sanctum .shop-soul { width:104px;height:132px; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] .shop-soul .sr-icon { width:70px;height:70px;margin-top:-6px; }
+.shop-window.revival-sanctum .shop-row[data-kind=revive] .shop-product-sign { position:static;transform:none;width:100%;height:auto;min-height:52px;padding:8px!important;background:none!important;color:#51432d; }
+.shop-window.revival-sanctum .shop-row[data-kind=revive] .sr-actions { position:static;transform:none; }
+.shop-window.revival-sanctum .shop-row[data-kind=revive] .sr-main { font-size:16px; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] .shop-product-sign { position:static;left:auto;top:auto;transform:none;width:100%;height:auto;min-height:48px;isolation:auto;background:none!important; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] .shop-product-sign::before { content:none;display:none; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] .sr-actions { position:static;left:auto;top:auto;transform:none;display:flex;justify-content:center; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] .sr-price { border:0;text-align:center;padding:4px 0; }
+.shop-window.revival-sanctum .shop-pagination { top:70%; }
+/* Cloth bookmarks emerge from the page seam with a stitched, not boxed, edge. */
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions { right:8px;top:27%;width:112px;gap:20px; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn { position:relative;min-height:124px;padding:15px 9px 26px;border:0;border-radius:0;clip-path:polygon(0 0,100% 0,100% 100%,50% 87%,0 100%);background:linear-gradient(90deg,#203c33,#52664e 8%,#3b5844 93%,#203a2e);box-shadow:inset 4px 0 #bdaa6b77,inset -4px 0 #bdaa6b77;text-shadow:0 1px #273522; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn::before { content:'';position:absolute;left:7px;right:7px;top:6px;border-top:1px dashed #c2b48888; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn.primary { background:linear-gradient(90deg,#662f25,#a06a44 8%,#875332 93%,#633b28); }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions strong { font-size:20px; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions small { font-size:13px;line-height:1.45;color:#fff0ca; }
+.shop-window .shop-keeper .shop-keeper-speech { min-height:140px;padding:34px 38px!important;background:none!important; }
+.shop-window .shop-keeper .shop-keeper-speech::before { background-image:url('/src/ui/merchant-dialogue.webp');transform:none!important; }
+.shop-detail.shop-roster-detail .dossier-book { position:relative; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .dossier-book>.shop-detail-close { position:absolute;top:30px;right:48px;width:48px;height:48px;z-index:20;display:grid;place-items:center;padding:0;border:0;border-radius:0;background:none;box-shadow:none;color:#725337;font:42px/1 'Folio WenKai',serif;transform:none; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .dossier-book>.shop-detail-close:hover { background:none;color:#963f31;transform:none; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions { right:25px;top:30%;width:100px;gap:24px; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn { min-height:138px;padding:18px 8px 29px;background-image:linear-gradient(90deg,#1d3126cc,#53634f 7%,#455c44 89%,#1c322b),repeating-linear-gradient(0deg,#fff1 0 1px,transparent 1px 3px);box-shadow:inset 3px 0 #d0ba7f66,inset -3px 0 #d0ba7f66,0 4px 6px #39261544; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn::before { left:8px;right:8px;top:7px;height:8px;border-top:1px solid #cbb88b;border-bottom:1px dashed #d6c29377; }
+.beast-replacement { width:min(610px,92vw);padding:58px 60px 45px;background:none center/100% 100% no-repeat;border:0;box-shadow:none;text-align:center;color:#533b29;font:18px/1.7 'Folio WenKai',serif; }
+.beast-replacement::backdrop { background:#142018a6;backdrop-filter:blur(4px); }
+.beast-replacement h2 { font:36px/1.4 'Folio Title',serif;color:#813e2b;margin:0 0 16px; }.beast-replacement p { margin:0 0 12px; }.beast-replacement>strong { display:block;color:#624a30;font-size:21px; }.beast-replacement>div { display:flex;justify-content:center;gap:20px;margin-top:28px; }.beast-replacement .btn { background:#e9d6ac;border:1px solid #a88a57;color:#5c422a; }.beast-replacement .btn.primary { background:#80513b;color:#fff0cc; }
+/* A precise image presentation transform preserves the original Xu Rong art pixels. */
+img[src*="/generals/full/xurong.webp"],img[src*="/generals/head/xurong.webp"] { scale:-1 1; }
+.beast-replacement { background-image:none; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] .shop-soul .sr-icon { width:100px;height:100px;mask-image:none;filter:grayscale(.5) drop-shadow(0 0 10px #d3e7cc);margin-top:0; }
+.shop-window .shop-market .shop-pagination { position:fixed;left:auto;right:calc(var(--market-right) + 1%);top:28.5%;bottom:auto;z-index:6;display:flex;align-items:center;gap:10px; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn { --cloth-dark:#243b2d;--cloth-light:#52654c;background:repeating-linear-gradient(0deg,#f5e7bd14 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,#111a1222 0 1px,transparent 1px 3px),linear-gradient(90deg,var(--cloth-dark),var(--cloth-light) 8%,var(--cloth-light) 90%,var(--cloth-dark)); }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn.primary { --cloth-dark:#633c27;--cloth-light:#96623e; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions small { font-size:11px;white-space:nowrap; }
+.shop-detail.shop-roster-detail:has(.dossier-book) .shop-detail-actions .btn::after { content:'';position:absolute;top:15px;left:5px;right:5px;height:4px;background:linear-gradient(#1e180d55,#f5dfae55,transparent); }
+/* R4 mirrors use full-scene anchors; labels do not affect portrait centring. */
+.shop-window.revival-sanctum .shop-list.shop-people { inset:0;display:block;pointer-events:none; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] { position:absolute;left:var(--mirror-x);top:41.4%;width:14%;height:0;transform:translateX(-50%);display:block;pointer-events:auto; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] .shop-soul { position:absolute;left:50%;top:0;width:clamp(120px,calc(11 * var(--ui-vw,1vw)),190px);height:clamp(120px,calc(11 * var(--ui-vw,1vw)),190px);transform:translate(-50%,-50%);display:block; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] .shop-soul .sr-icon { width:100%;height:100%;margin:0;border-radius:50%;object-fit:cover;object-position:center;mask-image:radial-gradient(circle,#000 40%,#000b 53%,transparent 70%);filter:grayscale(.4);opacity:1; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] .shop-product-sign { position:absolute;left:50%;top:calc(17.2 * var(--ui-vh,1vh));transform:translateX(-50%);width:100%;text-align:center; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] .sr-actions { position:absolute;left:50%;top:calc(24 * var(--ui-vh,1vh));transform:translateX(-50%); }
+.shop-window.revival-sanctum .shop-market .shop-tabs { top:18%;left:28%;right:12%;justify-content:flex-start; }
+.shop-window.revival-sanctum .shop-market .shop-pagination { top:18.5%;right:12%; }
+.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive]>.sr-actions,.shop-window.revival-sanctum .shop-list .shop-row[data-kind=revive] .sr-price { display:none; }

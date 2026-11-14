@@ -1,0 +1,10 @@
+/* Content-sized planar signage: the full balance always remains inside its label. */
+:is(.dialog.shop-window,.dialog.training-window) .shop-wallet { position:fixed;top:3%;right:4.5%;left:auto;z-index:8;width:max-content;min-width:244px;max-width:min(400px,calc(100 * var(--ui-vw,1vw) - 32px));height:auto;min-height:58px;max-height:none;margin:0;padding:12px 18px;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:18px;align-items:center;background:#eee3cdee;border:1px solid #ad946b;border-top:2px solid #5c6b50;border-radius:2px;box-shadow:0 2px 5px #33271b18;color:#4e3a27;text-shadow:none;pointer-events:none; }
+:is(.dialog.shop-window,.dialog.training-window) .shop-wallet>span { font-size:13px;line-height:1.4;letter-spacing:.06em;color:#776044;text-align:left; }
+:is(.dialog.shop-window,.dialog.training-window) .shop-wallet>b { min-width:0;max-width:100%;font-size:20px;line-height:1.4;font-weight:600;color:#4d412c;text-align:right;white-space:normal;overflow-wrap:anywhere; }
+/* Approved G2: the purse occupies the left quarter; text stays on the silk. */
+:is(.dialog.shop-window,.dialog.training-window) .shop-wallet { width:330px;min-width:300px;max-width:min(440px,calc(100 * var(--ui-vw,1vw) - 32px));min-height:88px;padding:18px 24px 18px 88px;display:flex;flex-direction:column;gap:4px;align-items:stretch;background:none center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none; }
+:is(.dialog.shop-window,.dialog.training-window) .shop-wallet>span { font-size:12px;color:#745334; }
+:is(.dialog.shop-window,.dialog.training-window) .shop-wallet>b { font-size:19px;color:#583e28; }
+:is(.dialog.shop-window,.dialog.training-window) .shop-wallet { width:max-content;min-width:330px;max-width:none;min-height:88px;padding:18px 45px 18px 92px;background-image:url('/src/ui/shop-wallet.webp'); }
+:is(.dialog.shop-window,.dialog.training-window) .shop-wallet>b { max-width:none;white-space:nowrap;overflow-wrap:normal; }

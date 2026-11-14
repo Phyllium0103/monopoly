@@ -31,6 +31,7 @@ export interface ShopPromptData {
 }
 
 export type Prompt =
+  | { kind: 'training'; phase:'assign'|'result'; visit: import('../systems/TrainingSystem').TrainingVisit; generals: import('../game/types').General[] }
   | { kind: 'choose'; title: string; text: string; icon: string; cancel: string | null; choices: ChoiceSpec[] }
   | { kind: 'pickMany'; title: string; text: string; confirm: string; min: number; max: number; choices: ChoiceSpec[] }
   | {
@@ -104,6 +105,7 @@ export function defaultAnswer(p: Prompt): unknown {
     case 'message': return null;
     case 'preroll': return { type: 'roll' } satisfies PrerollAction;
     case 'shop': return { type: 'leave' } satisfies ShopAction;
+    case 'training': return { type: 'leave' };
     case 'casino': return null;
     case 'bid': return 0;
     case 'duel': return 'attack' satisfies DuelAction;

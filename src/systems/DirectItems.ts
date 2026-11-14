@@ -1,7 +1,7 @@
 import type { City, Element, GameState, General, Item, Lord, LordId } from '../game/types';
 import { freeGenerals, generalsOf, citiesOf } from '../game/GameState';
 import { ITEM_DEFS } from '../data/items';
-import { canUse, usableIn, type PrerollTarget } from './ItemSystem';
+import { canUse, usableIn, hostileItemTargets, type PrerollTarget } from './ItemSystem';
 
 /** Client sends identifiers only; the engine resolves and checks every object again. */
 export interface DirectItemTarget {
@@ -25,14 +25,14 @@ export function itemGeneralTargets(state: GameState, lord: Lord, item: Item): Ge
 }
 export function itemLordTargets(state: GameState, lord: Lord, item: Item): Lord[] {
   return Object.values(state.lords).filter(l => l.alive && l.id !== lord.id && !l.relicJourney)
-    .filter(l => !['poison', 'bow'].includes(item.defId) || freeGenerals(state, l.id).length > 0)
+    .filter(l => !['poison', 'bow'].includes(item.defId) || hostileItemTargets(state,l,item.defId).length > 0)
     .filter(l => item.defId !== 'move' || l.items.length > 0);
 }
 export function itemCityTargets(state: GameState, lord: Lord, item: Item, own = false): City[] {
   if (own || ITEM_DEFS[item.defId].target === 'ownCity') return citiesOf(state, lord.id);
   return Object.values(state.lords).filter(l => l.alive && l.id !== lord.id).flatMap(l => citiesOf(state, l.id));
 }
-export function itemDisabledReason(state: GameState, lord: Lord, item: Item, context: 'preroll' | 'battle' | null, fighterId?: string): string {
+export function itemDisabledReason(state: GameState, lord: Lord, item: Item, context: 'preroll' | 'battle' | null, fighterId?: string, foeId?:string): string {
   if (SPECIAL_ITEM_STORAGE.has(item.defId)) return '顯示於天賦／材料頁';
   if (lord.relicJourney) return '山河圖內禁止使用道具';
   if (lord.itemsLocked > 0) return '物品被封印';
@@ -40,6 +40,7 @@ export function itemDisabledReason(state: GameState, lord: Lord, item: Item, con
   if (d.timing === 'event') return '事件發生時提示使用';
   if (!context) return '等待可使用物品的時機';
   if (!usableIn(item, context)) return context === 'battle' ? '擲骰前才能使用' : '戰鬥中才能使用';
+  if(context==='battle'&&item.defId==='poison'&&foeId&&state.generals[foeId]?.isLord)return '斷腸毒丹不能對主公使用';
   if (context === 'preroll' && MOVEMENT.has(item.defId) && (lord.stunned || lord.forcedTile !== null || lord.stayThisTurn)) return '目前的移動狀態不能使用';
   if (!itemUsers(state, lord, fighterId).some(g => canUse(item, g).ok)) return '沒有能力及體力足夠的施放者';
   if (context === 'preroll') {

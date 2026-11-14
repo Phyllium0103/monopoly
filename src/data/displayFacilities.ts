@@ -1,7 +1,7 @@
 import { SELECTED_LAYOUT } from './selectedLayout';
 import { gridPosition } from './selectedBoard';
 
-/** 展示用建築：各區各一棟。與遊戲事件格分開，經過或點擊不觸發服務。 */
+/** 建築模型地段，各區各一棟；武院／道院入口服務由 TrainingSystem 與引擎處理。 */
 export const DISPLAY_FACILITIES = [
   {
     "id": "display-appraisal-northwest",

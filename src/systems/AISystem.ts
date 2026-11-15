@@ -224,7 +224,7 @@ export async function aiBreakthroughs(state: GameState, lord: Lord, hooks: ItemH
     };
     if (!needsTribulation(g)) {
       if (g.realm === 1 && !g.foundation) await helper('foundation');
-      if (breakChance(g) < 0.5 && !g.foundation) continue;
+      if (g.realm !== 2 && breakChance(g) < 0.5 && !g.foundation) continue;
       const ok = completeBreak(g, state.round, ascensionCities(state, g)[0]?.id);
       logs.push(ok ? `✦ ${g.name}突破至【${REALMS[g.realm]}】！` : `${g.name}突破失敗，修為受損。`);
       continue;

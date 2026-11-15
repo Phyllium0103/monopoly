@@ -39,7 +39,7 @@ const {cityToll}=require('../src/systems/CitySystem.ts');
  g.foundation=true;assert.equal(breakChance(g),1);Math.random=random;
  g.realm=2;g.goldenCore='heavenly';g.aptitude='heaven';g.exp=expCap(g);
  g.aptitude='waste';assert.equal(canAttemptBreak(g,1).ok,false);g.aptitude='heaven';
- const force=g.base.force;assert.equal(canAttemptBreak(g,1).ok,true);assert.equal(completeBreak(g,1),true);assert.equal(g.base.force,force+20);
+ const force=g.base.force;assert.equal(canAttemptBreak(g,1).ok,true);Math.random=()=>0;assert.equal(completeBreak(g,1),true);Math.random=random;assert.equal(g.base.force,force+20);
  g.hp=maxHp(g);g.ward=0;
  const range=boltRange(g);assert.equal(range.count,4);assert(range.totalAvg>0);
  const {fx}=require('../src/data/passives.ts');

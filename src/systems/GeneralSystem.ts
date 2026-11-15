@@ -7,7 +7,7 @@ import { equipRealm, techniqueForce, techniqueSpeed } from '../data/items';
 import { WORLD } from './WorldMods';
 import { fx, lordAura, passiveState } from '../data/passives';
 import { awardBreakthrough } from '../data/talents';
-import { GOLDEN_CORES, earlyBreakChance } from '../data/breakthroughRules';
+import { GOLDEN_CORES, earlyBreakChance, goldenCoreChance } from '../data/breakthroughRules';
 
 /** Avoid floating point half-rounding differences from the editable spreadsheet. */
 const roundStat=(value:number)=>Math.round(Number(value.toFixed(8)));
@@ -82,14 +82,15 @@ export function passiveExp(g: General, city: City | null): number {
 
 // ───────────────────────── 突破 ─────────────────────────
 
-/** 築基→金丹以上要渡雷劫 */
+/** 金丹→元嬰、合體→渡劫需渡雷劫。 */
 export function needsTribulation(g: General): boolean {
   return g.realm === 3 || g.realm === 7;
 }
 
-/** 低階突破成功率 */
+/** 煉氣、築基與金丹的突破成功率。 */
 export function breakChance(g: General): number {
   if (g.realm === 0 || g.realm === 1) return earlyBreakChance(g.realm, g.aptitude, g.foundation);
+  if (g.realm === 2) return g.goldenCore ? goldenCoreChance(g.goldenCore, g.aptitude) : 0;
   return 1;
 }
 
@@ -121,7 +122,7 @@ export function completeBreak(g: General, round: number, cityId?: string): boole
   const state = passiveState();
   const lord = g.owner && state?.lords[g.owner];
   if (!lord) return false;
-  if (g.realm < 2) return attemptBreak(g, round);
+  if (g.realm <= 2) return attemptBreak(g, round);
   if (g.realm === 4) {
     const [min, max] = mortalTrialTurns(g.aptitude);
     g.mortalTrial = { turns: min + Math.floor(Math.random() * (max - min + 1)), weapon: g.weapon };
@@ -197,13 +198,13 @@ export function levelUp(g: General) {
 }
 
 /** 低階突破失敗的血量懲罰（依突破前的境界）：境界越高扣得越多 */
-export const BREAK_FAIL_HP = [0, 0.25];
+export const BREAK_FAIL_HP = [0, 0.25, 0.5];
 /** 低階突破失敗損失的修為比例 */
 export const BREAK_FAIL_EXP = 0.25;
 
-/** 煉氣失敗損失50%修為；築基失敗損失25%修為與最大血量。 */
+/** 煉氣失敗損失50%修為；築基／結丹失敗損失25%修為，分別扣最大血量25%／50%。 */
 export function attemptBreak(g: General, round: number): boolean {
-  if (g.realm > 1 || !canAttemptBreak(g, round).ok) return false;
+  if (g.realm > 2 || !canAttemptBreak(g, round).ok) return false;
   const ok = Math.random() < breakChance(g);
   if (g.realm === 1) g.foundation = false;
   if (ok) {

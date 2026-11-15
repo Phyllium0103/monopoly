@@ -70,3 +70,5 @@
 .dialog.jade-dialog:has(.choice-list)>.dialog-text { flex:0 1 auto;max-height:32%;font-size:19px; }
 .dialog.jade-dialog>.choice-list { flex:1;min-height:0;overflow:auto;scrollbar-width:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:8px;padding:5px 0 10px;max-height:none;background:none; }
 .dialog.jade-dialog .choice { min-width:0;padding:8px 10px;font-size:17px; }.dialog.jade-dialog .choice b { font-size:18px; }.dialog.jade-dialog .choice small { font-size:14px;line-height:1.5; }
+.dialog.jade-dialog .choice:has(.core-current) { background:linear-gradient(110deg,#dfedcc,#e8dfb9)!important;border-color:#627b45!important;box-shadow:inset 0 0 0 1px #aaba77,0 2px 7px #35462624!important; }
+.dialog.jade-dialog .choice:has(.core-current) :is(b,small,.core-option-name) { color:#29422b!important;-webkit-text-fill-color:currentColor!important; }

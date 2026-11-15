@@ -3,7 +3,7 @@ import type { TrainingVisit, TrainingAssignment } from '../systems/TrainingSyste
 import { ACADEMY_NAMES, TRAINING_COURSES, TRAINING_STAT_NAMES } from '../systems/TrainingSystem';
 import { fmtStones } from '../game/Currency';
 import { generalHeadUrl, rosterArtUrl } from '../data/generalArt';
-import { assetUrl } from '../data/assetUrl';
+import { assetCssUrl } from '../data/assetUrl';
 import type { Dialog } from './Dialog';
 import './training.css';
 import './shop-wallet.css';
@@ -28,7 +28,7 @@ export class TrainingPanel {
  private act(a:Action){const s=this.session;if(!s?.resolve)return;const resolve=s.resolve;s.resolve=null;if(a.type==='leave')this.close();resolve(a);}
  private render(){
   const s=this.session;if(!s)return;const{body,lord,visit,generals}=s;
-  const card=body.closest<HTMLElement>('.dialog')!;card.classList.add('training-window');card.dataset.academy=visit.kind;card.style.setProperty('--academy-scene',`url("${assetUrl('art/shops/scenes/'+visit.kind+'.webp')}")`);
+  const card=body.closest<HTMLElement>('.dialog')!;card.classList.add('training-window');card.dataset.academy=visit.kind;card.style.setProperty('--academy-scene',`url("${assetCssUrl('art/shops/scenes/'+visit.kind+'.webp')}")`);
   if(s.phase==='result'){this.results();return;}
   const courses=TRAINING_COURSES[visit.kind];
   const total=[...this.assignments.keys()].reduce((n,id)=>n+courses.find(c=>c.id===id)!.price,0);

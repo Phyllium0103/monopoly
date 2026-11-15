@@ -1,7 +1,7 @@
 import { enterRelic, advanceRelic, leaveRelic } from '../systems/RelicSystem';
 import { bagItems, bagHasRoom, sortBagItems, replaceEquipmentBatch, moveBagItem, receiveEquipment, resolveEquipmentReward, EQUIPMENT_CAPACITY } from '../systems/EquipmentInventory';
 import { generalHoverTable } from '../ui/GeneralInfo';
-import { GOLDEN_CORES, BREAKTHROUGH_TITLES, mortalTrialTurns, type GoldenCore, breakthroughSuccess, breakthroughSuccessTitle } from '../data/breakthroughRules';
+import { GOLDEN_CORES, BREAKTHROUGH_TITLES, mortalTrialTurns, goldenCoreChance, type GoldenCore, breakthroughSuccess, breakthroughSuccessTitle } from '../data/breakthroughRules';
 import { completeBreak, ascensionCities, ESSENCE_ELEMENTS, ESSENCE_NAMES, reconcileProgression } from '../systems/GeneralSystem';
 import { collectElementalSpirits, reconcileElementalSpirits, spawnElementalSpirits } from '../systems/ElementalSpiritSystem';
 import { MATERIAL_GROUPS, MATERIAL_NAMES, WEAPON_CATALOG, WEAPON_GRADES, WEAPON_PENETRATION, type MaterialGroup } from '../data/weaponCatalog';
@@ -1970,11 +1970,11 @@ export class Engine {
     this.view.refresh();
   }
 
-  /** 從武將名冊發起突破：低階機率突破，金丹以上渡雷劫 */
+  /** 從武將名冊選擇金丹路線，展示該武將的實際成功率與失敗代價。 */
   private async chooseCore(lord: Lord, g: General) {
-    const core = await this.dlg(lord).choose(BREAKTHROUGH_TITLES[3], `<div class="core-person">選擇<strong>${g.name}</strong>金丹凝煉路線<div class="core-person-tip">${generalHoverTable(g)}</div></div>${g.goldenCore ? `<p>已選擇：${GOLDEN_CORES[g.goldenCore].name}</p>` : ''}`, Object.entries(GOLDEN_CORES)
+    const core = await this.dlg(lord).choose(BREAKTHROUGH_TITLES[3], `<div class="core-person">選擇<strong>${g.name}</strong>金丹凝煉路線<div class="core-person-tip">${generalHoverTable(g)}</div></div><p>失敗會損失25%修為，並道基受損，扣除血量50%</p>`, Object.entries(GOLDEN_CORES)
       .filter(([id]) => id !== 'heavenly' || g.aptitude === 'heaven')
-      .map(([id, c]) => ({ label: `<span title="所需修為：${c.exp * (g.isLord ? 2 : 1)}&#10;${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}">${c.name}</span>`, value: id as GoldenCore, sub: `所需修為：${c.exp * (g.isLord ? 2 : 1)}｜${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}` })));
+      .map(([id, c]) => ({ label: `<span class="core-option-name${g.goldenCore === id ? ' core-current' : ''}" title="所需修為：${c.exp * (g.isLord ? 2 : 1)}&#10;${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}&#10;成功率 ${Math.round(goldenCoreChance(id as GoldenCore,g.aptitude)*100)}%">${c.name}</span>`, value: id as GoldenCore, sub: `所需修為：${c.exp * (g.isLord ? 2 : 1)}｜${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}｜成功率 ${Math.round(goldenCoreChance(id as GoldenCore,g.aptitude)*100)}%` })));
     if (core) g.goldenCore = core;
     this.view.refresh();
     return core !== null;
@@ -2004,7 +2004,7 @@ export class Engine {
       if (!direct && g.realm !== 2 && g.realm !== 8 && !await ask.confirm(title, text, '突破', '再等等', '')) return;
       const success = completeBreak(g, this.state.round, boundCity);
       this.view.refresh();
-      if (!success) { await ask.message('突破失敗', g.realm === 1 ? '損失25%修為與最大血量的25%。' : '損失50%修為。'); return; }
+      if (!success) { await ask.message(g.realm === 2 ? title : '突破失敗', g.realm === 2 ? '損失25%修為與最大血量的50%。' : g.realm === 1 ? '損失25%修為與最大血量的25%。' : '損失50%修為。'); return; }
       if (g.mortalTrial) { await ask.message(title, text); return; }
       this.view.beam(lord.id);
       await ask.message(breakthroughSuccessTitle(g), breakthroughSuccess(g));

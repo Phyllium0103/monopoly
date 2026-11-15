@@ -1,0 +1,53 @@
+{
+  "grid": [
+    2,
+    4
+  ],
+  "size": [
+    1254,
+    1254
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "frontPixels": 21422,
+      "rearPixels": 9640
+    },
+    {
+      "frame": 1,
+      "frontPixels": 26984,
+      "rearPixels": 18489
+    },
+    {
+      "frame": 2,
+      "frontPixels": 34217,
+      "rearPixels": 25767
+    },
+    {
+      "frame": 3,
+      "frontPixels": 34808,
+      "rearPixels": 31458
+    },
+    {
+      "frame": 4,
+      "frontPixels": 34540,
+      "rearPixels": 27754
+    },
+    {
+      "frame": 5,
+      "frontPixels": 38362,
+      "rearPixels": 28715
+    },
+    {
+      "frame": 6,
+      "frontPixels": 33021,
+      "rearPixels": 30431
+    },
+    {
+      "frame": 7,
+      "frontPixels": 45297,
+      "rearPixels": 32499
+    }
+  ],
+  "partition": "Disjoint foreground fold and rear shoulder; original visible RGB and alpha preserved exactly"
+}

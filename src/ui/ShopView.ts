@@ -6,7 +6,7 @@ import './shop-counter.css';
 import './shop-scenes.css';
 import './shop-wallet.css';
 import './shop-trade.css';
-import { assetUrl } from '../data/assetUrl';
+import { assetCssUrl } from '../data/assetUrl';
 import { generalArtUrl } from '../data/generalArt';
 import { itemName, techniqueBaseName, tierName } from '../data/items';
 import type { Lord, General } from '../game/types';
@@ -176,7 +176,7 @@ export class ShopPanel {
     body.closest('.dialog')!.classList.add('shop-window');
     (body.closest('.dialog') as HTMLElement).dataset.shop = kind;
     (body.closest('.dialog') as HTMLElement).dataset.signMount = ['beast','merchant'].includes(kind)?'hanging':'wall';
-    (body.closest('.dialog') as HTMLElement).style.setProperty('--shop-scene',`url("${assetUrl('art/shops/scenes/'+kind+'.webp')}")`);
+    (body.closest('.dialog') as HTMLElement).style.setProperty('--shop-scene',`url("${assetCssUrl('art/shops/scenes/'+kind+'.webp')}")`);
     // 買賣之後只更新內容；停留在同一個分頁時保留清單的捲動位置
     const view = `${s.mode}|${s.tab}`;
     const old = body.querySelector('.shop-list') as HTMLElement | null;
@@ -187,7 +187,7 @@ export class ShopPanel {
     const groups = groupsOf(data.offers,kind);
     const reviving=kind==='herb'&&s.tab==='還魂';
     (body.closest('.dialog') as HTMLElement).classList.toggle('revival-sanctum',reviving);
-    if(reviving)(body.closest('.dialog') as HTMLElement).style.setProperty('--shop-scene',`url("${assetUrl('art/shops/scenes/revival.webp')}")`);
+    if(reviving)(body.closest('.dialog') as HTMLElement).style.setProperty('--shop-scene',`url("${assetCssUrl('art/shops/scenes/revival.webp')}")`);
     body.innerHTML = `<div class="wallet shop-wallet"><span>持有靈石</span><b>${fmtStones(lord.stones)}</b></div>`;
     if (s.mode === 'buy' && groups.length > 1) {
       const tabs = document.createElement('div');

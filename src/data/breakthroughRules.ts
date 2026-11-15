@@ -64,6 +64,12 @@ export function earlyBreakChance(realm: 0 | 1, aptitude: Aptitude, foundation: b
   return realm === 0 ? .9 : .7;
 }
 
+export function goldenCoreChance(core: GoldenCore, aptitude: Aptitude): number {
+  if (core === 'heavenly') return .5;
+  if (core === 'flawless') return aptitude === 'heaven' ? .7 : aptitude === 'waste' ? .3 : .5;
+  return aptitude === 'heaven' ? .9 : aptitude === 'waste' ? .5 : .75;
+}
+
 export function mortalTrialTurns(aptitude: Aptitude): readonly [number, number] {
   return aptitude === 'heaven' ? [2, 6] : aptitude === 'waste' ? [6, 10] : [4, 8];
 }

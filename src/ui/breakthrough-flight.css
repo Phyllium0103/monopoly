@@ -6,10 +6,11 @@
   font-family:'Folio WenKai','Noto Serif TC',serif;
 }
 .dialog.breakthrough-flight::before,.dialog.breakthrough-flight::after { display:none!important; }
-.breakthrough-flight .flight-wings { position:absolute;inset:0;width:100%;height:100%;pointer-events:none; }
-.breakthrough-flight .flight-panel { position:absolute;left:14%;top:0;width:72%;min-height:360px;filter:drop-shadow(0 12px 18px #08090566);will-change:transform,opacity; }
-.breakthrough-flight .flight-paper { position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none; }
-.breakthrough-flight .flight-copy { position:relative;padding:88px 12% 85px;color:#3d2a20; }
+.breakthrough-flight .flight-wings,.breakthrough-flight .flight-wing-front { position:absolute;inset:0;width:100%;height:100%;pointer-events:none; }
+.breakthrough-flight .flight-wing-front { z-index:2; }
+.breakthrough-flight .flight-panel { position:absolute;left:14%;top:0;width:72%;aspect-ratio:4/3;filter:drop-shadow(0 12px 18px #08090566);will-change:transform,opacity; }
+.breakthrough-flight .flight-paper { position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none; }
+.breakthrough-flight .flight-copy { position:absolute;inset:20% 11% 18%;padding:0!important;display:flex;flex-direction:column;justify-content:center;color:#3d2a20; }
 .dialog.breakthrough-flight .flight-heading {
   display:block;position:static!important;width:auto;height:auto!important;min-height:0;
   font:400 clamp(29px,4.3cqw,43px)/1.25 'Folio Title','Folio WenKai',serif!important;
@@ -18,10 +19,10 @@
   border:0;border-bottom:1px solid #9b754877;background:none!important;
 }
 .dialog.breakthrough-flight .flight-heading::before,.dialog.breakthrough-flight .flight-heading::after { display:none!important; }
-.breakthrough-flight .flight-body { color:#3d2a20!important;-webkit-text-fill-color:currentColor;font:400 22px/1.85 'Folio WenKai','Noto Serif TC',serif;letter-spacing:.025em;text-align:justify;text-wrap:pretty; }
+.breakthrough-flight .flight-body { color:#3d2a20!important;-webkit-text-fill-color:currentColor;font:400 22px/1.85 'Folio WenKai','Noto Serif TC',serif;letter-spacing:.025em;text-align:center;text-wrap:pretty; }
 .breakthrough-flight .flight-body .cultivation-name { color:#6b271d!important;-webkit-text-fill-color:currentColor;background:none!important; }
 .dialog.breakthrough-flight .flight-confirm {
-  position:absolute;left:40.2%;top:86%;width:19.6%;height:8.5%;min-width:0;min-height:0;
+  position:absolute;left:40.2%;top:86%;width:19.6%;height:10%;min-width:0;min-height:0;
   padding:0!important;margin:0;border:0!important;border-radius:0;background:none!important;box-shadow:none!important;
   display:grid;place-items:center;white-space:nowrap;overflow:hidden;cursor:pointer;
   font:400 clamp(18px,2.8cqw,23px)/1 'Folio WenKai',serif!important;letter-spacing:.04em;
@@ -29,6 +30,13 @@
 }
 .breakthrough-flight .flight-confirm:hover { filter:brightness(1.15); }
 .breakthrough-flight .flight-confirm:focus-visible { outline:2px solid #fff0c5;outline-offset:-3px; }
+.flight-failure .failure-result { position:absolute;left:14%;top:50%;width:72%;transform:translateY(-50%);text-align:center;z-index:3;visibility:hidden;opacity:0; }
+.flight-failure .failure-result::before { content:'';position:absolute;inset:-50px -70px;background:radial-gradient(ellipse,#f5ead6f5 5%,#f5ead6de 45%,#f5ead600 74%);pointer-events:none; }
+.flight-failure .failure-result .flight-copy { position:relative;inset:auto;padding:0; }
+.dialog.flight-failure .failure-result .flight-heading { color:#241b16!important;-webkit-text-fill-color:#241b16!important;text-shadow:none!important;border-bottom-color:#866b4677; }
+.flight-failure .failure-result .flight-body { color:#241b16!important;-webkit-text-fill-color:currentColor;text-align:center; }
+.flight-failure .failure-status { display:block;margin-bottom:12px;color:#452d23;font-size:18px;letter-spacing:.25em; }
+.dialog.flight-failure .failure-result .flight-confirm { position:relative;left:auto;top:auto;display:grid;width:140px;height:46px;margin:24px auto 0;padding:0!important;border:1px solid #c39755!important;border-radius:4px;background:linear-gradient(#713b29,#4b241c)!important;overflow:visible; }
 @container game-ui (max-width:900px) {
   .breakthrough-flight .flight-panel { left:4%;width:92%; }
   .breakthrough-flight .flight-copy { padding:75px 11% 80px; }

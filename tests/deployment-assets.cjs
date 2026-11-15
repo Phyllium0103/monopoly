@@ -1,7 +1,16 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),crypto=require('node:crypto');
 const{registerHooks,stripTypeScriptTypes}=require('node:module');const{pathToFileURL,fileURLToPath}=require('node:url');
 registerHooks({resolve(s,c,n){if(s.startsWith('.')&&!path.extname(s)&&c.parentURL){const p=path.resolve(path.dirname(fileURLToPath(c.parentURL)),s+'.ts');if(fs.existsSync(p))return n(pathToFileURL(p).href,c);}return n(s,c);},load(u,c,n){return u.endsWith('.ts')?{format:'module',shortCircuit:true,source:stripTypeScriptTypes(fs.readFileSync(fileURLToPath(u),'utf8'),{mode:'transform'})}:n(u,c);}});
-const {assetUrl}=require('../src/data/assetUrl.ts');
+const {assetUrl,assetCssUrl}=require('../src/data/assetUrl.ts');
+for(const page of ['https://example.test/monopoly/','https://example.test/monopoly/index.html','http://localhost:5175/']){
+ global.document={baseURI:page};
+ for(const name of ['treasure','herb','revival','forge','library','tavern','merchant','beast','martial','arts']){
+  const url=assetCssUrl(`art/shops/scenes/${name}.webp`);
+  assert.equal(new URL(url,'https://example.test/monopoly/assets/Game.css').href,new URL(`art/shops/scenes/${name}.webp`,page).href,'CSS must not resolve inside /assets/');
+  assert.ok(fs.existsSync(path.join(__dirname,`../public/art/shops/scenes/${name}.webp`)));
+ }
+}
+delete global.document;
 const {minimumMapZoom,FLOOR_SIZE,forkDirection}=require('../src/data/mapView.ts');
 for(const base of ['/','/monopoly/','./','/other-project']){
  const relative=assetUrl('/art/map-selected/city-3.glb',base);

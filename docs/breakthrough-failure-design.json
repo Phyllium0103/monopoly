@@ -1,0 +1,21 @@
+{
+  "assets": ["src/ui/breakthrough-flight-left.webp", "src/ui/breakthrough-flight-right.webp"],
+  "generation": {
+    "tool": "built-in image_gen",
+    "reference": "src/ui/breakthrough-flight-panel.webp",
+    "design": "Exactly two separate upright alpha silhouettes, each with a real exposed jagged edge, half the medallion and half the bottom button. No drawn crack or runtime polygon seam.",
+    "registration": "Separate generated silhouettes at 686px visible height, y=30 in individual 1000x750 transparent canvases. Left outer edge x=20; right outer edge x=980.",
+    "compression": {"format":"WebP", "quality":90, "method":6, "alphaPreserved":true}
+  },
+  "motion": {
+    "phases": ["shared ascent", "stall", "accelerating fall", "floor impact", "two settled pieces", "centered failure message"],
+    "logicalImpactTime": 3.1,
+    "logicalMessageTime": 4.2,
+    "durationSeconds": 2.9375,
+    "pieces": 2,
+    "inscription": "No inscription during ascent or fall. Existing target realm success heading and prose fade onto the fragments only after floor impact, masked by each fragment's actual alpha.",
+    "failureMessage": "Original failure consequence in black text centered on screen, revealed after fragments settle.",
+    "confirmation": "Click during motion reveals final result without confirming.",
+    "reducedMotion": "Show final broken result and failure message immediately."
+  }
+}

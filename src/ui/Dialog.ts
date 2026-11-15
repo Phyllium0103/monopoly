@@ -1,4 +1,4 @@
-import { BreakthroughFlight, isBreakthroughSuccessTitle } from './BreakthroughFlight';
+import { BreakthroughFlight, isBreakthroughFailure, isBreakthroughSuccessTitle } from './BreakthroughFlight';
 
 export interface Choice<T> {
   label: string;
@@ -307,8 +307,9 @@ export class Dialog {
       this.onEnter = this.onEsc;
       row.appendChild(b);
       card.appendChild(row);
-      if (isBreakthroughSuccessTitle(title)) {
-        this.flight = new BreakthroughFlight(card, b);
+      const failed = isBreakthroughFailure(title, text);
+      if (failed || isBreakthroughSuccessTitle(title)) {
+        this.flight = new BreakthroughFlight(card, b, failed);
         const confirmOrSkip = () => { if (!this.flight?.skip()) b.click(); };
         this.onEsc = confirmOrSkip;
         this.onEnter = confirmOrSkip;

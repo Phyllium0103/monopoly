@@ -2,9 +2,11 @@ import {installUiViewport,uiViewportSize} from './UiViewport';
 import { music } from './Music';
 import { DiceRoller, type DiceHandOrigin } from './DiceRoller';
 import { LordActorHud } from './LordActorHud';
+import { CommandDice } from './CommandDice';
 import { PortraitFlames, type FlameSource } from './PortraitFlames';
 import { ItemDock, type ItemDockState } from './ItemDock';
 import './Bubble';
+import './command-hud.css';
 import type { GameState, LordId } from '../game/types';
 
 export interface ActionButton {
@@ -66,6 +68,7 @@ export class GameUI {
   private partyShell: HTMLDivElement;
   private partyPrev: HTMLButtonElement;
   private partyNext: HTMLButtonElement;
+  private partyWheelAt=0;
   private logPanel: HTMLDivElement;
   private logOpen = true;
   private closeReport: (() => void) | null = null;
@@ -95,7 +98,9 @@ export class GameUI {
       <div class="report-overlay hidden"></div>
       <div class="turn-report hidden"></div>
       <div class="party-shell hidden"><button class="party-arrow party-prev" aria-label="上一個武將">‹</button><div class="party-dock"></div><button class="party-arrow party-next" aria-label="下一個武將">›</button></div>
-      <button class="roll-btn hidden" title="擲骰（空白鍵）"><span class="roll-dice">🎲</span><b>擲骰</b><small>空白鍵</small></button>
+      <div class="roll-title"><img class="command-nameplate-art" src="${new URL('./command-nameplate.webp',import.meta.url).href}" alt=""><span>擲骰</span></div>
+      <span class="command-dice-mat" aria-hidden="true"><img src="${new URL('./command-dice-mat.webp',import.meta.url).href}" alt=""></span>
+      <button class="roll-btn hidden" title="擲骰（空白鍵）" aria-label="擲骰"><span class="roll-dice"><img src="${new URL('./command-dice.webp',import.meta.url).href}" alt="實際骰子：1、3、5／2、4、6"></span><small>空白鍵</small></button>
 
       <div class="tooltip hidden"></div>
 `;
@@ -114,14 +119,11 @@ export class GameUI {
     this.report = q('.turn-report');
     this.overlay = q('.report-overlay');
     this.rollBtn = q('.roll-btn');
+    new CommandDice(this.rollBtn);
     this.party = q('.party-dock');
     this.partyShell=q('.party-shell');this.partyPrev=q('.party-prev');this.partyNext=q('.party-next');
     this.flames = new PortraitFlames(this.partyShell, this.party);
-    const moveParty=(direction:number)=>{
-      this.party.scrollLeft += direction * this.partyIconStep();
-      this.updatePartyArrows();
-    };
-    this.partyPrev.onclick=()=>moveParty(-1);this.partyNext.onclick=()=>moveParty(1);
+    this.partyPrev.onclick=()=>this.moveParty(-1);this.partyNext.onclick=()=>this.moveParty(1);
     this.party.addEventListener('scroll',()=>this.updatePartyArrows(),{passive:true});
     new ResizeObserver(()=>this.resizeParty()).observe(this.partyShell);
     this.party.tabIndex = 0;
@@ -129,13 +131,15 @@ export class GameUI {
     this.party.addEventListener('wheel',e=>{
       if(this.party.scrollWidth<=this.party.clientWidth)return;
       e.preventDefault();e.stopPropagation();
-      this.party.scrollLeft+=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
+      const now=performance.now();if(now-this.partyWheelAt<120)return;
+      const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
+      if(delta){this.partyWheelAt=now;this.moveParty(Math.sign(delta));}
     },{passive:false});
     this.party.addEventListener('keydown',e=>{
       if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
       if(this.party.scrollWidth<=this.party.clientWidth)return;
       e.preventDefault();e.stopPropagation();
-      this.party.scrollBy({left:e.key==='ArrowLeft'?-128:128,behavior:'smooth'});
+      this.moveParty(e.key==='ArrowLeft'?-1:1);
     });
     this.logPanel = q('.log-panel');
     // 點擊任何地方都能立刻關閉電腦行動結果
@@ -294,10 +298,9 @@ export class GameUI {
       b.style.setProperty('--pc', i.color);
       b.dataset.tip = i.tip;
       if (i.tipHtml) b.dataset.tipHtml = i.tipHtml;
-      b.innerHTML = `<img src="${i.img}" alt="" onerror="this.style.visibility='hidden'">` +
-        (i.hasSkill ? '<span class="pd-skill">✨</span>' : '') +
-        `<span class="pd-bars"><i class="hp" style="width:${Math.max(0, Math.min(100, i.hpPct))}%"></i><i class="sta" style="width:${Math.max(0, Math.min(100, i.staPct))}%"></i><i class="exp" aria-label="修為 ${Math.round(i.expPct)}%" style="width:${Math.max(0, Math.min(100, i.expPct))}%"></i></span>` +
-        `<span class="pd-name">${i.name}</span>`;
+      b.innerHTML = `<span class="pd-name">${i.name}</span><img src="${i.img}" alt="" onerror="this.style.visibility='hidden'">` +
+        (i.hasSkill ? '<span class="pd-skill">術</span>' : '') +
+        `<span class="pd-bars">${([['hp','血量',i.hpPct],['sta','體力',i.staPct],['exp','修為',i.expPct]] as const).map(([key,label,value])=>`<span class="pd-track ${key}" aria-label="${label} ${Math.round(value)}%"><i class="${key}" style="width:${Math.max(0,Math.min(100,value))}%"></i></span>`).join('')}</span>`;
       b.onclick = () => i.onClick();
       b.oncontextmenu = e => { e.preventDefault(); i.onRightClick?.(); };
       this.party.appendChild(b);
@@ -311,7 +314,15 @@ export class GameUI {
   private partyIconStep(): number {
     const icon = this.party.querySelector<HTMLElement>('.pd-gen');
     const gap = parseFloat(getComputedStyle(this.party).columnGap) || 0;
-    return (icon?.offsetWidth ?? 58) + gap;
+    return (icon?icon.getBoundingClientRect().width/uiViewportSize().scale:58) + gap;
+  }
+
+  private moveParty(direction:number){
+    const max=Math.max(0,this.party.scrollWidth-this.party.clientWidth);
+    if(max<=1){this.party.scrollLeft=0;this.updatePartyArrows();return;}
+    const step=this.partyIconStep(),index=Math.round(this.party.scrollLeft/step);
+    this.party.scrollLeft=Math.max(0,Math.min(max,(index+direction)*step));
+    this.updatePartyArrows();
   }
 
   private resizeParty() {
@@ -319,10 +330,20 @@ export class GameUI {
     const styles = getComputedStyle(this.party);
     const gap = parseFloat(styles.columnGap) || 0;
     const padding = (parseFloat(styles.paddingLeft) || 0) + (parseFloat(styles.paddingRight) || 0);
-    const available = Math.max(0, this.partyShell.clientWidth - this.partyPrev.offsetWidth - this.partyNext.offsetWidth);
     const step = this.partyIconStep();
+    const natural=this.party.children.length*step-gap+padding;
+    const overflow=natural>this.partyShell.clientWidth+1;
+    this.partyShell.classList.toggle('has-overflow',overflow);
+    if(!overflow){
+      this.party.style.width=`${Math.min(this.partyShell.clientWidth,natural)}px`;
+      this.party.scrollLeft=0;this.partyPrev.disabled=true;this.partyNext.disabled=true;return;
+    }
+    const shellGap=parseFloat(getComputedStyle(this.partyShell).columnGap)||0;
+    const available = Math.max(0, this.partyShell.clientWidth - this.partyPrev.offsetWidth - this.partyNext.offsetWidth-shellGap*2);
     const count = Math.max(1, Math.floor((available - padding + gap) / step));
     this.party.style.width = `${Math.min(available, count * step - gap + padding)}px`;
+    const max=Math.max(0,this.party.scrollWidth-this.party.clientWidth);
+    this.party.scrollLeft=Math.min(max,Math.round(this.party.scrollLeft/step)*step);
     this.updatePartyArrows();
   }
 
@@ -398,12 +419,15 @@ export class GameUI {
   /** 擲骰大圓鈕 */
   showRoll(onClick: () => void) {
     this.rollBtn.classList.remove('hidden');
-    this.rollBtn.onclick = onClick;
-    this.actors.setRollAction(onClick);
+    this.rollBtn.disabled=false;
+    const roll=()=>{this.hideRoll();onClick();};
+    this.rollBtn.onclick = roll;
+    this.actors.setRollAction(roll);
   }
 
   hideRoll() {
     this.rollBtn.classList.add('hidden');
+    this.rollBtn.disabled=true;this.rollBtn.onclick=null;
     this.actors.setRollAction(null);
   }
 

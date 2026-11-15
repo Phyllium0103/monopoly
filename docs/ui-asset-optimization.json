@@ -1,0 +1,76 @@
+{
+  "assets": [
+    {
+      "asset": "src/ui/breakthrough-flight-wings.webp",
+      "before": 639804,
+      "after": 526032,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "alpha": "unchanged"
+    },
+    {
+      "asset": "src/ui/breakthrough-flight-panel.webp",
+      "before": 73358,
+      "after": 56936,
+      "dimensions": [
+        1000,
+        750
+      ],
+      "alpha": "unchanged"
+    },
+    {
+      "asset": "src/ui/command-desk.webp",
+      "before": 780622,
+      "after": 134494,
+      "dimensions": [
+        1916,
+        365
+      ],
+      "alpha": "unchanged"
+    },
+    {
+      "asset": "src/ui/command-nameplate.webp",
+      "before": 13216,
+      "after": 9620,
+      "dimensions": [
+        480,
+        122
+      ],
+      "alpha": "unchanged"
+    },
+    {
+      "asset": "src/ui/command-dice-hover.webp",
+      "before": 698644,
+      "after": 518890,
+      "dimensions": [
+        3072,
+        2048
+      ],
+      "alpha": "unchanged"
+    },
+    {
+      "asset": "src/ui/command-dice-mat.webp",
+      "before": 339670,
+      "after": 61624,
+      "dimensions": [
+        512,
+        512
+      ],
+      "alpha": "unchanged"
+    },
+    {
+      "asset": "src/ui/command-dice.webp",
+      "before": 152144,
+      "after": 12638,
+      "dimensions": [
+        512,
+        340
+      ],
+      "alpha": "unchanged"
+    }
+  ],
+  "before": 2697458,
+  "after": 1320234
+}

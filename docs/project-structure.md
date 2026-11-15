@@ -79,7 +79,7 @@
 | `public/art/map-runtime/` | 遊戲實際載入的壓縮模型 |
 | `public/art/lord-hud-runtime-*/` | 主公動畫的遊戲用圖集 |
 | `public/art/lord-hud/` | 主公動畫原始圖，建置腳本與測試會讀取 |
-| `public/art/lord-base-images-r5/`、`lord-island-hud/` | 主公底座與資訊圖示 |
+| `src/ui/command-desk.webp`、`public/art/lord-island-hud/` | 一體式主公底座與資訊圖示 |
 | `public/art/spirits/`、`realm-frames/`、`dice/` | 五行精靈、境界外框、骰子模型 |
 | `public/audio/` | 背景音樂 |
 | `art-src/generals/` | 武將透明 PNG 原圖（基礎版與特效版） |

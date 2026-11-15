@@ -24,7 +24,7 @@ async function advance(ms){const end=clock+ms;while(clock<end){clock+=50;const c
  hud.initialization=Promise.resolve();hud.available=false;hud.show(true);
  const state=createGameState('liu');state.lords.liu.stones=12345;state.lords.liu.soldiers=4321;
  hud.update(state,'liu');await flush();
- const a=hud.actors.get('liu');assert.equal(a.card.children[0].children[0].className,'lord-island-artwork');assert.ok(a.card.children[0].children[0].children[0].src.endsWith('/03-tall.webp'),'selected 03 image is used');assert.equal(a.values.length,4);assert.equal(a.values[1].textContent,'4,321');assert.equal(a.values[0].title,fmtStones(12345));
+ const a=hud.actors.get('liu');assert.equal(a.card.children[0].children[0].className,'lord-island-artwork');assert.equal(a.card.children[0].children[0].children[0].className,'lord-command-name');assert.ok(root.classList.contains('command-hud'),'unified command desk is enabled');assert.equal(a.values.length,4);assert.equal(a.values[1].textContent,'4,321');assert.equal(a.values[0].title,fmtStones(12345));
  a.card.children[0].onclick();assert.deepEqual(clicked,['liu']);
  assert.equal(hud.dock.children.at(-1),a.card,'selected player is rightmost');assert.equal(a.card.className,'lord-actor is-current');
  const cards=[...hud.dock.children];hud.update(state,'liu');assert.deepEqual(hud.dock.children,cards,'refresh preserves actual card nodes');

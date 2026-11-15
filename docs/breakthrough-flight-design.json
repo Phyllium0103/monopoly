@@ -1,0 +1,43 @@
+{
+  "design": "赤霞回翔：境界突破成功",
+  "scope": "Only realm breakthrough success messages; current game text and confirmation behavior preserved.",
+  "assets": {
+    "wings": "src/ui/breakthrough-flight-wings.webp",
+    "panel": "src/ui/breakthrough-flight-panel.webp",
+    "grid": [
+      2,
+      4
+    ],
+    "rootY": [
+      0.28,
+      0.317,
+      0.354,
+      0.464,
+      0.416,
+      0.333,
+      0.402,
+      0.359
+    ]
+  },
+  "motion": {
+    "durationSeconds": 2,
+    "states": [
+      "收翼",
+      "開肩",
+      "半展",
+      "抬翼",
+      "平展",
+      "下拍",
+      "回翼",
+      "停穩"
+    ],
+    "clickDuringAnimation": "Reveal the final state and consume the click; a subsequent confirmation closes the result.",
+    "reducedMotion": "Show the final state immediately."
+  },
+  "generation": {
+    "tool": "built-in image_gen",
+    "wingSheetPrompt": "Create a PRODUCTION ANIMATION SPRITE SHEET of the selected red-and-ivory xianxia wing pair (reference is style/design only). Genuine transparent background. Square 2048x2048 canvas, EXACT regular grid 2 COLUMNS x 4 ROWS, 8 equal 1024x512 rectangular cells, read left-to-right then top-to-bottom. Each cell contains ONE complete PAIR of wings, no body, no UI, no panel, no medallion, NO TEXT/NUMBERS/gridlines. Fixed small adjoining shoulder roots at EXACT cell-relative coordinate (50% width, 50% height) in EVERY frame. Identical character design, feather count/palette/detail, same scale, camera and lighting, absolutely NO per-cell auto-cropping or centering. Every wing tip stays 6% inside its cell. Hand-painted premium Chinese xianxia vermilion inner coverts, ivory/gold outer primaries, natural articulated bird-wing anatomy and layered feathers. Eight CLEARLY DIFFERENT sequential poses for a wings-opening takeoff animation: cell1 FOLDED narrow upright wings closely gathered behind shoulders; cell2 shoulder opens 25% and elbow extends, feathers still overlapped; cell3 HALF-OPEN at 55%, primary feathers begin separating; cell4 FULLY RAISED upstroke in a high wide V with wrist flexed; cell5 POWERFUL FULLY OUTSTRETCHED lateral wings, broad span, primaries fully fanned; cell6 DOWNSTROKE wings sweep down and forward in a deep curved cup; cell7 wings return to raised 70%-open recovery pose, with flight feathers trailing; cell8 RESTING OPEN pose like reference, two elegantly curved red/ivory wings extending sideways and down, root fixed. Structural wing skeleton must visibly change from folded to fully opened, not just rotate or scale an unchanged silhouette. Clear smooth silhouette progression, readable at thumbnail scale. No bird heads, detached stray feathers, extra appendages, UI decorations, bloom, smoke, movement trails, text, backgrounds or shadows outside the wings. ALL 8 cells occupy their assigned grid, no overlap between cells.",
+    "panelPrompt": "Use case: ui-mockup. Reference is STYLE ONLY for the selected L5 red/ivory/antique-gold xianxia result panel. Generate ONE isolated EMPTY result panel background asset on genuine transparent background, no wings, no characters, NO TEXT ANYWHERE, no numbers, no lines or grids in central area. Broad horizontal panel roughly 4:3 ratio, large opaque warm light ivory silk/paper center taking 83% of area, clipped angular corners and elegant thin layered antique-bronze frame with muted vermilion lacquer inset. Top center has a small round bronze cloud medallion with compact sculpted shoulder joints for wings, but no giant crest or bird. Bottom center a SMALL integrated dark-vermilion bronze-edged button shape with absolutely no text. Center entire frame on canvas with margin all around, all edges visible, front-facing orthographic game UI. Design clear blank upper central area for two calligraphic title lines, spacious central area for 100 Chinese character prose, and clear footer button zone. No decorative graphics behind prose. Premium hand-painted 2D Chinese Three Kingdoms xianxia game textures, subtle tactile paper texture, controlled fine bronze embossing. No landscape/background, scroll rods, book, broad ornamental side objects, circles in prose area or floating decorations."
+  },
+  "alignment": "Center the information panel in the viewport, independently of the wings."
+}

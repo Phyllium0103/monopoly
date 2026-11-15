@@ -126,7 +126,6 @@ export class ItemDock {
       if (d.price.length > 1) { const badge = document.createElement('small'); badge.className = 'item-grade'; badge.textContent = PILL_GRADES[item.tier]; b.append(badge); }
       const qty = document.createElement('span'); qty.className = 'item-quantity'; qty.textContent = String(count); b.append(qty); row.append(b);
     }
-    if (!shown.length) { const empty = document.createElement('span'); empty.className = 'item-dock-empty'; empty.textContent = '沒有此類物品'; row.append(empty); }
     const list = document.createElement('div'); list.className = 'item-dock-list'; list.append(names, row);
     this.list = list; this.el.append(list); list.scrollLeft = scrollLeft; this.updateEdges();
     const hint = document.createElement('div'); hint.className = 'item-dock-hint'; const text = document.createElement('span'); text.textContent = s.hint; hint.append(text);

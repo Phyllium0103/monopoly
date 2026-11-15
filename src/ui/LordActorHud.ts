@@ -11,6 +11,8 @@ import { spriteSourceToWorld, type SpritePose } from './LordSpriteRig';
 import './lord-actor-hud.css';
 import {renderPixelRatio} from '../performance/renderBudget';
 import { type DiceHandOrigin } from './DiceRoller';
+import {commandHudLayout} from './commandHudLayout';
+import {CommandHudArtwork} from './CommandHudArtwork';
 
 type Clip='prep'|'throw'|'recovery';
 interface Pose extends SpritePose {sheet:number;externalSheet?:string}
@@ -69,9 +71,12 @@ export class LordActorHud {
   private layoutFrame=0;
   private unblockWait:(()=>void)|null=null;
 
+  private readonly artwork:CommandHudArtwork;
   constructor(private readonly parent:HTMLElement,private readonly speed:()=>number,onLord:(id:LordId)=>void){
     parent.classList.add('lord-actors-enabled');
-    this.viewport.dataset.base='03';this.viewport.dataset.animationRate=String(LORD_PRESENTATION_RATE);
+    parent.classList.add('command-hud');
+    this.artwork=new CommandHudArtwork(parent);
+    this.viewport.dataset.base='lacquer-command';this.viewport.dataset.animationRate=String(LORD_PRESENTATION_RATE);
     try{localStorage.removeItem('lord-hud-style');}catch{}
     this.viewport.className='lord-actors-viewport';this.viewport.setAttribute('aria-label','主公人物');
     this.dock.className='lord-actors-dock';this.viewport.append(this.dock);parent.append(this.viewport);
@@ -82,7 +87,9 @@ export class LordActorHud {
       button.setAttribute('aria-label',`${LORDS[id].name}，查看武將名冊`);
       button.onclick=()=>onLord(id);
       const island=document.createElement('span');island.className='lord-island-artwork';
-      const image=document.createElement('img');image.className='lord-island-image';image.src=assetUrl('art/lord-base-images-r5/03-tall.webp');image.alt='';island.append(image);
+      const name=document.createElement('strong');name.className='lord-command-name';
+      const nameArt=document.createElement('img');nameArt.className='command-nameplate-art';nameArt.alt='';nameArt.src=new URL('./command-nameplate.webp',import.meta.url).href;
+      const nameLabel=document.createElement('span');nameLabel.textContent=LORDS[id].name;name.append(nameArt,nameLabel);island.append(name);
       const inscriptions=document.createElement('span');inscriptions.className='lord-island-values';
       const values:HTMLElement[]=[];
       for(const [name,label] of FIELDS){
@@ -102,6 +109,10 @@ export class LordActorHud {
     }
     this.camera.position.set(0,0,10);this.camera.lookAt(0,0,0);
     addEventListener('resize',()=>this.layout());
+    if(typeof visualViewport!=='undefined'){
+      visualViewport?.addEventListener('resize',()=>this.layout());
+      visualViewport?.addEventListener('scroll',()=>this.layout());
+    }
     this.viewport.addEventListener('scroll',()=>this.layoutActors());
     const resize=new ResizeObserver(()=>this.layout());
     for(const selector of ['.top-bar','.bottom-panel','.party-dock','.item-dock'])resize.observe(parent.querySelector(selector)??parent);
@@ -345,7 +356,8 @@ export class LordActorHud {
     a.card.dataset.sourcePixelScale=String(unit);
   }
   private layoutActors():void{
-    for(const a of this.actors.values()){const card=a.card.getBoundingClientRect(),seat=a.seat.getBoundingClientRect();this.actorRects.set(a.id,{width:card.width/1.25,left:seat.left,top:seat.top});}
+    const rulerWidth=parseFloat(this.parent.style.getPropertyValue('--lord-actor-width'))*uiViewportSize().scale;
+    for(const a of this.actors.values()){const card=a.card.getBoundingClientRect(),seat=a.seat.getBoundingClientRect();this.actorRects.set(a.id,{width:rulerWidth||card.width,left:seat.left,top:seat.top});}
     for(const a of this.actors.values())this.position(a);
   }
   private layout():void{
@@ -355,21 +367,39 @@ export class LordActorHud {
   private layoutNow():void{
     const count=[...this.actors.values()].filter(a=>!a.card.hidden).length||4;
     const logical=uiViewportSize();
-    const maxHeight=Math.max(130,(logical.height-280)/1.8504);
-    const width=Math.max(130,Math.min(200,maxHeight,(logical.width-210-count*7)/count));
+    const visible=typeof visualViewport==='undefined'?null:visualViewport;
+    const visibleWidth=(visible?.width??innerWidth)/logical.scale,visibleHeight=(visible?.height??innerHeight)/logical.scale;
+    const originLeft=(visible?.offsetLeft??0)/logical.scale,originBottom=(innerHeight-(visible?.offsetTop??0)-(visible?.height??innerHeight))/logical.scale;
+    const desk=commandHudLayout(visibleWidth,visibleHeight,count),width=desk.spriteWidth;
+    this.parent.style.setProperty('--command-origin-left',(originLeft+desk.inset)+'px');
+    this.parent.style.setProperty('--command-origin-right',Math.max(0,logical.width-originLeft-desk.inset-desk.width)+'px');
+    this.parent.style.setProperty('--command-origin-bottom',Math.max(0,originBottom)+'px');
+    this.artwork.resize(desk.width,desk.height,desk.leftWidth,desk.rightWidth,logical.scale*(visible?.scale??1)*Math.min(2,devicePixelRatio||1));
     this.parent.style.setProperty('--lord-actor-width',width+'px');
+    Array.from(this.dock.children).filter(card=>!(card as HTMLElement).hidden).forEach((card,i)=>{(card as HTMLElement).style.width=desk.columnWidths[i]+'px';});
+    this.parent.style.setProperty('--command-width',desk.width+'px');
+    this.parent.style.setProperty('--command-height',desk.height+'px');
+    this.parent.style.setProperty('--command-art-height',desk.artHeight+'px');
+    this.parent.style.setProperty('--command-left-width',desk.leftWidth+'px');
+    this.parent.style.setProperty('--command-right-width',desk.rightWidth+'px');
+    this.parent.style.setProperty('--command-middle-width',desk.middleWidth+'px');
+    this.parent.style.setProperty('--command-unit',desk.unit+'px');
+    this.parent.style.setProperty('--command-info-left',desk.infoLeft+'px');
+    this.parent.style.setProperty('--command-info-width',desk.infoWidth+'px');
+    this.parent.style.setProperty('--lord-seat-offset',desk.seatOffset+'px');
+    this.parent.style.setProperty('--lord-actor-height',desk.actorHeight+'px');
     const toolbar=(this.parent.querySelector('.top-bar')?.getBoundingClientRect().height??58*logical.scale)/logical.scale;
     const party=this.parent.querySelector<HTMLElement>('.party-dock');
     const partyHeight=party&&!party.classList.contains('hidden')?party.getBoundingClientRect().height/logical.scale:0;
     const dockHeight=parseFloat(this.parent.style.getPropertyValue('--item-dock-height'))||0;
     const rollBottom=Math.max(150,partyHeight+dockHeight+36),rollSize=logical.height<=700?100:120;
     this.parent.style.setProperty('--lord-actors-bottom','12px');
-    // 左下人物整體占用的高度（底部 12px 加人物身高），天下紀事展開時停在它上方
-    this.parent.style.setProperty('--lord-actors-height',(12+width*1.8504)+'px');
+    // 桌面貼齊底部；天下紀事展開時停在人物上方。
+    this.parent.style.setProperty('--lord-actors-height',(desk.height*.145+desk.actorHeight)+'px');
     this.parent.style.setProperty('--lord-content-top',(toolbar+12)+'px');
     this.parent.style.setProperty('--lord-roll-bottom',rollBottom+'px');
     this.parent.style.setProperty('--lord-info-max-height',Math.max(140,logical.height-toolbar-12-rollBottom-rollSize-24)+'px');
-    this.parent.style.setProperty('--lord-actors-width',String(Math.min(logical.width-184,count*(width+7)+16))+'px');
+    this.parent.style.setProperty('--lord-actors-width',(desk.infoLeft+desk.infoWidth)+'px');
     this.camera.left=0;this.camera.right=innerWidth;this.camera.bottom=0;this.camera.top=innerHeight;this.camera.updateProjectionMatrix();this.camera.updateMatrixWorld();
     const ratio=renderPixelRatio(innerWidth,innerHeight,1_600_000),size=[innerWidth,innerHeight,ratio].join(':');
     if(this.renderer&&this.canvasSize!==size){this.canvasSize=size;this.renderer.setPixelRatio(ratio);this.renderer.setSize(innerWidth,innerHeight,false);}

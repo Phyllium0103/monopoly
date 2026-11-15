@@ -1,0 +1,25 @@
+{
+  "style": "朱漆軍機案，僅修復使用者指定整張版本",
+  "reference": "codex-clipboard-037e84f1-8484-496c-ba59-c7cb2491f90e.png",
+  "asset": "src/ui/command-desk.webp",
+  "dimensions": [
+    1916,
+    365
+  ],
+  "encoding": "WebP quality 90; original dimensions and alpha preserved.",
+  "method": "Built-in imagegen, whole-image restoration in one pass. No separate section generation or image stitching.",
+  "prompt": "WHOLE-IMAGE QUALITY RESTORATION ONLY. Use ONLY the attached exact reference version, not any other designs. Restore/up-res the ENTIRE image in ONE PASS as a SINGLE complete artwork. Preserve the desk IDENTICALLY: exact silhouette, extra-wide low proportions, relative panel widths, parchment column divider positions, tray sizes, square dice frame, continuous rail alignment, gold corner shapes, tassels, colors and lighting. Do NOT redesign, add ornaments, change engraving motifs, shift a border, change perspective, deepen the tabletop, widen a section, or change any geometry. Do NOT split the image into pieces or remaster sections separately. The only changes are removal of blurry/pixelated/compression artifacts, recovery of fine clean gold edge linework, crisp restrained carved details, smooth lacquer highlights and subtle paper fibers. Faithful restoration, not a new decorative interpretation. Preserve the original restrained deep red and antique gold palette, no bright oversaturation, no glow. Keep all text/name plaques absent, all areas empty, no characters/items/dice added. Preserve the exact canvas composition and transparent exterior / empty padding of the supplied image. Render at the highest available native resolution, ideally 4K wide or larger, and make the whole visible desk as sharp as possible without plastic oversharpening, haloes or noise. Output ONE fully restored copy of THIS EXACT VERSION, never a montage, a set of pieces or a different aspect ratio.",
+  "rendering": "One complete image, one WebGL texture and one draw call. Continuous UV mapping preserves responsive ruler/tray widths and fixed dice region without creating separate bitmap assets.",
+  "logicalDesignSize": [
+    2388,
+    403
+  ],
+  "referenceViewport": [
+    1920,
+    1080
+  ],
+  "responsiveLayout": "Full viewport width; 30% visible height. Ruler and tray widths share horizontal changes equally, dice width remains fixed at the same height. VisualViewport anchoring handles zoom.",
+  "content": "Original four ruler icon/value rows, independent calligraphy ruler/dice plaques, ruler sprites enlarged 8%. Original circular portrait outlines retained; centered names above portraits and clear red health, gold stamina and blue cultivation tracks below. Arrows appear only for real overflow and navigate one general per action. Empty item categories leave the item row blank with a fixed operation hint. Ivory dice retain their size, 1/3/5 and 2/4/6 idle faces and red 1/4 pips. The original painted face images are UV-baked onto rounded models and pre-rendered as 64 independent hovering/turning frames. Canvas playback loops only while the pointer is over the button; leaving immediately restores the exact idle frame, keyboard focus does not play. Restrained gold flecks, reduced-motion support, red silk/gold mat and persistent title are retained.",
+  "edgeCleanup": "Preserve the complete original bitmap and preprocess its alpha contour once at native resolution. Remove saturated-red stray pixels using an eroded alpha>=235 silhouette with inward coverage antialiasing; preserve gold RGBA and solid lacquer interior. One shared matte is used by both WebGL and Canvas2D. A whole-image regeneration was rejected because it still had fringe and altered the geometry.",
+  "interactionReference": "https://www.pinterest.com/pin/1139762618197171121/"
+}

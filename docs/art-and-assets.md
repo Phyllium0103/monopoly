@@ -91,7 +91,7 @@ npm run build:art-pack
 
 更新原始圖後，在裝有 Pillow 的環境執行 `python scripts/build-lord-hud-runtime.py`，再把新資料夾與產生的 TS 一起提交。
 
-主公底座使用 `public/art/lord-base-images-r5/03-tall.webp`（懸浮仙峰），資訊圖示在 `public/art/lord-island-hud/`。
+主公底座使用 `src/ui/command-desk.webp`（一體式朱漆底座），資訊圖示在 `public/art/lord-island-hud/`。突破成功使用 `src/ui/breakthrough-flight-panel.webp` 與八姿態羽翼圖集 `breakthrough-flight-wings.webp`。
 
 ## 地圖
 

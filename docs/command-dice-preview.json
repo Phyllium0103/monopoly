@@ -1,0 +1,137 @@
+{
+  "renderer": "Rounded dice, hand-painted blank face and circular pips with painted-grain shading on exact canonical pip grids",
+  "visibleFaces": [
+    [
+      1,
+      3,
+      5
+    ],
+    [
+      2,
+      4,
+      6
+    ]
+  ],
+  "pipColors": {
+    "1": "red",
+    "4": "red",
+    "others": "dark brown"
+  },
+  "size": [
+    512,
+    340
+  ],
+  "dieHeightIn384x256Canvas": 143,
+  "sprites": [
+    "src/ui/command-dice.webp"
+  ],
+  "background": "src/ui/command-dice-mat.webp",
+  "hoverAtlas": "src/ui/command-dice-hover.webp",
+  "motion": {
+    "duration": 3200,
+    "frames": 64,
+    "style": "independent floating yaw/pitch rotations and restrained gold flecks; loops only while hovered, pointer leave immediately restores frame zero; keyboard focus does not start playback"
+  },
+  "designReferences": [
+    "https://www.pinterest.com/pin/1139762618197171121/"
+  ],
+  "sizeScale": 1.08,
+  "pipLayouts": {
+    "1": [
+      [
+        0.5,
+        0.5
+      ]
+    ],
+    "2": [
+      [
+        0.27,
+        0.27
+      ],
+      [
+        0.73,
+        0.73
+      ]
+    ],
+    "3": [
+      [
+        0.27,
+        0.27
+      ],
+      [
+        0.5,
+        0.5
+      ],
+      [
+        0.73,
+        0.73
+      ]
+    ],
+    "4": [
+      [
+        0.27,
+        0.27
+      ],
+      [
+        0.73,
+        0.27
+      ],
+      [
+        0.27,
+        0.73
+      ],
+      [
+        0.73,
+        0.73
+      ]
+    ],
+    "5": [
+      [
+        0.27,
+        0.27
+      ],
+      [
+        0.73,
+        0.27
+      ],
+      [
+        0.5,
+        0.5
+      ],
+      [
+        0.27,
+        0.73
+      ],
+      [
+        0.73,
+        0.73
+      ]
+    ],
+    "6": [
+      [
+        0.27,
+        0.25
+      ],
+      [
+        0.73,
+        0.25
+      ],
+      [
+        0.27,
+        0.5
+      ],
+      [
+        0.73,
+        0.5
+      ],
+      [
+        0.27,
+        0.75
+      ],
+      [
+        0.73,
+        0.75
+      ]
+    ]
+  }
+}

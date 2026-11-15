@@ -1,0 +1,41 @@
+.dialog.breakthrough-flight {
+  position:relative;width:min(1040px,calc(96 * var(--ui-vw,1vw)));
+  height:calc(100 * var(--ui-vh,1vh));max-width:none!important;max-height:none!important;
+  padding:0!important;border:0!important;border-radius:0;background:none!important;box-shadow:none!important;
+  overflow:hidden;animation:none!important;isolation:isolate;container-type:inline-size;
+  font-family:'Folio WenKai','Noto Serif TC',serif;
+}
+.dialog.breakthrough-flight::before,.dialog.breakthrough-flight::after { display:none!important; }
+.breakthrough-flight .flight-wings { position:absolute;inset:0;width:100%;height:100%;pointer-events:none; }
+.breakthrough-flight .flight-panel { position:absolute;left:14%;top:0;width:72%;min-height:360px;filter:drop-shadow(0 12px 18px #08090566);will-change:transform,opacity; }
+.breakthrough-flight .flight-paper { position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none; }
+.breakthrough-flight .flight-copy { position:relative;padding:88px 12% 85px;color:#3d2a20; }
+.dialog.breakthrough-flight .flight-heading {
+  display:block;position:static!important;width:auto;height:auto!important;min-height:0;
+  font:400 clamp(29px,4.3cqw,43px)/1.25 'Folio Title','Folio WenKai',serif!important;
+  color:#6b271d!important;-webkit-text-fill-color:#6b271d!important;text-shadow:none!important;
+  letter-spacing:.06em;text-align:center;margin:0 0 20px!important;padding:0 0 16px!important;
+  border:0;border-bottom:1px solid #9b754877;background:none!important;
+}
+.dialog.breakthrough-flight .flight-heading::before,.dialog.breakthrough-flight .flight-heading::after { display:none!important; }
+.breakthrough-flight .flight-body { color:#3d2a20!important;-webkit-text-fill-color:currentColor;font:400 22px/1.85 'Folio WenKai','Noto Serif TC',serif;letter-spacing:.025em;text-align:justify;text-wrap:pretty; }
+.breakthrough-flight .flight-body .cultivation-name { color:#6b271d!important;-webkit-text-fill-color:currentColor;background:none!important; }
+.dialog.breakthrough-flight .flight-confirm {
+  position:absolute;left:40.2%;top:86%;width:19.6%;height:8.5%;min-width:0;min-height:0;
+  padding:0!important;margin:0;border:0!important;border-radius:0;background:none!important;box-shadow:none!important;
+  display:grid;place-items:center;white-space:nowrap;overflow:hidden;cursor:pointer;
+  font:400 clamp(18px,2.8cqw,23px)/1 'Folio WenKai',serif!important;letter-spacing:.04em;
+  color:#fff0c5!important;-webkit-text-fill-color:#fff0c5!important;text-shadow:0 1px 2px #30130b;
+}
+.breakthrough-flight .flight-confirm:hover { filter:brightness(1.15); }
+.breakthrough-flight .flight-confirm:focus-visible { outline:2px solid #fff0c5;outline-offset:-3px; }
+@container game-ui (max-width:900px) {
+  .breakthrough-flight .flight-panel { left:4%;width:92%; }
+  .breakthrough-flight .flight-copy { padding:75px 11% 80px; }
+  .breakthrough-flight .flight-body { font-size:20px;line-height:1.7; }
+}
+@container game-ui (max-height:740px) {
+  .breakthrough-flight .flight-copy { padding:70px 12% 70px; }
+  .dialog.breakthrough-flight .flight-heading { font-size:32px!important;margin-bottom:12px!important;padding-bottom:10px!important; }
+  .breakthrough-flight .flight-body { font-size:19px;line-height:1.65; }
+}

@@ -1,3 +1,5 @@
+import { BreakthroughFlight, isBreakthroughSuccessTitle } from './BreakthroughFlight';
+
 export interface Choice<T> {
   label: string;
   sub?: string;
@@ -30,6 +32,7 @@ export function facts(rows: ([string, string] | [string, string, 'warn'])[]): st
 export class Dialog {
   private el: HTMLDivElement;
   private personTip: HTMLDivElement;
+  private flight: BreakthroughFlight | null = null;
   /** 按 Esc 時的動作；必須做出選擇的視窗為 null */
   private onEsc: (() => void) | null = null;
   /** 點擊視窗外的空白處：可以略過的視窗才會關閉（戰鬥、購買等不會） */
@@ -54,6 +57,9 @@ export class Dialog {
       this.personTip.style.top = `${Math.max(8, Math.min(e.clientY + 14, window.innerHeight - this.personTip.offsetHeight - 8))}px`;
     });
     this.el.addEventListener('mouseleave', () => this.personTip.classList.add('hidden'));
+    this.el.addEventListener('click', e => {
+      if (this.flight?.skip()) { e.preventDefault(); e.stopImmediatePropagation(); }
+    }, true);
     this.el.addEventListener('click', (e) => {
       if (e.target === this.el) this.onOutside?.();
     });
@@ -74,6 +80,7 @@ export class Dialog {
   }
 
   private open(title: string, text: string, icon = ''): HTMLDivElement {
+    this.flight?.dispose(); this.flight = null;
     this.personTip.classList.add('hidden');
     this.el.classList.remove('hidden');
     this.el.innerHTML = '';
@@ -104,6 +111,7 @@ export class Dialog {
   }
 
   close() {
+    this.flight?.dispose(); this.flight = null;
     this.personTip.classList.add('hidden');
     this.onEsc = null;
     this.onOutside = null;
@@ -299,6 +307,12 @@ export class Dialog {
       this.onEnter = this.onEsc;
       row.appendChild(b);
       card.appendChild(row);
+      if (isBreakthroughSuccessTitle(title)) {
+        this.flight = new BreakthroughFlight(card, b);
+        const confirmOrSkip = () => { if (!this.flight?.skip()) b.click(); };
+        this.onEsc = confirmOrSkip;
+        this.onEnter = confirmOrSkip;
+      }
     });
   }
 

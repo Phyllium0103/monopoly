@@ -1,4 +1,6 @@
 import { BreakthroughFlight, isBreakthroughFailure, isBreakthroughSuccessTitle } from './BreakthroughFlight';
+import type { WeaponUpgradeNotice } from '../engine/prompts';
+import { WeaponForge } from './WeaponForge';
 
 export interface Choice<T> {
   label: string;
@@ -19,6 +21,7 @@ export interface SliderOptions {
   initial?: number;
   unit?: string;
   confirm?: string;
+  buttonsOnly?: boolean;
   /** 依目前數值顯示的說明（可含 HTML） */
   preview?: (value: number) => string;
 }
@@ -32,7 +35,10 @@ export function facts(rows: ([string, string] | [string, string, 'warn'])[]): st
 export class Dialog {
   private el: HTMLDivElement;
   private personTip: HTMLDivElement;
+  private personTipSource: Element | null = null;
+  private personTipTimeout = 0;
   private flight: BreakthroughFlight | null = null;
+  private forge: WeaponForge | null = null;
   /** 按 Esc 時的動作；必須做出選擇的視窗為 null */
   private onEsc: (() => void) | null = null;
   /** 點擊視窗外的空白處：可以略過的視窗才會關閉（戰鬥、購買等不會） */
@@ -49,30 +55,88 @@ export class Dialog {
     document.body.appendChild(this.personTip);
     this.el.addEventListener('mousemove', e => {
       const person = (e.target as Element).closest('.core-person');
-      const content = person?.querySelector('.core-person-tip');
-      if (!content) { this.personTip.classList.add('hidden'); return; }
-      this.personTip.innerHTML = content.innerHTML;
-      this.personTip.classList.remove('hidden');
-      this.personTip.style.left = `${Math.max(8, Math.min(e.clientX + 14, window.innerWidth - this.personTip.offsetWidth - 8))}px`;
-      this.personTip.style.top = `${Math.max(8, Math.min(e.clientY + 14, window.innerHeight - this.personTip.offsetHeight - 8))}px`;
+      if (person) this.showPersonTip(person, e.clientX, e.clientY);
+      else this.deferPersonTip();
     });
-    this.el.addEventListener('mouseleave', () => this.personTip.classList.add('hidden'));
+    this.el.addEventListener('mouseleave', () => this.deferPersonTip());
+    this.personTip.addEventListener('mouseenter', () => this.cancelPersonTipDelay());
+    this.personTip.addEventListener('mouseleave', () => this.deferPersonTip());
+    this.el.addEventListener('focusin', e => {
+      const person = (e.target as Element).closest('.cultivation-person');
+      if (person) this.showPersonTipFromElement(person);
+    });
+    this.el.addEventListener('focusout', e => {
+      if ((e.target as Element).closest('.cultivation-person')) this.deferPersonTip();
+    });
     this.el.addEventListener('click', e => {
-      if (this.flight?.skip()) { e.preventDefault(); e.stopImmediatePropagation(); }
+      if (this.flight?.skip() || this.forge?.skip()) { e.preventDefault(); e.stopImmediatePropagation(); }
     }, true);
     this.el.addEventListener('click', (e) => {
+      const person = (e.target as Element).closest('.cultivation-person');
+      if (person) this.showPersonTipFromElement(person);
       if (e.target === this.el) this.onOutside?.();
     });
     window.addEventListener('keydown', (e) => {
       if (!this.isOpen) return;
+      if (e.key === 'Enter' && (e.target as Element | null)?.closest?.('.cultivation-name')) return;
       if (e.key === 'Escape' && this.onEsc) {
         e.preventDefault();
-        this.onEsc();
+        if (this.personTipSource?.classList.contains('cultivation-person')) this.hidePersonTip();
+        else this.onEsc();
       } else if (e.key === 'Enter' && this.onEnter) {
         e.preventDefault();
         this.onEnter();
       }
     });
+  }
+
+  private showPersonTipFromElement(person: Element) {
+    const rect = person.getBoundingClientRect();
+    this.showPersonTip(person, rect.right, rect.top);
+  }
+
+  private showPersonTip(person: Element, x: number, y: number) {
+    const content = person.querySelector('.core-person-tip');
+    if (!content) return;
+    this.cancelPersonTipDelay();
+    const inspectable = person.classList.contains('cultivation-person');
+    if (this.personTipSource !== person) {
+      this.personTipSource = person;
+      this.personTip.innerHTML = content.innerHTML;
+      this.personTip.classList.toggle('breakthrough-person-tip', inspectable);
+      if (inspectable) {
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'breakthrough-tip-close';
+        close.textContent = '關閉';
+        close.onclick = () => this.hidePersonTip();
+        this.personTip.prepend(close);
+      }
+      this.personTip.classList.remove('hidden');
+      this.personTip.scrollTop = 0;
+    } else if (inspectable) return;
+    const box = this.personTip.getBoundingClientRect();
+    const left = x + 14 + box.width < innerWidth - 8 ? x + 14 : x - box.width - 10;
+    this.personTip.style.left = `${Math.max(8, Math.min(left, innerWidth - box.width - 8))}px`;
+    this.personTip.style.top = `${Math.max(8, Math.min(y + (inspectable ? 0 : 14), innerHeight - box.height - 8))}px`;
+  }
+
+  private hidePersonTip() {
+    this.cancelPersonTipDelay();
+    this.personTipSource = null;
+    this.personTip.classList.add('hidden');
+  }
+
+  private cancelPersonTipDelay() {
+    clearTimeout(this.personTipTimeout);
+    this.personTipTimeout = 0;
+  }
+
+  private deferPersonTip() {
+    if (!this.personTipSource || this.personTipTimeout) return;
+    if (this.personTipSource.classList.contains('cultivation-person')) {
+      this.personTipTimeout = window.setTimeout(() => this.hidePersonTip(), 220);
+    } else this.hidePersonTip();
   }
 
   get isOpen() {
@@ -81,7 +145,8 @@ export class Dialog {
 
   private open(title: string, text: string, icon = ''): HTMLDivElement {
     this.flight?.dispose(); this.flight = null;
-    this.personTip.classList.add('hidden');
+    this.forge?.dispose(); this.forge = null;
+    this.hidePersonTip();
     this.el.classList.remove('hidden');
     this.el.innerHTML = '';
     const card = document.createElement('div');
@@ -105,14 +170,43 @@ export class Dialog {
       icon = '';
     }
     if (card.classList.contains('abolish-dialog') || card.classList.contains('capacity-dialog')) card.classList.add('folio-note-dialog');
-    card.innerHTML = `${card.classList.contains('jade-dialog') ? '<div class="jade-surface" aria-hidden="true"></div>' : ''}${icon ? `<div class="dialog-icon">${icon}</div>` : ''}<h2>${title}</h2>${text ? `<div class="dialog-text">${text.replace(/\n/g, '<br>')}</div>` : ''}`;
+    const scroll = '<div class="jade-surface" aria-hidden="true"><i class="jade-scroll-paper"></i><i class="jade-scroll-left"></i><i class="jade-scroll-right"></i></div>';
+    card.innerHTML = `${card.classList.contains('jade-dialog') ? scroll : ''}${icon ? `<div class="dialog-icon">${icon}</div>` : ''}<h2>${title}</h2>${text ? `<div class="dialog-text">${text.replace(/\n/g, '<br>')}</div>` : ''}`;
     this.el.appendChild(card);
     return card;
   }
 
+  private prepareJadeDecision(card: HTMLDivElement) {
+    if (!card.classList.contains('jade-dialog')) return;
+    card.classList.add('jade-decision');
+    const heading = card.querySelector('h2')!;
+    const body = card.querySelector('.dialog-text') ?? document.createElement('div');
+    body.className = 'dialog-text';
+    if (!body.parentNode) card.appendChild(body);
+    heading.id = 'jade-decision-title';
+    heading.className = 'jade-inscription';
+    const focus = body.querySelector('.jade-weapon-names, .jade-destination, .jade-core-heading, .jade-ready-names');
+    const content = document.createElement('div');
+    const hero = document.createElement('div');
+    const detail = document.createElement('div');
+    content.className = 'jade-content';
+    hero.className = 'jade-hero';
+    detail.className = 'jade-detail';
+    hero.append(heading);
+    if (focus) hero.append(focus);
+    detail.append(...body.childNodes);
+    content.append(hero);
+    if (detail.children.length || detail.textContent?.trim()) content.append(detail);
+    body.append(content);
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-modal', 'true');
+    card.setAttribute('aria-labelledby', heading.id);
+  }
+
   close() {
     this.flight?.dispose(); this.flight = null;
-    this.personTip.classList.add('hidden');
+    this.forge?.dispose(); this.forge = null;
+    this.hidePersonTip();
     this.onEsc = null;
     this.onOutside = null;
     this.onEnter = null;
@@ -139,6 +233,7 @@ export class Dialog {
   choose<T>(title: string, text: string, choices: Choice<T>[], cancel: string | null = '取消', icon = ''): Promise<T | null> {
     return new Promise((resolve) => {
       const card = this.open(title, text, icon);
+      this.prepareJadeDecision(card);
       const list = document.createElement('div');
       list.className = 'choice-list';
       for (const c of choices)
@@ -171,7 +266,7 @@ export class Dialog {
   }
 
   /** 多選（例如派遣三名武將） */
-  pickMany<T>(title: string, text: string, choices: Choice<T>[], min: number, max: number, confirm = '確定'): Promise<T[] | null> {
+  pickMany<T>(title: string, text: string, choices: Choice<T>[], min: number, max: number, confirm = '確定', buttonsOnly = false): Promise<T[] | null> {
     return new Promise((resolve) => {
       const card = this.open(title, text);
       const picked = new Set<number>();
@@ -202,11 +297,7 @@ export class Dialog {
         this.close();
         resolve(null);
       };
-      this.onEsc = () => {
-        this.close();
-        resolve(null);
-      };
-      this.onOutside = this.onEsc;
+      this.setDecisionShortcuts(buttonsOnly, () => cancel.click());
       ok.onclick = () => {
         this.close();
         resolve([...picked].map((i) => choices[i].value));
@@ -274,12 +365,7 @@ export class Dialog {
         this.close();
         resolve(null);
       };
-      this.onEsc = () => {
-        this.close();
-        resolve(null);
-      };
-      this.onOutside = this.onEsc;
-      this.onEnter = () => ok.click();
+      this.setDecisionShortcuts(opts.buttonsOnly, () => cancel.click(), () => ok.click());
       ok.onclick = () => {
         this.close();
         resolve(value);
@@ -290,7 +376,7 @@ export class Dialog {
     });
   }
 
-  message(title: string, text: string, icon = '', button = '確定'): Promise<void> {
+  message(title: string, text: string, icon = '', button = '確定', weaponUpgrade?: WeaponUpgradeNotice): Promise<void> {
     return new Promise((resolve) => {
       const card = this.open(title, text, icon);
       const row = document.createElement('div');
@@ -308,18 +394,32 @@ export class Dialog {
       row.appendChild(b);
       card.appendChild(row);
       const failed = isBreakthroughFailure(title, text);
-      if (failed || isBreakthroughSuccessTitle(title)) {
+      if (weaponUpgrade) {
+        this.forge = new WeaponForge(card, b, weaponUpgrade);
+        const confirmOrSkip = () => { if (!this.forge?.skip()) b.click(); };
+        this.onEsc = confirmOrSkip;
+        this.onEnter = confirmOrSkip;
+      } else if (failed || isBreakthroughSuccessTitle(title)) {
         this.flight = new BreakthroughFlight(card, b, failed);
         const confirmOrSkip = () => { if (!this.flight?.skip()) b.click(); };
         this.onEsc = confirmOrSkip;
         this.onEnter = confirmOrSkip;
+      } else if (text.includes('class="jade-hint"')) {
+        this.prepareJadeDecision(card);
       }
     });
   }
 
-  confirm(title: string, text: string, yes = '確定', no = '取消', icon = ''): Promise<boolean> {
+  private setDecisionShortcuts(buttonsOnly: boolean | undefined, cancel: () => void, confirm: (() => void) | null = null) {
+    this.onEsc = buttonsOnly ? () => {} : cancel;
+    this.onOutside = buttonsOnly ? null : cancel;
+    this.onEnter = buttonsOnly ? null : confirm;
+  }
+
+  confirm(title: string, text: string, yes = '確定', no = '取消', icon = '', buttonsOnly = false): Promise<boolean> {
     return new Promise((resolve) => {
       const card = this.open(title, text, icon);
+      this.prepareJadeDecision(card);
       const row = document.createElement('div');
       row.className = 'dialog-buttons';
       const y = document.createElement('button');
@@ -336,10 +436,8 @@ export class Dialog {
         this.close();
         resolve(false);
       };
-      this.onEsc = () => n.click();
-      this.onOutside = this.onEsc;
+      this.setDecisionShortcuts(buttonsOnly, () => n.click(), () => y.click());
       if (title === '行囊已滿') { this.onEsc = null; this.onOutside = null; }
-      this.onEnter = () => y.click();
       row.append(y, n);
       card.appendChild(row);
     });

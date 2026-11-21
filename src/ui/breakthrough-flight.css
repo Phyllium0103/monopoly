@@ -20,7 +20,19 @@
 }
 .dialog.breakthrough-flight .flight-heading::before,.dialog.breakthrough-flight .flight-heading::after { display:none!important; }
 .breakthrough-flight .flight-body { color:#3d2a20!important;-webkit-text-fill-color:currentColor;font:400 22px/1.85 'Folio WenKai','Noto Serif TC',serif;letter-spacing:.025em;text-align:center;text-wrap:pretty; }
-.breakthrough-flight .flight-body .cultivation-name { color:#6b271d!important;-webkit-text-fill-color:currentColor;background:none!important; }
+.breakthrough-flight .flight-body .cultivation-name {
+  display:inline;
+  padding:0 .09em;
+  border:0;
+  background:none;
+  color:#2c6c54!important;
+  -webkit-text-fill-color:currentColor;
+  font:inherit;
+  font-weight:700;
+  line-height:inherit;
+}
+.breakthrough-flight .flight-body button.cultivation-name { cursor:help;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.17em; }
+.breakthrough-flight .cultivation-name:focus-visible { outline:1px solid #2c6c54;outline-offset:2px; }
 .dialog.breakthrough-flight .flight-confirm {
   position:absolute;left:40.2%;top:86%;width:19.6%;height:10%;min-width:0;min-height:0;
   padding:0!important;margin:0;border:0!important;border-radius:0;background:none!important;box-shadow:none!important;

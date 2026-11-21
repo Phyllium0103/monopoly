@@ -66,6 +66,10 @@ export function equipScore(e: Equipment): number {
 
 const CRAFT_SHORT: Record<CraftStat, string> = { alchemy: '煉丹', forging: '煉器', talisman: '畫符', formation: '佈陣' };
 
+export function armorStamina(e: Equipment | null): number {
+  return e?.kind === 'armor' && e.tier >= 9 && Object.values(e.craft).some(v => v > 0) ? 50 : 0;
+}
+
 /** 裝備的能力加成文字，例如「武力 +12、防禦 +5、畫符 +6」 */
 export function equipStats(e: Equipment): string {
   const parts: string[] = [];
@@ -73,6 +77,8 @@ export function equipStats(e: Equipment): string {
   if (e.defense) parts.push(`防禦 +${e.defense}`);
   if (e.hp) parts.push(`血量 +${e.hp}`);
   for (const k of ['alchemy', 'forging', 'talisman', 'formation'] as const) if (e.craft[k]) parts.push(`${CRAFT_SHORT[k]} +${e.craft[k]}`);
+  const stamina = armorStamina(e);
+  if (stamina) parts.push(`最大體力 +${stamina}`);
   return parts.join('、');
 }
 
@@ -119,6 +125,10 @@ export const CRAFT_MIN_TIER = 6;
 
 const major = (t: Technique) => Math.floor(t.tier / 3);
 const minor = (t: Technique) => t.tier % 3;
+
+export function techniqueStamina(t: Technique | null): number {
+  return t?.art && t.tier >= 9 ? 50 : 0;
+}
 
 /** 修練速度加成：五行 +10/20/30/40%，技藝 +30/40%（地／天）；下中上品再 +0/4/8% */
 export function techniqueSpeed(t: Technique | null): number {
@@ -200,6 +210,8 @@ export function techniqueDesc(t: Technique): string {
   const parts = [`修練速度 +${Math.round(techniqueSpeed(t) * 100)}%`];
   if (techniqueForce(t)) parts.push(`武力 +${Math.round(techniqueForce(t) * 100)}%`);
   if (t.art) parts.push(`使用${CRAFT_ITEM[t.art]}時 ${Math.round(techniqueKeep(t) * 100)}% 不消耗`);
+  const stamina = techniqueStamina(t);
+  if (stamina) parts.push(`最大體力 +${stamina}`);
   return `${head}<br>${parts.join('、')}<br>技能「${techniqueBaseName(t)}」造成 ×${techniqueSkillPower(t)} 傷害`;
 }
 

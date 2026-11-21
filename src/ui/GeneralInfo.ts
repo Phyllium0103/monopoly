@@ -17,6 +17,28 @@ const HOVER_LABELS: Record<HoverStat, string> = {
   hp: '血量', sta: '體力', exp: '修為', power: '戰力', atk: '武力', def: '防禦',
   alchemy: STAT_NAMES.alchemy, forging: STAT_NAMES.forging, talisman: STAT_NAMES.talisman, formation: STAT_NAMES.formation,
 };
+
+export function breakthroughStats(g: General) {
+  return {
+    realm: g.realm, power: power(g), atk: attack(g), def: defense(g), hp: g.hp, maxHp: maxHp(g),
+    alchemy: craft(g, 'alchemy'), forging: craft(g, 'forging'),
+    talisman: craft(g, 'talisman'), formation: craft(g, 'formation'),
+    penetration: Math.round(100 * Math.max(0, Math.min(1, (g.weapon?.penetration ?? 0) + (g.fusionBonus?.penetration ?? 0)))),
+  };
+}
+
+export function breakthroughPerson(g: General, before: ReturnType<typeof breakthroughStats>): string {
+  const after = breakthroughStats(g);
+  const previous: HoverFocus['previous'] = {};
+  for (const key of ['power', 'atk', 'def', ...CRAFTS] as const) {
+    if (before[key] !== after[key]) previous[key] = String(before[key]);
+  }
+  if (before.hp !== after.hp || before.maxHp !== after.maxHp) previous.hp = `${Math.round(before.hp)} / ${before.maxHp}`;
+  const previousRealm = before.realm === 0 && after.realm === 5 ? '化凡' : REALMS[before.realm];
+  const penetration = before.penetration === after.penetration ? undefined : `${before.penetration}% → ${after.penetration}%`;
+  const card = generalHoverTable(g, undefined, { marks: {}, previous, previousRealm, penetration, hideExp: true });
+  return `<span class="core-person cultivation-person"><button type="button" class="cultivation-name" aria-label="${g.name}，查看突破前後數值">${g.name}</button><template class="core-person-tip">${card}</template></span>`;
+}
 const plainText = (s: string) => s.replace(/<[^>]+>/g, '');
 const passiveText = (g: General) => {
   const p = passiveOf(g);
@@ -67,11 +89,15 @@ export const ITEM_EFFECT_FOCUS: Record<string, { stats?: HoverStat[]; extras?: H
 };
 
 export interface HoverFocus {
-  title: string;
+  title?: string;
   marks: Partial<Record<HoverStat, HoverMark>>;
   /** 寫在數值後面的補充，例如「需 30」 */
   notes?: Partial<Record<HoverStat, string>>;
   extras?: HoverExtra[];
+  previous?: Partial<Record<HoverStat, string>>;
+  previousRealm?: string;
+  penetration?: string;
+  hideExp?: boolean;
 }
 
 /** 選使用者：標出這個道具要求的能力與體力，夠的綠色、不夠的紅色。 */
@@ -112,17 +138,22 @@ export function generalHoverTable(g: General, battle?: BattleStats, focus?: Hove
   const cell = (key: HoverStat, span = 1) => {
     const mark = focus?.marks[key], cls = mark ? ` class="gh-${mark}"` : '', extra = focus?.notes?.[key];
     const text = `${v[key]}${extra ? `<small>${extra}</small>` : ''}`, gauge = gauges[key];
-    const body = gauge ? gaugeBar(key, gauge[0], gauge[1], text) : text;
+    const previous = focus?.previous?.[key];
+    const body = gauge
+      ? gaugeBar(key, gauge[0], gauge[1], previous ? `<small class="gh-hp-previous">${previous} → </small>${text}` : text)
+      : previous ? `<span class="gh-inline-change"><small>${previous} →</small><strong>${text}</strong></span>` : text;
     return `<th${cls}>${HOVER_LABELS[key]}</th><td${cls}${span > 1 ? ` colspan="${span}"` : ''}>${body}</td>`;
   };
   const wide = (cls: string, html: string) => `<tr><td class="${cls}" colspan="4">${html}</td></tr>`;
   return `<table class="gh" data-faction="${g.owner??(g.origin==='immortal'?'neutral':g.origin)}"><colgroup><col><col><col><col></colgroup>` +
-    `<tr><td class="gh-head" colspan="4"><div class="general-card-identity"><img class="general-card-portrait" src="${generalHeadUrl(g)}" alt=""><div><small>武將</small><strong>${g.name}</strong><div class="general-card-tags">${realmTag(g.realm)}${aptTag(g)}</div></div></div></td></tr>` +
+    `<tr><td class="gh-head" colspan="4"><div class="general-card-identity"><img class="general-card-portrait" src="${generalHeadUrl(g)}" alt=""><div><small>武將</small><strong>${g.name}</strong><div class="general-card-tags">${realmTag(g.realm)}${aptTag(g)}${focus?.previousRealm ? `<span class="gh-realm-before">原 ${focus.previousRealm}</span>` : ''}</div></div></div></td></tr>` +
     (recruitmentPrice!==undefined?wide('gh-recruitment-price',`<span>${priceLabel}</span><strong>${fmtStones(recruitmentPrice)}</strong>`):'') +
-    (focus ? wide('gh-title', focus.title) : '') +
-    `<tr>${cell('hp', 3)}</tr><tr>${cell('sta', 3)}</tr><tr>${cell('exp', 3)}</tr>` +
+    (focus?.title ? wide('gh-title', focus.title) : '') +
+    `<tr>${cell('hp', 3)}</tr><tr>${cell('sta', 3)}</tr>` +
+    (focus?.hideExp ? '' : `<tr>${cell('exp', 3)}</tr>`) +
     `<tr>${cell('power', 3)}</tr><tr>${cell('atk')}${cell('def')}</tr>` +
     `<tr>${cell('alchemy')}${cell('forging')}</tr><tr>${cell('talisman')}${cell('formation')}</tr>` +
+    (focus?.penetration ? `<tr><th>無視防禦</th><td colspan="3">${focus.penetration}</td></tr>` : '') +
     (focus?.extras ?? []).map((key) => {
       const [label, value] = hoverExtra(g, key);
       return `<tr><th class="gh-focus">${label}</th><td class="gh-focus" colspan="3">${value}</td></tr>`;

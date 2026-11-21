@@ -3,6 +3,7 @@
 @import './ui/breakthrough-flight.css';
 @import './ui/confirmation-frame.css';
 @import './ui/type-system.css';
+@import './ui/weapon-forge.css';
 
 :root {
   --ink: #2a1d14;

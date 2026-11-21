@@ -3,6 +3,7 @@ import type { Choice, SliderOptions } from '../ui/Dialog';
 import type { Offer, SaleOffer, ShopKind } from '../systems/ShopSystem';
 import type { DuelSnapshot } from './snapshots';
 import type { DirectItemTarget } from '../systems/DirectItems';
+import type { MaterialGroup } from '../data/weaponCatalog';
 
 /**
  * 遊戲引擎向玩家提出的抉擇。全部都是可序列化的純資料：
@@ -30,18 +31,26 @@ export interface ShopPromptData {
   sellStock: SaleOffer[];
 }
 
+export interface WeaponUpgradeNotice {
+  generalId: string;
+  generalName: string;
+  weaponName: string;
+  group: MaterialGroup;
+  stage: number;
+}
+
 export type Prompt =
   | { kind: 'training'; phase:'assign'|'result'; visit: import('../systems/TrainingSystem').TrainingVisit; generals: import('../game/types').General[] }
   | { kind: 'choose'; title: string; text: string; icon: string; cancel: string | null; choices: ChoiceSpec[] }
-  | { kind: 'pickMany'; title: string; text: string; confirm: string; min: number; max: number; choices: ChoiceSpec[] }
+  | { kind: 'pickMany'; title: string; text: string; confirm: string; min: number; max: number; choices: ChoiceSpec[]; buttonsOnly?: boolean }
   | {
       kind: 'slider'; title: string; text: string; icon: string; min: number; max: number; step: number;
-      initial?: number; unit?: string; confirm?: string;
+      initial?: number; unit?: string; confirm?: string; buttonsOnly?: boolean;
       /** 預先算好的說明文字：鍵為數值（依 previewStep 取樣） */
       previews?: Record<number, string>; previewStep?: number;
     }
-  | { kind: 'confirm'; title: string; text: string; yes: string; no: string; icon: string }
-  | { kind: 'message'; title: string; text: string; icon: string; button: string }
+  | { kind: 'confirm'; title: string; text: string; yes: string; no: string; icon: string; buttonsOnly?: boolean }
+  | { kind: 'message'; title: string; text: string; icon: string; button: string; weaponUpgrade?: WeaponUpgradeNotice }
   /** 擲骰前整備：回答要做的動作，或擲骰 */
   | { kind: 'preroll' }
   | { kind: 'shop'; shop: ShopPromptData }
@@ -135,8 +144,8 @@ export class Ask {
     return c && !c.disabled ? c.value : null;
   }
 
-  async pickMany<T>(title: string, text: string, choices: Choice<T>[], min: number, max: number, confirm = '確定'): Promise<T[] | null> {
-    const a = await this.send(this.lord, { kind: 'pickMany', title, text, confirm, min, max, choices: choices.map(spec) });
+  async pickMany<T>(title: string, text: string, choices: Choice<T>[], min: number, max: number, confirm = '確定', buttonsOnly?: boolean): Promise<T[] | null> {
+    const a = await this.send(this.lord, { kind: 'pickMany', title, text, confirm, min, max, choices: choices.map(spec), ...(buttonsOnly && { buttonsOnly }) });
     if (!Array.isArray(a)) return null;
     const idx = [...new Set(a)].filter((i): i is number => Number.isInteger(i) && !!choices[i] && !choices[i].disabled);
     if (idx.length !== a.length || idx.length < min || idx.length > max) return null;
@@ -144,7 +153,7 @@ export class Ask {
   }
 
   async slider(title: string, text: string, opts: SliderOptions, icon = ''): Promise<number | null> {
-    const { min, max, step = 100, initial, unit, confirm, preview } = opts;
+    const { min, max, step = 100, initial, unit, confirm, preview, buttonsOnly } = opts;
     if (max < min) return null;
     let previews: Record<number, string> | undefined;
     let previewStep: number | undefined;
@@ -154,18 +163,18 @@ export class Ask {
       for (let v = min; v < max; v += previewStep) previews[v] = preview(v);
       previews[max] = preview(max);
     }
-    const a = await this.send(this.lord, { kind: 'slider', title, text, icon, min, max, step, initial, unit, confirm, previews, previewStep });
+    const a = await this.send(this.lord, { kind: 'slider', title, text, icon, min, max, step, initial, unit, confirm, previews, previewStep, ...(buttonsOnly && { buttonsOnly }) });
     if (typeof a !== 'number' || !Number.isFinite(a)) return null;
     // 與拉條相同的對齊方式，避免送來任意數值
     return Math.max(min, Math.min(max, a >= max ? max : Math.round(a / step) * step || min));
   }
 
-  async confirm(title: string, text: string, yes = '確定', no = '取消', icon = ''): Promise<boolean> {
-    return (await this.send(this.lord, { kind: 'confirm', title, text, yes, no, icon })) === true;
+  async confirm(title: string, text: string, yes = '確定', no = '取消', icon = '', buttonsOnly?: boolean): Promise<boolean> {
+    return (await this.send(this.lord, { kind: 'confirm', title, text, yes, no, icon, ...(buttonsOnly && { buttonsOnly }) })) === true;
   }
 
-  async message(title: string, text: string, icon = '', button = '確定'): Promise<void> {
-    await this.send(this.lord, { kind: 'message', title, text, icon, button });
+  async message(title: string, text: string, icon = '', button = '確定', weaponUpgrade?: WeaponUpgradeNotice): Promise<void> {
+    await this.send(this.lord, { kind: 'message', title, text, icon, button, ...(weaponUpgrade && { weaponUpgrade }) });
   }
 }
 

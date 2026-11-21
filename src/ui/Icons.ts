@@ -47,7 +47,7 @@ const url = (dir: string, name: string) => packUrls.get(`${dir}/${name}`) ?? `${
 export const itemIconUrl = (defId: string) => url(`icons/${ITEM_DEFS[defId].category}`, ITEM_DEFS[defId].name);
 /** 專屬武器與仙衣 */
 /** 專屬武器依第一階外型使用已選插畫，升階後仍保留相同種類。 */
-const weaponIconUrl = (generalId: string) => {
+export const weaponIconUrl = (generalId: string) => {
   const iconId = WEAPON_ICON_BY_GENERAL[generalId];
   return iconId ? url('icons/weapon-illustrated', iconId) : `${BASE}art/icons/weapons/${WEAPON_CATALOG[generalId]?.material ?? '魄'}.svg`;
 };

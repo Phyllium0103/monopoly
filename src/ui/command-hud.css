@@ -33,6 +33,12 @@
 .hud.command-hud.lord-actors-enabled .pd-bars i.hp{background:linear-gradient(90deg,#b72e29,#f17d69)}
 .hud.command-hud.lord-actors-enabled .pd-bars i.sta{background:linear-gradient(90deg,#c89a36,#f0d37e)}
 .hud.command-hud.lord-actors-enabled .pd-bars i.exp{background:linear-gradient(90deg,#388da6,#9bdcf2)}
+.party-dock .pd-gen { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.party-dock .pd-gen img { -webkit-user-drag: none; }
+.party-dock.party-reordering,
+.party-dock.party-reordering .pd-gen { cursor: grabbing; }
+.party-dock.party-reordering .pd-gen:not(.party-dragging) { opacity: .58; filter: brightness(.78); }
+.party-dock .pd-gen.party-dragging { position: relative; z-index: 2; filter: brightness(1.24); }
 .hud.command-hud.lord-actors-enabled .pd-name{display:block;width:100%;max-width:calc(var(--command-unit)*66);margin:0;padding:0 1px;font-size:calc(var(--command-unit)*13);line-height:1.05;text-align:center;letter-spacing:.025em;color:#f7e5c5;background:none;border:0;border-radius:0;text-shadow:0 1px 2px #190b06,0 0 4px #190b06}
 .hud.command-hud.lord-actors-enabled .pd-skill{top:calc(var(--command-unit)*17);right:calc(var(--command-unit)*3);font-size:calc(var(--command-unit)*10);line-height:1.3;background:#8a4c30;color:#fff1ce;border:1px solid #b99858;border-radius:2px;padding:0 2px}
 .command-hud .party-arrow{flex-basis:calc(var(--command-unit)*18);border:0;border-radius:0;background:none;color:#e5c68a;font-size:calc(var(--command-unit)*25);height:calc(var(--command-unit)*30)}

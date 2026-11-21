@@ -4,6 +4,12 @@ import { compareArmor } from '../data/armorCatalog';
 /** Fixed shared capacity; narrow screens wrap the same cells. */
 export const EQUIPMENT_CAPACITY = 20;
 export type BagItem = Equipment | Technique;
+export interface EquipmentPlacement { itemUid: string; generalId: string }
+export interface EquipmentOverflowSelection {
+  rewards: string[];
+  replaced: string[];
+  equipped?: EquipmentPlacement[];
+}
 export const isArmor = (item: BagItem): item is Equipment => 'kind' in item;
 export const bagItems = (lord: Lord): BagItem[] => [...lord.gear, ...lord.scrolls];
 export const bagHasRoom = (lord: Lord) => lord.gear.length + lord.scrolls.length < EQUIPMENT_CAPACITY;
@@ -37,15 +43,18 @@ export function sortBagItems(lord: Lord): void {
 
 /** Validate the whole batch before removing anything. Unselected rewards are discarded. */
 export function replaceEquipmentBatch(lord: Lord, rewards: string[], replaced: string[]): boolean {
-  if (!rewards.length || rewards.length !== replaced.length || new Set(rewards).size !== rewards.length || new Set(replaced).size !== replaced.length) return false;
-  const pending = lord.pendingEquipment;
-  if (rewards.some(uid => !pending.some(item => item.uid === uid)) || replaced.some(uid => !bagItems(lord).some(item => item.uid === uid))) return false;
   const slots = bagSlots(lord).map(item => item?.uid ?? null);
+  const free = slots.filter(uid => uid === null).length;
+  if (!rewards.length || Math.max(0, rewards.length - free) !== replaced.length
+    || new Set(rewards).size !== rewards.length || new Set(replaced).size !== replaced.length) return false;
+  const pending = lord.pendingEquipment;
+  if (rewards.some(uid => !pending.some(item => item.uid === uid)) || replaced.some(uid => !slots.includes(uid))) return false;
+  const destinations = slots.flatMap((uid, i) => uid === null ? [i] : []).concat(replaced.map(uid => slots.indexOf(uid)));
   const incoming = rewards.map(uid => pending.find(item => item.uid === uid)!);
   lord.gear = lord.gear.filter(item => !replaced.includes(item.uid));
   lord.scrolls = lord.scrolls.filter(item => !replaced.includes(item.uid));
   incoming.forEach((item, i) => {
-    slots[slots.indexOf(replaced[i])] = item.uid;
+    slots[destinations[i]] = item.uid;
     if (isArmor(item)) lord.gear.push(item); else lord.scrolls.push(item);
   });
   lord.equipmentSlots = slots;

@@ -3,20 +3,21 @@ import type { General } from '../game/types';
 
 export const SUCCESS_TEXT = [
   '',
-  '「仙凡有別，仙門初叩。」\n以無上心法牽引周天靈氣，貫通周身百脈。自此褪去凡胎濁氣，靈氣遊走於四肢百骸，壽元綿延，方得初窺大道門徑。',
-  '「百川匯海，道基方成。」\n丹田內氤氳靈氣極盡壓縮，化作一滴精純真元。引此真元洗刷奇經八脈，伐毛洗髓，褪盡紅塵業障，為日後參悟天道鑄就萬世不拔之根基。',
-  '「xx金丹，大道初成。」\n識海清明，真元極縮，於丹田造化出一抹璀璨不朽的xx金丹。自此靈力生生不息，壽載五百，乃逆天修行之真正起點。',
-  '「破繭成蝶，化虛為實。」\n歷經心魔萬劫，以大毅力碎裂無暇金丹，將神魂與真元煆燒交融，於紫府靈台孕育出先天元嬰。肉身縱滅，元嬰不朽，自此踏入陸地神仙之流。',
-  '「大象無形，大音希聲。」\n封印通天修為，謫落萬丈紅塵。唯有親歷凡世間的生老病死、恩怨情仇，方能勘破世俗虛妄。以凡人之心明悟天地本源，元神自此超脫物外，神遊太虛。',
-  '「五行歸一，洞穿太虛。」\n補齊先天五行之缺憾，體內衍化生生不息之大循環。將一縷元神寄託於無垠空間，無懼天地反噬，舉手投足皆可撕裂虛空，汲取太虛之力為己用。',
-  '「神物為樞，法相驚天。」\n以萬載絕世神兵為陣眼，牽引天地造化。肉身、元神與神物徹底熔煉歸一，於身後凝聚出頂天立地之本命法相。神威一出，鎮壓萬古，萬法不侵。',
-  '「極道承壓，劫雷加身。」\n修士之威已凌駕凡界極致，引得天道震怒，降下九天紫雷與滅世業火。此境乃向死而生之局，唯有以無上道心逆行伐天，方能博取一線生機。',
-  '「四海歸心，氣運證道。」\n渡盡劫波，需以無雙帝王之姿君臨天下。匯聚神州百萬里河山之氣運，納黎民百姓之香火宏願為護體神光。以九州氣運反哺凡軀，成就萬劫不滅之大乘道體。',
-  '「叩問閶闔，羽化登仙。」\n下界法則再難加諸其身，引動九天接引霞光。擊碎凡界千古壁壘，沐浴化仙池水，洗淨最後一縷凡塵因果。自此超脫輪迴，位列仙班，證得永生大逍遙。',
+  '「仙凡有別，仙門初叩。」\n{武將}以無上心法牽引周天靈氣，貫通周身百脈。自此褪去凡胎濁氣，靈氣遊走於四肢百骸，方得初窺大道門徑。',
+  '「百川匯海，道基方成。」\n丹田內氤氳靈氣極盡壓縮，化作一滴精純真元。{武將}引真元洗盡奇經八脈的紅塵業障，自此道基方成。',
+  '「xx金丹，大道初成。」\n識海清明，真元極縮。於丹田深處，{武將}凝成一顆璀璨不朽的xx金丹，自此靈力生生不息，踏上真正的修行之路。',
+  '「破繭成蝶，化虛為實。」\n歷經心魔萬劫，{武將}以大毅力碎丹，將神魂與真元熔煉相融。先天元嬰生於紫府靈臺，肉身縱滅亦不朽。',
+  '「大象無形，大音希聲。」\n封印修為、謫入紅塵之後，{武將}歷遍生老病死，終以凡人之心明悟天地本源。元神自此超脫物外，神遊太虛。',
+  '「五行歸一，洞穿太虛。」\n先天五行歸於圓滿，在{武將}體內化為生生不息的循環。一縷元神寄入無垠太虛，舉手投足皆可撕裂虛空。',
+  '「神物為樞，法相驚天。」\n以天階神物為樞，肉身、元神與神物熔煉歸一。頂天立地的本命法相在{武將}身後凝成，神威一出，萬法難侵。',
+  '「極道承壓，劫雷加身。」\n九天紫雷與業火接踵而至。雷火深處，{武將}守住一念道心，向死而生，於劫盡之際再進一境。',
+  '「四海歸心，氣運證道。」\n{武將}渡盡劫波，聚九州山河氣運，納黎民香火為護體神光。天地氣運反哺凡軀，大乘道體於此成就。',
+  '「叩問閶闔，羽化登仙。」\n九天接引霞光落下，凡界壁壘盡碎。化仙池中，{武將}洗淨最後一縷凡塵因果，終得超脫輪迴、位列仙班。',
 ];
-export function breakthroughSuccess(g: General): string {
-  if (g.realm === 5) return `封印通天修為，謫落萬丈紅塵。唯有親歷凡世間的生老病死、恩怨情仇，方能勘破世俗虛妄。<strong class="cultivation-name">${g.name}</strong>以凡人之心明悟天地本源，元神自此超脫物外，神遊太虛。`;
-  return SUCCESS_TEXT[g.realm].split('\n').slice(1).join('\n').replaceAll('xx金丹', g.goldenCore ? GOLDEN_CORES[g.goldenCore].name : '金丹');
+export function breakthroughSuccess(g: General, person = `<strong class="cultivation-name">${g.name}</strong>`): string {
+  return SUCCESS_TEXT[g.realm].split('\n').slice(1).join('\n')
+    .replaceAll('xx金丹', g.goldenCore ? GOLDEN_CORES[g.goldenCore].name : '金丹')
+    .replace('{武將}', () => person);
 }
 export function breakthroughSuccessTitle(g: General): string {
   if (g.realm === 5) return '大象無形，大音希聲';
@@ -47,8 +48,8 @@ export const BREAKTHROUGH_TITLES = [
 ] as const;
 
 export const TRIBULATION_RULES = {
-  nascentSoul: { bolts: 4, totalHpRatio: 1.5, spread: 0.2 },
-  tribulation: { bolts: 9, totalHpRatio: 3, spread: 0.2 },
+  nascentSoul: { bolts: 4, totalHpRatio: 1.5, baseBonus: 100, spread: 0.2 },
+  tribulation: { bolts: 9, totalHpRatio: 3, baseBonus: 300, spread: 0.2 },
 } as const;
 
 export const ESSENCE_PER_SPIRIT = 3;
@@ -84,9 +85,14 @@ export function goldenCoreRequirements(core: GoldenCore, aptitude: Aptitude) {
 }
 
 /** Base damage before ward, items and passive reductions. */
-export function tribulationBaseRange(maxWithoutEquipment: number, kind: keyof typeof TRIBULATION_RULES) {
+export function tribulationBaseTotal(maxWithoutEquipment: number, kind: keyof typeof TRIBULATION_RULES, realmFactor: number) {
   const rule = TRIBULATION_RULES[kind];
-  const total = Math.max(0, maxWithoutEquipment) * rule.totalHpRatio;
+  return Math.max(0, maxWithoutEquipment) * rule.totalHpRatio + rule.baseBonus * realmFactor;
+}
+
+export function tribulationBaseRange(maxWithoutEquipment: number, kind: keyof typeof TRIBULATION_RULES, realmFactor: number) {
+  const rule = TRIBULATION_RULES[kind];
+  const total = tribulationBaseTotal(maxWithoutEquipment, kind, realmFactor);
   const per = total / rule.bolts;
   return {
     count: rule.bolts,

@@ -528,9 +528,9 @@ export class Game {
         if (lord !== this.me) return;
         await this.casino.reveal(r, this.state.lords[lord].stones, () => this.speed);
       },
-      notice: async (to, title, text, icon, button) => {
+      notice: async (to, title, text, icon, button, weaponUpgrade) => {
         if (to === null ? !this.state.lords[this.me].alive || this.auto : to !== this.me) return;
-        await this.dialog.message(title, text, icon, button);
+        await this.dialog.message(title, text, icon, button, weaponUpgrade);
       },
       gameOver: async (reason: string) => {
         if (this.endShown) return;
@@ -571,13 +571,13 @@ export class Game {
       case 'choose':
         return this.dialog.choose(p.title, p.text, p.choices.map((c, i) => ({ ...c, value: i })), p.cancel, p.icon);
       case 'pickMany':
-        return this.dialog.pickMany(p.title, p.text, p.choices.map((c, i) => ({ ...c, value: i })), p.min, p.max, p.confirm);
+        return this.dialog.pickMany(p.title, p.text, p.choices.map((c, i) => ({ ...c, value: i })), p.min, p.max, p.confirm, p.buttonsOnly);
       case 'slider':
-        return this.dialog.slider(p.title, p.text, { min: p.min, max: p.max, step: p.step, initial: p.initial, unit: p.unit, confirm: p.confirm, preview: p.previews ? (v) => previewAt(p, v) : undefined }, p.icon);
+        return this.dialog.slider(p.title, p.text, { min: p.min, max: p.max, step: p.step, initial: p.initial, unit: p.unit, confirm: p.confirm, buttonsOnly: p.buttonsOnly, preview: p.previews ? (v) => previewAt(p, v) : undefined }, p.icon);
       case 'confirm':
-        return this.dialog.confirm(p.title, p.text, p.yes, p.no, p.icon);
+        return this.dialog.confirm(p.title, p.text, p.yes, p.no, p.icon, p.buttonsOnly);
       case 'message':
-        return this.dialog.message(p.title, p.text, p.icon, p.button).then(() => null);
+        return this.dialog.message(p.title, p.text, p.icon, p.button, p.weaponUpgrade).then(() => null);
       case 'shop':
         return this.shop.ask(this.state.lords[lord], p.shop);
       case 'casino':
@@ -1071,7 +1071,7 @@ export class Game {
         const ready = !!r?.ok && canAct;
         const fighter=this.itemDuel&&(['a','b'] as const).map(side=>this.itemDuel!.duel[side]).find(f=>f.generalId===g.id);
         const tip = generalHoverInfo(g,fighter||undefined);
-        const breakNote=breakthrough&&!this.selectedItem?(canAct?'左鍵確認突破・右鍵直接突破':'可突破：自己的整備階段可點擊'):'';
+        const breakNote=breakthrough&&!this.selectedItem?(canAct?(g.realm===2?'點擊確認金丹突破':'左鍵確認突破・右鍵直接突破'):'可突破：自己的整備階段可點擊'):'';
         return {
           id: g.id, img: portraitUrl(g), name: g.name, color: LORDS[player.id].css,
           hpPct: (g.hp / Math.max(1, maxHp(g))) * 100, staPct: (g.stamina / Math.max(1, maxStamina(g))) * 100,
@@ -1149,7 +1149,7 @@ export class Game {
     if (this.dispatchTask) for (const button of buttons) button.disabled = true;
     this.talentView.update(this.state, player, this.canEditTalents());
     this.ui.renderActions(buttons, hint, fullHint);
-    this.ui.renderParty(this.partyIcons(player, preroll));
+    this.ui.renderParty(this.partyIcons(player, preroll), player.id);
     this.renderItemDock();
     // 擲骰：右側偏下的大圓鈕
     if (!this.state.over && !this.dispatchTask && player.alive && preroll && !this.auto) this.ui.showRoll(() => this.answer({ type: 'roll' } satisfies PrerollAction));

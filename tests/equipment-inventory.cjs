@@ -5,7 +5,7 @@ registerHooks({resolve(s,c,n){if(s.startsWith('.')&&!path.extname(s)&&c.parentUR
 const {createGameState}=require('../src/game/GameState.ts');
 const {makeEquipment,makeTechnique,techniqueDesc}=require('../src/data/items.ts');
 const {EQUIPMENT_CAPACITY,bagItems,bagSlots,receiveEquipment,moveBagItem,resolveEquipmentReward,replaceEquipmentBatch,sortBagItems,compareBagItems}=require('../src/systems/EquipmentInventory.ts');
-const {transferArmor,equipTechnique,completeBreak,expCap,abolish}=require('../src/systems/GeneralSystem.ts');
+const {transferArmor,equipTechnique,completeBreak,expCap,abolish,settleEquipmentOverflow}=require('../src/systems/GeneralSystem.ts');
 const {buy,sell,makeSellStock}=require('../src/systems/ShopSystem.ts');
 const {resolveAuction,applyWorldEvent,eventDef}=require('../src/systems/EventSystem.ts');
 const {unloadTechnique}=require('../src/systems/ItemSystem.ts');
@@ -79,12 +79,27 @@ function allIds(state){return Object.values(state.lords).flatMap(l=>[...bagItems
 (async()=>{
  const {state,lord}=setup();const reward=makeEquipment('chosen','armor',9,'chiyou-tian');receiveEquipment(lord,reward);let calls=0;
  const replaced=bagItems(lord)[3].uid;
- const engine=new Engine(state,{view:new RecordingView(),isAuto:()=>false,multiplayer:true,send:async(id,p)=>{assert.equal(id,lord.id);calls++;if(p.kind==='confirm'){assert.match(p.text,/20 格/);return true;}assert.equal(p.kind,'equipment-overflow');return calls===2?null:{rewards:[reward.uid],replaced:[replaced]};}});
+ const engine=new Engine(state,{view:new RecordingView(),isAuto:()=>false,multiplayer:true,send:async(id,p)=>{assert.equal(id,lord.id);calls++;if(p.kind==='confirm'){assert.equal(p.text,'尚有1件物品等待收納');return true;}assert.equal(p.kind,'equipment-overflow');return calls===2?null:{rewards:[reward.uid],replaced:[replaced]};}});
  await engine.resolvePendingEquipment(lord);assert.equal(calls,4,'leaving selection reopens warning');assert.equal(lord.pendingEquipment.length,0);assert(bagItems(lord).some(x=>x.uid===reward.uid));assert(!bagItems(lord).some(x=>x.uid===replaced));
  const snapshot=JSON.parse(JSON.stringify(state));receiveEquipment(lord,makeTechnique('rejected',9,'fire'));engine.ports.send=async()=>null;await engine.resolvePendingEquipment(lord);assert.equal(JSON.stringify(bagItems(lord)),JSON.stringify(bagItems(snapshot.lords.liu)));
  const auto=setup();receiveEquipment(auto.lord,makeEquipment('ai-best','armor',9,'chiyou-tian'));const ai=new Engine(auto.state,{view:new RecordingView(),isAuto:()=>true,multiplayer:true,send:async()=>{throw Error('AI should not prompt');}});await ai.resolvePendingEquipment(auto.lord);assert.equal(bagItems(auto.lord).length,20);assert(auto.lord.gear.some(x=>x.uid==='ai-best'));
  console.log('PASS real engine reward prompts apply player replacement/discard and AI selection without exceeding capacity');
 })().catch(e=>{console.error(e);process.exitCode=1;});
+{
+ const {state,lord,g}=setup();
+ const reward=makeEquipment('overflow-reward','armor',0,'chiyou-huang');
+ receiveEquipment(lord,reward);
+ const before=allIds(state);
+ const placement={itemUid:'bag-0',generalId:g.id};
+ assert(!settleEquipmentOverflow(state,lord,{rewards:[reward.uid],replaced:[],equipped:[placement,{itemUid:'bag-2',generalId:g.id}]}));
+ assert.equal(g.armor,null);
+ assert.deepEqual(allIds(state),before);
+ assert(settleEquipmentOverflow(state,lord,{rewards:[reward.uid],replaced:[],equipped:[placement]}));
+ assert.equal(g.armor.uid,'bag-0');
+ assert.equal(bagItems(lord).length,20);
+ assert.deepEqual(allIds(state),before);
+ console.log('PASS overflow placement frees a slot, retains the reward, and rolls back invalid batches');
+}
 {
  const {lord,g}=setup(false);g.technique=makeTechnique('abolished',3,'fire');g.realm=3;g.exp=100;
  abolish(lord,g);assert.equal(g.realm,0);assert.equal(g.exp,0);assert.equal(g.technique,null);assert(lord.scrolls.some(x=>x.uid==='abolished'));

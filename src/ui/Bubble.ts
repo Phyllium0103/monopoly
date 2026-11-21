@@ -36,6 +36,7 @@ function hide() {
 
 document.addEventListener('mouseover', (e) => {
   const el = (e.target as HTMLElement).closest?.<HTMLElement>('[title], [data-tip], [data-tip-html]');
+  if (el?.closest('.party-reordering')) return hide();
   if (!el || el === current) return;
   const text = tipOf(el);
   if (!text) return hide();

@@ -3,6 +3,7 @@ import type { ContestResult, DuelEvent, SiegeResult } from '../systems/BattleSys
 import type { TribulationResult } from '../systems/GeneralSystem';
 import type { CasinoResult } from '../systems/CasinoSystem';
 import type { DuelSnapshot } from './snapshots';
+import type { WeaponUpgradeNotice } from './prompts';
 
 export type LogKind = 'info' | 'good' | 'bad' | 'ai' | 'turn';
 
@@ -47,7 +48,7 @@ export interface EngineView {
   duelEnd(d: DuelSnapshot): Promise<void>;
   casino(lord: LordId, r: CasinoResult): Promise<void>;
   /** 對所有人（to 為 null）或某位主公的通知視窗 */
-  notice(to: LordId | null, title: string, text: string, icon: string, button: string): Promise<void>;
+  notice(to: LordId | null, title: string, text: string, icon: string, button: string, weaponUpgrade?: WeaponUpgradeNotice): Promise<void>;
   gameOver(reason: string): Promise<void>;
 }
 

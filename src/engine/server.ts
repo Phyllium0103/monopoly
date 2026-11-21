@@ -159,7 +159,8 @@ async function runIteration(record: GameRecord): Promise<IterationResult> {
     send: (lord, prompt) => {
       // 通知視窗不需要等待回答：記錄成事件給該玩家看
       if (prompt.kind === 'message') {
-        void view.notice(lord, prompt.title, prompt.text, prompt.icon, prompt.button);
+        if (prompt.weaponUpgrade) void view.notice(lord, prompt.title, prompt.text, prompt.icon, prompt.button, prompt.weaponUpgrade);
+        else void view.notice(lord, prompt.title, prompt.text, prompt.icon, prompt.button);
         return Promise.resolve(null);
       }
       if (isAuto(lord)) return Promise.resolve(defaultAnswer(prompt));

@@ -69,6 +69,11 @@ export class GameUI {
   private partyPrev: HTMLButtonElement;
   private partyNext: HTMLButtonElement;
   private partyWheelAt=0;
+  private partyOrder = new Map<LordId, string[]>();
+  private partyDrag: { card: HTMLButtonElement; original: Element[]; pointer: number; x: number; y: number; anchor: number; timer: number; active: boolean; edge: number; scrolledAt: number } | null = null;
+  private pendingParty: { icons: PartyIcon[]; owner: LordId | null } | null = null;
+  private partyOwner: LordId | null = null;
+  private ignorePartyClick = false;
   private logPanel: HTMLDivElement;
   private logOpen = true;
   private closeReport: (() => void) | null = null;
@@ -128,6 +133,26 @@ export class GameUI {
     new ResizeObserver(()=>this.resizeParty()).observe(this.partyShell);
     this.party.tabIndex = 0;
     this.party.setAttribute('aria-label','武將頭像列，可使用滾輪或左右方向鍵捲動');
+    this.party.addEventListener('pointerdown', e => this.startPartyHold(e));
+    this.party.addEventListener('pointermove', e => {
+      const drag = this.partyDrag;
+      if (drag?.pointer !== e.pointerId) return;
+      if (!drag.active && Math.hypot(drag.x - e.clientX, drag.y - e.clientY) > 8) this.finishPartyHold(false);
+      if (!drag.active) return;
+      drag.x = e.clientX;
+      this.positionDraggedPartyCard();
+    });
+    this.party.addEventListener('pointerup', e => { if (this.partyDrag?.pointer === e.pointerId) this.finishPartyHold(true); });
+    this.party.addEventListener('pointercancel', e => { if (this.partyDrag?.pointer === e.pointerId) this.finishPartyHold(false); });
+    this.party.addEventListener('lostpointercapture', e => { if (this.partyDrag?.pointer === e.pointerId) this.finishPartyHold(false); });
+    this.party.addEventListener('pointerleave', () => { if (this.partyDrag && !this.partyDrag.active) this.finishPartyHold(false); });
+    this.party.addEventListener('dragstart', e => e.preventDefault());
+    this.party.addEventListener('click', e => {
+      if (this.ignorePartyClick) { e.preventDefault(); e.stopImmediatePropagation(); }
+    }, true);
+    this.party.addEventListener('contextmenu', e => {
+      if (this.partyDrag?.active) { e.preventDefault(); e.stopImmediatePropagation(); }
+    }, true);
     this.party.addEventListener('wheel',e=>{
       if(this.party.scrollWidth<=this.party.clientWidth)return;
       e.preventDefault();e.stopPropagation();
@@ -279,7 +304,12 @@ export class GameUI {
   }
 
   /** 右下角排列隨行武將；可施展神通的會發光，點擊施展，滑鼠移上去才顯示資訊 */
-  renderParty(icons: PartyIcon[]) {
+  renderParty(icons: PartyIcon[], owner: LordId | null = null) {
+    if (this.partyDrag?.active) { this.pendingParty = { icons, owner }; return; }
+    this.partyOwner = owner;
+    const order = (owner && this.partyOrder.get(owner)) || [];
+    const rank = (id: string) => { const index = order.indexOf(id); return index < 0 ? order.length : index; };
+    icons = [...icons].sort((a, b) => rank(a.id) - rank(b.id));
     this.partyShell.classList.toggle('hidden', !icons.length);
     const key = JSON.stringify(icons.map((i) => [i.id, i.img, i.color, Math.round(i.hpPct), Math.round(i.staPct), Math.round(i.expPct), i.tip, i.tipHtml, i.ready, i.hasSkill, i.breakthrough, i.flame, i.itemState]));
     // 內容沒變就不重畫，避免滑鼠停在圖示上時提示閃爍
@@ -288,11 +318,13 @@ export class GameUI {
       return;
     }
     this.party.dataset.key = key;
+    this.finishPartyHold(false);
     const previousScroll=this.party.scrollLeft;
     this.party.innerHTML = '';
     const burning: FlameSource[] = [];
     for (const i of icons) {
       const b = document.createElement('button');
+      b.dataset.partyId = i.id;
       b.className = `pd-gen${i.ready ? ' ready' : ''}${i.hasSkill ? ' skill' : ''}${i.breakthrough ? ' break-ready' : ''}${i.itemState ? ' item-' + i.itemState : ''}`;
       b.setAttribute('aria-label',i.name); b.setAttribute('aria-disabled',String(i.itemState==='disabled'));
       b.style.setProperty('--pc', i.color);
@@ -309,6 +341,71 @@ export class GameUI {
     this.party.scrollLeft=previousScroll;
     this.flames.sync(burning);
     requestAnimationFrame(()=>this.resizeParty());
+  }
+
+  private startPartyHold(e: PointerEvent) {
+    if (e.button !== 0 || !e.isPrimary || this.partyDrag || this.party.children.length < 2) return;
+    const card = (e.target as HTMLElement).closest<HTMLButtonElement>('.pd-gen');
+    if (!card || card.classList.contains('item-disabled')) return;
+    const rect = card.getBoundingClientRect();
+    const drag: NonNullable<GameUI['partyDrag']> = {
+      card, original: [...this.party.children], pointer: e.pointerId, x: e.clientX, y: e.clientY,
+      anchor: e.clientX - (rect.left + rect.width / 2), timer: 0, active: false, edge: 0, scrolledAt: 0,
+    };
+    this.partyDrag = drag;
+    drag.timer = window.setTimeout(() => {
+      if (this.partyDrag !== drag || !card.isConnected) return;
+      this.party.setPointerCapture(drag.pointer);
+      drag.active = true;
+      this.party.classList.add('party-reordering');
+      card.classList.add('party-dragging');
+      const scroll = (now: number) => {
+        if (this.partyDrag !== drag) return;
+        if (drag.edge && now - drag.scrolledAt >= 220) {
+          this.moveParty(drag.edge);
+          drag.scrolledAt = now;
+          this.positionDraggedPartyCard();
+        }
+        requestAnimationFrame(scroll);
+      };
+      requestAnimationFrame(scroll);
+    }, 330);
+  }
+
+  private positionDraggedPartyCard() {
+    const drag = this.partyDrag;
+    if (!drag?.active) return;
+    const center = drag.x - drag.anchor, bounds = this.party.getBoundingClientRect();
+    const x = Math.max(bounds.left, Math.min(bounds.right, center));
+    const middle = (card: Element) => { const r = card.getBoundingClientRect(); return r.left + r.width / 2; };
+    const next = [...this.party.children].filter(card => card !== drag.card).find(card => x < middle(card));
+    if (drag.card.nextElementSibling !== (next ?? null)) this.party.insertBefore(drag.card, next ?? null);
+    drag.card.style.translate = '';
+    drag.card.style.translate = `${(x - middle(drag.card)) / uiViewportSize().scale}px 0`;
+    drag.edge = drag.x < bounds.left + 20 && !this.partyPrev.disabled ? -1
+      : drag.x > bounds.right - 20 && !this.partyNext.disabled ? 1 : 0;
+  }
+
+  private finishPartyHold(commit: boolean) {
+    const drag = this.partyDrag;
+    if (!drag) return;
+    this.partyDrag = null;
+    clearTimeout(drag.timer);
+    if (!drag.active) return;
+    drag.card.style.translate = '';
+    drag.card.classList.remove('party-dragging');
+    this.party.classList.remove('party-reordering');
+    if (this.party.hasPointerCapture(drag.pointer)) this.party.releasePointerCapture(drag.pointer);
+    this.ignorePartyClick = true;
+    setTimeout(() => { this.ignorePartyClick = false; }, 0);
+    if (commit && this.partyOwner) {
+      const visible = [...this.party.querySelectorAll<HTMLElement>('[data-party-id]')].map(card => card.dataset.partyId!);
+      const present = new Set(visible);
+      this.partyOrder.set(this.partyOwner, [...visible, ...(this.partyOrder.get(this.partyOwner) ?? []).filter(id => !present.has(id))]);
+    } else this.party.append(...drag.original);
+    const pending = this.pendingParty;
+    this.pendingParty = null;
+    if (pending) this.renderParty(pending.icons, pending.owner);
   }
 
   private partyIconStep(): number {

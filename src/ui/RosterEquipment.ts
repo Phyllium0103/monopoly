@@ -37,7 +37,7 @@ export function techniquePicture(t: Technique | null, id?: string): string {
 
 /** Click to carry, click to place. Only host-validated actions change ownership. */
 export class RosterEquipment {
-  private context: { state: GameState; lord: Lord; manage: boolean; free: boolean } | null = null;
+  private context: { state: GameState; lord: Lord; manage: boolean; free: boolean; placementOnly: boolean } | null = null;
   private selected: Source | null = null;
   private cursor: HTMLDivElement | null = null;
   private pointer = { x: 0, y: 0 };
@@ -62,6 +62,11 @@ export class RosterEquipment {
       const kind = el.dataset.equipmentKind as Kind;
       const to = el.dataset.equipmentTarget, uid = el.dataset.equipmentItem;
       if (cell && this.selected) {
+        if (this.context?.placementOnly) {
+          if (uid === this.selected.uid) this.clear();
+          else this.message('請點選武將的空裝備格', true);
+          return;
+        }
         const index = Number(cell.dataset.inventorySlot), source = this.selected;
         if (!source.from) {
           if (!this.allowed(source.kind)) { this.message('目前無法整理行囊', true); return; }
@@ -82,7 +87,7 @@ export class RosterEquipment {
         if (to) this.move(this.selected, to);
         return;
       }
-      if (!uid) { this.message('先點選行囊中的' + labelOf(kind) + '，再點這個格子'); return; }
+      if (!uid || (to && this.context?.placementOnly)) { this.message('先點選行囊中的' + labelOf(kind) + '，再點這個格子'); return; }
       const s: Source = { kind, uid, from: to };
       if (to) { const check = this.targetCheck(kind, to); if (!check.ok) { this.message(check.reason, true); return; } }
       if (!this.sourceItem(s)) { this.message('物品已移動，請重新選擇', true); return; }
@@ -90,9 +95,9 @@ export class RosterEquipment {
       this.message('已拿起「' + this.sourceItem(s)!.name + '」；點亮起的格子放入，Esc 取消');
     });
   }
-  update(state: GameState, lord: Lord, manage: boolean, free = false) {
+  update(state: GameState, lord: Lord, manage: boolean, free = false, placementOnly = false) {
     if (this.context?.lord.id !== lord.id) this.selected = null;
-    this.context = { state, lord, manage, free };
+    this.context = { state, lord, manage, free, placementOnly };
     if (this.selected && (!this.allowed(this.selected.kind) || !this.sourceItem(this.selected))) this.selected = null;
     this.paint();
   }
@@ -104,6 +109,7 @@ export class RosterEquipment {
     const c = this.context, g = c?.state.generals[id];
     if (!c || !g) return { ok: false, reason: '武將不存在' };
     const r = canWearArmor(c.lord, g); if (!r.ok) return r;
+    if (c.placementOnly && kind === 'armor' && g.armor) return { ok: false, reason: '請選擇未裝備仙衣的武將' };
     if (kind === 'technique' && g.technique) return { ok: false, reason: '已修習功法，須先自廢修為' };
     if (kind === 'technique' && g.aptitude === 'waste') return { ok: false, reason: '廢靈根無法修習功法' };
     return { ok: true, reason: '' };
@@ -116,6 +122,10 @@ export class RosterEquipment {
   private check(s: Source, to?: string) {
     if (!this.context || !this.allowed(s.kind)) return { ok: false, reason: '目前無法裝備' };
     const { state, lord } = this.context;
+    if (to && this.context.placementOnly) {
+      const check = this.targetCheck(s.kind, to);
+      if (!check.ok) return check;
+    }
     return s.kind === 'armor' ? armorTransferCheck(state, lord, s.uid, s.from, to) : to ? techniqueTransferCheck(state, lord, s.uid, to) : { ok: false, reason: '功法只能放入武將的功法格' };
   }
   private move(s: Source, to?: string, bagSlot?: number) {
@@ -145,7 +155,7 @@ export class RosterEquipment {
       const learned = kind === 'technique' && !!id && !!this.context?.state.generals[id]?.technique;
       el.classList.toggle('armor-unavailable', blocked && !learned); el.setAttribute('aria-disabled', String(blocked && !(learned && !this.selected)));
       const bag = el.hasAttribute('data-inventory-slot');
-      const canBag = bag && !!this.selected && (!this.selected.from || !el.querySelector('[data-equipment-item]') && this.check(this.selected).ok || !!el.querySelector('[data-equipment-kind="armor"]'));
+      const canBag = bag && !this.context?.placementOnly && !!this.selected && (!this.selected.from || !el.querySelector('[data-equipment-item]') && this.check(this.selected).ok || !!el.querySelector('[data-equipment-kind="armor"]'));
       const canPlace = !!this.selected && !selected && (!!id && !blocked && kind === this.selected.kind || !!canBag);
       el.classList.toggle('equipment-compatible', canPlace);
     }

@@ -49,6 +49,7 @@ export function unloadTechnique(state:GameState,g:General):void {
  const owner=g.owner&&state.lords[g.owner];
  if(owner&&!owner.scrolls.some(t=>t.uid===g.technique!.uid))receiveEquipment(owner, g.technique);
  g.technique=null;
+ g.stamina=Math.min(g.stamina,maxStamina(g));
 }
 export function changeAptitude(state:GameState,g:General,aptitude:Aptitude):void {
  g.aptitude=aptitude;

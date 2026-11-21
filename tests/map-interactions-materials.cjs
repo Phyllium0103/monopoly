@@ -4,7 +4,7 @@ registerHooks({resolve(s,c,n){if(s.startsWith('.')&&!path.extname(s)&&c.parentUR
 const {createGameState}=require('../src/game/GameState.ts');
 const {Engine}=require('../src/engine/Engine.ts'),{RecordingView}=require('../src/engine/view.ts');
 const {nextMovementTile}=require('../src/systems/MovementSystem.ts');
-const {MATERIAL_GROUPS,MATERIAL_NAMES,WEAPON_CATALOG,makePersonalWeapon,weaponGrade}=require('../src/data/weaponCatalog.ts');
+const {MATERIAL_GROUPS,MATERIAL_NAMES,WEAPON_CATALOG,WEAPON_UPGRADE_COST,makePersonalWeapon,weaponGrade}=require('../src/data/weaponCatalog.ts');
 const {materialIconUrl}=require('../src/data/materialIcons.ts');
 const {materialLabel,materialsHtml}=require('../src/ui/MaterialArt.ts');
 let passed=0;async function test(name,fn){await fn();console.log('PASS '+name);passed++}
@@ -81,9 +81,14 @@ const make=(state,send,multiplayer=false,auto=false)=>{const view=new RecordingV
    const id=Object.keys(WEAPON_CATALOG).find(id=>WEAPON_CATALOG[id].material===group);
    const general={...state.generals.liubei,id,weapon:makePersonalWeapon(id,0)};
    for(let stage=0;stage<3;stage++){
+    const materialsBefore=lord.materials[group][stage];
     const prompts=[];const {engine}=make(state,async(_id,p)=>{prompts.push(p);return p.kind==='confirm'?true:null});
     await engine.rosterAction(lord,'upgrade',general);assert.equal(weaponGrade(general.weapon),stage+1);
     assert.equal(prompts[0].kind,'confirm');assert.ok(prompts[0].text.includes(MATERIAL_NAMES[group][stage]));assert.ok(prompts[0].text.includes(materialIconUrl(group,stage)));
+    assert.equal(lord.materials[group][stage],materialsBefore-WEAPON_UPGRADE_COST[stage]);
+    const notice=JSON.parse(JSON.stringify(prompts[1]));
+    assert.equal(notice.kind,'message');
+    assert.deepEqual(notice.weaponUpgrade,{generalId:id,generalName:general.name,weaponName:WEAPON_CATALOG[id].names[stage+1],group,stage});
    }
   }
  });

@@ -211,5 +211,3 @@
 .replacement-reward { flex:0 0 90px; display:flex; align-items:center; flex-direction:column; gap:5px; font-size:11px; text-align:center; }
 .roster-screen .replacement-selected { opacity:1; outline:2px solid #efd7a1; outline-offset:2px; box-shadow:0 0 12px #efd7a166; }
 .replacement-confirm[hidden] { display:none; }
-.replacement-mode > .drawer-body { pointer-events:none; }
-.replacement-mode .roster-inventory { max-height:75%; overflow-y:auto; }

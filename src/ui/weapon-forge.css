@@ -1,0 +1,130 @@
+.dialog.weapon-forge {
+  width: min(960px, 96vw, 160dvh);
+  max-height: none;
+  padding: 0;
+  overflow: visible;
+  color: #f7e2b9;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  animation: none;
+}
+.dialog-backdrop:has(.weapon-forge) {
+  background: radial-gradient(ellipse at 50% 53%, #17110ee8, #090706f8 72%);
+}
+.weapon-forge-plate {
+  position: relative;
+  margin: 0;
+  isolation: isolate;
+  container-type: inline-size;
+  aspect-ratio: 2 / 1;
+}
+.weapon-forge-plate canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.weapon-forge-copy {
+  position: absolute;
+  inset: 16% auto auto 57%;
+  width: 30%;
+  height: 66%;
+  display: grid;
+  align-content: center;
+  gap: 1.25cqw;
+  color: #392319;
+  font-family: 'Folio WenKai', 'Microsoft JhengHei', serif;
+  text-align: center;
+}
+.weapon-forge-copy[hidden] { display: none; }
+.dialog.weapon-forge .weapon-forge-copy h2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .85cqw;
+  margin: 0;
+  color: #842e20;
+  font: 700 clamp(9px, 2.2cqw, 21px)/1.2 'Folio WenKai', serif;
+  letter-spacing: .17em;
+}
+.weapon-forge-copy h2::before, .weapon-forge-copy h2::after {
+  content: '';
+  width: 3.4cqw;
+  height: 1px;
+  background: #98734e;
+}
+.weapon-forge-copy strong {
+  display: block;
+  font: 400 min(4.5cqw, var(--title-fit), 43px)/1.1 'Folio Title', 'Folio WenKai', serif;
+  letter-spacing: .035em;
+  white-space: nowrap;
+}
+.weapon-forge-copy small {
+  display: block;
+  margin-top: .55cqw;
+  color: #5c402b;
+  font-size: clamp(8px, 1.36cqw, 13px);
+  letter-spacing: .12em;
+}
+.weapon-forge-copy dl {
+  margin: 0;
+  border-top: 1px solid #98734e80;
+  text-align: left;
+  font-size: clamp(9px, 1.6cqw, 15px);
+  line-height: 1.15;
+}
+.weapon-forge-copy dl div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .55cqw;
+  padding: .75cqw .1cqw;
+}
+.weapon-forge-copy dl div + div { border-top: 1px solid #98734e59; }
+.weapon-forge-copy dt, .weapon-forge-copy dd { white-space: nowrap; }
+.weapon-forge-copy dd {
+  display: flex;
+  align-items: baseline;
+  gap: .65cqw;
+  margin: 0;
+  color: #694f39;
+  font-variant-numeric: tabular-nums;
+}
+.weapon-forge-copy [data-grade] { font-weight: 700; }
+.weapon-forge-copy [data-grade="0"] { color: #4d9463; }
+.weapon-forge-copy [data-grade="1"] { color: #367bb9; }
+.weapon-forge-copy [data-grade="2"] { color: #8854ad; }
+.weapon-forge-copy [data-grade="3"] { color: #b98826; }
+.weapon-forge-value { color: #842e20; font-size: clamp(12px, 3.65cqw, 34px); line-height: .95; }
+.weapon-forge-footer { display: flex; justify-content: center; min-height: 47px; margin-top: 4px; }
+.weapon-forge-confirm {
+  min-width: 132px;
+  min-height: 45px;
+  padding: 7px 28px;
+  border: 1px solid #d4ae6c;
+  border-radius: 3px;
+  color: #fff1cc;
+  background: radial-gradient(ellipse at top, #9b4b33 0%, transparent 70%), linear-gradient(#692c22, #3f1915);
+  box-shadow: inset 0 0 0 3px #421c16, inset 0 0 0 4px #bd8d504f, 0 5px 14px #0805048c;
+  font: 700 19px/1.25 'Folio WenKai', 'Microsoft JhengHei', serif;
+  letter-spacing: .12em;
+  text-shadow: 0 1px 2px #210b08;
+  cursor: pointer;
+}
+.weapon-forge-confirm[hidden] { display: none; }
+.weapon-forge-confirm:hover { filter: brightness(1.15); }
+.weapon-forge-confirm:active { translate: 0 1px; }
+.weapon-forge-confirm:focus-visible { outline: 2px solid #e6c88d; outline-offset: 4px; }
+.weapon-forge-fallback {
+  background: linear-gradient(90deg, #302922 53%, #f2e0bb 53%);
+  border: 1px solid #9f7545;
+  border-radius: 8px;
+}
+.weapon-forge-fallback canvas { display: none; }
+.weapon-forge-still {
+  position: absolute;
+  inset: 11% auto auto 9%;
+  width: 32%;
+  height: 78%;
+  object-fit: contain;
+}

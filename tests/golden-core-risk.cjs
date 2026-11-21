@@ -50,14 +50,21 @@ try {
 
  Math.random=random;
  const uiState=createGameState('liu'),uiLord=uiState.lords.liu,uiG=uiState.generals.liubei,prompts=[];
- Object.assign(uiG,{realm:2,goldenCore:'heavenly',aptitude:'heaven'});uiG.exp=G.expCap(uiG);uiG.hp=G.maxHp(uiG);
- const engine=new Engine(uiState,{view:new RecordingView(),send:async(_id,p)=>{prompts.push(p);return p.kind==='choose'?6:null;},isAuto:()=>false,multiplayer:false});
+ Object.assign(uiG,{realm:1,aptitude:'heaven'});uiG.exp=G.expCap(uiG);uiG.hp=G.maxHp(uiG);
+ let confirms=0;
+ const engine=new Engine(uiState,{view:new RecordingView(),send:async(_id,p)=>{prompts.push(p);return p.kind==='choose'?6:p.kind==='confirm'?++confirms===2:null;},isAuto:()=>false,multiplayer:false});
+ Math.random=()=>0;await engine.breakthroughFlow(uiLord,uiG,true);
+ assert.equal(uiG.realm,2);assert.equal(uiG.goldenCore,'heavenly');
+ assert.deepEqual(prompts.map(p=>p.kind),['message','choose']);
+ prompts.length=0;uiG.exp=G.expCap(uiG);uiG.hp=G.maxHp(uiG);
  Math.random=()=>.99;await engine.breakthroughFlow(uiLord,uiG);
  const choice=prompts.find(p=>p.kind==='choose');
  assert(choice.text.includes('失敗會損失25%修為，並道基受損，扣除血量50%'));
  assert(!choice.text.includes('已選擇：'));
  assert.deepEqual(choice.choices.map((c,i)=>c.label.includes('core-current')?i:null).filter(i=>i!==null),[6]);
  assert(choice.choices[0].sub.includes('成功率 90%'));assert(choice.choices[5].sub.includes('成功率 70%'));assert(choice.choices[6].sub.includes('成功率 50%'));
+ assert.deepEqual(prompts.map(p=>p.kind),['confirm','choose','confirm','message']);
+ assert(prompts.filter(p=>p.kind==='confirm').every(p=>p.text.includes('是否晉升天道金丹')&&p.yes==='確認'&&p.no==='再選擇'));
  const failure=prompts.find(p=>p.kind==='message');assert.equal(failure.title,BREAKTHROUGH_TITLES[3]);assert.equal(failure.text,'損失25%修為與最大血量的50%。');assert(isBreakthroughFailure(failure.title,failure.text));
  assert.equal(uiG.realm,2);assert.equal(uiG.exp,3600);
  console.log('PASS AI low-chance attempts, player core-choice odds/risk text and correct animated core-failure outcome');

@@ -1,6 +1,8 @@
 @import './folio-type.css';
 /* 01 羊皮紙將籍 / 04 古籍對開. Only roster and shared character dossiers. */
 .roster-screen,.dossier-book {
+  --folio-status-width:54px;
+  --folio-status-height:24px;
   --folio-paper:#efe2c4; --folio-page:#f5ead3; --folio-ink:#443225;
   --folio-muted:#75614a; --folio-rule:#ad93674d; --folio-seal:#963f31;
   --folio-texture:radial-gradient(ellipse at 6% 8%,#9e744d12,transparent 35%),radial-gradient(ellipse at 98% 88%,#9e744d18,transparent 40%),repeating-linear-gradient(0deg,#76592e03 0 1px,transparent 1px 4px);
@@ -25,7 +27,7 @@
 .roster-screen .roster-item.ready { border-bottom-color:#b4945c;box-shadow:inset 2px 0 #a26235; }
 .roster-screen .roster-list .roster-row { min-height:76px;padding:10px 16px;font-size:13px; }
 .roster-screen .roster-row:hover { background:#ba96501c; }
-.roster-screen .roster-list .roster-before { grid-template-columns:42px minmax(60px,.9fr) 34px 52px 40px minmax(48px,.7fr) minmax(100px,1.7fr); }
+.roster-screen .roster-list .roster-before { grid-template-columns:42px minmax(60px,.9fr) 34px repeat(2,var(--folio-status-width)) minmax(48px,.7fr) minmax(100px,1.7fr); }
 .roster-screen .roster-before { border-right:1px solid var(--folio-rule);padding-right:12px!important; }
 .roster-screen .roster-after { border-left:1px solid var(--folio-rule);padding-left:12px!important; }
 .roster-screen .roster-list .c-face { border:1px solid #ae946a;border-radius:2px;background-color:#d7c5a1;box-shadow:inset 0 0 0 2px #efe2c4; }
@@ -122,8 +124,8 @@
 .dossier-book .btn.danger,.dossier-book .dossier-breakthrough { background:var(--folio-seal);color:#fff1d0;border:1px solid #733526; }
 .dossier-book .btn:disabled { opacity:.45; }
 .dossier-book .gc-actions:empty { display:none; }
-.dossier-book .dossier-tags :is(.chip,.gb-tag):not(.apt-heaven) { background:#ede0bf;color:#665037;border-color:#b59a6e;border-radius:2px; }
-.roster-screen .c-apt .chip:not(.apt-heaven) { background:#ede0bf;color:#776040;border-color:#b69a6b;border-radius:2px; }
+.dossier-book .dossier-tags :is(.chip,.gb-tag):not(.apt-heaven) { background:#ede0bf;color:#665037;border-color:#b59a6e; }
+.roster-screen .c-apt .chip:not(.apt-heaven) { background:#ede0bf;color:#776040;border-color:#b69a6b; }
 /* Shared shop inspection is the same character file, not a shop-wide restyle. */
 .shop-roster-detail:has(.dossier-book) { border:8px solid #493328!important;border-radius:3px;background:#e1cca6!important;color:#443225!important; }
 .shop-roster-detail:has(.dossier-book) .shop-detail-copy { padding:16px; }
@@ -141,7 +143,7 @@
 @container game-ui (max-width:1300px) {
  .drawer.roster-screen { padding-left:44px;padding-right:20px;border-width:8px; }
  .drawer.roster-screen::before { left:8px;width:20px;font-size:12px; }.drawer.roster-screen::after { left:30px; }
- .roster-screen .roster-list .roster-before { grid-template-columns:38px minmax(55px,1fr) 50px minmax(48px,.8fr) minmax(90px,1.6fr); }
+ .roster-screen .roster-list .roster-before { grid-template-columns:38px minmax(55px,1fr) var(--folio-status-width) minmax(48px,.8fr) minmax(90px,1.6fr); }
  .roster-screen .roster-list .roster-after { grid-template-columns:repeat(3,minmax(34px,1fr)); }
  .roster-screen .inventory-grid { grid-template-columns:repeat(10,54px); }
 }
@@ -290,11 +292,13 @@
 .roster-screen .c-apt .chip.apt-fire,.dossier-book .dossier-tags .chip.apt-fire { color:#a0372b;background:#f1d6bd;border-color:#b57350; }
 .roster-screen .c-apt .chip.apt-earth,.dossier-book .dossier-tags .chip.apt-earth { color:#795125;background:#ead5ac;border-color:#ac8654; }
 .roster-screen .c-apt .chip.apt-waste,.dossier-book .dossier-tags .chip.apt-waste { color:#69665e;background:#dedbd0;border-color:#a5a18e; }
-.roster-screen .c-apt .chip,.dossier-book .dossier-tags .chip { font-size:16px; }
-.roster-screen.replacement-mode { grid-template-rows:11% minmax(0,1fr) 55%; }
-.roster-screen.replacement-mode>.roster-inventory { display:block;overflow:auto; }
-.roster-screen.replacement-mode .inventory-grid { grid-auto-rows:64px;min-height:64px;overflow:visible; }
-.roster-screen.replacement-mode .inventory-cell { height:64px;max-height:64px;aspect-ratio:auto; }
+.roster-screen .roster-row :is(.c-realm,.c-apt) > :is(.realm-tag,.chip),
+.dossier-book .folio-person-heading .dossier-tags > :is(.realm-tag,.chip) {
+  display:inline-grid;place-items:center;box-sizing:border-box;flex:none;
+  width:var(--folio-status-width);height:var(--folio-status-height);min-width:0;min-height:0;
+  padding:0 3px;margin:0;border-radius:999px;font-size:14px;line-height:1;
+  white-space:nowrap;
+}
 @container game-ui (max-width:1300px) {
  .roster-screen .inventory-grid { grid-template-columns:repeat(10,minmax(0,1fr)); }
  .roster-screen .inventory-cell { max-height:62px;max-width:62px;justify-self:center; }
@@ -321,7 +325,26 @@
 /* A smaller page-foot and shared physical slot size keep bag and roster in scale. */
 .drawer.roster-screen { --folio-slot:clamp(32px,3.65cqw,58px);--folio-slot-gap:clamp(4px,.55cqw,10px);grid-template-rows:11% minmax(0,1fr) 15%;background-image:url('/src/ui/folio-ledger-v2.webp'); }
 .drawer.roster-screen.roster-readonly { grid-template-rows:11% minmax(0,1fr);background-image:url('/src/ui/folio-ledger-full.webp'); }
-.drawer.roster-screen.replacement-mode { grid-template-rows:11% minmax(0,1fr) 55%; }
+.drawer.roster-screen.replacement-mode { grid-template-rows:11% minmax(0,1fr) min(45%, 325px); }
+.roster-screen.replacement-mode > .roster-inventory {
+  display: block;
+  padding: 8px 12px 4px;
+  background: #f0e1c6;
+  border-top: 1px solid #a88b5a;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.roster-screen.replacement-mode .replacement-panel { padding: 0 0 6px; margin: 0 0 5px; background: none; }
+.replacement-heading, .replacement-summary {
+  display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px;
+}
+.replacement-heading :is(h3,p), .replacement-actions p { margin: 0; }
+.roster-screen.replacement-mode .inventory-heading { margin-block: 2px 4px; }
+.roster-screen.replacement-mode .replacement-actions { display: grid; gap: 4px; padding: 4px 0; color: #523e29; }
+.replacement-tabs { display: flex; gap: 9px; }
+.replacement-tabs button { padding: 2px 8px; color: #674728; background: none; border: 1px solid transparent; border-radius: 2px; }
+.replacement-tabs button[aria-pressed="true"] { border-color: #a5895a; background: #e3cdab; color: #3d2a17; }
+.replacement-summary .replacement-confirm { margin-left: auto; }
 .roster-screen>.roster-inventory { padding:20px 0 0; }
 .roster-screen .inventory-heading { margin-bottom:12px; }
 .roster-screen .inventory-grid { display:grid;grid-template-columns:repeat(20,var(--folio-slot));grid-auto-rows:var(--folio-slot);justify-content:center;align-content:start;gap:var(--folio-slot-gap);flex:none;overflow:auto;scrollbar-width:none; }

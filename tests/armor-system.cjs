@@ -5,9 +5,9 @@ registerHooks({
   resolve(s, c, n) { if (s.startsWith('.') && !path.extname(s) && c.parentURL) { const p = path.resolve(path.dirname(fileURLToPath(c.parentURL)), s + '.ts'); if (fs.existsSync(p)) return n(pathToFileURL(p).href, c); } return n(s, c); },
   load(u, c, n) { if (u.endsWith('.css')) return { format: 'module', shortCircuit: true, source: '' }; return u.endsWith('.ts') ? { format: 'module', shortCircuit: true, source: stripTypeScriptTypes(fs.readFileSync(fileURLToPath(u), 'utf8'), { mode: 'transform' }) } : n(u, c); },
 });
-const { ARMOR_DEFS, makeEquipment, equipRealm, equipDesc, makeTechnique } = require('../src/data/items.ts');
+const { ARMOR_DEFS, makeEquipment, equipRealm, equipDesc, makeTechnique, armorStamina, techniqueStamina, techniqueDesc } = require('../src/data/items.ts');
 const { createGameState } = require('../src/game/GameState.ts');
-const { transferArmor, armorTransferCheck, maxHp, equip } = require('../src/systems/GeneralSystem.ts');
+const { transferArmor, armorTransferCheck, maxHp, maxStamina, equip, recover } = require('../src/systems/GeneralSystem.ts');
 const { bindPassiveState } = require('../src/data/passives.ts');
 const { makeStock, makeSellStock } = require('../src/systems/ShopSystem.ts');
 const { auctionLot } = require('../src/systems/EventSystem.ts');
@@ -40,6 +40,9 @@ for (let grade = 0; grade < 4; grade++) for (const [family, names, stat] of case
   assert.equal(e.defense, stat === 'defense' ? primary : stat === 'combat' ? combat : 0, e.name);
   assert.equal(e.hp, (stat === 'hp' ? [150, 300, 450, 750] : [60, 120, 200, 300])[grade], e.name);
   for (const art of arts) assert.equal(e.craft[art] ?? 0, stat === art ? primary : stat === 'arts' ? [5, 10, 15, 30][grade] : 0, e.name + art);
+  const stamina = grade === 3 && (arts.includes(stat) || stat === 'arts') ? 50 : 0;
+  assert.equal(armorStamina(e), stamina, e.name);
+  assert.equal(equipDesc(e).includes('最大體力 +50'), stamina > 0, e.name);
   assert.equal(e.price, (['combat', 'arts'].includes(stat) ? [2500, 6000, 18000, 60000] : [1500, 4000, 12000, 40000])[grade], e.name);
   assert.equal(equipRealm(e.tier), [0, 2, 4, 6][grade]);
   assert.ok(!/[上中下]品|黃品|玄品|地品|天品/.test(e.name));
@@ -72,6 +75,26 @@ function fixture() {
   return { state, lord, a, b, low, high };
 }
 function ids(state) { return [...Object.values(state.lords).flatMap(l => l.gear.map(e => e.uid)), ...Object.values(state.generals).flatMap(g => g.armor ? [g.armor.uid] : [])].sort(); }
+
+for (const kind of [...arts, 'metal']) for (const tier of [6, 8, 9, 10, 11]) {
+  const technique = makeTechnique('stamina-' + kind + tier, tier, kind);
+  const stamina = tier >= 9 && kind !== 'metal' ? 50 : 0;
+  assert.equal(techniqueStamina(technique), stamina);
+  assert.equal(techniqueDesc(technique).includes('最大體力 +50'), stamina > 0);
+}
+{
+  const { state, lord, a, b, high } = fixture();
+  const baseA = maxStamina(a), baseB = maxStamina(b);
+  assert(transferArmor(state, lord, high.uid, undefined, a.id));
+  a.technique = makeTechnique('stamina-art', 11, 'alchemy');
+  assert.equal(maxStamina(a), baseA + 100);
+  a.stamina = baseA + 99;
+  recover(a);
+  assert.equal(a.stamina, baseA + 100);
+  assert(transferArmor(state, lord, high.uid, a.id, b.id));
+  assert.equal(a.stamina, baseA + 50);
+  assert.equal(maxStamina(b), baseB + 50);
+}
 {
   const { state, lord, a, b, low, high } = fixture(), initial = ids(state);
   const move = (uid, from, to) => { assert.equal(transferArmor(state, lord, uid, from, to), true); assert.deepEqual(ids(state), initial); };

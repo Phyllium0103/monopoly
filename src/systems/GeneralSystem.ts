@@ -1,9 +1,9 @@
-import { bagHasRoom, bagItems, syncBagSlots, moveBagItem, receiveEquipment, EQUIPMENT_CAPACITY } from './EquipmentInventory';
+import { bagHasRoom, bagItems, syncBagSlots, moveBagItem, receiveEquipment, replaceEquipmentBatch, EQUIPMENT_CAPACITY, type EquipmentOverflowSelection, type EquipmentPlacement } from './EquipmentInventory';
 import type { City, CraftStat, Equipment, General, Lord, LordId, Technique, GameState, Stats } from '../game/types';
 import { makePersonalWeapon, weaponGrade } from '../data/weaponCatalog';
-import { mortalTrialTurns, TRIBULATION_RULES } from '../data/breakthroughRules';
+import { mortalTrialTurns, tribulationBaseTotal, TRIBULATION_RULES } from '../data/breakthroughRules';
 import { REALMS, REALM_EXP, REALM_MULT } from '../data/generals';
-import { equipRealm, techniqueForce, techniqueSpeed } from '../data/items';
+import { armorStamina, equipRealm, techniqueForce, techniqueSpeed, techniqueStamina } from '../data/items';
 import { WORLD } from './WorldMods';
 import { fx, lordAura, passiveState } from '../data/passives';
 import { awardBreakthrough } from '../data/talents';
@@ -17,7 +17,9 @@ export function realmName(g: General): string {
 }
 
 export function realmMultiplier(g: General): number { return REALM_MULT[g.realm] * (fx(g).realmFactor ?? 1); }
-export function maxStamina(g: General): number { return Math.max(0, 100 + (fx(g).maxStamina ?? 0)); }
+export function maxStamina(g: General): number {
+  return Math.max(0, 100 + (fx(g).maxStamina ?? 0) + armorStamina(g.armor) + techniqueStamina(g.technique));
+}
 export function expMultiplier(g: General): number {
   if (g.ghostSourceId) return 0;
   const aura=g.owner && g.status === 'free' ? lordAura(g.owner,'partyExp') + (g.isLord ? lordAura(g.owner,'partyLordExp') : 0) + ((passiveState()?.lords[g.owner].clearCultivationTurns ?? 0)>0 ? 1 : 0) : 0;
@@ -129,6 +131,7 @@ export function completeBreak(g: General, round: number, cityId?: string): boole
     if (g.armor) receiveEquipment(lord, g.armor);
     g.weapon = null; g.armor = null; g.realm = 0; g.exp = 0;
     g.hp = Math.min(g.hp, maxHp(g));
+    g.stamina = Math.min(g.stamina, maxStamina(g));
     return true;
   }
   if (g.realm === 5) for (const e of ESSENCE_ELEMENTS) lord.essences![e]!--;
@@ -145,6 +148,7 @@ export function completeBreak(g: General, round: number, cityId?: string): boole
     }
     for (const key of Object.keys(g.base) as (keyof Stats)[]) g.base[key] += bonus[key] ?? 0;
     g.fusionBonus = bonus;
+    g.stamina = Math.min(g.stamina, maxStamina(g));
   }
   if (g.realm === 8) {
     if (!state || !ascensionCities(state, g).some(c => c.id === cityId)) return false;
@@ -230,7 +234,8 @@ export function boltDamage(g: General): number {
   const baselineHp = maxHp({ ...g, armor: null, weapon: null });
   // 天雷依基礎境界血量成長，不受防禦數值影響。
   const thunder = Math.max(0, 1 - (fx(g).tribulation ?? 0));
-  return baselineHp * (g.realm === 3 ? TRIBULATION_RULES.nascentSoul.totalHpRatio : TRIBULATION_RULES.tribulation.totalHpRatio) / boltCount(g)
+  const total = tribulationBaseTotal(baselineHp, g.realm === 3 ? 'nascentSoul' : 'tribulation', realmMultiplier(g));
+  return total / boltCount(g)
     * Math.max(0, 1 - g.ward) * thunder;
 }
 
@@ -316,6 +321,7 @@ export function abolish(lord: Lord, g: General) {
   const state = passiveState();
   if (state) reconcileProgression(state);
   g.hp = Math.min(g.hp, maxHp(g));
+  g.stamina = Math.min(g.stamina, maxStamina(g));
 }
 
 /** 回合開始的回復 */
@@ -393,7 +399,10 @@ export function transferArmor(state: GameState, lord: Lord, uid: string, fromGen
   lord.gear = gear;
   if (source) source.armor = null;
   if (target) target.armor = item;
-  for (const g of [source, target]) if (g) g.hp = Math.min(g.hp, maxHp(g));
+  for (const g of [source, target]) if (g) {
+    g.hp = Math.min(g.hp, maxHp(g));
+    g.stamina = Math.min(g.stamina, maxStamina(g));
+  }
   syncBagSlots(lord);
   if (bagSlot !== undefined) moveBagItem(lord, target ? displaced?.uid ?? '' : uid, bagSlot);
   return true;
@@ -410,6 +419,7 @@ export function equip(lord: Lord, g: General, e: Equipment) {
   if (old) lord.gear.push(old);
   syncBagSlots(lord);
   g.hp = Math.min(g.hp, maxHp(g));
+  g.stamina = Math.min(g.stamina, maxStamina(g));
 }
 
 /** 卸下仙衣，專屬武器不可卸下。 */
@@ -421,6 +431,7 @@ export function unequip(lord: Lord, g: General, kind: 'weapon' | 'armor') {
   lord.gear.push(e);
   syncBagSlots(lord);
   g.hp = Math.min(g.hp, maxHp(g));
+  g.stamina = Math.min(g.stamina, maxStamina(g));
 }
 
 /** 靈根與功法相容性；玩家介面、電腦與實際裝備共用規則。 */
@@ -460,4 +471,34 @@ export function techniqueTransferCheck(state: GameState, lord: Lord, uid: string
 export function equipTechnique(state: GameState, lord: Lord, uid: string, generalId: string): boolean {
   if (!techniqueTransferCheck(state, lord, uid, generalId).ok) return false;
   return learn(lord, state.generals[generalId], lord.scrolls.find(t => t.uid === uid)!);
+}
+
+/** A recovery placement must reduce the number of items in the bag. */
+export function placeOverflowEquipment(state: GameState, lord: Lord, { itemUid, generalId }: EquipmentPlacement): boolean {
+  const general = state.generals[generalId];
+  if (!general || general.owner !== lord.id) return false;
+  if (lord.gear.some(item => item.uid === itemUid)) return !general.armor && transferArmor(state, lord, itemUid, undefined, generalId);
+  return equipTechnique(state, lord, itemUid, generalId);
+}
+
+/** Apply only after the host can replay every placement and the final reward selection. */
+export function settleEquipmentOverflow(state: GameState, lord: Lord, { rewards, replaced, equipped = [] }: EquipmentOverflowSelection): boolean {
+  if (!Array.isArray(rewards) || !Array.isArray(replaced) || !Array.isArray(equipped) || equipped.length > EQUIPMENT_CAPACITY
+    || !rewards.every(id => typeof id === 'string') || !replaced.every(id => typeof id === 'string')) return false;
+  const draftLord = { ...lord };
+  const draft = { ...state, lords: { ...state.lords, [lord.id]: draftLord }, generals: { ...state.generals } };
+  const edited = new Set<string>();
+  for (const placement of equipped) {
+    if (!placement || typeof placement.itemUid !== 'string' || typeof placement.generalId !== 'string') return false;
+    const { generalId } = placement;
+    const general = state.generals[generalId];
+    if (!general || general.owner !== lord.id) return false;
+    if (!edited.has(generalId)) draft.generals[generalId] = { ...general };
+    if (!placeOverflowEquipment(draft, draftLord, placement)) return false;
+    edited.add(generalId);
+  }
+  if (!replaceEquipmentBatch(draftLord, rewards, replaced)) return false;
+  Object.assign(lord, draftLord);
+  for (const id of edited) Object.assign(state.generals[id], draft.generals[id]);
+  return true;
 }

@@ -4,7 +4,7 @@ import './technique-roster.css';
 import { materialLabel } from './MaterialArt';
 import { detailCard } from './ItemDetail';
 import { RosterEquipment, armorPicture, techniquePicture } from './RosterEquipment';
-import { compareBagItems, bagSlots, bagItems, EQUIPMENT_CAPACITY, isArmor } from '../systems/EquipmentInventory';
+import { compareBagItems, bagSlots, bagItems, EQUIPMENT_CAPACITY, isArmor, type EquipmentOverflowSelection, type EquipmentPlacement } from '../systems/EquipmentInventory';
 import './roster-equipment.css';
 import './roster-folio.css';
 import { generalCooldownText } from '../systems/GeneralAbilities';
@@ -30,6 +30,7 @@ import {
   needsTribulation,
   passiveExp,
   power,
+  placeOverflowEquipment,
 } from '../systems/GeneralSystem';
 import { LORDS, originKingdom } from '../faction/Faction';
 import { equipIconUrl } from './Icons';
@@ -135,7 +136,10 @@ export class GeneralsView {
   /** 下次重繪時開啟詳情並捲到這名武將（點右下大頭貼進來時） */
   private focusId: string | null = null;
   private equipmentControls: RosterEquipment;
-  private replacement: { rewards: Set<string>; replaced: Set<string>; done: (value: { rewards: string[]; replaced: string[] } | null) => void } | null = null;
+  private replacement: {
+    rewards: Set<string>; replaced: Set<string>; equipped: EquipmentPlacement[];
+    tab: 'equip' | 'replace'; done: (value: EquipmentOverflowSelection | null) => void;
+  } | null = null;
 
   constructor(root: HTMLElement) {
     this.el = document.createElement('div');
@@ -151,7 +155,7 @@ export class GeneralsView {
     });
     this.el.addEventListener('click', e => {
       const weapon = (e.target as HTMLElement).closest<HTMLElement>('[data-weapon-general]');
-      if (!weapon || !this.current || this.mode.inspect || weapon.closest('.general-modal') || this.el.classList.contains('equipment-carrying')) return;
+      if (!weapon || !this.current || this.mode.inspect || this.replacement || weapon.closest('.general-modal') || this.el.classList.contains('equipment-carrying')) return;
       e.stopPropagation();
       const g = this.current.state.generals[weapon.dataset.weaponGeneral!];
       const req = upgradeRequirement(this.current.lord, g);
@@ -164,12 +168,13 @@ export class GeneralsView {
     return !this.el.classList.contains('hidden');
   }
 
-  pickReplacements(state: GameState, lord: Lord): Promise<{ rewards: string[]; replaced: string[] } | null> {
+  pickReplacements(state: GameState, lord: Lord): Promise<EquipmentOverflowSelection | null> {
     this.closeDetail();
     this.equipmentControls.clear();
     return new Promise(done => {
-      this.replacement = { rewards: new Set(lord.pendingEquipment.slice(0, EQUIPMENT_CAPACITY).map(item => item.uid)), replaced: new Set(), done };
-      void this.open(state, lord, { manage: false, free: false });
+      const draft = structuredClone(state);
+      this.replacement = { rewards: new Set(lord.pendingEquipment.slice(0, EQUIPMENT_CAPACITY).map(item => item.uid)), replaced: new Set(), equipped: [], tab: 'equip', done };
+      void this.open(draft, draft.lords[lord.id], { manage: false, free: false });
     });
   }
 
@@ -217,7 +222,7 @@ export class GeneralsView {
 
   /** 重新繪製（狀態更新後） */
   refresh(state: GameState, lord: Lord) {
-    if (!this.isOpen) return;
+    if (!this.isOpen || this.replacement) return;
     lord = this.mode.inspect && this.current ? state.lords[this.current.lord.id] : lord;
     this.current = { state, lord };
     this.render(state, lord);
@@ -239,6 +244,17 @@ export class GeneralsView {
   }
 
   private emit(a: RosterAction) {
+    if (this.replacement && this.current) {
+      const generalId = a.type === 'learn-technique' ? a.generalId : a.type === 'transfer-armor' && !a.fromGeneralId ? a.toGeneralId : undefined;
+      if (!generalId || !('itemUid' in a)) return;
+      const placement = { itemUid: a.itemUid, generalId };
+      const { state, lord } = this.current;
+      if (placeOverflowEquipment(state, lord, placement)) {
+        this.replacement.equipped.push(placement);
+        this.render(state, lord);
+      }
+      return;
+    }
     this.onAction?.(a);
   }
 
@@ -298,7 +314,7 @@ export class GeneralsView {
     this.el.innerHTML = `
       <div class="drawer-head">
         <span class="ledger-seal" aria-hidden="true">${lord.id === 'dong' ? '群' : LORDS[lord.id].kingdom}</span><div class="roster-title"><small>將星錄 · ${LORDS[lord.id].name}</small><h2>武將名冊</h2></div>
-        <span class="muted ledger-meta">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${manage ? '' : this.mode.inspect ? '・查看名冊' : '・非你的回合，無法突破'}</span>
+        <span class="muted ledger-meta">隨行 ${party}/${PARTY_LIMIT}・共 ${gens.length} 名${this.replacement ? '・收納待領物品' : manage ? '' : this.mode.inspect ? '・查看名冊' : '・非你的回合，無法突破'}</span>
         <button class="btn close roster-close" aria-label="關閉武將名冊"></button>
       </div>
       <div class="drawer-body">
@@ -312,21 +328,43 @@ export class GeneralsView {
 
     (this.el.querySelector('.close') as HTMLButtonElement).onclick = () => this.close();
     const sort = this.el.querySelector<HTMLButtonElement>('.inventory-sort');
-    if (sort) { sort.disabled = !!this.replacement || !(manage || this.mode.free); sort.onclick = () => this.emit({ type: 'sort-bag' }); }
+    if (sort) {
+      if (this.replacement) sort.remove();
+      else { sort.disabled = !(manage || this.mode.free); sort.onclick = () => this.emit({ type: 'sort-bag' }); }
+    }
     this.el.querySelector('.sections')!.appendChild(this.list(state, lord, sortRosterGenerals(gens, state, this.sortId, this.reverse), manage));
     this.el.querySelector('.roster-entries')!.scrollTop = scrollTop;
     if (this.detailId && state.generals[this.detailId]?.owner === lord.id) this.openDetail(state, lord, state.generals[this.detailId], manage);
-    this.equipmentControls.update(state, lord, manage, this.mode.free);
+    this.equipmentControls.update(state, lord, manage || this.replacement?.tab === 'equip', this.mode.free, !!this.replacement);
     if (this.replacement) this.renderReplacement(lord);
   }
 
   private renderReplacement(lord: Lord) {
     const selection = this.replacement!;
+    const free = EQUIPMENT_CAPACITY - bagItems(lord).length;
+    const required = () => Math.max(0, selection.rewards.size - free);
     const panel = document.createElement('section'); panel.className = 'replacement-panel';
-    panel.innerHTML = `<h3>選擇保留的新物品</h3><p>點選新物品決定保留數量，再點選下方行囊中要替換的物品。其餘新物品將捨棄。</p><div class="replacement-rewards"></div><p class="replacement-progress"></p><button type="button" class="btn primary replacement-confirm" hidden>確認替換，其餘捨棄</button>`;
+    panel.innerHTML = `<div class="replacement-heading"><h3>待收納物品</h3><p>點選要留下的物品</p></div><div class="replacement-rewards"></div>`;
+    const actions = document.createElement('div'); actions.className = 'replacement-actions';
+    actions.innerHTML = `<div class="replacement-tabs"><button type="button" data-tab="equip" aria-pressed="${selection.tab === 'equip'}">裝備行囊物品</button><button type="button" data-tab="replace" aria-pressed="${selection.tab === 'replace'}">選擇替換物品</button></div><p class="replacement-instruction">${selection.tab === 'equip' ? '點選行囊物品，再點武將的空裝備格。' : '點選行囊內願意捨棄的物品。'}</p><div class="replacement-summary"><span class="replacement-progress" role="status"></span><button type="button" class="btn primary replacement-confirm">確認收納</button></div>`;
     const update = () => {
-      panel.querySelector('.replacement-progress')!.textContent = `保留 ${selection.rewards.size} 件 · 已選擇替換 ${selection.replaced.size} / ${selection.rewards.size} 件`;
-      panel.querySelector<HTMLButtonElement>('.replacement-confirm')!.hidden = !selection.rewards.size || selection.replaced.size !== selection.rewards.size;
+      while (selection.replaced.size > required()) selection.replaced.delete([...selection.replaced].at(-1)!);
+      actions.querySelector('.replacement-progress')!.textContent = `保留 ${selection.rewards.size} 件 · 行囊空格 ${free} · 替換 ${selection.replaced.size} / ${required()} 件`;
+      const confirm = actions.querySelector<HTMLButtonElement>('.replacement-confirm')!;
+      confirm.disabled = !selection.rewards.size || selection.replaced.size !== required();
+      confirm.textContent = selection.rewards.size < lord.pendingEquipment.length ? '確認收納，其餘捨棄' : '確認收納';
+      for (const button of this.el.querySelectorAll<HTMLButtonElement>('[data-replacement-uid]')) {
+        const selected = selection.replaced.has(button.dataset.replacementUid!);
+        button.classList.toggle('replacement-selected', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      }
+    };
+    for (const button of actions.querySelectorAll<HTMLButtonElement>('[data-tab]')) button.onclick = () => {
+      const tab = button.dataset.tab === 'equip' ? 'equip' : 'replace';
+      if (selection.tab === tab || !this.current) return;
+      this.equipmentControls.clear();
+      selection.tab = tab;
+      this.render(this.current.state, lord);
     };
     for (const item of lord.pendingEquipment) {
       const cell = document.createElement('div'); cell.className = 'replacement-reward';
@@ -345,28 +383,27 @@ export class GeneralsView {
       panel.querySelector('.replacement-rewards')!.append(cell);
     }
     this.el.querySelector('.roster-inventory')!.prepend(panel);
-    for (const cell of this.el.querySelectorAll<HTMLElement>('.inventory-cell')) {
+    this.el.querySelector('.roster-inventory')!.append(actions);
+    if (selection.tab === 'replace') for (const cell of this.el.querySelectorAll<HTMLElement>('.inventory-cell')) {
       cell.removeAttribute('aria-disabled'); cell.classList.remove('armor-unavailable');
       const button = cell.querySelector<HTMLButtonElement>('[data-equipment-item]');
       if (!button) continue;
       const uid = button.dataset.equipmentItem!;
+      button.dataset.replacementUid = uid;
       button.removeAttribute('data-equipment-kind'); button.removeAttribute('data-equipment-item');
       button.removeAttribute('aria-disabled'); button.classList.remove('armor-unavailable');
-      button.classList.toggle('replacement-selected', selection.replaced.has(uid));
-      button.setAttribute('aria-pressed', String(selection.replaced.has(uid)));
       button.onclick = e => {
         e.stopPropagation();
         if (selection.replaced.has(uid)) selection.replaced.delete(uid);
-        else if (selection.replaced.size < selection.rewards.size) selection.replaced.add(uid);
-        button.classList.toggle('replacement-selected', selection.replaced.has(uid));
-        button.setAttribute('aria-pressed', String(selection.replaced.has(uid))); update();
+        else if (selection.replaced.size < required()) selection.replaced.add(uid);
+        update();
       };
     }
-    panel.querySelector<HTMLButtonElement>('.replacement-confirm')!.onclick = () => {
-      if (!selection.rewards.size || selection.replaced.size !== selection.rewards.size) return;
+    actions.querySelector<HTMLButtonElement>('.replacement-confirm')!.onclick = () => {
+      if (!selection.rewards.size || selection.replaced.size !== required()) return;
       this.replacement = null;
       this.close();
-      selection.done({ rewards: [...selection.rewards], replaced: [...selection.replaced] });
+      selection.done({ rewards: [...selection.rewards], replaced: [...selection.replaced], equipped: selection.equipped });
     };
     update();
   }
@@ -556,7 +593,9 @@ export class GeneralsView {
     if (g.realm === 2 && !g.mortalTrial) btn('金丹路線', !manage || away, () => this.emit({ type: 'break', generalId: g.id }));
     if (bottleneck) {
       const can = canAttemptBreak(g, state.round);
-      btn(needsTribulation(g) ? '渡劫' : '突破境界', !manage || !can.ok, () => this.emit({ type: 'break', generalId: g.id }), 'danger');
+      const showRequirement = !can.ok && (g.realm === 6 || g.realm === 8);
+      btn(showRequirement ? '查看突破條件' : needsTribulation(g) ? '渡劫' : '突破境界',
+        !manage || (!can.ok && !showRequirement), () => this.emit({ type: 'break', generalId: g.id }), 'danger');
     }
     rowBtn('weapon', req.reason === '已達天階' ? '已達天階' : (g.weapon ? '武器升階' : '無本命武器'), !manage || away || !req.ok, () => this.emit({ type: 'upgrade', generalId: g.id }));
     const weaponButton = card.querySelector<HTMLButtonElement>('.eq-row[data-slot="weapon"] button.btn');

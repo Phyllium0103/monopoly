@@ -80,6 +80,7 @@ export class BreakthroughFlight {
     paper.alt = '';
     paper.src = new URL('./breakthrough-flight-panel.webp', import.meta.url).href;
     this.writing.className = 'flight-copy';
+    this.writing.inert = true;
     this.writing.append(heading);
     if (text) { text.className = 'flight-body'; this.writing.append(text); }
     button.className = 'flight-confirm';
@@ -94,6 +95,8 @@ export class BreakthroughFlight {
       images.push(...this.broken.map(image => image.decode()));
       const result = document.createElement('div');
       result.className = 'failure-result';
+      const target = BREAKTHROUGH_TITLES.findIndex(title => title === heading.textContent);
+      if (target === 4 || target === 8) heading.textContent = '突破失敗';
       if (heading.textContent !== '突破失敗') {
         const status = document.createElement('small');
         status.className = 'failure-status'; status.textContent = '突破失敗';
@@ -103,8 +106,8 @@ export class BreakthroughFlight {
       this.fractureWriting.removeAttribute('id');
       this.fractureWriting.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
       this.fractureWriting.querySelector('.failure-status')?.remove();
-      const target = BREAKTHROUGH_TITLES.findIndex(title => title === heading.textContent);
-      const inscription = SUCCESS_TEXT[target > 0 ? target : text?.textContent?.includes('25%') ? 2 : 1].replaceAll('xx金丹', '金丹').split('\n');
+      const inscription = SUCCESS_TEXT[target > 0 ? target : text?.textContent?.includes('25%') ? 2 : 1]
+        .replaceAll('xx金丹', '金丹').replace('{武將}', '修士').split('\n');
       this.fractureWriting.querySelector('.flight-heading')!.textContent = inscription[0].replace(/[「」。]/g, '');
       this.fractureWriting.querySelector('.flight-body')!.textContent = inscription.slice(1).join('\n');
       this.fractureWriting.classList.add('fracture-copy');
@@ -141,6 +144,7 @@ export class BreakthroughFlight {
     this.request = 0;
     this.paint(this.failure ? 5 : 4);
     this.card.dataset.animation = 'complete';
+    this.writing.inert = false;
     this.button.removeAttribute('aria-disabled');
     return true;
   }

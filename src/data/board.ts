@@ -202,7 +202,7 @@ function buildBoard() {
 
 export const LEGACY_BOARD = buildBoard();
 export const BOARD = buildSelectedBoard();
-export const MAP_RULES_VERSION = 'golden-core-risk-20261115';
+export const MAP_RULES_VERSION = 'equipment-overflow-placement-20261121';
 /** A P2P room must use the current map and both recruitment frontage triggers. */
 export function hasCurrentBoard(state: { rulesVersion?: string; tiles: Tile[] }): boolean {
   return state.rulesVersion === MAP_RULES_VERSION && state.tiles.length === BOARD.tiles.length

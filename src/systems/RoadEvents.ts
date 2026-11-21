@@ -3,7 +3,7 @@ import type { GameState, Lord } from '../game/types';
 import { freeGenerals, generalsOf, nextUid } from '../game/GameState';
 import { fmtStones } from '../game/Currency';
 import { ITEM_DEFS, PILL_IDS, itemName, makeEquipment, makeItem, makeTechnique, rollItemId } from '../data/items';
-import { addExp, craft, maxHp } from './GeneralSystem';
+import { addExp, craft, maxHp, maxStamina } from './GeneralSystem';
 import { TALENT_RESET_ITEM } from '../data/talents';
 
 export interface RoadOption {
@@ -159,7 +159,7 @@ const DEFS: Def[] = [
       story: `日頭偏西，${c.place}路邊有一間掛著酒旗的野店。掌櫃的熱情招呼，熱茶、胡餅管夠，還讓出後院讓將士們歇息。`,
       apply: () => {
         const party = freeGenerals(c.state, c.lord.id);
-        for (const g of party) g.stamina = Math.min(100, g.stamina + 25);
+        for (const g of party) g.stamina = Math.min(maxStamina(g), g.stamina + 25);
         return `隨行武將體力各回復 25（共 ${party.length} 人）。`;
       },
     }),

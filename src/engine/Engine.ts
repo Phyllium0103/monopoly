@@ -1,8 +1,8 @@
 import { enterRelic, advanceRelic, leaveRelic } from '../systems/RelicSystem';
-import { bagItems, bagHasRoom, sortBagItems, replaceEquipmentBatch, moveBagItem, receiveEquipment, resolveEquipmentReward, EQUIPMENT_CAPACITY } from '../systems/EquipmentInventory';
-import { generalHoverTable } from '../ui/GeneralInfo';
+import { bagItems, bagHasRoom, sortBagItems, moveBagItem, receiveEquipment, resolveEquipmentReward, type EquipmentOverflowSelection } from '../systems/EquipmentInventory';
+import { breakthroughPerson, breakthroughStats, generalHoverTable } from '../ui/GeneralInfo';
 import { GOLDEN_CORES, BREAKTHROUGH_TITLES, mortalTrialTurns, goldenCoreChance, type GoldenCore, breakthroughSuccess, breakthroughSuccessTitle } from '../data/breakthroughRules';
-import { completeBreak, ascensionCities, ESSENCE_ELEMENTS, ESSENCE_NAMES, reconcileProgression } from '../systems/GeneralSystem';
+import { completeBreak, ascensionCities, ESSENCE_ELEMENTS, ESSENCE_NAMES, reconcileProgression, settleEquipmentOverflow } from '../systems/GeneralSystem';
 import { collectElementalSpirits, reconcileElementalSpirits, spawnElementalSpirits } from '../systems/ElementalSpiritSystem';
 import { MATERIAL_GROUPS, MATERIAL_NAMES, WEAPON_CATALOG, WEAPON_GRADES, WEAPON_PENETRATION, type MaterialGroup } from '../data/weaponCatalog';
 import { materialIncome, synthesize, upgradeRequirement, upgradeWeapon } from '../systems/MaterialSystem';
@@ -49,6 +49,10 @@ type RollChoice = { type: 'roll' } | { type: 'teleport'; tile: number };
 export type RosterActionType = Exclude<RosterAction, { type: 'close' | 'transfer-armor' | 'learn-technique' | 'move-bag-item' | 'sort-bag' }>['type'];
 
 const CRAFTS: CraftStat[] = ['alchemy', 'forging', 'talisman', 'formation'];
+
+function breakthroughDestination(g: General, destination: string = REALMS[g.realm + 1], confirmation = false) {
+  return `<div class="jade-destination${confirmation ? ' jade-destination-question' : ''}"><small>${g.name}</small><strong>${destination}</strong></div>`;
+}
 
 export interface EnginePorts {
   view: EngineView;
@@ -105,14 +109,12 @@ export class Engine {
       if (this.human(lord)) {
         const dialog = new Ask(lord.id, this.ports.send);
         const choose = await dialog.confirm('行囊已滿',
-          `仙衣與功法共用 ${EQUIPMENT_CAPACITY} 格，尚有 ${lord.pendingEquipment.length} 件物品等待收納。\n在武將名冊選擇保留的新物品與要替換的行囊物品，未保留的新物品將捨棄。`,
+          `尚有${lord.pendingEquipment.length}件物品等待收納`,
           '選擇替換', '全部捨棄', '');
         if (!choose) lord.pendingEquipment = [];
         else {
-          const answer = await this.ports.send(lord.id, { kind: 'equipment-overflow' }) as { rewards?: unknown; replaced?: unknown } | null;
-          if (!answer || !Array.isArray(answer.rewards) || !Array.isArray(answer.replaced)
-            || !answer.rewards.every(x => typeof x === 'string') || !answer.replaced.every(x => typeof x === 'string')
-            || !replaceEquipmentBatch(lord, answer.rewards, answer.replaced)) continue;
+          const answer = await this.ports.send(lord.id, { kind: 'equipment-overflow' }) as EquipmentOverflowSelection | null;
+          if (!answer || !settleEquipmentOverflow(this.state, lord, answer)) continue;
         }
       } else {
         const least = [...items].sort((a, b) => a.price - b.price)[0];
@@ -222,16 +224,16 @@ export class Engine {
       clearThisTurn = this.human(lord) ? await this.dlg(lord).confirm('管寧：全隊清修？', '啟動當回合放棄全部主動行動，隨行隊伍（含主公）修為獲得 +100%，持續五個自身回合；使用後冷卻十個自身回合。', '開始清修', '正常行動') : Math.random() < 0.15;
       if (clearThisTurn) startSeclusion(lord, seclusion);
     }
-    const trialIds = generalsOf(this.state, lord.id).filter(g => !!g.mortalTrial).map(g => g.id);
+    const trials = generalsOf(this.state, lord.id).filter(g => !!g.mortalTrial).map(g => ({ id: g.id, before: breakthroughStats(g) }));
     const report = await startTurn(this.state, lord, (g) => this.protectDeath(g), async (owner, ex, team, endangered) => {
       if (!this.human(owner)) return true;
       return this.dlg(owner).confirm('破界遁空符：全隊撤離？',
         `${ex.realmName}中，${endangered.map(g => g.name).join('、')}觸發隕落風險。\n消耗一張符可讓本次 ${team.length} 名武將全部平安撤離；境界與修為不變，整趟無獎勵。若不使用，按原規則結算死亡與獎勵（不死圖騰仍可另行選擇）。`,
-        '消耗一張・全隊撤離', '不使用・繼續結算', '🌀');
+        '消耗一張・全隊撤離', '不使用・繼續結算', '', true);
     });
-    if (this.human(lord)) for (const id of trialIds) {
+    if (this.human(lord)) for (const { id, before } of trials) {
       const g = this.state.generals[id];
-      if (g.realm === 5 && !g.mortalTrial) await this.dlg(lord).message(breakthroughSuccessTitle(g), breakthroughSuccess(g));
+      if (g.realm === 5 && !g.mortalTrial) await this.dlg(lord).message(breakthroughSuccessTitle(g), breakthroughSuccess(g, breakthroughPerson(g, before)));
     }
     this.view.log(`<b style="color:${LORDS[lord.id].css}">【${name}】</b>的回合`, 'turn');
     for (const l of report.lines) this.view.log(`${name}：${l.text}`, this.human(lord) ? l.kind : 'ai');
@@ -350,7 +352,7 @@ export class Engine {
     const names = ids.map((id) => this.state.generals[id].name).join('、');
     const go = await this.dlg(lord).confirm(
       '修為圓滿',
-      `${names}\n已至境界瓶頸，可以嘗試突破。\n前往武將名冊，查看突破條件與風險。`,
+      `<strong class="jade-ready-names">${names}</strong>`,
       '前往突破',
       '稍後再說',
       '',
@@ -578,7 +580,7 @@ export class Engine {
     const owner = this.state.lords[city.owner];
     const fee = visitingToll(this.state, city, lord);
     const truce = lord.items.find(i => i.defId === 'truce');
-    if (!lord.tollFree && truce && !lord.itemsLocked && (!this.human(lord) || await this.dlg(lord).confirm('免戰牌：免繳過路費？', '踏入' + city.name + '，過路費 ' + fmtStones(fee) + '。', '使用免戰牌', '繼續選擇'))) {
+    if (!lord.tollFree && truce && !lord.itemsLocked && (!this.human(lord) || await this.dlg(lord).confirm('免戰牌：免繳過路費？', '踏入' + city.name + '，過路費 ' + fmtStones(fee) + '。', '使用免戰牌', '繼續選擇', '', true))) {
       consumeItem(lord, truce); this.view.log(name + '使用免戰牌，免繳' + city.name + '過路費。', 'good'); return;
     }
     if (lord.tollFree) {
@@ -746,6 +748,7 @@ export class Engine {
         1,
         Math.min(GARRISON_LIMIT, free.length),
         '佔領',
+        true,
       );
       if (!gids) return;
       const soldiers = await this.dlg(lord).slider(
@@ -758,6 +761,7 @@ export class Engine {
           initial: Math.min(lord.soldiers, Math.max(MIN_GARRISON, Math.round(city.prosperity * 30))),
           unit: ' 名',
           confirm: '派駐',
+          buttonsOnly: true,
           preview: (v) => `守軍戰力約 ${v * GARRISON_STRENGTH}（未計駐將）・留在身邊 ${lord.soldiers - v} 名`,
         },
         '🏯',
@@ -1056,7 +1060,7 @@ export class Engine {
     if (this.human(attacker)) {
       const cand = deployable(this.state, attacker.id);
       if (cand.length) {
-        const picked = await this.dlg(attacker).pickMany(`攻下${city.name}！派誰駐守？`, `最多 ${GARRISON_LIMIT} 人，駐將越多守城越強。（主公本人不能駐守）`, cand.map((x) => ({ label: x.name, icon: portraitUrl(x), sub: generalBlock(x), value: x.id })), 1, Math.min(GARRISON_LIMIT, cand.length), '駐守');
+        const picked = await this.dlg(attacker).pickMany(`攻下${city.name}！派誰駐守？`, `最多 ${GARRISON_LIMIT} 人，駐將越多守城越強。（主公本人不能駐守）`, cand.map((x) => ({ label: x.name, icon: portraitUrl(x), sub: generalBlock(x), value: x.id })), 1, Math.min(GARRISON_LIMIT, cand.length), '駐守', true);
         if (picked) gids = picked;
       } else gids = [];
       if (attacker.soldiers > 0) {
@@ -1070,6 +1074,7 @@ export class Engine {
             initial: Math.min(attacker.soldiers, Math.max(MIN_GARRISON, Math.round(attacker.soldiers * 0.4))),
             unit: ' 名',
             confirm: '派駐',
+            buttonsOnly: true,
             preview: (v) => `守軍戰力約 ${v * GARRISON_STRENGTH}（未計駐將）・留在身邊 ${attacker.soldiers - v} 名`,
           },
           '🏯',
@@ -1553,7 +1558,7 @@ export class Engine {
     if (!blocked && victim && victim.id !== lord.id && !victim.itemsLocked) {
       const card = victim.items.find(i => i.defId === 'substitute');
       if (card) {
-        if (!this.human(victim)||await this.dlg(victim).confirm('替身符：抵消敵方物品？', LORDS[lord.id].name + '對你使用' + nameOf(item) + '。', '使用替身符', '承受效果')) {
+        if (!this.human(victim)||await this.dlg(victim).confirm('替身符：抵消敵方物品？', LORDS[lord.id].name + '對你使用' + nameOf(item) + '。', '使用替身符', '承受效果', '', true)) {
           consumeItem(victim,card);blocked=true;
         }
       }
@@ -1571,7 +1576,7 @@ export class Engine {
     if (!g.owner) return false;
     const lord = this.state.lords[g.owner], card = lord.items.find(i => i.defId === 'totem');
     if (!lord.alive || lord.relicJourney || lord.itemsLocked || !card) return false;
-    if (this.human(lord) && !await this.dlg(lord).confirm('不死圖騰：免疫死亡？', g.name + '即將死亡。使用後回復滿血，保留境界、修為、所屬與功法。', '使用圖騰', '不使用')) return false;
+    if (this.human(lord) && !await this.dlg(lord).confirm('不死圖騰：免疫死亡？', g.name + '即將死亡。使用後回復滿血，保留境界、修為、所屬與功法。', '使用圖騰', '不使用', '', true)) return false;
     consumeItem(lord, card); g.hp = maxHp(g);
     this.view.log(g.name + '的不死圖騰生效，滿血復生。', 'good'); return true;
   }
@@ -1947,11 +1952,14 @@ export class Engine {
         if (away || !r.ok || r.stage === undefined || !r.group || !r.cost) return;
         const name = WEAPON_CATALOG[g.id].names[r.stage + 1];
         const ok = await ask.confirm(`${g.name}・本命武器突破`,
-          `<div class="weapon-upgrade-summary"><small>淬鍊本命 · 更上一階</small><h3>${g.weapon!.name} → ${name}</h3><p>升至${WEAPON_GRADES[r.stage + 1]}，無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage] * 100)}% → ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%</p><p>所需材料：${materialLabel(r.group, r.stage)} × ${r.cost}</p></div>`,
+          `<div class="jade-weapon-names"><strong>${name}</strong><div class="jade-weapon-transition"><small>${g.weapon!.name.split('・').at(-1)}・${WEAPON_GRADES[r.stage]}</small><span aria-hidden="true">→</span><b data-grade="${r.stage + 1}">${WEAPON_GRADES[r.stage + 1]}</b></div></div>` +
+          `<dl class="jade-stats"><div><dt>無視防禦</dt><dd>${Math.round(WEAPON_PENETRATION[r.stage] * 100)}% → <b>${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%</b></dd></div><div><dt>消耗材料</dt><dd>${materialLabel(r.group, r.stage)} <b>×${r.cost}</b></dd></div></dl>`,
           '消耗材料・升階', '返回名冊', '');
-        if (ok && upgradeRequirement(lord, g).ok) {
+        const current = upgradeRequirement(lord, g);
+        if (ok && current.ok && current.stage === r.stage && current.group === r.group) {
           upgradeWeapon(lord, g);
-          await ask.message('本命武器升階成功', `<div class="weapon-upgrade-summary"><small>百鍊成器 · 鋒芒新生</small><h3>${g.weapon!.name}</h3><p>${g.name}的本命武器已達${WEAPON_GRADES[r.stage + 1]}。</p><p>無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%</p></div>`, '');
+          await ask.message('本命武器升階成功', `<div class="weapon-upgrade-summary"><small>百鍊成器 · 鋒芒新生</small><h3>${g.weapon!.name}</h3><p>${g.name}的本命武器已達${WEAPON_GRADES[r.stage + 1]}。</p><p>無視防禦 ${Math.round(WEAPON_PENETRATION[r.stage + 1] * 100)}%</p></div>`, '', '確定',
+            { generalId: g.id, generalName: g.name, weaponName: g.weapon!.name.split('・').at(-1)!, group: r.group, stage: r.stage });
         }
         break;
       }
@@ -1971,25 +1979,43 @@ export class Engine {
   }
 
   /** 從武將名冊選擇金丹路線，展示該武將的實際成功率與失敗代價。 */
-  private async chooseCore(lord: Lord, g: General) {
-    const core = await this.dlg(lord).choose(BREAKTHROUGH_TITLES[3], `<div class="core-person">選擇<strong>${g.name}</strong>金丹凝煉路線<div class="core-person-tip">${generalHoverTable(g)}</div></div><p>失敗會損失25%修為，並道基受損，扣除血量50%</p>`, Object.entries(GOLDEN_CORES)
+  private async chooseCore(lord: Lord, g: General, confirmPromotion = false) {
+    const ask = this.dlg(lord);
+    const risk = '<p class="jade-risk">失敗會損失25%修為，並道基受損，扣除血量50%</p>';
+    const options = Object.entries(GOLDEN_CORES)
       .filter(([id]) => id !== 'heavenly' || g.aptitude === 'heaven')
-      .map(([id, c]) => ({ label: `<span class="core-option-name${g.goldenCore === id ? ' core-current' : ''}" title="所需修為：${c.exp * (g.isLord ? 2 : 1)}&#10;${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}&#10;成功率 ${Math.round(goldenCoreChance(id as GoldenCore,g.aptitude)*100)}%">${c.name}</span>`, value: id as GoldenCore, sub: `所需修為：${c.exp * (g.isLord ? 2 : 1)}｜${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}｜成功率 ${Math.round(goldenCoreChance(id as GoldenCore,g.aptitude)*100)}%` })));
-    if (core) g.goldenCore = core;
-    this.view.refresh();
-    return core !== null;
+      .map(([id, c]) => ({ label: `<span class="core-option-name${g.goldenCore === id ? ' core-current' : ''}">${c.name}</span>`, value: id as GoldenCore, sub: `<span class="jade-core-facts"><span>所需修為 ${c.exp * (g.isLord ? 2 : 1)}</span><span>${c.stat === 'all' ? '五種屬性' : STAT_NAMES[c.stat]} +${c.gain}</span><b>成功率 ${Math.round(goldenCoreChance(id as GoldenCore,g.aptitude)*100)}%</b></span>` }));
+    let core = confirmPromotion ? g.goldenCore : undefined;
+    for (;;) {
+      core ??= (await ask.choose(BREAKTHROUGH_TITLES[3], `<div class="core-person jade-core-heading">為<strong>${g.name}</strong>選擇金丹<div class="core-person-tip">${generalHoverTable(g)}</div></div>` + risk, options)) ?? undefined;
+      if (!core) return false;
+      if (confirmPromotion && !await ask.confirm(BREAKTHROUGH_TITLES[3],
+        breakthroughDestination(g, `是否晉升${GOLDEN_CORES[core].name}？`, true) + `<dl class="jade-stats jade-chance"><div><dt>成功率</dt><dd><b>${Math.round(goldenCoreChance(core,g.aptitude)*100)}%</b></dd></div></dl>` + risk,
+        '確認', '再選擇', '')) {
+        core = undefined;
+        continue;
+      }
+      g.goldenCore = core;
+      this.view.refresh();
+      return true;
+    }
   }
 
   private async breakthroughFlow(lord: Lord, g: General, direct = false) {
     const ask = this.dlg(lord);
-    if (g.realm === 2 && (!direct || !g.goldenCore) && !await this.chooseCore(lord, g)) return;
+    if (g.realm === 2 && !await this.chooseCore(lord, g, true)) return;
     const can = canAttemptBreak(g, this.state.round);
-    if (!can.ok) { await ask.choose(BREAKTHROUGH_TITLES[g.realm + 1], can.reason, [{label:'突破',value:true,disabled:true,reason:can.reason}]); return; }
+    if (!can.ok) {
+      if (g.realm === 6 || g.realm === 8) {
+        await ask.message(BREAKTHROUGH_TITLES[g.realm + 1], breakthroughDestination(g) + `<p class="jade-hint">${can.reason}。</p>`);
+      } else await ask.choose(BREAKTHROUGH_TITLES[g.realm + 1], can.reason, [{label:'突破',value:true,disabled:true,reason:can.reason}]);
+      return;
+    }
     const target = g.realm + 1;
     const title = BREAKTHROUGH_TITLES[target];
     let boundCity: string | undefined;
     if (g.realm === 8) {
-      const city = await ask.choose(title, '一榮俱榮，一損俱損\n城池過路費x2\n城池被攻佔則境界跌落\n一座城池只能綁定一位大乘境強者',
+      const city = await ask.choose(title, `${breakthroughDestination(g)}<p class="jade-hint jade-city-hint">與一城人民共興衰<br>過路費x2，失守將跌落境界</p>`,
         ascensionCities(this.state, g).map(c => ({ label: c.name, sub: `繁榮度 ${c.prosperity}`, value: c.id })));
       if (!city) return;
       boundCity = city;
@@ -1997,25 +2023,35 @@ export class Engine {
     let text = '';
     if (g.realm < 2) text = `成功率 ${Math.round(breakChance(g) * 100)}%${g.realm === 1 ? '\n失敗會損失25%修為，並氣血翻湧，扣除血量25%' : '\n失敗會損失50%修為'}`;
     if (g.realm === 4) { const [min,max] = mortalTrialTurns(g.aptitude); text = `自封修為入世化凡，感悟天地法則，持續${min}～${max}回合`; }
-    if (g.realm === 5) text = '消耗五行本源進行突破\n' + ESSENCE_ELEMENTS.map((e,i) => `${ESSENCE_NAMES[i]}x${lord.essences?.[e] ?? 0}`).join('、');
-    if (g.realm === 6) text = `融合天階神物進入自身方可突破\n已裝備：${g.weapon?.name ?? '無武器'}/${g.armor?.name ?? '無仙衣'}`;
+    if (g.realm === 5) text = '<p class="jade-essence-title">消耗五行本源突破</p><ul class="jade-essences">' +
+      ESSENCE_ELEMENTS.map((e,i) => `<li>${ESSENCE_NAMES[i].slice(0,2)} ×1 <span>(${lord.essences?.[e] ?? 0})</span></li>`).join('') + '</ul>';
+    if (g.realm === 6) text = `<p class="jade-hint">需裝備天階武器或仙衣，融合神物後方可突破。</p><p class="jade-hint">已裝備　${g.weapon?.name ?? '無武器'}／${g.armor?.name ?? '無仙衣'}</p>`;
     if (g.realm === 9) text = '暫定，直接升級';
     if (!needsTribulation(g)) {
-      if (!direct && g.realm !== 2 && g.realm !== 8 && !await ask.confirm(title, text, '突破', '再等等', '')) return;
+      if (!direct && g.realm !== 2 && g.realm !== 8) {
+        const details = g.realm < 2
+          ? `<dl class="jade-stats jade-chance"><div><dt>成功率</dt><dd><b>${Math.round(breakChance(g) * 100)}%</b></dd></div></dl><p class="jade-risk">${text.split('\n')[1]}</p>`
+          : g.realm === 5 || g.realm === 6 ? text : text ? `<p class="jade-treatment">${text}</p>` : '';
+        if (!await ask.confirm(title, breakthroughDestination(g) + details, '突破', '再等等', '')) return;
+      }
+      const before = breakthroughStats(g);
       const success = completeBreak(g, this.state.round, boundCity);
       this.view.refresh();
       if (!success) { await ask.message(g.realm === 2 ? title : '突破失敗', g.realm === 2 ? '損失25%修為與最大血量的50%。' : g.realm === 1 ? '損失25%修為與最大血量的25%。' : '損失50%修為。'); return; }
-      if (g.mortalTrial) { await ask.message(title, text); return; }
+      if (g.mortalTrial) { await ask.message(title, `<strong class="jade-ready-names">${g.name}</strong><p class="jade-hint">${text}</p>`); return; }
       this.view.beam(lord.id);
-      await ask.message(breakthroughSuccessTitle(g), breakthroughSuccess(g));
+      await ask.message(breakthroughSuccessTitle(g), breakthroughSuccess(g, breakthroughPerson(g, before)));
       if (g.realm === 2) await this.chooseCore(lord, g);
       this.view.refresh();
       if (g.isLord) await this.checkEnd();
       return;
     }
     const rg = boltRange(g);
-    if (!direct && !await ask.confirm(title, `${g.realm === 3 ? '抵抗四九天雷' : '祭出底蘊，抵抗九九天雷'}\n每道雷劫${rg.min}～${rg.max}(平均${rg.avg})\n全部${rg.totalMin}～${rg.totalMax}(平均${rg.totalAvg})\n目前血量 ${g.hp}/${maxHp(g)}\n血量歸零則身死道消`, '渡劫', '再準備', '')) return;
+    if (!direct && !await ask.confirm(title, breakthroughDestination(g) +
+      `<dl class="jade-stats jade-thunder"><div><dt>${g.realm === 3 ? '每道四九天雷' : '每道九九天雷'}</dt><dd>${rg.min}～${rg.max}<small>平均 ${rg.avg}</small></dd></div><div><dt>雷劫總傷害</dt><dd>${rg.totalMin}～${rg.totalMax}<small>平均 ${rg.totalAvg}</small></dd></div><div><dt>目前血量</dt><dd><b>${g.hp} / ${maxHp(g)}</b></dd></div></dl>` +
+      '<p class="jade-risk">血量歸零則身死道消。</p>', '渡劫', '再準備', '')) return;
     const cityId = g.cityId, hp = g.hp, maximum = maxHp(g);
+    const before = breakthroughStats(g);
     const result = await tribulation(g, () => this.protectDeath(g));
     if (result.fate === 'death' && cityId) {
       this.state.cities[cityId].garrisonGenerals = this.state.cities[cityId].garrisonGenerals.filter(id => id !== g.id);
@@ -2023,7 +2059,7 @@ export class Engine {
     }
     reconcileProgression(this.state);
     await this.view.tribulation(g.id, lord.id, result, hp, maximum);
-    await ask.message(result.success ? breakthroughSuccessTitle(g) : title, result.success ? breakthroughSuccess(g) : result.fate === 'saved' ? '保命效果生效，境界保留。' : '血量歸零，身死道消。');
+    await ask.message(result.success ? breakthroughSuccessTitle(g) : title, result.success ? breakthroughSuccess(g, breakthroughPerson(g, before)) : result.fate === 'saved' ? '保命效果生效，境界保留。' : '血量歸零，身死道消。');
     this.view.syncCities(); this.view.refresh();
     if (result.fate === 'death' && g.isLord) await this.onBankrupt(lord, '渡劫失敗，主公陣亡');
   }

@@ -43,6 +43,35 @@
 .general-card-portrait { width:78px;height:94px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 4px 4px #644b2f30); }
 .general-card-identity>div { min-width:0; }.general-card-identity small { display:block;font:12px 'Folio WenKai',serif;color:#91734b;letter-spacing:.2em; }
 .general-card-identity strong { display:block;color:#3b2d21;font:32px/1.35 'Folio Title','Folio WenKai',serif;margin:2px 0 7px; }
+.dialog-person-tooltip.breakthrough-person-tip {
+  max-height:calc(100dvh - 16px);
+  overflow:auto;
+  pointer-events:auto;
+  overscroll-behavior:contain;
+}
+.breakthrough-tip-close { display:none; }
+@media (hover:none), (max-width:540px) {
+  .breakthrough-tip-close {
+    display:block;
+    position:absolute;
+    top:23px;
+    right:24px;
+    padding:3px 8px;
+    border:1px solid #b7a277;
+    border-radius:3px;
+    background:#f3e7ca;
+    color:#524331;
+    font:inherit;
+    cursor:pointer;
+  }
+}
+.gh .gh-inline-change { display:flex;align-items:baseline;flex-wrap:wrap;gap:0 4px;font-variant-numeric:tabular-nums; }
+.gh .gh-inline-change strong { color:#275845; }
+.gh .gh-inline-change small,.gh .gh-realm-before { color:#69543d;font-size:11px; }
+.gh .gh-inline-change small { margin:0; }
+.gh .gh-bar-hp > span:has(.gh-hp-previous) { font-size:clamp(10px,3vw,12px); }
+.gh .gh-hp-previous { margin:0;color:inherit;font-size:inherit; }
+.gh .gh-realm-before { align-self:center; }
 .general-card-tags { display:flex;flex-wrap:wrap;gap:7px; }.general-card-tags .gb-tag { margin:0;font:12px/1.5 'Folio WenKai',serif; }
 .gh .gh-passive { padding-top:12px!important;line-height:1.65;border-bottom:0!important; }.gh .gh-passive b { display:block;color:#8b4d34;margin-bottom:3px; }
 .gh .gh-bar { border:0;border-radius:2px;height:20px;background:#c6b38a66; }.gh .gh-bar-exp i { background:#47716b; }.gh .gh-bar span { line-height:20px; }
